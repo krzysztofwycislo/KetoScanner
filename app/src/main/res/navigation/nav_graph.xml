@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_searchResultFragment"
+            app:destination="@id/searchResultFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_preferencesFragment"
+            app:destination="@id/preferencesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_ketoPreferencesFragment"
+            app:destination="@id/ketoPreferencesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchResultFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.SearchResultFragment"
+        android:label="SearchResultFragment" >
+        <action
+            android:id="@+id/action_searchResultFragment_to_productDetailsFragment"
+            app:destination="@id/productDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutApplicationFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.AboutApplicationFragment"
+        android:label="AboutApplicationFragment" />
+    <fragment
+        android:id="@+id/ketoPreferencesFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.KetoPreferencesFragment"
+        android:label="KetoPreferencesFragment" />
+    <fragment
+        android:id="@+id/productDetailsFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.ProductDetailsFragment"
+        android:label="ProductDetailsFragment" />
+    <fragment
+        android:id="@+id/preferencesFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
+        android:label="PreferencesFragment" >
+        <action
+            android:id="@+id/action_preferencesFragment_to_aboutApplicationFragment"
+            app:destination="@id/aboutApplicationFragment" />
+    </fragment>
+</navigation>
