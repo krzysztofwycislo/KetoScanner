@@ -2,6 +2,7 @@ package pl.handsome.club.ketoscanner
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -19,6 +20,7 @@ import pl.handsome.club.ketoscanner.util.observeOnce
 import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
 
 
+@ExperimentalCoroutinesApi
 class SearchProductViewModelTest {
 
     @get:Rule
