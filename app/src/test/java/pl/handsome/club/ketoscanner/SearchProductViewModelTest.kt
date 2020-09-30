@@ -19,7 +19,7 @@ import pl.handsome.club.ketoscanner.util.observeOnce
 import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
 
 
-class SearchProductVieModelTest {
+class SearchProductViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
