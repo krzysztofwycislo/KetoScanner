@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -15,6 +14,8 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import pl.handsome.club.ketoscanner.repository.ProductsRepository
+import pl.handsome.club.ketoscanner.data.basicProductExample
+import pl.handsome.club.ketoscanner.util.observeOnce
 import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
 
 
@@ -24,7 +25,7 @@ class SearchProductVieModelTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @Mock
-    private lateinit var productsRepository : ProductsRepository
+    private lateinit var productsRepository: ProductsRepository
 
     private lateinit var searchProductViewModel: SearchProductViewModel
 
@@ -42,36 +43,29 @@ class SearchProductVieModelTest {
     }
 
     @Test
-    fun searchProductByName() = runBlocking {
-        // given existing product
-        val product = basicProductExample()
-        `when`(productsRepository.searchProductByName(product.name))
-            .thenReturn(basicProductExample())
+    fun `when searching for existing product by name then product should be available`() =
+        runBlocking {
+            val product = basicProductExample()
+            `when`(productsRepository.searchProductByName(product.name)).thenReturn(product)
 
-        // when we want to search our product by name
-        searchProductViewModel.searchByName(product.name)
+            searchProductViewModel.searchByName(product.name)
 
-        // then searched product should appear TODO fixit
-        searchProductViewModel.getSearchedProduct().observeForever {
-            assertEquals(product, it)
+            searchProductViewModel.getSearchedProduct().observeOnce {
+                assertEquals(product, it)
+            }
         }
-    }
 
     @Test
-    fun searchProductByBarcode() = runBlocking {
-        // given existing product
-        val product = basicProductExample()
-        `when`(productsRepository.searchProductByBarcode(product.barcode))
-            .thenReturn(basicProductExample())
+    fun `when searching for existing product by barcode then product should be available`() =
+        runBlocking {
+            val product = basicProductExample()
+            `when`(productsRepository.searchProductByBarcode(product.barcode)).thenReturn(product)
 
-        // when we want to search our product by barcode
-        searchProductViewModel.searchProductByBarcode(product.barcode)
+            searchProductViewModel.searchProductByBarcode(product.barcode)
 
-        // then searched product should appear TODO fixit
-        searchProductViewModel.getSearchedProduct().observeForever {
-            assertEquals(product, it)
-            assertEquals(product, it)
+            searchProductViewModel.getSearchedProduct().observeOnce {
+                assertEquals(product, it)
+            }
         }
-    }
 
 }
