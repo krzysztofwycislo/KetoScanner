@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">KetoScanner</string>
+    <string name="search">Search</string>
+    <string name="scan">Scan</string>
 </resources>
