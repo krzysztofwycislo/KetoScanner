@@ -39,20 +39,6 @@ class SearchProductViewModelTest {
     }
 
     @Test
-    fun `when searching for existing product by name then product should be available`() =
-        coroutinesTestRule.runBlockingTest {
-            val product = basicProductExample()
-            `when`(productsRepository.searchProductByName(product.name)).thenReturn(product)
-
-            searchProductViewModel.searchByName(product.name)
-
-            verify(productsRepository).searchProductByName(product.name)
-            searchProductViewModel.getSearchedProduct().observeOnce {
-                assertEquals(product, it)
-            }
-        }
-
-    @Test
     fun `when searching for existing product by barcode then product should be available`() =
         coroutinesTestRule.runBlockingTest {
             val product = basicProductExample()
