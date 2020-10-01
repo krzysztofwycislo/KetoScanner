@@ -8,21 +8,24 @@
         android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
         android:label="HomeFragment" >
         <action
-            android:id="@+id/action_homeFragment_to_searchResultFragment"
+            android:id="@+id/to_searchResultFragment"
             app:destination="@id/searchResultFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_preferencesFragment"
+            android:id="@+id/to_preferencesFragment"
             app:destination="@id/preferencesFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_ketoPreferencesFragment"
+            android:id="@+id/to_ketoPreferencesFragment"
             app:destination="@id/ketoPreferencesFragment" />
+        <action
+            android:id="@+id/to_barcodeScannerFragment"
+            app:destination="@id/barcodeScannerFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchResultFragment"
         android:name="pl.handsome.club.ketoscanner.ui.SearchResultFragment"
         android:label="SearchResultFragment" >
         <action
-            android:id="@+id/action_searchResultFragment_to_productDetailsFragment"
+            android:id="@+id/to_productDetailsFragment"
             app:destination="@id/productDetailsFragment" />
     </fragment>
     <fragment
@@ -42,7 +45,15 @@
         android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
         android:label="PreferencesFragment" >
         <action
-            android:id="@+id/action_preferencesFragment_to_aboutApplicationFragment"
+            android:id="@+id/to_aboutApplicationFragment"
             app:destination="@id/aboutApplicationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/barcodeScannerFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.BarcodeScannerFragment"
+        android:label="BarcodeScannerFragment" >
+        <action
+            android:id="@+id/to_searchResultFragment"
+            app:destination="@id/searchResultFragment" />
     </fragment>
 </navigation>

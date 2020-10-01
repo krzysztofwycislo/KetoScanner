@@ -5,6 +5,7 @@ buildscript {
         kotlin_version = "1.4.10"
         nav_version = "2.3.0"
         junit_version = "4.13"
+        nav_version = "2.3.0"
     }
 
     repositories {
@@ -15,6 +16,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:4.0.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 
 }
