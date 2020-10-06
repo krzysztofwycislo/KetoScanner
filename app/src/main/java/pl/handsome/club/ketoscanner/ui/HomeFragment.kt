@@ -8,10 +8,12 @@ import kotlinx.android.synthetic.main.home_fragment.*
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
 
-    private val searchProductViewModel: SearchProductViewModel by viewModels()
+    private val searchProductViewModel: SearchProductViewModel by viewModels { ViewModelFactory }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
