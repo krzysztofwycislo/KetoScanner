@@ -1,6 +1,6 @@
 package pl.handsome.club.ketoscanner.repository
 
-import pl.handsome.club.ketoscanner.domain.Product
+import pl.handsome.club.domain.data.Product
 
 
 interface ProductsRepository {
