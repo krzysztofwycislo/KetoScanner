@@ -5,8 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.handsome.club.ketoscanner.domain.DietAnalysisEngine
-import pl.handsome.club.ketoscanner.domain.Product
+import pl.handsome.club.domain.data.Product
 import pl.handsome.club.ketoscanner.repository.ProductsRepository
 
 

@@ -1,6 +1,6 @@
 package pl.handsome.club.ketoscanner.repository.api
 
-import pl.handsome.club.ketoscanner.domain.Product
+import pl.handsome.club.domain.data.Product
 import pl.handsome.club.ketoscanner.repository.ProductsRepository
 
 class OpenFoodFactsProductsRepository : ProductsRepository {

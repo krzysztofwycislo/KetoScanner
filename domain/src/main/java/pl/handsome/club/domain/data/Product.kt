@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.domain
+package pl.handsome.club.domain.data
 
 
 data class Product (
