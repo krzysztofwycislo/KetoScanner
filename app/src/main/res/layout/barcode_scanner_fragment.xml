@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-    <TextureView
-        android:id="@+id/cameraPreview"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreviewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
