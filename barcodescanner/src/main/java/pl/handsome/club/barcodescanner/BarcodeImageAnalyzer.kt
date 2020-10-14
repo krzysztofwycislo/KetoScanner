@@ -47,7 +47,6 @@ class BarcodeImageAnalyzer(
             ?.let { onBarcodeFound(it) }
     }
 
-
     companion object {
         const val TAG = "BarcodeImageAnalyzer"
     }

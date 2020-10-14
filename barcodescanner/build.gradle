@@ -27,13 +27,16 @@ android {
 }
 
 dependencies {
-    implementation project(':commons')
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // barcode scanner
+    // barcode scanning
     implementation "com.google.mlkit:barcode-scanning:$mlkit_barcode_scanning"
+
+    // CameraX
+    implementation "androidx.camera:camera-core:$androidx_camerax_version"
     implementation "androidx.camera:camera-camera2:$androidx_camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$androidx_camerax_version"
+    api "androidx.camera:camera-view:$androidx_camera_view_version"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.mockito:mockito-core:$mockito_core_version"
