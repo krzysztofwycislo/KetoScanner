@@ -1,17 +1,19 @@
 package pl.handsome.club.barcodescanner
 
 import android.Manifest
-import android.content.ContentValues
+import android.util.DisplayMetrics
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 class BarcodeScanner(
     private val fragment: Fragment,
@@ -19,41 +21,84 @@ class BarcodeScanner(
     onScanSuccess: (String) -> Unit
 ) {
 
+    private lateinit var camera: Camera
+
+    private lateinit var analysisExecutor: ExecutorService
     private val barcodeImageAnalyzer = BarcodeImageAnalyzer(onScanSuccess)
+
 
     @RequiresPermission(Manifest.permission.CAMERA)
     fun setupScanner() {
         val context = fragment.requireContext()
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
+        analysisExecutor = Executors.newSingleThreadExecutor()
+
         cameraProviderFuture.addListener(
-            Runnable { cameraProviderFuture.get().apply(::setupCameraScanner) },
+            Runnable {
+                cameraProviderFuture.get()
+                    .apply { unbindAll() }
+                    .apply(::bindCamera)
+            },
             ContextCompat.getMainExecutor(context)
         )
     }
 
-    private fun setupCameraScanner(cameraProvider: ProcessCameraProvider) {
-        val cameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
+    private fun bindCamera(cameraProvider: ProcessCameraProvider) {
+        val metrics = DisplayMetrics().also { cameraPreviewView.display.getRealMetrics(it) }
+        Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
 
-        val preview = Preview.Builder().build()
-        preview.setSurfaceProvider(cameraPreviewView.surfaceProvider)
+        val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
+        Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
 
-        val imageAnalyzer = createBarcodeImageAnalyzer()
+
+        val rotation = cameraPreviewView.display.rotation
+
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val preview = createPreview(rotation, screenAspectRatio)
+        val imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
 
         try {
-            cameraProvider.bindToLifecycle(fragment, cameraSelector, preview, imageAnalyzer)
-        } catch (exc: Exception) {
-            Log.e(ContentValues.TAG, "Use case binding failed", exc)
+            camera =
+                cameraProvider.bindToLifecycle(fragment, cameraSelector, preview, imageAnalyzer)
+        } catch (e: Exception) {
+            Log.e(TAG, "Use case binding failed", e)
         }
     }
 
-    private fun createBarcodeImageAnalyzer(): ImageAnalysis {
-        val imageAnalyzer = ImageAnalysis.Builder().build()
-        imageAnalyzer.setAnalyzer(Executors.newSingleThreadExecutor(), barcodeImageAnalyzer)
+    private fun aspectRatio(width: Int, height: Int): Int {
+        val previewRatio = max(width, height).toDouble() / min(width, height)
+        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
+            return AspectRatio.RATIO_4_3
+        }
+        return AspectRatio.RATIO_16_9
+    }
 
-        return imageAnalyzer
+    private fun createPreview(rotation: Int, screenAspectRatio: Int): Preview {
+        return Preview.Builder()
+            .setTargetAspectRatio(screenAspectRatio)
+            .setTargetRotation(rotation)
+            .build()
+            .apply { setSurfaceProvider(cameraPreviewView.surfaceProvider) }
+    }
+
+    private fun createBarcodeImageAnalyzer(rotation: Int, screenAspectRatio: Int): ImageAnalysis {
+        return ImageAnalysis.Builder()
+            .setTargetAspectRatio(screenAspectRatio)
+            .setTargetRotation(rotation)
+            .build()
+            .apply { setAnalyzer(analysisExecutor, barcodeImageAnalyzer) }
+    }
+
+    fun close() {
+        analysisExecutor.shutdown()
+    }
+
+    companion object {
+        private const val TAG = "BarcodeScanner"
+
+        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+        private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
 
 }
