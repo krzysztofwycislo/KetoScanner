@@ -29,11 +29,6 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
             onPermissionDenied()
     }
 
-    private fun onPermissionDenied() {
-        val permissions = arrayOf(Manifest.permission.CAMERA)
-        ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
-    }
-
     private fun hasCameraPermission(): Boolean {
         val rc = checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
         return rc == PackageManager.PERMISSION_GRANTED
@@ -43,6 +38,11 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     private fun onPermissionGranted() {
         barcodeScanner = BarcodeScanner(this, cameraPreviewView, ::onBarcodeScanned)
         barcodeScanner?.setupScanner()
+    }
+
+    private fun onPermissionDenied() {
+        val permissions = arrayOf(Manifest.permission.CAMERA)
+        ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
     }
 
     private fun onBarcodeScanned(barcode: String) {
@@ -64,6 +64,11 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         } else {
             findNavController().navigateUp()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        barcodeScanner?.close()
     }
 
     companion object {
