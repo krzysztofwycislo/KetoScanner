@@ -27,6 +27,9 @@
         <action
             android:id="@+id/to_productDetailsFragment"
             app:destination="@id/productDetailsFragment" />
+        <argument
+            android:name="product"
+            app:argType="pl.handsome.club.domain.data.Product" />
     </fragment>
     <fragment
         android:id="@+id/aboutApplicationFragment"

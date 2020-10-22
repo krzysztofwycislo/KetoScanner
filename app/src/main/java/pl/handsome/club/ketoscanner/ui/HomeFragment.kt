@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.home_fragment.*
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
@@ -30,6 +31,12 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
     private fun searchProductByInput() {
         val barcode = searchInput.text.toString()
         searchProductViewModel.searchProductByBarcode(barcode)
+            .observe(viewLifecycleOwner, Observer {
+                if (it != null) {
+                    val direction = HomeFragmentDirections.toSearchResultFragment(it)
+                    navigateTo(direction)
+                }
+            })
     }
 
 }

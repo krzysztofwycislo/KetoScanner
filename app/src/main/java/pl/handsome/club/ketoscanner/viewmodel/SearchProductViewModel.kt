@@ -19,9 +19,13 @@ class SearchProductViewModel(
     fun getSearchedProduct(): LiveData<Product> = searchedProduct
 
 
-    fun searchProductByBarcode(barcode: String) = viewModelScope.launch {
-        productsRepository.searchProductByBarcode(barcode)
-            .apply(searchedProduct::postValue)
+    fun searchProductByBarcode(barcode: String): LiveData<Product> {
+        viewModelScope.launch {
+            productsRepository.searchProductByBarcode(barcode)
+                .apply(searchedProduct::postValue)
+        }
+
+        return searchedProduct
     }
 
 }

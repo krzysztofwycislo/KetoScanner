@@ -23,8 +23,10 @@ class BarcodeScanner(
 
     private lateinit var camera: Camera
 
-    private lateinit var analysisExecutor: ExecutorService
     private val barcodeImageAnalyzer = BarcodeImageAnalyzer(onScanSuccess)
+
+    private lateinit var analysisExecutor: ExecutorService
+    private lateinit var imageAnalyzer: ImageAnalysis
 
 
     @RequiresPermission(Manifest.permission.CAMERA)
@@ -56,11 +58,10 @@ class BarcodeScanner(
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         val preview = createPreview(rotation, screenAspectRatio)
-        val imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
+        imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
 
         try {
-            camera =
-                cameraProvider.bindToLifecycle(fragment, cameraSelector, preview, imageAnalyzer)
+            camera = cameraProvider.bindToLifecycle(fragment, cameraSelector, preview, imageAnalyzer)
         } catch (e: Exception) {
             Log.e(TAG, "Use case binding failed", e)
         }
@@ -88,6 +89,10 @@ class BarcodeScanner(
             .setTargetRotation(rotation)
             .build()
             .apply { setAnalyzer(analysisExecutor, barcodeImageAnalyzer) }
+    }
+
+    fun stop() {
+        imageAnalyzer.clearAnalyzer()
     }
 
     fun close() {
