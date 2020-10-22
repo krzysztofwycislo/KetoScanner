@@ -9,15 +9,22 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.barcode_scanner_fragment.*
 import pl.handsome.club.barcodescanner.BarcodeScanner
 import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.util.navigateTo
+import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 
 
 class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
 
     private var barcodeScanner: BarcodeScanner? = null
+
+    private val searchProductViewModel: SearchProductViewModel by viewModels { ViewModelFactory }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,7 +53,14 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     }
 
     private fun onBarcodeScanned(barcode: String) {
-        Toast.makeText(requireContext(), barcode, Toast.LENGTH_LONG).show()
+        barcodeScanner?.stop()
+        searchProductViewModel.searchProductByBarcode(barcode)
+            .observe(viewLifecycleOwner, Observer {
+                if (it != null) {
+                    val direction = BarcodeScannerFragmentDirections.toSearchResultFragment(it)
+                    navigateTo(direction)
+                }
+            })
     }
 
     override fun onRequestPermissionsResult(
