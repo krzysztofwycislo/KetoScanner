@@ -12,7 +12,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.ketoscanner.data.testProduct
-import pl.handsome.club.ketoscanner.repository.ProductsRepository
+import pl.handsome.club.domain.repository.ProductsRepository
 import pl.handsome.club.ketoscanner.rule.CoroutinesTestRule
 import pl.handsome.club.ketoscanner.util.observeOnce
 

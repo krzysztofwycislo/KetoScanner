@@ -1,10 +1,8 @@
-package pl.handsome.club.ketoscanner.repository
+package pl.handsome.club.openfoodapi
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import pl.handsome.club.ketoscanner.data.testGetProductResponse
 
-// TODO refactor
 class DataConvertersTest {
 
     @Test

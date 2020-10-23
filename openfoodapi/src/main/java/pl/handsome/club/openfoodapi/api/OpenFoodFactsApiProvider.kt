@@ -1,4 +1,4 @@
-package pl.handsome.club.openfoodapi
+package pl.handsome.club.openfoodapi.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
