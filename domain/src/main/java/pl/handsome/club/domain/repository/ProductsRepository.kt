@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.repository
+package pl.handsome.club.domain.repository
 
 import pl.handsome.club.domain.data.Product
 

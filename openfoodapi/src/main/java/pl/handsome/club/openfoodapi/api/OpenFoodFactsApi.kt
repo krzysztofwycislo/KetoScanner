@@ -1,4 +1,4 @@
-package pl.handsome.club.openfoodapi
+package pl.handsome.club.openfoodapi.api
 
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 import retrofit2.http.GET

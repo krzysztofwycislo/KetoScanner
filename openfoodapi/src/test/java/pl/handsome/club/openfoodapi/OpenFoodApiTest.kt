@@ -3,6 +3,7 @@ package pl.handsome.club.openfoodapi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
 import org.junit.Test
+import pl.handsome.club.openfoodapi.api.OpenFoodFactsApiProvider
 
 
 class OpenFoodApiTest {

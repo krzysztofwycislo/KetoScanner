@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import pl.handsome.club.domain.data.Product
-import pl.handsome.club.ketoscanner.repository.ProductsRepository
+import pl.handsome.club.domain.repository.ProductsRepository
 
 
 class SearchProductViewModel(
