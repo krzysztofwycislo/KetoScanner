@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.home_fragment.*
+import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
@@ -25,6 +26,10 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
 
         openScannerBtn.setOnClickListener {
             navigateTo(HomeFragmentDirections.toBarcodeScannerFragment())
+        }
+
+        if(BuildConfig.DEBUG) {
+            searchInput.setText("737628064502")
         }
     }
 
