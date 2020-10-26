@@ -5,4 +5,11 @@
     <string name="enter_barcode">Enter barcode</string>
     <string name="ok">OK</string>
     <string name="scan_barcode">Scan barcode</string>
+    <string name="back_button">Back button</string>
+    <string name="product_name">Product Name</string>
+    <string name="product_analyze_icon_result">Product analyze icon result</string>
+    <string name="preference_analysis">Preference analysis</string>
+    <string name="product_image">Product Image</string>
+    <string name="result_type_image">Result Type Image</string>
+    <string name="menu_button">Menu button</string>
 </resources>

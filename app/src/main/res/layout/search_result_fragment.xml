@@ -1,11 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/test"
+    <LinearLayout
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="1dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:contentDescription="@string/back_button"
+            android:src="@drawable/arrow_back_black_24dp" />
+
+        <TextView
+            android:id="@+id/productName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_10dp"
+            android:layout_marginEnd="@dimen/margin_10dp"
+            android:layout_weight="1"
+            android:text="@string/product_name"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_large" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:src="@drawable/more_vert_black_24dp"
+            android:contentDescription="@string/menu_button" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/productImage"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@color/transparent_black"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:contentDescription="@string/product_image"
+        tools:src="@drawable/example_product_photo" />
+
+    <ImageView
+        android:id="@+id/productAnalyzeResultIcon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/result_expression_background"
+        android:contentDescription="@string/product_analyze_icon_result"
+        android:elevation="1dp"
+        android:padding="@dimen/margin_20dp"
+        android:src="@drawable/happy_face_green_800_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/productImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/productImage" />
+
+    <ListView
+        android:id="@+id/analysisResultTypesList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:listitem="@layout/analysis_result_type_list_item"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/productAnalyzeResultIcon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

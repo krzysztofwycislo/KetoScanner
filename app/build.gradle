@@ -46,7 +46,6 @@ dependencies {
 
     // tools
     implementation "androidx.core:core-ktx:$androidx_core_ktx_version"
-    implementation "androidx.appcompat:appcompat:$androidx_appcompat_version"
     implementation "androidx.constraintlayout:constraintlayout:$androidx_constraintlayout_version"
 
     // navigation
