@@ -1,6 +1,5 @@
 package pl.handsome.club.ketoscanner.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -14,14 +13,13 @@ class SearchResultFragment : Fragment(R.layout.search_result_fragment) {
         super.onViewCreated(view, savedInstanceState)
 
         arguments
-            ?.let(SearchResultFragmentArgs::fromBundle)
-            ?.let(SearchResultFragmentArgs::product)
+            ?.let { SearchResultFragmentArgs.fromBundle(it) }
+            ?.product
             ?.let(::initializeView)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun initializeView(product: Product) {
-        test.text = product.toString()
+        productName.text = product.name
     }
 
 }
