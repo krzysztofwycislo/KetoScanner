@@ -30,6 +30,10 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
 
     private fun searchProductByInput() {
         val barcode = searchInput.text.toString()
+        if(barcode.isEmpty()) {
+            return
+        }
+
         searchProductViewModel.searchProductByBarcode(barcode)
             .observe(viewLifecycleOwner, Observer {
                 if (it != null) {
