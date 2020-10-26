@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:background="@color/transparent"
             android:contentDescription="@string/back_button"
-            android:src="@drawable/arrow_back_black_24dp" />
+            android:src="@drawable/arrow_back_white_24dp" />
 
         <TextView
             android:id="@+id/productName"
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
-            android:src="@drawable/more_vert_black_24dp"
+            android:src="@drawable/more_vert_white_24dp"
             android:contentDescription="@string/menu_button" />
 
     </LinearLayout>
