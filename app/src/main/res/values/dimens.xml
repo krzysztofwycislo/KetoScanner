@@ -6,4 +6,5 @@
     <dimen name="margin_15dp">15dp</dimen>
     <dimen name="text_large">20sp</dimen>
     <dimen name="text_medium">15sp</dimen>
+    <dimen name="text_huge">30sp</dimen>
 </resources>

@@ -12,4 +12,5 @@
     <string name="product_image">Product Image</string>
     <string name="result_type_image">Result Type Image</string>
     <string name="menu_button">Menu button</string>
+    <string name="or">or</string>
 </resources>
