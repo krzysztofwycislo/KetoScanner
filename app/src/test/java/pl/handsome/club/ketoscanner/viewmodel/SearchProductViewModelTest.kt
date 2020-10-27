@@ -15,6 +15,7 @@ import pl.handsome.club.ketoscanner.data.testProduct
 import pl.handsome.club.domain.repository.ProductsRepository
 import pl.handsome.club.ketoscanner.rule.CoroutinesTestRule
 import pl.handsome.club.ketoscanner.util.observeOnce
+import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 
 
 @ExperimentalCoroutinesApi
@@ -43,10 +44,10 @@ class SearchProductViewModelTest {
             val product = testProduct()
             `when`(productsRepository.searchProductByBarcode(product.barcode)).thenReturn(product)
 
-            searchProductViewModel.searchProductByBarcode(product.barcode)
+            val searchProductByBarcode = searchProductViewModel.searchProductByBarcode(product.barcode)
 
             verify(productsRepository).searchProductByBarcode(product.barcode)
-            searchProductViewModel.getSearchedProduct().observeOnce {
+            searchProductByBarcode.observeOnce {
                 assertEquals(product, it)
             }
         }

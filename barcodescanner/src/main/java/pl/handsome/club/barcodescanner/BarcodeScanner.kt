@@ -99,6 +99,14 @@ class BarcodeScanner(
         analysisExecutor.shutdown()
     }
 
+    fun resume() {
+        TODO("Not yet implemented")
+    }
+
+    fun pause() {
+        TODO("Not yet implemented")
+    }
+
     companion object {
         private const val TAG = "BarcodeScanner"
 

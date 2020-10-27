@@ -9,7 +9,9 @@
         android:label="HomeFragment" >
         <action
             android:id="@+id/to_searchResultFragment"
-            app:destination="@id/searchResultFragment" />
+            app:destination="@id/searchResultFragment"
+            app:enterAnim="@anim/fragment_close_enter"
+            app:exitAnim="@anim/fragment_fade_exit"/>
         <action
             android:id="@+id/to_preferencesFragment"
             app:destination="@id/preferencesFragment" />
