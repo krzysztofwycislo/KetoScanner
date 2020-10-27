@@ -5,18 +5,20 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.barcode_scanner_fragment.*
 import pl.handsome.club.barcodescanner.BarcodeScanner
+import pl.handsome.club.domain.data.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
-import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
+import pl.handsome.club.ketoscanner.viewmodel.product.SearchState
 
 
 class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
@@ -51,15 +53,34 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
     }
 
+    private fun onSearchStateChanged(searchState: SearchState?) {
+        when (searchState) {
+            is SearchState.SearchingInProgress -> {/* NOTHING */}
+            is SearchState.SearchingSuccess -> {
+                onSearchSuccess(searchState.product)
+            }
+            is SearchState.SearchingError -> {
+                barcodeScanner?.resume()
+                showErrorMessage(searchState.throwable)
+            }
+        }
+    }
+
     private fun onBarcodeScanned(barcode: String) {
-        barcodeScanner?.stop()
+        barcodeScanner?.pause()
         searchProductViewModel.searchProductByBarcode(barcode)
-            .observe(viewLifecycleOwner, Observer {
-                if (it != null) {
-                    val direction = BarcodeScannerFragmentDirections.toSearchResultFragment(it)
-                    navigateTo(direction)
-                }
-            })
+        searchProductViewModel.getSearchState()
+            .observe(viewLifecycleOwner, ::onSearchStateChanged)
+    }
+
+    private fun showErrorMessage(throwable: Throwable) {
+        Toast.makeText(requireContext(), throwable.message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun onSearchSuccess(product: Product) {
+        BarcodeScannerFragmentDirections
+            .toSearchResultFragment(product)
+            .let(::navigateTo)
     }
 
     override fun onRequestPermissionsResult(
