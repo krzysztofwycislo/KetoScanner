@@ -1,8 +1,12 @@
 package pl.handsome.club.barcodescanner
 
 import android.graphics.*
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.ImageProxy
 import java.io.ByteArrayOutputStream
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 
 fun ImageProxy.toBitmap(): Bitmap {

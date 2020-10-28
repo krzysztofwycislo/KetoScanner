@@ -9,28 +9,31 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
-class BarcodeScanner(
+
+class BarcodeCameraScanner(
     private val fragment: Fragment,
     private val cameraPreviewView: PreviewView,
-    onScanSuccess: (String) -> Unit
 ) {
 
-    private lateinit var camera: Camera
+    private val scannedBarcode = MutableLiveData<String>()
 
-    private val barcodeImageAnalyzer = BarcodeImageAnalyzer(onScanSuccess)
+    private lateinit var camera: Camera
+    private lateinit var preview: Preview
 
     private lateinit var analysisExecutor: ExecutorService
     private lateinit var imageAnalyzer: ImageAnalysis
+    private lateinit var barcodeImageAnalyzer: BarcodeImageAnalyzer
 
+
+    fun getScannedBarcode(): LiveData<String> = scannedBarcode
 
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun setupScanner() {
+    fun start() {
         val context = fragment.requireContext()
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
@@ -57,7 +60,9 @@ class BarcodeScanner(
         val rotation = cameraPreviewView.display.rotation
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-        val preview = createPreview(rotation, screenAspectRatio)
+        preview = createPreview(rotation, screenAspectRatio)
+
+        barcodeImageAnalyzer = BarcodeImageAnalyzer(::onScanSuccess)
         imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
 
         try {
@@ -65,14 +70,6 @@ class BarcodeScanner(
         } catch (e: Exception) {
             Log.e(TAG, "Use case binding failed", e)
         }
-    }
-
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val previewRatio = max(width, height).toDouble() / min(width, height)
-        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
-        }
-        return AspectRatio.RATIO_16_9
     }
 
     private fun createPreview(rotation: Int, screenAspectRatio: Int): Preview {
@@ -91,27 +88,27 @@ class BarcodeScanner(
             .apply { setAnalyzer(analysisExecutor, barcodeImageAnalyzer) }
     }
 
-    fun stop() {
+    private fun onScanSuccess(barcode: String) {
+        pause()
+        scannedBarcode.value = barcode
+    }
+
+    private fun pause() {
+        preview.setSurfaceProvider(null)
         imageAnalyzer.clearAnalyzer()
+    }
+
+    fun resume() {
+        preview.setSurfaceProvider(cameraPreviewView.surfaceProvider)
+        imageAnalyzer.setAnalyzer(analysisExecutor, barcodeImageAnalyzer)
     }
 
     fun close() {
         analysisExecutor.shutdown()
     }
 
-    fun resume() {
-        TODO("Not yet implemented")
-    }
-
-    fun pause() {
-        TODO("Not yet implemented")
-    }
-
     companion object {
         private const val TAG = "BarcodeScanner"
-
-        private const val RATIO_4_3_VALUE = 4.0 / 3.0
-        private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
 
 }
