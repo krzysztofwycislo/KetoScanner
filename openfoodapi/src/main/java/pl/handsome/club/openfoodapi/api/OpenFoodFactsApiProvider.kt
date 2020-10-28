@@ -23,7 +23,7 @@ object OpenFoodFactsApiProvider {
             .build()
 
         Retrofit.Builder()
-            .baseUrl("https://world.openfoodfacts.org")
+            .baseUrl("https://pl.openfoodfacts.org")
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

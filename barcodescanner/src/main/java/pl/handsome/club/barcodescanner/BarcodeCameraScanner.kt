@@ -30,6 +30,9 @@ class BarcodeCameraScanner(
     private lateinit var barcodeImageAnalyzer: BarcodeImageAnalyzer
 
 
+    private var isPaused: Boolean = false
+
+
     fun getScannedBarcode(): LiveData<String> = scannedBarcode
 
     @RequiresPermission(Manifest.permission.CAMERA)
@@ -56,7 +59,6 @@ class BarcodeCameraScanner(
         val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
         Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
 
-
         val rotation = cameraPreviewView.display.rotation
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -66,7 +68,12 @@ class BarcodeCameraScanner(
         imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
 
         try {
-            camera = cameraProvider.bindToLifecycle(fragment, cameraSelector, preview, imageAnalyzer)
+            camera = cameraProvider.bindToLifecycle(
+                fragment,
+                cameraSelector,
+                preview,
+                imageAnalyzer
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Use case binding failed", e)
         }
@@ -89,11 +96,14 @@ class BarcodeCameraScanner(
     }
 
     private fun onScanSuccess(barcode: String) {
-        pause()
-        scannedBarcode.value = barcode
+        if (!isPaused) {
+            pause()
+            scannedBarcode.value = barcode
+        }
     }
 
     private fun pause() {
+        isPaused = true
         preview.setSurfaceProvider(null)
         imageAnalyzer.clearAnalyzer()
     }
@@ -101,6 +111,7 @@ class BarcodeCameraScanner(
     fun resume() {
         preview.setSurfaceProvider(cameraPreviewView.surfaceProvider)
         imageAnalyzer.setAnalyzer(analysisExecutor, barcodeImageAnalyzer)
+        isPaused = false
     }
 
     fun close() {
