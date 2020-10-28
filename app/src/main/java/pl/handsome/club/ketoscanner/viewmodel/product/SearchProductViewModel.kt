@@ -23,7 +23,7 @@ class SearchProductViewModel(
 
     fun getSearchState(): LiveData<SearchState> = searchState
 
-    fun searchProductByBarcode(barcode: String) {
+    fun searchProductByBarcode(barcode: String): LiveData<SearchState> {
         searchState.value = SearchState.SearchingInProgress
 
         launchOnIO(coroutineExceptionHandler) {
@@ -31,6 +31,8 @@ class SearchProductViewModel(
                 .let(SearchState::SearchingSuccess)
                 .apply(searchState::postValue)
         }
+
+        return searchState
     }
 
 }

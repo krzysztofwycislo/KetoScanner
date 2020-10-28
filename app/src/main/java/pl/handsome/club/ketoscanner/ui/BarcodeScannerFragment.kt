@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.barcode_scanner_fragment.*
-import pl.handsome.club.barcodescanner.BarcodeScanner
+import pl.handsome.club.barcodescanner.BarcodeCameraScanner
 import pl.handsome.club.domain.data.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
@@ -23,18 +23,17 @@ import pl.handsome.club.ketoscanner.viewmodel.product.SearchState
 
 class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
 
-    private var barcodeScanner: BarcodeScanner? = null
-
     private val searchProductViewModel: SearchProductViewModel by viewModels { ViewModelFactory }
+
+    private lateinit var barcodeCameraScanner: BarcodeCameraScanner
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (hasCameraPermission())
-            onPermissionGranted()
-        else
-            onPermissionDenied()
+        barcodeCameraScanner = BarcodeCameraScanner(this, cameraPreviewView)
+
+        if (hasCameraPermission()) startBarcodeScanner() else askForPermissions()
     }
 
     private fun hasCameraPermission(): Boolean {
@@ -43,41 +42,38 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     }
 
     @SuppressLint("MissingPermission")
-    private fun onPermissionGranted() {
-        barcodeScanner = BarcodeScanner(this, cameraPreviewView, ::onBarcodeScanned)
-        barcodeScanner?.setupScanner()
+    private fun startBarcodeScanner() {
+        barcodeCameraScanner.start()
+        barcodeCameraScanner.getScannedBarcode().observe(viewLifecycleOwner, ::onBarcodeScanned)
     }
 
-    private fun onPermissionDenied() {
+    private fun askForPermissions() {
         val permissions = arrayOf(Manifest.permission.CAMERA)
         ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
     }
 
     private fun onSearchStateChanged(searchState: SearchState?) {
         when (searchState) {
-            is SearchState.SearchingInProgress -> {/* NOTHING */}
-            is SearchState.SearchingSuccess -> {
-                onSearchSuccess(searchState.product)
-            }
-            is SearchState.SearchingError -> {
-                barcodeScanner?.resume()
-                showErrorMessage(searchState.throwable)
-            }
+            is SearchState.SearchingInProgress -> {/* NOTHING */ }
+            is SearchState.SearchingSuccess -> navigateToSearchResult(searchState.product)
+            is SearchState.SearchingError -> showErrorAndResumeScanning(searchState.throwable)
         }
     }
 
-    private fun onBarcodeScanned(barcode: String) {
-        barcodeScanner?.pause()
-        searchProductViewModel.searchProductByBarcode(barcode)
-        searchProductViewModel.getSearchState()
-            .observe(viewLifecycleOwner, ::onSearchStateChanged)
-    }
-
-    private fun showErrorMessage(throwable: Throwable) {
+    private fun showErrorAndResumeScanning(throwable: Throwable) {
+        barcodeCameraScanner.resume()
         Toast.makeText(requireContext(), throwable.message, Toast.LENGTH_LONG).show()
     }
 
-    private fun onSearchSuccess(product: Product) {
+    private fun onBarcodeScanned(barcode: String?) {
+        if (barcode == null) return
+
+        searchProductViewModel
+            .searchProductByBarcode(barcode)
+            .observe(viewLifecycleOwner, ::onSearchStateChanged)
+    }
+
+    private fun navigateToSearchResult(product: Product) {
         BarcodeScannerFragmentDirections
             .toSearchResultFragment(product)
             .let(::navigateTo)
@@ -94,7 +90,7 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         }
 
         if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-            onPermissionGranted()
+            startBarcodeScanner()
         } else {
             findNavController().navigateUp()
         }
@@ -102,7 +98,7 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        barcodeScanner?.close()
+        barcodeCameraScanner.close()
     }
 
     companion object {
