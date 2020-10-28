@@ -68,9 +68,10 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     private fun onBarcodeScanned(barcode: String?) {
         if (barcode == null) return
 
-        searchProductViewModel
-            .searchProductByBarcode(barcode)
-            .observe(viewLifecycleOwner, ::onSearchStateChanged)
+        searchProductViewModel.apply {
+            searchProductByBarcode(barcode)
+            getSearchState().observe(viewLifecycleOwner, ::onSearchStateChanged)
+        }
     }
 
     private fun navigateToSearchResult(product: Product) {

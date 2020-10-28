@@ -17,13 +17,14 @@ class SearchProductViewModel(
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logException(throwable)
-        SearchState.SearchingError(throwable)
-            .let(searchState::postValue)
+        SearchState.SearchingError(throwable).let(searchState::postValue)
     }
 
     fun getSearchState(): LiveData<SearchState> = searchState
 
-    fun searchProductByBarcode(barcode: String): LiveData<SearchState> {
+    fun searchProductByBarcode(barcode: String) {
+        if(searchState.value is SearchState.SearchingInProgress) return
+
         searchState.value = SearchState.SearchingInProgress
 
         launchOnIO(coroutineExceptionHandler) {
@@ -31,8 +32,6 @@ class SearchProductViewModel(
                 .let(SearchState::SearchingSuccess)
                 .apply(searchState::postValue)
         }
-
-        return searchState
     }
 
 }
