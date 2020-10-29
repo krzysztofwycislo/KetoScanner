@@ -1,21 +1,22 @@
 package pl.handsome.club.ketoscanner.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert.assertEquals
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.ketoscanner.data.testProduct
 import pl.handsome.club.domain.repository.ProductsRepository
-import pl.handsome.club.ketoscanner.rule.CoroutinesTestRule
-import pl.handsome.club.ketoscanner.util.observeOnce
+import pl.handsome.club.ketoscanner.data.testProduct
+import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.product.SearchState
 
 
 @ExperimentalCoroutinesApi
@@ -23,33 +24,51 @@ import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 class SearchProductViewModelTest {
 
     @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
+    val coroutinesTestRule = CoroutineTestRule()
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    private lateinit var viewModel: SearchProductViewModel
+
     @Mock
     private lateinit var productsRepository: ProductsRepository
 
-    private lateinit var searchProductViewModel: SearchProductViewModel
+    @Mock
+    private lateinit var observer: Observer<SearchState>
+
 
     @Before
     fun init() {
-        searchProductViewModel = SearchProductViewModel(productsRepository)
+        viewModel = SearchProductViewModel(productsRepository)
+        viewModel.getSearchState().observeForever(observer)
     }
 
     @Test
-    fun `when searching for existing product by barcode then product should be available`() =
+    fun `when searching for existing product then success search state with given product be observer`() =
         coroutinesTestRule.runBlockingTest {
             val product = testProduct()
             `when`(productsRepository.searchProductByBarcode(product.barcode)).thenReturn(product)
 
-            val searchProductByBarcode = searchProductViewModel.searchProductByBarcode(product.barcode)
+            viewModel.searchProductByBarcode(product.barcode)
 
             verify(productsRepository).searchProductByBarcode(product.barcode)
-            searchProductByBarcode.observeOnce {
-                assertEquals(product, it)
-            }
+            verify(observer).onChanged(SearchState.SearchingInProgress)
+            verify(observer).onChanged(SearchState.SearchingSuccess(product))
+        }
+
+    @Test
+    fun `when searching for product and exception occurred then error state should be observer`() =
+        coroutinesTestRule.runBlockingTest {
+            val anyBarcode = anyString()
+            val exampleException = IllegalStateException()
+            `when`(productsRepository.searchProductByBarcode(anyBarcode)).thenThrow(exampleException)
+
+            viewModel.searchProductByBarcode(anyBarcode)
+
+            verify(productsRepository).searchProductByBarcode(anyBarcode)
+            verify(observer).onChanged(SearchState.SearchingInProgress)
+            verify(observer).onChanged(SearchState.SearchingError(exampleException))
         }
 
 }

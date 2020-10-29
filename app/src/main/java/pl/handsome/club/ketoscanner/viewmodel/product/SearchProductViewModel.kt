@@ -3,10 +3,10 @@ package pl.handsome.club.ketoscanner.viewmodel.product
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.launch
 import pl.handsome.club.domain.repository.ProductsRepository
-import pl.handsome.club.ketoscanner.viewmodel.launchOnIO
-import pl.handsome.club.ketoscanner.viewmodel.logException
 
 
 class SearchProductViewModel(
@@ -16,7 +16,6 @@ class SearchProductViewModel(
     private val searchState = MutableLiveData<SearchState>()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        logException(throwable)
         SearchState.SearchingError(throwable).let(searchState::postValue)
     }
 
@@ -27,7 +26,7 @@ class SearchProductViewModel(
 
         searchState.value = SearchState.SearchingInProgress
 
-        launchOnIO(coroutineExceptionHandler) {
+        viewModelScope.launch(coroutineExceptionHandler) {
             productsRepository.searchProductByBarcode(barcode)
                 .let(SearchState::SearchingSuccess)
                 .apply(searchState::postValue)
