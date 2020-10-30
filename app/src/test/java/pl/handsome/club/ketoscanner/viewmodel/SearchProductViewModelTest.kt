@@ -43,7 +43,7 @@ class SearchProductViewModelTest {
     }
 
     @Test
-    fun `when searching for existing product then success search state with given product be observer`() =
+    fun `when searching for existing product then success search state with given product should be observer`() =
         coroutinesTestRule.runBlockingTest {
             val product = testProduct()
             `when`(productsRepository.searchProductByBarcode(product.barcode))
@@ -54,6 +54,19 @@ class SearchProductViewModelTest {
             verify(productsRepository).searchProductByBarcode(product.barcode)
             verify(observer).onChanged(SearchProduct.InProgress)
             verify(observer).onChanged(SearchProduct.Success(product))
+        }
+
+    @Test
+    fun `when searching for NON existing product then not found search state should be observer`() =
+        coroutinesTestRule.runBlockingTest {
+            val barcode = anyString()
+            `when`(productsRepository.searchProductByBarcode(barcode))
+                .thenReturn(SearchProduct.NotFound)
+
+            viewModel.searchProductByBarcode(barcode)
+
+            verify(observer).onChanged(SearchProduct.InProgress)
+            verify(observer).onChanged(SearchProduct.NotFound)
         }
 
     @Test
