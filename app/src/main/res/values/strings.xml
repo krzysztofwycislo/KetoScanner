@@ -13,4 +13,7 @@
     <string name="result_type_image">Result Type Image</string>
     <string name="menu_button">Menu button</string>
     <string name="or">or</string>
+    <string name="product_not_found">Product not found</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="exampleBarcode">737628064502</string>
 </resources>

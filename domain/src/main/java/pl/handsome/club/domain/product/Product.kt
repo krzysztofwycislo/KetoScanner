@@ -1,4 +1,4 @@
-package pl.handsome.club.domain.data
+package pl.handsome.club.domain.product
 
 import android.os.Parcel
 import android.os.Parcelable

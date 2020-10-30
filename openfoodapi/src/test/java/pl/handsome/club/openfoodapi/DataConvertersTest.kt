@@ -1,20 +1,33 @@
 package pl.handsome.club.openfoodapi
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import pl.handsome.club.domain.product.SearchProduct
 
 class DataConvertersTest {
 
     @Test
-    fun `when we want to convert get product api response into product then data should be correct`() {
-        val response = testGetProductResponse()
+    fun `convert success GetProductResponse with product into search product entity test`() {
+        val response = getProductResponseWithProduct()
+        val apiProduct = response.apiProduct!!
 
-        val product = convertToProduct(response)
+        val searchProduct = parseGetProductResponse(response)
 
-        with(response) {
-            assertEquals(apiProduct.productName, product.name)
-            assertEquals(barcode, product.barcode)
-        }
+        assertTrue(searchProduct is SearchProduct.Success)
+
+        val product = (searchProduct as SearchProduct.Success).product
+        assertEquals(apiProduct.productName, product.name)
+        assertEquals(response.barcode, product.barcode)
+    }
+
+    @Test
+    fun `convert GetProductResponse without product into search product entity test`() {
+        val response = getProductResponseWithoutProduct()
+
+        val searchProduct = parseGetProductResponse(response)
+
+        assertTrue(searchProduct is SearchProduct.NotFound)
     }
 
 }

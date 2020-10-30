@@ -13,12 +13,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.barcode_scanner_fragment.*
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
-import pl.handsome.club.domain.data.Product
+import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
-import pl.handsome.club.ketoscanner.viewmodel.product.SearchState
+import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.ketoscanner.util.logException
 
 
 class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
@@ -52,17 +53,24 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
     }
 
-    private fun onSearchStateChanged(searchState: SearchState?) {
-        when (searchState) {
-            is SearchState.SearchingInProgress -> {/* NOTHING */ }
-            is SearchState.SearchingSuccess -> navigateToSearchResult(searchState.product)
-            is SearchState.SearchingError -> showErrorAndResumeScanning(searchState.throwable)
+    private fun onSearchStateChanged(searchProduct: SearchProduct?) {
+        when (searchProduct) {
+            is SearchProduct.InProgress -> {/* NOTHING */ }
+            is SearchProduct.NotFound -> showMessage(R.string.product_not_found)
+            is SearchProduct.Success -> navigateToSearchResult(searchProduct.product)
+            is SearchProduct.Error -> showErrorAndResumeScanning(searchProduct.throwable)
         }
     }
 
+    private fun showMessage(messageId: Int) {
+        messageId.let { Toast.makeText(requireContext(), it, Toast.LENGTH_LONG) }?.show()
+    }
+
+    // TODO converting exceptions into user messages
     private fun showErrorAndResumeScanning(throwable: Throwable) {
         barcodeCameraScanner.resume()
-        Toast.makeText(requireContext(), throwable.message, Toast.LENGTH_LONG).show()
+        logException(throwable)
+        showMessage(R.string.something_went_wrong)
     }
 
     private fun onBarcodeScanned(barcode: String?) {
