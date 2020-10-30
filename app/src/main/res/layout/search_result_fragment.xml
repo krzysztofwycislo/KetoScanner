@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
-            android:src="@drawable/more_vert_white_24dp"
+            android:src="@drawable/more_vertical_white_24dp"
             android:contentDescription="@string/menu_button" />
 
     </LinearLayout>

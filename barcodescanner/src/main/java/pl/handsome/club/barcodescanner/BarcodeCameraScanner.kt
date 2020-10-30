@@ -43,7 +43,7 @@ class BarcodeCameraScanner(
         analysisExecutor = Executors.newSingleThreadExecutor()
 
         cameraProviderFuture.addListener(
-            Runnable {
+            {
                 cameraProviderFuture.get()
                     .apply { unbindAll() }
                     .apply(::bindCamera)

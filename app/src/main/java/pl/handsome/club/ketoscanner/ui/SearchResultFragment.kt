@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.search_result_fragment.*
-import pl.handsome.club.domain.data.Product
+import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 
 class SearchResultFragment : Fragment(R.layout.search_result_fragment) {

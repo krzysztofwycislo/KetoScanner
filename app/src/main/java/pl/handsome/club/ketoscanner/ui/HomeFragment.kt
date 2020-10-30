@@ -6,14 +6,16 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kotlinx.android.synthetic.main.home_fragment.*
-import pl.handsome.club.domain.data.Product
+import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.getNotEmptyString
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
-import pl.handsome.club.ketoscanner.viewmodel.product.SearchState
+import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.ketoscanner.util.logException
+
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
 
@@ -32,42 +34,51 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         }
 
         if (BuildConfig.DEBUG) {
-            searchInput.setText("737628064502")
+            searchInput.setText(R.string.exampleBarcode)
         }
+
+        searchProductViewModel.getSearchState()
+            .observe(viewLifecycleOwner, ::onSearchProductChange)
     }
 
     private fun searchProductByInput() {
-        val searchState = searchProductViewModel.getSearchState()
-        if(searchState.value is SearchState.SearchingInProgress) return
-
         searchInput.getNotEmptyString()
             ?.let(searchProductViewModel::searchProductByBarcode)
-
-        searchState.observe(viewLifecycleOwner, ::onSearchStateChanged)
     }
 
-    private fun onSearchStateChanged(searchState: SearchState?) {
-        when (searchState) {
-            is SearchState.SearchingInProgress -> showProgressBar()
-            is SearchState.SearchingSuccess -> onSearchSuccess(searchState.product)
-            is SearchState.SearchingError -> showErrorMessage(searchState.throwable)
+    private fun onSearchProductChange(searchProduct: SearchProduct?) {
+        when (searchProduct) {
+            is SearchProduct.InProgress -> progressBar.show()
+            is SearchProduct.NotFound -> onProductNotFound()
+            is SearchProduct.Success -> onSearchSuccess(searchProduct.product)
+            is SearchProduct.Error -> onSearchProductError(searchProduct.throwable)
         }
     }
 
-    private fun showProgressBar() {
-        progressBar.visibility = View.VISIBLE
-    }
-
     private fun onSearchSuccess(product: Product) {
-        progressBar.visibility = View.GONE
+        progressBar.hide()
         HomeFragmentDirections
             .toSearchResultFragment(product)
             .let(::navigateTo)
     }
 
+    private fun onProductNotFound() {
+        progressBar.hide()
+        showMessage(R.string.product_not_found)
+    }
+
+    private fun onSearchProductError(throwable: Throwable) {
+        progressBar.hide()
+        showErrorMessage(throwable)
+    }
+
     private fun showErrorMessage(throwable: Throwable) {
-        progressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), throwable.message, Toast.LENGTH_LONG).show()
+        logException(throwable)
+        showMessage(R.string.something_went_wrong)
+    }
+
+    private fun showMessage(messageId: Int) {
+        messageId.let { Toast.makeText(requireContext(), it, Toast.LENGTH_LONG) }.show()
     }
 
 }

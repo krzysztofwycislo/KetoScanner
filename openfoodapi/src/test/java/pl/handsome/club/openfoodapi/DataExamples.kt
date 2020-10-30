@@ -5,7 +5,9 @@ import pl.handsome.club.openfoodapi.data.ApiProduct
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
 
-fun testGetProductResponse(): GetProductResponse = GetProductResponse(1, "123456789", testApiProduct())
+fun getProductResponseWithProduct(): GetProductResponse = GetProductResponse(1, "123456789", testApiProduct())
+
+fun getProductResponseWithoutProduct(): GetProductResponse = GetProductResponse(0, "123456789", null)
 
 private fun testApiProduct(): ApiProduct = ApiProduct(
     2,

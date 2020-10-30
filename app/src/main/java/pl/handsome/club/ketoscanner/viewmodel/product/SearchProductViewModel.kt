@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import pl.handsome.club.domain.product.SearchProduct
 import pl.handsome.club.domain.repository.ProductsRepository
 
 
@@ -13,22 +14,21 @@ class SearchProductViewModel(
     private val productsRepository: ProductsRepository
 ) : ViewModel() {
 
-    private val searchState = MutableLiveData<SearchState>()
+    private val searchState = MutableLiveData<SearchProduct>()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        SearchState.SearchingError(throwable).let(searchState::postValue)
+        SearchProduct.Error(throwable).let(searchState::postValue)
     }
 
-    fun getSearchState(): LiveData<SearchState> = searchState
+    fun getSearchState(): LiveData<SearchProduct> = searchState
 
     fun searchProductByBarcode(barcode: String) {
-        if(searchState.value is SearchState.SearchingInProgress) return
+        if(searchState.value is SearchProduct.InProgress) return
 
-        searchState.value = SearchState.SearchingInProgress
+        searchState.value = SearchProduct.InProgress
 
         viewModelScope.launch(coroutineExceptionHandler) {
             productsRepository.searchProductByBarcode(barcode)
-                .let(SearchState::SearchingSuccess)
                 .apply(searchState::postValue)
         }
     }

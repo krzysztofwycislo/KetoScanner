@@ -31,7 +31,7 @@
             app:destination="@id/productDetailsFragment" />
         <argument
             android:name="product"
-            app:argType="pl.handsome.club.domain.data.Product" />
+            app:argType="pl.handsome.club.domain.product.Product" />
     </fragment>
     <fragment
         android:id="@+id/aboutApplicationFragment"

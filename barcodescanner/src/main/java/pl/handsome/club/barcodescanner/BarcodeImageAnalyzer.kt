@@ -11,7 +11,7 @@ import com.google.mlkit.vision.common.InputImage
 
 
 // TODO fix image rotation issue
-// TODO analyze samller spot
+// TODO analyze smaller spot
 class BarcodeImageAnalyzer(
     private val onScanSuccess: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
