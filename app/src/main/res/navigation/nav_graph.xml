@@ -30,8 +30,8 @@
             android:id="@+id/to_productDetailsFragment"
             app:destination="@id/productDetailsFragment" />
         <argument
-            android:name="product"
-            app:argType="pl.handsome.club.domain.product.Product" />
+            android:name="product_parcelable"
+            app:argType="pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable" />
     </fragment>
     <fragment
         android:id="@+id/aboutApplicationFragment"

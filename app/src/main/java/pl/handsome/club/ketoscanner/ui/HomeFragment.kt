@@ -14,6 +14,7 @@ import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable
 import pl.handsome.club.ketoscanner.util.logException
 
 
@@ -58,7 +59,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
     private fun onSearchSuccess(product: Product) {
         progressBar.hide()
         HomeFragmentDirections
-            .toSearchResultFragment(product)
+            .toSearchResultFragment(ProductParcelable(product))
             .let(::navigateTo)
     }
 
