@@ -1,27 +1,11 @@
-package pl.handsome.club.domain
+package pl.handsome.club.ketoscanner.viewmodel
 
-import pl.handsome.club.domain.preferences.*
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.product.ProductNutriments
 
 
-const val KCAL_2500: Int = 2500
-
 const val PRODUCT_NAME: String = "test"
 const val PRODUCT_BARCODE: String = "12345679"
-
-
-val macronutrientPreferences = MacronutrientPreferences(
-    70,
-    5,
-    25
-)
-
-val ingredientPreferences = IngredientPreferences(
-    true,
-    emptyList(),
-    emptyList()
-)
 
 val exampleNutrients = ProductNutriments(
     512.0,
@@ -39,3 +23,5 @@ val exampleNutrients = ProductNutriments(
     3.0,
     1.5
 )
+
+val testProduct = Product(PRODUCT_NAME, PRODUCT_BARCODE, exampleNutrients)
