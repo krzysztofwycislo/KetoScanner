@@ -3,7 +3,7 @@ package pl.handsome.club.openfoodapi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.domain.product.ProductSearchState
 
 class DataConvertersTest {
 
@@ -14,9 +14,9 @@ class DataConvertersTest {
 
         val searchProduct = parseGetProductResponse(response)
 
-        assertTrue(searchProduct is SearchProduct.Success)
+        assertTrue(searchProduct is ProductSearchState.Success)
 
-        val product = (searchProduct as SearchProduct.Success).product
+        val product = (searchProduct as ProductSearchState.Success).product
         assertEquals(apiProduct.productName, product.name)
         assertEquals(response.barcode, product.barcode)
     }
@@ -27,7 +27,7 @@ class DataConvertersTest {
 
         val searchProduct = parseGetProductResponse(response)
 
-        assertTrue(searchProduct is SearchProduct.NotFound)
+        assertTrue(searchProduct is ProductSearchState.NotFound)
     }
 
 }

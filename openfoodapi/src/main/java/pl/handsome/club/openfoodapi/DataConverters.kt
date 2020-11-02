@@ -1,13 +1,13 @@
 package pl.handsome.club.openfoodapi
 
 import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
 
-internal fun parseGetProductResponse(response: GetProductResponse): SearchProduct {
+internal fun parseGetProductResponse(response: GetProductResponse): ProductSearchState {
     if (response.apiProduct == null) {
-        return SearchProduct.NotFound
+        return ProductSearchState.NotFound
     }
 
     val apiProduct = response.apiProduct
@@ -16,5 +16,5 @@ internal fun parseGetProductResponse(response: GetProductResponse): SearchProduc
         response.barcode
     )
 
-    return SearchProduct.Success(product)
+    return ProductSearchState.Success(product)
 }
