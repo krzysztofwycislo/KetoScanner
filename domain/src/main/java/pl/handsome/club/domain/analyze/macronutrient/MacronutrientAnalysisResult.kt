@@ -1,4 +1,4 @@
-package pl.handsome.club.domain.analyze
+package pl.handsome.club.domain.analyze.macronutrient
 
 sealed class MacronutrientAnalysisResult {
 

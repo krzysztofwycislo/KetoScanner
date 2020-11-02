@@ -1,5 +1,11 @@
 package pl.handsome.club.domain.analyze
 
+import pl.handsome.club.domain.analyze.general.GeneralAnalyser
+import pl.handsome.club.domain.analyze.general.GeneralAnalysisResult
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalyser
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyser
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.product.Product
 

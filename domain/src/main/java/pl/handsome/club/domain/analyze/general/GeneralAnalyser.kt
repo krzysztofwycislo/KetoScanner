@@ -1,4 +1,4 @@
-package pl.handsome.club.domain.analyze
+package pl.handsome.club.domain.analyze.general
 
 import pl.handsome.club.domain.product.Product
 

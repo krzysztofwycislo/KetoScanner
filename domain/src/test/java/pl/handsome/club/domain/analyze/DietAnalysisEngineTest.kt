@@ -1,14 +1,14 @@
-package pl.handsome.club.domain
+package pl.handsome.club.domain.analyze
 
 import org.junit.Assert.*
 import org.junit.Test
-import pl.handsome.club.domain.analyze.*
-import pl.handsome.club.domain.analyze.GeneralAnalysisResult
-import pl.handsome.club.domain.analyze.GeneralAnalyser
-import pl.handsome.club.domain.analyze.IngredientAnalyser
-import pl.handsome.club.domain.analyze.IngredientAnalysisResult
-import pl.handsome.club.domain.analyze.MacronutrientAnalyser
-import pl.handsome.club.domain.analyze.MacronutrientAnalysisResult
+import pl.handsome.club.domain.KCAL_2500
+import pl.handsome.club.domain.analyze.general.GeneralAnalysisResult
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
+import pl.handsome.club.domain.exampleProduct
+import pl.handsome.club.domain.ingredientPreferences
+import pl.handsome.club.domain.macronutrientPreferences
 
 import pl.handsome.club.domain.preferences.DietPreferences
 
