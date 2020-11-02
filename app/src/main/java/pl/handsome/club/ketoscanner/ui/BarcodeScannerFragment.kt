@@ -18,7 +18,7 @@ import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
-import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable
 import pl.handsome.club.ketoscanner.util.logException
 
@@ -54,12 +54,13 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         ActivityCompat.requestPermissions(requireActivity(), permissions, CAMERA_PERMISSION_RC)
     }
 
-    private fun onSearchStateChanged(searchProduct: SearchProduct?) {
-        when (searchProduct) {
-            is SearchProduct.InProgress -> {/* NOTHING */ }
-            is SearchProduct.NotFound -> showMessage(R.string.product_not_found)
-            is SearchProduct.Success -> navigateToSearchResult(searchProduct.product)
-            is SearchProduct.Error -> showErrorAndResumeScanning(searchProduct.throwable)
+    private fun onProductSearchStateChanged(productSearchState: ProductSearchState?) {
+        when (productSearchState) {
+            is ProductSearchState.InProgress -> {/* NOTHING */
+            }
+            is ProductSearchState.NotFound -> showMessage(R.string.product_not_found)
+            is ProductSearchState.Success -> navigateToSearchResult(productSearchState.product)
+            is ProductSearchState.Error -> showErrorAndResumeScanning(productSearchState.throwable)
         }
     }
 
@@ -77,9 +78,9 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     private fun onBarcodeScanned(barcode: String?) {
         if (barcode == null) return
 
-        searchProductViewModel.apply {
+        with(searchProductViewModel) {
             searchProductByBarcode(barcode)
-            getSearchState().observe(viewLifecycleOwner, ::onSearchStateChanged)
+            getProductSearchState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
         }
     }
 

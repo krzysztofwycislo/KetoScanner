@@ -10,11 +10,11 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.repository.ProductsRepository
+import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.data.testProduct
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
-import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.domain.product.ProductSearchState
 
 
 @ExperimentalCoroutinesApi
@@ -30,43 +30,43 @@ class SearchProductViewModelTest {
     private lateinit var viewModel: SearchProductViewModel
 
     @Mock
-    private lateinit var productsRepository: ProductsRepository
+    private lateinit var productRepository: ProductRepository
 
     @Mock
-    private lateinit var observer: Observer<SearchProduct>
+    private lateinit var observer: Observer<ProductSearchState>
 
 
     @Before
     fun init() {
-        viewModel = SearchProductViewModel(productsRepository)
-        viewModel.getSearchState().observeForever(observer)
+        viewModel = SearchProductViewModel(productRepository)
+        viewModel.getProductSearchState().observeForever(observer)
     }
 
     @Test
     fun `when searching for existing product then success search state with given product should be observer`() =
         coroutinesTestRule.runBlockingTest {
             val product = testProduct()
-            `when`(productsRepository.searchProductByBarcode(product.barcode))
-                .thenReturn(SearchProduct.Success(product))
+            `when`(productRepository.searchProductByBarcode(product.barcode))
+                .thenReturn(ProductSearchState.Success(product))
 
             viewModel.searchProductByBarcode(product.barcode)
 
-            verify(productsRepository).searchProductByBarcode(product.barcode)
-            verify(observer).onChanged(SearchProduct.InProgress)
-            verify(observer).onChanged(SearchProduct.Success(product))
+            verify(productRepository).searchProductByBarcode(product.barcode)
+            verify(observer).onChanged(ProductSearchState.InProgress)
+            verify(observer).onChanged(ProductSearchState.Success(product))
         }
 
     @Test
     fun `when searching for NON existing product then not found search state should be observer`() =
         coroutinesTestRule.runBlockingTest {
             val barcode = anyString()
-            `when`(productsRepository.searchProductByBarcode(barcode))
-                .thenReturn(SearchProduct.NotFound)
+            `when`(productRepository.searchProductByBarcode(barcode))
+                .thenReturn(ProductSearchState.NotFound)
 
             viewModel.searchProductByBarcode(barcode)
 
-            verify(observer).onChanged(SearchProduct.InProgress)
-            verify(observer).onChanged(SearchProduct.NotFound)
+            verify(observer).onChanged(ProductSearchState.InProgress)
+            verify(observer).onChanged(ProductSearchState.NotFound)
         }
 
     @Test
@@ -74,14 +74,14 @@ class SearchProductViewModelTest {
         coroutinesTestRule.runBlockingTest {
             val anyBarcode = anyString()
             val exampleException = IllegalStateException()
-            `when`(productsRepository.searchProductByBarcode(anyBarcode))
+            `when`(productRepository.searchProductByBarcode(anyBarcode))
                 .thenThrow(exampleException)
 
             viewModel.searchProductByBarcode(anyBarcode)
 
-            verify(productsRepository).searchProductByBarcode(anyBarcode)
-            verify(observer).onChanged(SearchProduct.InProgress)
-            verify(observer).onChanged(SearchProduct.Error(exampleException))
+            verify(productRepository).searchProductByBarcode(anyBarcode)
+            verify(observer).onChanged(ProductSearchState.InProgress)
+            verify(observer).onChanged(ProductSearchState.Error(exampleException))
         }
 
 }

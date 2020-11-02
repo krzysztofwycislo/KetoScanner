@@ -9,13 +9,11 @@ import kotlinx.android.synthetic.main.home_fragment.*
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.util.getNotEmptyString
-import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
-import pl.handsome.club.domain.product.SearchProduct
+import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable
-import pl.handsome.club.ketoscanner.util.logException
+import pl.handsome.club.ketoscanner.util.*
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
@@ -27,7 +25,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         super.onViewCreated(view, savedInstanceState)
 
         searchBtn.setOnClickListener {
-            searchProductByInput()
+            onSearchButtonClick()
         }
 
         openScannerBtn.setOnClickListener {
@@ -37,40 +35,39 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         if (BuildConfig.DEBUG) {
             searchInput.setText(R.string.exampleBarcode)
         }
-
-        searchProductViewModel.getSearchState()
-            .observe(viewLifecycleOwner, ::onSearchProductChange)
     }
 
-    private fun searchProductByInput() {
-        searchInput.getNotEmptyString()
-            ?.let(searchProductViewModel::searchProductByBarcode)
+    private fun onSearchButtonClick() {
+        val barcode = searchInput.getNotEmptyString() ?: return
+        searchBtn.disable()
+        searchProduct(barcode)
     }
 
-    private fun onSearchProductChange(searchProduct: SearchProduct?) {
-        when (searchProduct) {
-            is SearchProduct.InProgress -> progressBar.show()
-            is SearchProduct.NotFound -> onProductNotFound()
-            is SearchProduct.Success -> onSearchSuccess(searchProduct.product)
-            is SearchProduct.Error -> onSearchProductError(searchProduct.throwable)
+    private fun searchProduct(barcode: String) {
+        with(searchProductViewModel) {
+            searchProductByBarcode(barcode)
+            getProductSearchState().observe(viewLifecycleOwner, ::onSearchProductChange)
+        }
+    }
+
+    private fun onSearchProductChange(productSearchState: ProductSearchState?) {
+        if (productSearchState !is ProductSearchState.InProgress) {
+            progressBar.hide()
+            searchBtn.enable()
+        }
+
+        when (productSearchState) {
+            is ProductSearchState.InProgress -> progressBar.show()
+            is ProductSearchState.NotFound -> showMessage(R.string.product_not_found)
+            is ProductSearchState.Success -> onSearchSuccess(productSearchState.product)
+            is ProductSearchState.Error -> showErrorMessage(productSearchState.throwable)
         }
     }
 
     private fun onSearchSuccess(product: Product) {
-        progressBar.hide()
         HomeFragmentDirections
             .toSearchResultFragment(ProductParcelable(product))
             .let(::navigateTo)
-    }
-
-    private fun onProductNotFound() {
-        progressBar.hide()
-        showMessage(R.string.product_not_found)
-    }
-
-    private fun onSearchProductError(throwable: Throwable) {
-        progressBar.hide()
-        showErrorMessage(throwable)
     }
 
     private fun showErrorMessage(throwable: Throwable) {
