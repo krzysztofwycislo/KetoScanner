@@ -1,10 +1,10 @@
 package pl.handsome.club.domain.analyze
 
-import pl.handsome.club.domain.analyze.general.GeneralAnalyser
+import pl.handsome.club.domain.analyze.general.GeneralAnalyzer
 import pl.handsome.club.domain.analyze.general.GeneralAnalysisResult
-import pl.handsome.club.domain.analyze.ingredient.IngredientAnalyser
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalyzer
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
-import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyser
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.product.Product
@@ -29,7 +29,7 @@ class DietAnalysisEngine {
         preferences: DietPreferences,
         product: Product
     ): GeneralAnalysisResult {
-        return GeneralAnalyser.analyze(preferences.kcalPerDay, product)
+        return GeneralAnalyzer.analyze(preferences.kcalPerDay, product)
     }
 
     private fun ingredientAnalyze(
@@ -37,7 +37,7 @@ class DietAnalysisEngine {
         product: Product
     ): IngredientAnalysisResult {
         return preferences.ingredientPreferences
-            ?.let { IngredientAnalyser.analyze(it, product) }
+            ?.let { IngredientAnalyzer.analyze(it, product) }
             ?: IngredientAnalysisResult.NoPreferences
     }
 
@@ -46,7 +46,7 @@ class DietAnalysisEngine {
         product: Product
     ): MacronutrientAnalysisResult {
         return preferences.macronutrientPreferences
-            ?.let { MacronutrientAnalyser.analyze(it, product) }
+            ?.let { MacronutrientAnalyzer.analyze(it, product) }
             ?: MacronutrientAnalysisResult.NoPreferences
     }
 
