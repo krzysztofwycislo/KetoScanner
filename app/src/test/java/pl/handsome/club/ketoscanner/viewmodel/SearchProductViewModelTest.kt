@@ -11,7 +11,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.repository.ProductRepository
-import pl.handsome.club.ketoscanner.data.testProduct
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.domain.product.ProductSearchState
@@ -45,7 +44,7 @@ class SearchProductViewModelTest {
     @Test
     fun `when searching for existing product then success search state with given product should be observer`() =
         coroutinesTestRule.runBlockingTest {
-            val product = testProduct()
+            val product = testProduct
             `when`(productRepository.searchProductByBarcode(product.barcode))
                 .thenReturn(ProductSearchState.Success(product))
 

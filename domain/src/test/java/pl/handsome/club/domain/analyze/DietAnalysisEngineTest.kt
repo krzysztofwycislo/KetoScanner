@@ -2,18 +2,18 @@ package pl.handsome.club.domain.analyze
 
 import org.junit.Assert.*
 import org.junit.Test
-import pl.handsome.club.domain.KCAL_2500
+import pl.handsome.club.domain.*
 import pl.handsome.club.domain.analyze.general.GeneralAnalysisResult
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
-import pl.handsome.club.domain.exampleProduct
-import pl.handsome.club.domain.ingredientPreferences
-import pl.handsome.club.domain.macronutrientPreferences
 
 import pl.handsome.club.domain.preferences.DietPreferences
+import pl.handsome.club.domain.product.Product
 
 
 class DietAnalysisEngineTest {
+
+    private val exampleProduct = Product(PRODUCT_NAME, PRODUCT_BARCODE, exampleNutrients)
 
     private val dietAnalysisEngine = DietAnalysisEngine()
 

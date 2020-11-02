@@ -12,7 +12,8 @@ data class ProductParcelable(
     constructor(parcel: Parcel) : this(
         Product(
             parcel.readString()!!,
-            parcel.readString()!!
+            parcel.readString()!!,
+            parcel.readParcelable<ProductNutrientsParcelable>(ProductNutrientsParcelable::class.java.classLoader)!!.productNutriments
         )
     )
 
@@ -20,6 +21,7 @@ data class ProductParcelable(
         with(product) {
             parcel.writeString(name)
             parcel.writeString(barcode)
+            parcel.writeParcelable(ProductNutrientsParcelable(nutriments), flags)
         }
     }
 
