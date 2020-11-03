@@ -16,7 +16,7 @@ import pl.handsome.club.barcodescanner.BarcodeCameraScanner
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.navigateTo
-import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable

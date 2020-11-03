@@ -3,7 +3,6 @@ package pl.handsome.club.ketoscanner.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import pl.handsome.club.domain.repository.ProductRepository
-import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.openfoodapi.OpenFoodFactsRepository
 
 

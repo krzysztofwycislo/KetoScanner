@@ -5,6 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import pl.handsome.club.domain.product.ProductSearchState
 
+
 class DataConvertersTest {
 
     @Test

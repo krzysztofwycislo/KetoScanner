@@ -12,7 +12,6 @@ import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
-import pl.handsome.club.ketoscanner.viewmodel.product.SearchProductViewModel
 import pl.handsome.club.domain.product.ProductSearchState
 
 

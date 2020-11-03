@@ -14,46 +14,15 @@ data class ProductNutrientsParcelable(
         ProductNutriments(
             parcel.readDouble(),
             parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
-            parcel.readDouble(),
             parcel.readDouble()
         )
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         with(productNutriments) {
-            parcel.writeDouble(energyPer100g)
-            parcel.writeDouble(energyPerServing)
-
-            parcel.writeDouble(fatPer100g)
             parcel.writeDouble(fatPerServing)
-
-            parcel.writeDouble(saturatedFatPer100g)
-            parcel.writeDouble(saturatedFatPerServing)
-
-            parcel.writeDouble(carbohydratesPer100g)
             parcel.writeDouble(carbohydratesPerServing)
-
-            parcel.writeDouble(sugarsPer100g)
-            parcel.writeDouble(sugarsPerServing)
-
-            parcel.writeDouble(sugarsPer100g)
-            parcel.writeDouble(sugarsPerServing)
-
-            parcel.writeDouble(proteinsPer100g)
             parcel.writeDouble(proteinsPerServing)
-
-            parcel.writeDouble(saltPer100g)
-            parcel.writeDouble(saltPerServing)
         }
     }
 
