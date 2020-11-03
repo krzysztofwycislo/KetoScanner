@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.viewmodel.product
+package pl.handsome.club.ketoscanner.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
-import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.domain.repository.ProductRepository
+import pl.handsome.club.domain.product.ProductSearchState
 
 
 class SearchProductViewModel(
@@ -24,7 +24,6 @@ class SearchProductViewModel(
 
     fun searchProductByBarcode(barcode: String) {
         if(productSearchState.value is ProductSearchState.InProgress) return
-
         productSearchState.value = ProductSearchState.InProgress
 
         viewModelScope.launch(coroutineExceptionHandler) {

@@ -3,7 +3,6 @@ package pl.handsome.club.domain.analyze
 import org.junit.Assert.*
 import org.junit.Test
 import pl.handsome.club.domain.*
-import pl.handsome.club.domain.analyze.general.GeneralAnalysisResult
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 
@@ -26,7 +25,6 @@ class DietAnalysisEngineTest {
 
         with(analysisResult) {
             assertEquals(exampleProduct, product)
-            assertTrue(generalDietAnalysisResult is GeneralAnalysisResult.Success)
             assertTrue(ingredientAnalysisResult is IngredientAnalysisResult.Success)
             assertTrue(macronutrientAnalysisResult is MacronutrientAnalysisResult.Success)
         }
@@ -40,7 +38,6 @@ class DietAnalysisEngineTest {
 
         with(analysisResult) {
             assertEquals(exampleProduct, product)
-            assertTrue(generalDietAnalysisResult is GeneralAnalysisResult.Success)
             assertTrue(ingredientAnalysisResult is IngredientAnalysisResult.NoPreferences)
             assertTrue(macronutrientAnalysisResult is MacronutrientAnalysisResult.Success)
         }
@@ -54,7 +51,6 @@ class DietAnalysisEngineTest {
 
         with(analysisResult) {
             assertEquals(exampleProduct, product)
-            assertTrue(generalDietAnalysisResult is GeneralAnalysisResult.Success)
             assertTrue(ingredientAnalysisResult is IngredientAnalysisResult.Success)
             assertTrue(macronutrientAnalysisResult is MacronutrientAnalysisResult.NoPreferences)
         }

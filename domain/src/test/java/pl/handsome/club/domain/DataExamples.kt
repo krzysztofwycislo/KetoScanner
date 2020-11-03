@@ -13,5 +13,4 @@ fun createProduct(productNutriments: ProductNutriments) = Product(PRODUCT_NAME, 
 
 fun createProduct(name: String, productNutriments: ProductNutriments) = Product(name, PRODUCT_BARCODE, productNutriments)
 
-
 val exampleNutrients = ProductNutriments(30.0, 30.0, 30.0)

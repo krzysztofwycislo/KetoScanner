@@ -16,7 +16,7 @@ class SearchResultFragment : Fragment(R.layout.search_result_fragment) {
             ?.let { SearchResultFragmentArgs.fromBundle(it) }
             ?.productParcelable
             ?.product
-            ?.let(::initializeView)
+            ?.also(::initializeView)
     }
 
     private fun initializeView(product: Product) {
