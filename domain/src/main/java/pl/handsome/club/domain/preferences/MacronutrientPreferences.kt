@@ -5,6 +5,7 @@ import java.lang.IllegalStateException
 
 data class MacronutrientPreferences(
     val fatPercentage: Int,
+    val maxCarbohydratesAmount: Int,
     val carbohydratesPercentage: Int,
     val proteinsPercentage: Int
 ) {

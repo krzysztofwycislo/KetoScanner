@@ -8,6 +8,7 @@ import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.product.Product
+import pl.handsome.club.domain.product.ProductNutriments
 
 
 class DietAnalysisEngine {
@@ -15,7 +16,7 @@ class DietAnalysisEngine {
     fun analyze(preferences: DietPreferences, product: Product): ProductAnalysisResult {
         val generalAnalysisResult = generalAnalyze(preferences, product)
         val ingredientAnalysisResult = ingredientAnalyze(preferences, product)
-        val macronutrientAnalysisResult = macronutrientAnalyze(preferences, product)
+        val macronutrientAnalysisResult = macronutrientAnalyze(preferences, product.nutriments)
 
         return ProductAnalysisResult(
             product,
@@ -43,10 +44,10 @@ class DietAnalysisEngine {
 
     private fun macronutrientAnalyze(
         preferences: DietPreferences,
-        product: Product
+        productNutriments: ProductNutriments
     ): MacronutrientAnalysisResult {
         return preferences.macronutrientPreferences
-            ?.let { MacronutrientAnalyzer.analyze(it, product) }
+            ?.let { MacronutrientAnalyzer.analyze(it, productNutriments) }
             ?: MacronutrientAnalysisResult.NoPreferences
     }
 
