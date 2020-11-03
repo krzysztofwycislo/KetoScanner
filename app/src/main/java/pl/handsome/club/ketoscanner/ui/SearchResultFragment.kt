@@ -7,6 +7,7 @@ import kotlinx.android.synthetic.main.search_result_fragment.*
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 
+
 class SearchResultFragment : Fragment(R.layout.search_result_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
