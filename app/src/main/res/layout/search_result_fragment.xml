@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <ImageButton
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
@@ -32,7 +31,6 @@
         android:src="@drawable/more_vertical_white_32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <ImageView
         android:id="@+id/productImage"

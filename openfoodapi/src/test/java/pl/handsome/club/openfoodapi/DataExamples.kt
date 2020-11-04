@@ -5,9 +5,13 @@ import pl.handsome.club.openfoodapi.data.ApiProduct
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
 
-fun getProductResponseWithProduct(): GetProductResponse = GetProductResponse(1, "123456789", testApiProduct())
+private const val PRODUCT_NAME: String = "test name"
+private const val PRODUCT_BARCODE: String = "test barcode"
+private const val PRODUCT_URL: String = "test url"
 
-fun getProductResponseWithoutProduct(): GetProductResponse = GetProductResponse(0, "123456789", null)
+fun getProductResponseWithProduct(): GetProductResponse = GetProductResponse(1, PRODUCT_BARCODE, testApiProduct())
+
+fun getProductResponseWithoutProduct(): GetProductResponse = GetProductResponse(0, PRODUCT_BARCODE, null)
 
 private fun testApiProduct(): ApiProduct = ApiProduct(
     2,
@@ -15,7 +19,8 @@ private fun testApiProduct(): ApiProduct = ApiProduct(
     "emb_codes",
     listOf("additive_tag_1", "additive_tag_2"),
     listOf("ingredient_tag_1", "ingredient_tag_2"),
-    "product_name"
+    PRODUCT_NAME,
+    PRODUCT_URL
 )
 
 private fun testApiNutriments(): ApiNutriments = ApiNutriments(
