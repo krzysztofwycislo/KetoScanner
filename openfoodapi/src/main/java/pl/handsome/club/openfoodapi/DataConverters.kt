@@ -19,7 +19,8 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
         val product = Product(
             productName,
             response.barcode,
-            productNutriments
+            productNutriments,
+            frontImage
         )
 
         ProductSearchState.Success(product)
