@@ -22,6 +22,9 @@ class SearchResultFragment : Fragment(R.layout.search_result_fragment) {
 
     private fun initializeView(product: Product) {
         productName.text = product.name
+        productName.setOnClickListener {
+            productName.maxLines = if(productName.maxLines == 1) 10 else 1
+        }
     }
 
 }
