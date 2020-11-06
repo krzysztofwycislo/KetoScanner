@@ -1,64 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/home">
 
     <fragment
-        android:id="@+id/homeFragment"
+        android:id="@+id/home"
         android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
         android:label="HomeFragment" >
         <action
-            android:id="@+id/to_searchResultFragment"
-            app:destination="@id/searchResultFragment"
-            app:enterAnim="@anim/fragment_close_enter"
-            app:exitAnim="@anim/fragment_fade_exit"/>
-        <action
             android:id="@+id/to_preferencesFragment"
-            app:destination="@id/preferencesFragment" />
+            app:destination="@id/preferences" />
         <action
             android:id="@+id/to_ketoPreferencesFragment"
-            app:destination="@id/ketoPreferencesFragment" />
+            app:destination="@id/dietPreferences" />
         <action
             android:id="@+id/to_barcodeScannerFragment"
-            app:destination="@id/barcodeScannerFragment" />
+            app:destination="@id/scan" />
     </fragment>
     <fragment
-        android:id="@+id/searchResultFragment"
+        android:id="@+id/result"
         android:name="pl.handsome.club.ketoscanner.ui.SearchResultFragment"
         android:label="SearchResultFragment" >
         <action
             android:id="@+id/to_productDetailsFragment"
-            app:destination="@id/productDetailsFragment" />
+            app:destination="@id/productDetails" />
         <argument
             android:name="product_parcelable"
             app:argType="pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable" />
     </fragment>
     <fragment
-        android:id="@+id/aboutApplicationFragment"
-        android:name="pl.handsome.club.ketoscanner.ui.AboutApplicationFragment"
-        android:label="AboutApplicationFragment" />
-    <fragment
-        android:id="@+id/ketoPreferencesFragment"
+        android:id="@+id/dietPreferences"
         android:name="pl.handsome.club.ketoscanner.ui.KetoPreferencesFragment"
         android:label="KetoPreferencesFragment" />
     <fragment
-        android:id="@+id/productDetailsFragment"
+        android:id="@+id/productDetails"
         android:name="pl.handsome.club.ketoscanner.ui.ProductDetailsFragment"
         android:label="ProductDetailsFragment" />
     <fragment
-        android:id="@+id/preferencesFragment"
+        android:id="@+id/preferences"
         android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
-        android:label="PreferencesFragment" >
-        <action
-            android:id="@+id/to_aboutApplicationFragment"
-            app:destination="@id/aboutApplicationFragment" />
-    </fragment>
+        android:label="PreferencesFragment" />
     <fragment
-        android:id="@+id/barcodeScannerFragment"
+        android:id="@+id/scan"
         android:name="pl.handsome.club.ketoscanner.ui.BarcodeScannerFragment"
         android:label="BarcodeScannerFragment" >
         <action
             android:id="@+id/to_searchResultFragment"
-            app:destination="@id/searchResultFragment" />
+            app:destination="@id/result" />
     </fragment>
 </navigation>
