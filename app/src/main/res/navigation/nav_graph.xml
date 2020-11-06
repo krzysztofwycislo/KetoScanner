@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/home">
 
     <fragment
         android:id="@+id/home"
         android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
-        android:label="HomeFragment" >
+        android:label="HomeFragment">
         <action
             android:id="@+id/to_preferencesFragment"
             app:destination="@id/preferences" />
@@ -14,8 +15,8 @@
             android:id="@+id/to_ketoPreferencesFragment"
             app:destination="@id/dietPreferences" />
         <action
-            android:id="@+id/to_barcodeScannerFragment"
-            app:destination="@id/scan" />
+            android:id="@+id/to_searchProductFragment"
+            app:destination="@id/search" />
     </fragment>
     <fragment
         android:id="@+id/result"
@@ -38,9 +39,9 @@
         android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
         android:label="PreferencesFragment" />
     <fragment
-        android:id="@+id/scan"
-        android:name="pl.handsome.club.ketoscanner.ui.BarcodeScannerFragment"
-        android:label="BarcodeScannerFragment" >
+        android:id="@+id/search"
+        android:name="pl.handsome.club.ketoscanner.ui.SearchProductFragment"
+        android:label="SearchProductFragment">
         <action
             android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
