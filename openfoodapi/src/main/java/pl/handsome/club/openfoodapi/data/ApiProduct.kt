@@ -9,5 +9,5 @@ data class ApiProduct (
     @Json(name = "additives_tags") val additivesTags : List<String>,
     @Json(name = "ingredients_tags") val ingredientsTags : List<String>,
     @Json(name = "product_name") val productName : String,
-    @Json(name = "image_front_url") val frontImage : String?,
+    @Json(name = "image_url") val frontImage : String?,
 )
