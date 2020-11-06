@@ -10,7 +10,7 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/scan"
+        android:id="@+id/search"
         android:icon="@drawable/barcode_black_48dp"
         android:orderInCategory="2"
         android:title="@string/bottom_navigation_scan"
