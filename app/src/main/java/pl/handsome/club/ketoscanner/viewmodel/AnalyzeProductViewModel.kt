@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
+import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.product.ProductSearchState
+import pl.handsome.club.domain.repository.AnalysisHistoryRepository
 import pl.handsome.club.domain.repository.DietPreferencesRepository
 import pl.handsome.club.domain.repository.ProductRepository
 
@@ -17,15 +19,16 @@ import pl.handsome.club.domain.repository.ProductRepository
 class AnalyzeProductViewModel(
     private val dietAnalysisEngine: DietAnalysisEngine,
     private val preferencesRepository: DietPreferencesRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val analysisHistoryRepository: AnalysisHistoryRepository
 ) : ViewModel() {
 
     private val productAnalysisState = MutableLiveData<ProductAnalysisState>()
 
-
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         ProductAnalysisState.Error(throwable).let(productAnalysisState::postValue)
     }
+
 
     fun getProductAnalysisState(): LiveData<ProductAnalysisState> = productAnalysisState
 
@@ -41,7 +44,7 @@ class AnalyzeProductViewModel(
 
     private fun handleSearchResult(searchResult: ProductSearchState) {
         val analysisState = when (searchResult) {
-            is ProductSearchState.Success -> analyzeProduct(searchResult.product)
+            is ProductSearchState.Success -> onSearchResultSuccess(searchResult.product)
             is ProductSearchState.Error -> ProductAnalysisState.Error(searchResult.throwable)
             is ProductSearchState.NotFound -> ProductAnalysisState.ProductNotFound
         }
@@ -49,11 +52,15 @@ class AnalyzeProductViewModel(
         productAnalysisState.postValue(analysisState)
     }
 
-    private fun analyzeProduct(product: Product): ProductAnalysisState.Success {
-        val preferences = preferencesRepository.getDietPreferences()
-
-        return dietAnalysisEngine.analyze(preferences, product)
+    private fun onSearchResultSuccess(product: Product): ProductAnalysisState {
+        return analyzeProduct(product)
+            .also(analysisHistoryRepository::save)
             .let(ProductAnalysisState::Success)
+    }
+
+    private fun analyzeProduct(product: Product): ProductAnalysisResult {
+        val preferences = preferencesRepository.getDietPreferences()
+        return dietAnalysisEngine.analyze(preferences, product)
     }
 
 }
