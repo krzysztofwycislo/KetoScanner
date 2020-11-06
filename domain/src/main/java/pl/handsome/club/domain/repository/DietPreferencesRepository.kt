@@ -5,7 +5,7 @@ import pl.handsome.club.domain.preferences.DietPreferences
 
 interface DietPreferencesRepository {
 
-    suspend fun getDietPreferences() : DietPreferences
+    fun getDietPreferences() : DietPreferences
 
     suspend fun setDietPreferences(dietPreferences: DietPreferences)
 

@@ -19,12 +19,10 @@ object ViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         val viewModel = when (modelClass) {
-
-            SearchProductViewModel::class.java -> SearchProductViewModel(productRepository)
-
             AnalyzeProductViewModel::class.java -> AnalyzeProductViewModel(
                 dietAnalysisEngine,
-                preferencesRepository
+                preferencesRepository,
+                productRepository
             )
 
             else -> modelClass.newInstance()

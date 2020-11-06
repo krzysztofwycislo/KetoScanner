@@ -19,14 +19,11 @@
     </fragment>
     <fragment
         android:id="@+id/result"
-        android:name="pl.handsome.club.ketoscanner.ui.SearchResultFragment"
-        android:label="SearchResultFragment" >
+        android:name="pl.handsome.club.ketoscanner.ui.ProductAnalysisResultFragment"
+        android:label="ProductAnalysisResultFragment">
         <action
             android:id="@+id/to_productDetailsFragment"
             app:destination="@id/productDetails" />
-        <argument
-            android:name="product_parcelable"
-            app:argType="pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable" />
     </fragment>
     <fragment
         android:id="@+id/dietPreferences"
@@ -45,7 +42,7 @@
         android:name="pl.handsome.club.ketoscanner.ui.BarcodeScannerFragment"
         android:label="BarcodeScannerFragment" >
         <action
-            android:id="@+id/to_searchResultFragment"
+            android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
     </fragment>
 </navigation>

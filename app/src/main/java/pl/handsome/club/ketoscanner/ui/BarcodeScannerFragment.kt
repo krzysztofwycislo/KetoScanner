@@ -8,26 +8,24 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.barcode_scanner_fragment.*
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
-import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.product.ProductSearchState
+import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.ui.parcelable.ProductParcelable
 import pl.handsome.club.ketoscanner.util.getNotEmptyString
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.util.onKeyEnter
-import pl.handsome.club.ketoscanner.viewmodel.SearchProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 
 
 class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
 
-    private val searchProductViewModel: SearchProductViewModel by viewModels { ViewModelFactory }
+    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModels { ViewModelFactory }
 
     private var barcodeCameraScanner: BarcodeCameraScanner? = null
 
@@ -58,9 +56,9 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     }
 
     private fun searchProduct(barcode: String) {
-        with(searchProductViewModel) {
-            searchProductByBarcode(barcode)
-            getProductSearchState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
+        with(analyzeProductViewModel) {
+            searchAndAnalyzeProduct(barcode)
+            getProductAnalysisState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
         }
     }
 
@@ -88,16 +86,16 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
         requestPermissions(permissions, CAMERA_PERMISSION_RC)
     }
 
-    private fun onProductSearchStateChanged(productSearchState: ProductSearchState?) {
-        if(productSearchState !is ProductSearchState.InProgress) {
+    private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
+        if (productAnalysisState !is ProductAnalysisState.InProgress) {
             progressBar.hide()
         }
 
-        when (productSearchState) {
-            is ProductSearchState.InProgress -> progressBar.show()
-            is ProductSearchState.NotFound -> showMessage(R.string.product_not_found)
-            is ProductSearchState.Success -> navigateToSearchResult(productSearchState.product)
-            is ProductSearchState.Error -> showErrorAndResumeScanning(productSearchState.throwable)
+        when (productAnalysisState) {
+            is ProductAnalysisState.InProgress -> progressBar.show()
+            is ProductAnalysisState.ProductNotFound -> showMessage(R.string.product_not_found)
+            is ProductAnalysisState.Success -> navigateToAnalyzeResult()
+            is ProductAnalysisState.Error -> showErrorAndResumeScanning(productAnalysisState.throwable)
         }
     }
 
@@ -109,17 +107,12 @@ class BarcodeScannerFragment : Fragment(R.layout.barcode_scanner_fragment) {
     }
 
     private fun onBarcodeScanned(barcode: String?) {
-        if (barcode == null) return
-
-        with(searchProductViewModel) {
-            searchProductByBarcode(barcode)
-            getProductSearchState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
-        }
+        barcode?.also(::searchProduct)
     }
 
-    private fun navigateToSearchResult(product: Product) {
+    private fun navigateToAnalyzeResult() {
         BarcodeScannerFragmentDirections
-            .toSearchResultFragment(ProductParcelable(product))
+            .toProductAnalysisResultFragment()
             .let(::navigateTo)
     }
 

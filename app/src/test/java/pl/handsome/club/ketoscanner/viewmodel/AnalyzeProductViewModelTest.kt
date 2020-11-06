@@ -7,16 +7,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.preferences.DietPreferences
-import pl.handsome.club.domain.product.Product
+import pl.handsome.club.domain.product.ProductSearchState
 import pl.handsome.club.domain.repository.DietPreferencesRepository
+import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 
 
@@ -36,6 +36,9 @@ class AnalyzeProductViewModelTest {
     private lateinit var observer: Observer<ProductAnalysisState>
 
     @Mock
+    private lateinit var productRepository: ProductRepository
+
+    @Mock
     private lateinit var preferencesRepository: DietPreferencesRepository
 
     @Mock
@@ -44,22 +47,27 @@ class AnalyzeProductViewModelTest {
 
     @Before
     fun init() {
-        viewModel = AnalyzeProductViewModel(dietAnalysisEngine, preferencesRepository)
+        viewModel = AnalyzeProductViewModel(dietAnalysisEngine, preferencesRepository, productRepository)
         viewModel.getProductAnalysisState().observeForever(observer)
     }
 
     @Test
-    fun `when we want to analyze product then result should be observed`() =
+    fun `when we want to search and analyze product then result should be observed`() =
         coroutinesTestRule.runBlockingTest {
             val product = testProduct
             val preferences = exampleDietPreferences
+
+            `when`(productRepository.searchProductByBarcode(product.barcode))
+                .thenReturn(ProductSearchState.Success(product))
 
             `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
 
             val resultToReturn = ProductAnalysisResult(product, null, null)
             `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
 
-            viewModel.analyzeProduct(product)
+
+            viewModel.searchAndAnalyzeProduct(product.barcode)
+
 
             verify(observer).onChanged(ProductAnalysisState.InProgress)
             verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
