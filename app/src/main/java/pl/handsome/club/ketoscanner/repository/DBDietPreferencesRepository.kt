@@ -15,7 +15,7 @@ class DBDietPreferencesRepository : DietPreferencesRepository {
         return TEMPORARY_DIET_PREFERENCES
     }
 
-    override suspend fun getDietPreferences(): DietPreferences = dietPreferences
+    override fun getDietPreferences(): DietPreferences = dietPreferences
 
     override suspend fun setDietPreferences(dietPreferences: DietPreferences) {
         this.dietPreferences = dietPreferences
