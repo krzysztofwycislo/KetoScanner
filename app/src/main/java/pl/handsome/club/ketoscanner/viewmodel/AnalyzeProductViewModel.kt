@@ -38,11 +38,11 @@ class AnalyzeProductViewModel(
 
         viewModelScope.launch(coroutineExceptionHandler) {
             productRepository.searchProductByBarcode(barcode)
-                .also(::handleSearchResult)
+                .also { handleSearchResult(it) }
         }
     }
 
-    private fun handleSearchResult(searchResult: ProductSearchState) {
+    private suspend fun handleSearchResult(searchResult: ProductSearchState) {
         val analysisState = when (searchResult) {
             is ProductSearchState.Success -> onSearchResultSuccess(searchResult.product)
             is ProductSearchState.Error -> ProductAnalysisState.Error(searchResult.throwable)
@@ -52,10 +52,10 @@ class AnalyzeProductViewModel(
         productAnalysisState.postValue(analysisState)
     }
 
-    private fun onSearchResultSuccess(product: Product): ProductAnalysisState {
+    private suspend fun onSearchResultSuccess(product: Product): ProductAnalysisState {
         return analyzeProduct(product)
-            .also(analysisHistoryRepository::save)
-            .let(ProductAnalysisState::Success)
+            .also { analysisHistoryRepository.save(it) }
+            .let { ProductAnalysisState.Success(it) }
     }
 
     private fun analyzeProduct(product: Product): ProductAnalysisResult {

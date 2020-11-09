@@ -26,11 +26,11 @@
 
     <fragment
         android:id="@+id/searchHistoryFragment"
-        android:name="pl.handsome.club.ketoscanner.ui.SearchHistoryFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.LastAnalysisHistoryFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/large_100"
-        tools:layout="@layout/search_history_fragment"
+        tools:layout="@layout/last_analysis_history_fragment"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/welcomeText" />
 
