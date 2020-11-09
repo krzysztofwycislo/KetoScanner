@@ -25,6 +25,7 @@
         app:layout_constraintTop_toTopOf="@+id/historyListLabel" />
 
     <ListView
+        android:id="@+id/lastAnalysisList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/normal_100"

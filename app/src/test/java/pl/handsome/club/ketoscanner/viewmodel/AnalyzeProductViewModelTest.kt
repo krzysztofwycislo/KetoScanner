@@ -8,13 +8,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.product.ProductSearchState
+import pl.handsome.club.domain.repository.AnalysisHistoryRepository
 import pl.handsome.club.domain.repository.DietPreferencesRepository
 import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
@@ -44,15 +44,18 @@ class AnalyzeProductViewModelTest {
     @Mock
     private lateinit var dietAnalysisEngine: DietAnalysisEngine
 
+    @Mock
+    private lateinit var analysisHistoryRepository: AnalysisHistoryRepository
+
 
     @Before
     fun init() {
-        viewModel = AnalyzeProductViewModel(dietAnalysisEngine, preferencesRepository, productRepository)
+        viewModel = AnalyzeProductViewModel(dietAnalysisEngine, preferencesRepository, productRepository, analysisHistoryRepository)
         viewModel.getProductAnalysisState().observeForever(observer)
     }
 
     @Test
-    fun `when we want to search and analyze product then result should be observed`() =
+    fun `when we want to search and analyze product then result should be saved in history and observed`() =
         coroutinesTestRule.runBlockingTest {
             val product = testProduct
             val preferences = exampleDietPreferences
@@ -71,6 +74,7 @@ class AnalyzeProductViewModelTest {
 
             verify(observer).onChanged(ProductAnalysisState.InProgress)
             verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
+            verify(analysisHistoryRepository, times(1)).save(resultToReturn)
         }
 
 }

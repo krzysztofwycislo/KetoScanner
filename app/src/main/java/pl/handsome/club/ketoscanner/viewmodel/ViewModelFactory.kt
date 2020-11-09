@@ -13,8 +13,9 @@ import pl.handsome.club.openfoodapi.OpenFoodFactsRepository
 // TODO add dependency injection
 object ViewModelFactory : ViewModelProvider.Factory {
 
-    private val productRepository: ProductRepository = OpenFoodFactsRepository()
     private val dietAnalysisEngine: DietAnalysisEngine = DietAnalysisEngine()
+
+    private val productRepository: ProductRepository = OpenFoodFactsRepository()
     private val preferencesRepository: DietPreferencesRepository = DBDietPreferencesRepository()
     private val analysisHistoryRepository: AnalysisHistoryRepository = DBAnalysisHistoryRepository()
 
@@ -26,6 +27,10 @@ object ViewModelFactory : ViewModelProvider.Factory {
                 dietAnalysisEngine,
                 preferencesRepository,
                 productRepository,
+                analysisHistoryRepository
+            )
+
+            AnalysisHistoryViewModel::class.java -> AnalysisHistoryViewModel(
                 analysisHistoryRepository
             )
 
