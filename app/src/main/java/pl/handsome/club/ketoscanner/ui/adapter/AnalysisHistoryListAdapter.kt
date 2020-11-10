@@ -12,7 +12,8 @@ import pl.handsome.club.ketoscanner.R
 
 
 class AnalysisHistoryListAdapter(
-    private val productAnalysisResults: List<ProductAnalysisHistoryEntry>
+    private val productAnalysisResults: List<ProductAnalysisHistoryEntry>,
+    private val onItemClick: (ProductAnalysisHistoryEntry) -> Unit
 ) : RecyclerView.Adapter<AnalysisHistoryListAdapter.ViewHolder>() {
 
 
@@ -23,7 +24,7 @@ class AnalysisHistoryListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        productAnalysisResults[position].also(holder::bind)
+        productAnalysisResults[position].also { holder.bind(it, onItemClick) }
     }
 
     override fun getItemCount(): Int = productAnalysisResults.size
@@ -34,11 +35,17 @@ class AnalysisHistoryListAdapter(
         private val resultStatusIcon: ImageView = view.resultStatusIcon
         private val productBrandText: TextView = view.productBrand
         private val productNameText: TextView = view.productName
+        private val itemContainer: View = view.itemContainer
 
 
-        fun bind(productAnalysisHistoryEntry: ProductAnalysisHistoryEntry) {
+        fun bind(
+            productAnalysisHistoryEntry: ProductAnalysisHistoryEntry,
+            onItemClick: (ProductAnalysisHistoryEntry) -> Unit
+        ) {
             productNameText.text = productAnalysisHistoryEntry.productName
             productBrandText.text = productAnalysisHistoryEntry.productBrand
+
+            itemContainer.setOnClickListener { onItemClick.invoke(productAnalysisHistoryEntry) }
         }
 
     }
