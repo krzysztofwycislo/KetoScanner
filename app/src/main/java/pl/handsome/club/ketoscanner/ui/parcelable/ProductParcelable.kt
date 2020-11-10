@@ -13,6 +13,7 @@ data class ProductParcelable(
         Product(
             parcel.readString()!!,
             parcel.readString()!!,
+            parcel.readString()!!,
             parcel.readParcelable<ProductNutrientsParcelable>(ProductNutrientsParcelable::class.java.classLoader)!!.productNutriments,
             parcel.readString()!!,
 
@@ -23,6 +24,7 @@ data class ProductParcelable(
         with(product) {
             parcel.writeString(name)
             parcel.writeString(barcode)
+            parcel.writeString(brand)
             parcel.writeParcelable(ProductNutrientsParcelable(nutriments), flags)
             parcel.writeString(imageUrl)
         }

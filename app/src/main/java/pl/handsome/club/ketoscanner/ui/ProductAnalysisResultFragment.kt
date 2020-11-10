@@ -3,20 +3,19 @@ package pl.handsome.club.ketoscanner.ui
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.product_analisis_result_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 
 
 class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
 
-    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModels { ViewModelFactory }
+    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

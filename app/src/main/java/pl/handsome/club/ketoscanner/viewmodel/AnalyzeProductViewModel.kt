@@ -1,5 +1,6 @@
 package pl.handsome.club.ketoscanner.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -53,6 +54,7 @@ class AnalyzeProductViewModel(
     }
 
     private suspend fun onSearchResultSuccess(product: Product): ProductAnalysisState {
+        Log.i("TEST", Thread.currentThread().name)
         return analyzeProduct(product)
             .also { analysisHistoryRepository.save(it) }
             .let { ProductAnalysisState.Success(it) }

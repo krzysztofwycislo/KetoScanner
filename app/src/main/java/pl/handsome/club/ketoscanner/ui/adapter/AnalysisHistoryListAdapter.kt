@@ -8,18 +8,18 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.history_list_item.view.*
-import pl.handsome.club.domain.analyze.ProductAnalysisResult
+import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.R
 
 
 class AnalysisHistoryListAdapter(
     private val context: Context,
-    private val entries: List<ProductAnalysisResult>
+    private val productAnalysisResults: List<ProductAnalysisHistoryEntry>
 ) : BaseAdapter() {
 
-    override fun getCount(): Int = entries.size
+    override fun getCount(): Int = productAnalysisResults.size
 
-    override fun getItem(position: Int): Any = entries[position]
+    override fun getItem(position: Int): Any = productAnalysisResults[position]
 
     override fun getItemId(position: Int): Long = position.toLong()
 
@@ -36,8 +36,8 @@ class AnalysisHistoryListAdapter(
             resultView = convertView
         }
 
-        val currentItem = getItem(position) as ProductAnalysisResult
-        viewHolder.initialize(currentItem)
+        val productAnalysisResult = productAnalysisResults[position]
+        viewHolder.bind(productAnalysisResult)
 
         return resultView
     }
@@ -45,12 +45,13 @@ class AnalysisHistoryListAdapter(
     private class ViewHolder(view: View) {
 
         private val resultStatusIcon: ImageView = view.resultStatusIcon
-        private val productCompanyNameText: TextView = view.productCompanyName
+        private val productBrandText: TextView = view.productBrand
         private val productNameText: TextView = view.productName
 
 
-        fun initialize(currentItem: ProductAnalysisResult) {
-            productNameText.text = currentItem.product.name
+        fun bind(productAnalysisHistoryEntry: ProductAnalysisHistoryEntry) {
+            productNameText.text = productAnalysisHistoryEntry.productName
+            productBrandText.text = productAnalysisHistoryEntry.productBrand
         }
 
     }

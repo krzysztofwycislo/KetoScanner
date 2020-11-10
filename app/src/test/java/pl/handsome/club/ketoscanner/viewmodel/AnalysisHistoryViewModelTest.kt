@@ -30,9 +30,9 @@ class AnalysisHistoryViewModelTest {
     fun `when we want to get last products analysis then we should get them`() {
         val analysisResultsToReturn = listOf<ProductAnalysisResult>()
         val anyAmountToReturn = anyInt()
-        `when`(analysisHistoryRepository.getLastEntries(anyAmountToReturn)).thenReturn(analysisResultsToReturn)
+        `when`(analysisHistoryRepository.getLastUniqueEntries(anyAmountToReturn)).thenReturn(analysisResultsToReturn)
 
-        val lastEntries = viewModel.getLastEntries(anyAmountToReturn)
+        val lastEntries = viewModel.loadLastUniqueEntries(anyAmountToReturn)
 
         assertEquals(analysisResultsToReturn, lastEntries)
     }
