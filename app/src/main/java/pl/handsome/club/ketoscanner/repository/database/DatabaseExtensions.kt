@@ -12,6 +12,7 @@ internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistor
         productName,
         productBarcode,
         productBrand,
+        updateTime,
         ingredientAnalysisResult,
         macronutrientAnalysisResult
     )

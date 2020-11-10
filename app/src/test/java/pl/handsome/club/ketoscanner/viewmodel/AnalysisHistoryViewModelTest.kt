@@ -42,7 +42,7 @@ class AnalysisHistoryViewModelTest {
     }
 
     @Test
-    fun `when we want to get last products analysis then we should be able to observe them`() =
+    fun `when we want to get last products analysis then we should be able to observe only unique products`() =
         coroutinesTestRule.runBlockingTest {
             val historyEntriesToReturn = listOf<ProductAnalysisHistoryEntry>()
             val anyAmountToReturn = anyInt()

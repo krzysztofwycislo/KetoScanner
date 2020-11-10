@@ -9,7 +9,7 @@ import androidx.room.Query
 @Dao
 interface ProductAnalysisHistoryDao {
 
-    @Query("SELECT * FROM ${ProductAnalysisHistoryEntryEntity.TABLE_NAME} LIMIT (:amount)")
+    @Query("SELECT * FROM ${ProductAnalysisHistoryEntryEntity.TABLE_NAME} GROUP BY productBarcode  ORDER BY updateTime DESC LIMIT (:amount)")
     fun getLastEntries(amount: Int): List<ProductAnalysisHistoryEntryEntity>
 
     @Insert

@@ -1,6 +1,5 @@
 package pl.handsome.club.ketoscanner.repository
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
@@ -22,7 +21,6 @@ class DBAnalysisHistoryRepository(
 
     override suspend fun save(result: ProductAnalysisResult) {
         withContext(Dispatchers.IO) {
-            Log.i("TEST", Thread.currentThread().name)
             productAnalysisHistoryDao.insert(result.toHistoryEntry())
         }
     }
