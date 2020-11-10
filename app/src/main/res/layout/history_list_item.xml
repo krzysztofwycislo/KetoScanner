@@ -9,8 +9,33 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/normal_100"
+        android:paddingTop="@dimen/normal_100"
+        android:paddingBottom="@dimen/normal_100"
         app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/productBrand"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/small_100"
+            android:textSize="@dimen/text_small_100"
+            app:layout_constraintBottom_toTopOf="@id/productName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/resultStatusIcon"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Company name" />
+
+        <TextView
+            android:id="@+id/productName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small_100"
+            android:textSize="@dimen/text_regular_100"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/resultStatusIcon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Product name" />
 
         <ImageView
             android:id="@+id/resultStatusIcon"
@@ -18,35 +43,16 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/result_summary_image"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/happy_face_green_800_24dp" />
-
-        <TextView
-            android:id="@+id/productBrand"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/normal_100"
-            android:layout_marginBottom="@dimen/small_100"
-            android:textSize="@dimen/text_small_100"
-            app:layout_constraintBottom_toTopOf="@id/productName"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/resultStatusIcon"
-            tools:text="Company name" />
-
-        <TextView
-            android:id="@+id/productName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/normal_100"
-            android:layout_marginTop="@dimen/small_100"
-            android:textSize="@dimen/text_regular_100"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/resultStatusIcon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Product name" />
+            android:src="@drawable/happy_face_green_800_24dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/light_grey"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

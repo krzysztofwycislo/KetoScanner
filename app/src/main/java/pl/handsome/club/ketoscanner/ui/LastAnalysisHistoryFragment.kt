@@ -23,7 +23,7 @@ class LastAnalysisHistoryFragment : Fragment(R.layout.last_analysis_history_frag
     }
 
     private fun initializeList(lastEntries: List<ProductAnalysisHistoryEntry>) {
-        lastAnalysisList.adapter = AnalysisHistoryListAdapter(requireContext(), lastEntries)
+        lastAnalysisList.adapter = AnalysisHistoryListAdapter(lastEntries)
     }
 
     companion object {
