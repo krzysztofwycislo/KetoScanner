@@ -61,10 +61,6 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         }
     }
 
-    private fun showMessage(messageId: Int) {
-        messageId.let { Toast.makeText(requireContext(), it, Toast.LENGTH_LONG) }.show()
-    }
-
     private fun hasCameraPermission(): Boolean {
         val rc = checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
         return rc == PackageManager.PERMISSION_GRANTED
@@ -75,8 +71,7 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         barcodeCameraScanner = BarcodeCameraScanner(this, cameraPreviewView)
             .apply {
                 start()
-                getScannedBarcode()
-                    .observe(viewLifecycleOwner, ::onBarcodeScanned)
+                getScannedBarcode().observe(viewLifecycleOwner, ::onBarcodeScanned)
             }
     }
 
@@ -103,6 +98,10 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         barcodeCameraScanner?.resume()
         logException(throwable)
         showMessage(R.string.something_went_wrong)
+    }
+
+    private fun showMessage(messageId: Int) {
+        Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
     private fun onBarcodeScanned(barcode: String?) {

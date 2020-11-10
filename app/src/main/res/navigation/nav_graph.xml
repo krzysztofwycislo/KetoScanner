@@ -18,12 +18,13 @@
             android:id="@+id/to_searchProductFragment"
             app:destination="@id/search" />
         <action
-            android:id="@+id/action_home_to_result"
+            android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
         <action
-            android:id="@+id/action_home_to_favoriteProductsFragment"
+            android:id="@+id/to_favoriteProductsFragment"
             app:destination="@id/favorites" />
     </fragment>
+
     <fragment
         android:id="@+id/result"
         android:name="pl.handsome.club.ketoscanner.ui.ProductAnalysisResultFragment"
@@ -32,18 +33,22 @@
             android:id="@+id/to_productDetailsFragment"
             app:destination="@id/productDetails" />
     </fragment>
+
     <fragment
         android:id="@+id/dietPreferences"
         android:name="pl.handsome.club.ketoscanner.ui.KetoPreferencesFragment"
         android:label="KetoPreferencesFragment" />
+
     <fragment
         android:id="@+id/productDetails"
         android:name="pl.handsome.club.ketoscanner.ui.ProductDetailsFragment"
         android:label="ProductDetailsFragment" />
+
     <fragment
         android:id="@+id/preferences"
         android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
         android:label="PreferencesFragment" />
+
     <fragment
         android:id="@+id/search"
         android:name="pl.handsome.club.ketoscanner.ui.SearchProductFragment"
@@ -52,12 +57,14 @@
             android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
     </fragment>
+
     <fragment
         android:id="@+id/favorites"
         android:name="pl.handsome.club.ketoscanner.ui.FavoriteProductsFragment"
         android:label="FavoriteProductsFragment" >
         <action
-            android:id="@+id/action_favoriteProductsFragment_to_result"
+            android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
     </fragment>
+
 </navigation>
