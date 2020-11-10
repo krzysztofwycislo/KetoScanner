@@ -8,9 +8,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.search_product_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.ketoscanner.BuildConfig
@@ -20,12 +20,11 @@ import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.util.onKeyEnter
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.ViewModelFactory
 
 
 class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
 
-    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModels { ViewModelFactory }
+    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
 
     private var barcodeCameraScanner: BarcodeCameraScanner? = null
 

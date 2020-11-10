@@ -12,6 +12,7 @@ const val KCAL_2500: Int = 2500
 
 private const val PRODUCT_NAME: String = "test name"
 private const val PRODUCT_BARCODE: String = "test barcode"
+private const val PRODUCT_COMPANY_NAME: String = "test company name"
 private const val PRODUCT_URL: String = "test url"
 
 val exampleNutrients = ProductNutriments(
@@ -20,7 +21,7 @@ val exampleNutrients = ProductNutriments(
     30.0
 )
 
-val testProduct = Product(PRODUCT_NAME, PRODUCT_BARCODE, exampleNutrients, PRODUCT_URL)
+val testProduct = Product(PRODUCT_NAME, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, exampleNutrients, PRODUCT_URL)
 
 val examplePreferences = MacronutrientPreferences(75, 40, 10, 15)
 val exampleIngredientPreferences = IngredientPreferences(true, emptyList(), emptyList())

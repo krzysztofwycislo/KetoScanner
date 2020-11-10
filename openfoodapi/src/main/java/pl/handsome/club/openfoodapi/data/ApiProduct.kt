@@ -10,4 +10,5 @@ data class ApiProduct (
     @Json(name = "ingredients_tags") val ingredientsTags : List<String>,
     @Json(name = "product_name") val productName : String,
     @Json(name = "image_url") val frontImage : String?,
+    @Json(name = "brands") val brand : String,
 )
