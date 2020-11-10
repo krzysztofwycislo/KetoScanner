@@ -27,7 +27,7 @@ class DBAnalysisHistoryRepository(
 
     override suspend fun getLastUniqueEntries(amount: Int): List<ProductAnalysisHistoryEntry> {
         return withContext(Dispatchers.IO) {
-            productAnalysisHistoryDao.getLastEntries(amount).map { it.toDomain() }
+            productAnalysisHistoryDao.getLastUniqueEntries(amount).map { it.toDomain() }
         }
     }
 
