@@ -14,7 +14,7 @@ internal object MacronutrientAnalyzer {
         val fatRating = analyzeFat(productNutriments)
         val carbsRating = analyzeCarbs(productNutriments, preferences)
 
-        return MacronutrientAnalysisResult.Success(fatRating, carbsRating)
+        return MacronutrientAnalysisResult(fatRating, carbsRating)
     }
 
     private fun analyzeFat(

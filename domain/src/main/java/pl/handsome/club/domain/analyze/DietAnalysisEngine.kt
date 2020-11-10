@@ -1,9 +1,9 @@
 package pl.handsome.club.domain.analyze
 
-import pl.handsome.club.domain.analyze.ingredient.IngredientAnalyzer
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
-import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalyzer
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.product.ProductNutriments
@@ -25,19 +25,17 @@ open class DietAnalysisEngine {
     private fun ingredientAnalyze(
         preferences: DietPreferences,
         product: Product
-    ): IngredientAnalysisResult {
+    ): IngredientAnalysisResult? {
         return preferences.ingredientPreferences
             ?.let { IngredientAnalyzer.analyze(it, product) }
-            ?: IngredientAnalysisResult.NoPreferences
     }
 
     private fun macronutrientAnalyze(
         preferences: DietPreferences,
         productNutriments: ProductNutriments
-    ): MacronutrientAnalysisResult {
+    ): MacronutrientAnalysisResult? {
         return preferences.macronutrientPreferences
             ?.let { MacronutrientAnalyzer.analyze(it, productNutriments) }
-            ?: MacronutrientAnalysisResult.NoPreferences
     }
 
 }
