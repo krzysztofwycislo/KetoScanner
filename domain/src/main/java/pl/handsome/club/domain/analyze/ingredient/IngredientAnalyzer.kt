@@ -6,7 +6,7 @@ import pl.handsome.club.domain.product.Product
 internal object IngredientAnalyzer {
 
     fun analyze(ingredientPreferences: IngredientPreferences, product: Product): IngredientAnalysisResult {
-        return IngredientAnalysisResult.Success()
+        return IngredientAnalysisResult()
     }
 
 }
