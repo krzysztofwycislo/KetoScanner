@@ -13,4 +13,6 @@
     <color name="white">#FFFFFF</color>
     <color name="transparent_white">#7AFFFFFF</color>
 
+    <color name="light_grey">#DCDCDC</color>
+
 </resources>

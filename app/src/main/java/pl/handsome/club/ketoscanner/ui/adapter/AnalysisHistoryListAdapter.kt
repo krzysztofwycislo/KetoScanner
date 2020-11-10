@@ -1,48 +1,35 @@
 package pl.handsome.club.ketoscanner.ui.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.history_list_item.view.*
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.R
 
 
 class AnalysisHistoryListAdapter(
-    private val context: Context,
     private val productAnalysisResults: List<ProductAnalysisHistoryEntry>
-) : BaseAdapter() {
+) : RecyclerView.Adapter<AnalysisHistoryListAdapter.ViewHolder>() {
 
-    override fun getCount(): Int = productAnalysisResults.size
 
-    override fun getItem(position: Int): Any = productAnalysisResults[position]
-
-    override fun getItemId(position: Int): Long = position.toLong()
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val viewHolder: ViewHolder
-        val resultView: View
-
-        if (convertView == null) {
-            resultView = LayoutInflater.from(context).inflate(R.layout.history_list_item, parent, false)
-            viewHolder = ViewHolder(resultView)
-            resultView.tag = viewHolder
-        } else {
-            viewHolder = convertView.tag as ViewHolder
-            resultView = convertView
-        }
-
-        val productAnalysisResult = productAnalysisResults[position]
-        viewHolder.bind(productAnalysisResult)
-
-        return resultView
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return LayoutInflater.from(parent.context)
+            .inflate(R.layout.history_list_item, parent, false)
+            .let(::ViewHolder)
     }
 
-    private class ViewHolder(view: View) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        productAnalysisResults[position].also(holder::bind)
+    }
+
+    override fun getItemCount(): Int = productAnalysisResults.size
+
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         private val resultStatusIcon: ImageView = view.resultStatusIcon
         private val productBrandText: TextView = view.productBrand
