@@ -17,6 +17,12 @@
         <action
             android:id="@+id/to_searchProductFragment"
             app:destination="@id/search" />
+        <action
+            android:id="@+id/action_home_to_result"
+            app:destination="@id/result" />
+        <action
+            android:id="@+id/action_home_to_favoriteProductsFragment"
+            app:destination="@id/favorites" />
     </fragment>
     <fragment
         android:id="@+id/result"
@@ -44,6 +50,14 @@
         android:label="SearchProductFragment">
         <action
             android:id="@+id/to_productAnalysisResultFragment"
+            app:destination="@id/result" />
+    </fragment>
+    <fragment
+        android:id="@+id/favorites"
+        android:name="pl.handsome.club.ketoscanner.ui.FavoriteProductsFragment"
+        android:label="FavoriteProductsFragment" >
+        <action
+            android:id="@+id/action_favoriteProductsFragment_to_result"
             app:destination="@id/result" />
     </fragment>
 </navigation>
