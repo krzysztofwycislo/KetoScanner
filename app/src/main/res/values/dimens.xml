@@ -14,6 +14,7 @@
 
     <!--  TEXT   -->
     <dimen name="text_small_100">8sp</dimen>
+    <dimen name="text_small_125">10sp</dimen>
 
     <dimen name="text_regular_100">16sp</dimen>
     <dimen name="text_regular_125">20sp</dimen>

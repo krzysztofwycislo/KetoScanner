@@ -21,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/small_100"
-            android:textSize="@dimen/text_small_100"
+            android:textSize="@dimen/text_small_125"
             app:layout_constraintBottom_toTopOf="@id/productName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/resultStatusIcon"
