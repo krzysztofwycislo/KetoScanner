@@ -1,6 +1,5 @@
 package pl.handsome.club.domain.analyze
 
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -10,23 +9,20 @@ import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
 import pl.handsome.club.domain.preferences.MacronutrientPreferences
 import pl.handsome.club.domain.product.Product
 
+
 @RunWith(Parameterized::class)
 class MacronutrientAnalyzerTest(
     private val product: Product,
     private val preferences: MacronutrientPreferences,
-    private val fatRate: DietRate,
     private val carbsRate: DietRate
 ) {
 
     private val analyzer = MacronutrientAnalyzer
 
     @Test
-    fun `when we want to analyze product then result we should return set of correct ratings`() {
+    fun `when we want to analyze product then result we should get correct ratings`() {
         val result = analyzer.analyze(preferences, product.nutriments)
 
-        assertNotNull(result)
-
-        assertTrue(result.fatRate == fatRate)
         assertTrue(result.carbsRate == carbsRate)
     }
 

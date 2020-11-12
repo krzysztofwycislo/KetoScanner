@@ -44,8 +44,7 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
         initializeMacronutrientAnalysisResults(result.macronutrientAnalysisResult)
 
-        result.ingredientAnalysisResult
-            ?.also(::initializeIngredientAnalysisResults)
+        result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
 
         backButton.setOnClickListener {
             findNavController().navigateUp()

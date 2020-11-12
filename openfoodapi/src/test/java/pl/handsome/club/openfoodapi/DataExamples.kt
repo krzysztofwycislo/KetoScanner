@@ -17,7 +17,6 @@ fun getProductResponseWithoutProduct(): GetProductResponse =
     GetProductResponse(0, PRODUCT_BARCODE, null)
 
 private fun testApiProduct(): ApiProduct = ApiProduct(
-    2,
     testApiNutriments(),
     "emb_codes",
     listOf("additive_tag_1", "additive_tag_2"),

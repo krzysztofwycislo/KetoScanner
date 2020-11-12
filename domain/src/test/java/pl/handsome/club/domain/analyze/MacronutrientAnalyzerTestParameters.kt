@@ -18,49 +18,42 @@ val macronutrientAnalyzerTestParameters = listOf(
     arrayOf(
         createProduct("avocado", avocadoNutriments),
         exampleKetoPreferences,
-        DietRate.GOOD,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("salmonFillet", salmonFilletNutriments),
         exampleKetoPreferences,
-        DietRate.NEUTRAL,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("sourCream", sourCreamNutriments),
         exampleKetoPreferences,
-        DietRate.GOOD,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("wholemealPasta", wholemealPastaNutriments),
         exampleKetoPreferences,
-        DietRate.NOT_ADVISED,
         DietRate.NOT_ADVISED
     ),
 
     arrayOf(
         createProduct("tomato", tomatoNutriments),
         exampleKetoPreferences,
-        DietRate.NOT_ADVISED,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("carrot", carrotNutriments),
         exampleKetoPreferences,
-        DietRate.NOT_ADVISED,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("coconutMilk", coconutMilkNutriments),
         exampleKetoPreferences,
-        DietRate.GOOD,
         DietRate.GOOD
     ),
 )
