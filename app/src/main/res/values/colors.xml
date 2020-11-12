@@ -10,6 +10,10 @@
     <color name="transparent_black">#68000000</color>
     <color name="black">#000000</color>
 
+    <color name="positive_result">#00A809</color>
+    <color name="neutral_result">#A89700</color>
+    <color name="negative_result">#A80000</color>
+
     <color name="white">#FFFFFF</color>
     <color name="transparent_white">#7AFFFFFF</color>
 

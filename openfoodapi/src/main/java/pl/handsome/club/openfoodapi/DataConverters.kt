@@ -31,8 +31,8 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
 fun parseProductNutrients(apiNutriments: ApiNutriments): ProductNutriments =
     with(apiNutriments) {
         ProductNutriments(
-            energyPer100g,
-            energyPerServing,
-            fatPer100g
+            fatPerServing,
+            carbohydratesPerServing,
+            proteinsPerServing
         )
     }

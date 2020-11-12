@@ -1,17 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/normal_100">
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ketoResultContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/nutrients"
-        android:textSize="@dimen/text_regular_100"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/carbsResultImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/carbs_result_summary_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/face_happy_green_24dp" />
+
+        <TextView
+            android:id="@+id/carbsResultSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/normal_100"
+            android:textSize="@dimen/text_regular_100"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/carbsResultImage"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Good for keto/low-carb diet"
+            tools:textColor="@color/positive_result" />
+
+        <TextView
+            android:id="@+id/carbsResultDetails"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/normal_100"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/carbsResultImage"
+            app:layout_constraintTop_toBottomOf="@id/carbsResultSummary"
+            tools:text="&lt; 10g carbs per 100 g/ml" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/maxPortionResultContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/normal_100"
+        app:layout_constraintTop_toBottomOf="@id/ketoResultContainer">
+
+        <ImageView
+            android:id="@+id/maxPortionResultImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/carbs_result_summary_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/face_happy_green_24dp" />
+
+        <TextView
+            android:id="@+id/maxPortionResultSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/normal_100"
+            android:textSize="@dimen/text_regular_100"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/maxPortionResultImage"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Maximum portion"
+            tools:textColor="@color/positive_result" />
+
+        <TextView
+            android:id="@+id/maxPortionResultDetails"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/normal_100"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/maxPortionResultImage"
+            app:layout_constraintTop_toBottomOf="@id/maxPortionResultSummary"
+            tools:text="400 ml - 24,8 g carbs" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

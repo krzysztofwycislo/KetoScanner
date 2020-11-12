@@ -6,16 +6,16 @@ import pl.handsome.club.domain.preferences.MacronutrientPreferences
 
 val exampleKetoAdaptationPreferences = MacronutrientPreferences(
     80,
-    30,
     5,
-    15
+    15,
+    30
 )
 
 val exampleKetoPreferences = MacronutrientPreferences(
     75,
-    40,
     10,
-    15
+    15,
+    40
 )
 
 val exampleIngredientPreferences = IngredientPreferences(

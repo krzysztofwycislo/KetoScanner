@@ -1,7 +1,8 @@
 package pl.handsome.club.domain.analyze
 
-import pl.handsome.club.domain.*
-import pl.handsome.club.domain.analyze.macronutrient.KetoRate
+import pl.handsome.club.domain.analyze.macronutrient.DietRate
+import pl.handsome.club.domain.createProduct
+import pl.handsome.club.domain.exampleKetoPreferences
 import pl.handsome.club.domain.product.ProductNutriments
 
 
@@ -17,49 +18,49 @@ val macronutrientAnalyzerTestParameters = listOf(
     arrayOf(
         createProduct("avocado", avocadoNutriments),
         exampleKetoPreferences,
-        KetoRate.HIGH,
-        KetoRate.HIGH
+        DietRate.GOOD,
+        DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("salmonFillet", salmonFilletNutriments),
         exampleKetoPreferences,
-        KetoRate.MEDIUM,
-        KetoRate.HIGH
+        DietRate.NEUTRAL,
+        DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("sourCream", sourCreamNutriments),
         exampleKetoPreferences,
-        KetoRate.HIGH,
-        KetoRate.HIGH
+        DietRate.GOOD,
+        DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("wholemealPasta", wholemealPastaNutriments),
         exampleKetoPreferences,
-        KetoRate.LOW,
-        KetoRate.LOW
+        DietRate.NOT_ADVISED,
+        DietRate.NOT_ADVISED
     ),
 
     arrayOf(
         createProduct("tomato", tomatoNutriments),
         exampleKetoPreferences,
-        KetoRate.LOW,
-        KetoRate.HIGH
+        DietRate.NOT_ADVISED,
+        DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("carrot", carrotNutriments),
         exampleKetoPreferences,
-        KetoRate.LOW,
-        KetoRate.HIGH
+        DietRate.NOT_ADVISED,
+        DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("coconutMilk", coconutMilkNutriments),
         exampleKetoPreferences,
-        KetoRate.HIGH,
-        KetoRate.HIGH
+        DietRate.GOOD,
+        DietRate.GOOD
     ),
 )

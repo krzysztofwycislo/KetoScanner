@@ -4,56 +4,26 @@ import pl.handsome.club.domain.preferences.MacronutrientPreferences
 import pl.handsome.club.domain.product.ProductNutriments
 
 
-//TODO verification and adjustment
 internal object MacronutrientAnalyzer {
 
     fun analyze(
         preferences: MacronutrientPreferences,
         productNutriments: ProductNutriments
     ): MacronutrientAnalysisResult {
-        val fatRating = analyzeFat(productNutriments)
-        val carbsRating = analyzeCarbs(productNutriments, preferences)
-
-        return MacronutrientAnalysisResult(fatRating, carbsRating)
-    }
-
-    private fun analyzeFat(
-        productNutriments: ProductNutriments
-    ): KetoRate {
-        val fatToOverallRatio = with(productNutriments) {
-            val allPerServing = carbohydratesPerServing + fatPerServing + proteinsPerServing
-            fatPerServing / allPerServing
-        }
-
-        if (fatToOverallRatio >= .5) {
-            return KetoRate.HIGH
-        }
-
-        if (fatToOverallRatio >= 0.3) {
-            return KetoRate.MEDIUM
-        }
-
-        return KetoRate.LOW
-    }
-
-    //TODO verification and adjustment
-    private fun analyzeCarbs(
-        productNutriments: ProductNutriments,
-        preferences: MacronutrientPreferences
-    ): KetoRate {
         val maxCarbohydratesAmount = preferences.maxCarbohydratesAmount
         val carbohydratesPerServing = productNutriments.carbohydratesPerServing
 
-        if (carbohydratesPerServing <= maxCarbohydratesAmount / 3) {
-            return KetoRate.HIGH
+        val highRateCarbAmount = maxCarbohydratesAmount / 3
+        if (carbohydratesPerServing <= highRateCarbAmount) {
+            return MacronutrientAnalysisResult(DietRate.GOOD, highRateCarbAmount)
         }
 
-        if (carbohydratesPerServing <= maxCarbohydratesAmount / 2) {
-            return KetoRate.MEDIUM
+        val neutralRateCarbAmount = maxCarbohydratesAmount / 2
+        if (carbohydratesPerServing <= neutralRateCarbAmount) {
+            return MacronutrientAnalysisResult(DietRate.NEUTRAL, neutralRateCarbAmount)
         }
 
-        return KetoRate.LOW
+        return MacronutrientAnalysisResult(DietRate.NOT_ADVISED, maxCarbohydratesAmount)
     }
-
 
 }

@@ -1,20 +1,20 @@
 package pl.handsome.club.ketoscanner.repository.database
 
 import androidx.room.TypeConverter
-import pl.handsome.club.domain.analyze.macronutrient.KetoRate
+import pl.handsome.club.domain.analyze.macronutrient.DietRate
 import java.util.*
 
 
 internal class Converters {
 
     @TypeConverter
-    fun ketoRateToKetoRateName(ketoRate: KetoRate): String {
-        return ketoRate.name
+    fun ketoRateToKetoRateName(dietRate: DietRate): String {
+        return dietRate.name
     }
 
     @TypeConverter
-    fun ketoRateNameToKetoRate(ketoRateName: String): KetoRate {
-        return KetoRate.valueOf(ketoRateName)
+    fun ketoRateNameToKetoRate(ketoRateName: String): DietRate {
+        return DietRate.valueOf(ketoRateName)
     }
 
     @TypeConverter

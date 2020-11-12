@@ -14,7 +14,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/happy_face_green_800_24dp" />
+        tools:src="@drawable/face_happy_green_24dp" />
 
     <TextView
         android:id="@+id/resultTypeName"

@@ -11,6 +11,6 @@ data class ProductAnalysisHistoryEntry(
     val productBarcode: String,
     val productBrand: String,
     val updateTime: Date,
-    val ingredientAnalysisResult: IngredientAnalysisResult?,
-    val macronutrientAnalysisResult: MacronutrientAnalysisResult?
+    val macronutrientAnalysisResult: MacronutrientAnalysisResult,
+    val ingredientAnalysisResult: IngredientAnalysisResult?
 )

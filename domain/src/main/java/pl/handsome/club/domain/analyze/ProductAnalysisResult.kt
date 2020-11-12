@@ -7,6 +7,6 @@ import pl.handsome.club.domain.product.Product
 
 data class ProductAnalysisResult(
     val product: Product,
-    val ingredientAnalysisResult: IngredientAnalysisResult?,
-    val macronutrientAnalysisResult: MacronutrientAnalysisResult?
+    val macronutrientAnalysisResult: MacronutrientAnalysisResult,
+    val ingredientAnalysisResult: IngredientAnalysisResult?
 )
