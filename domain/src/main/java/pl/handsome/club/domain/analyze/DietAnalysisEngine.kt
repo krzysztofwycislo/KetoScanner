@@ -17,8 +17,8 @@ open class DietAnalysisEngine {
 
         return ProductAnalysisResult(
             product,
-            ingredientAnalysisResult,
-            macronutrientAnalysisResult
+            macronutrientAnalysisResult,
+            ingredientAnalysisResult
         )
     }
 
@@ -33,9 +33,9 @@ open class DietAnalysisEngine {
     private fun macronutrientAnalyze(
         preferences: DietPreferences,
         productNutriments: ProductNutriments
-    ): MacronutrientAnalysisResult? {
+    ): MacronutrientAnalysisResult {
         return preferences.macronutrientPreferences
-            ?.let { MacronutrientAnalyzer.analyze(it, productNutriments) }
+            .let { MacronutrientAnalyzer.analyze(it, productNutriments) }
     }
 
 }

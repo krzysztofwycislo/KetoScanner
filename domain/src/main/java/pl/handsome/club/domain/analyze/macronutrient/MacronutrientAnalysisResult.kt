@@ -1,6 +1,6 @@
 package pl.handsome.club.domain.analyze.macronutrient
 
 data class MacronutrientAnalysisResult(
-    val fatRate: KetoRate,
-    val carbsRate: KetoRate
+    val carbsRate: DietRate,
+    val maxRateCarbAmount: Int
 )

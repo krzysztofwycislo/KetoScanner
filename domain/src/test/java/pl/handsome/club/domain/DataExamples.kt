@@ -12,7 +12,7 @@ private const val PRODUCT_COMPANY_NAME: String = "test company name"
 private const val PRODUCT_URL: String = "test url"
 
 fun createProduct(name: String, productNutriments: ProductNutriments) =
-    Product(name, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, productNutriments, PRODUCT_URL)
+    Product(name, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, productNutriments, PRODUCT_URL,)
 
 fun createProduct(productNutriments: ProductNutriments) =
     createProduct(PRODUCT_NAME, productNutriments)

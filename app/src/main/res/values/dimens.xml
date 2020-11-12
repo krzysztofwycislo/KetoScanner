@@ -23,4 +23,6 @@
     <dimen name="text_large_125">40sp</dimen>
     <dimen name="text_large_150">48sp</dimen>
 
+    <dimen name="analysis_result_product_image_height">220dp</dimen>
+
 </resources>

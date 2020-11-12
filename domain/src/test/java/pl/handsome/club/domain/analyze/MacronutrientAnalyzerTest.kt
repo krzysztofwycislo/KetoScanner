@@ -5,7 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import pl.handsome.club.domain.analyze.macronutrient.KetoRate
+import pl.handsome.club.domain.analyze.macronutrient.DietRate
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
 import pl.handsome.club.domain.preferences.MacronutrientPreferences
 import pl.handsome.club.domain.product.Product
@@ -14,8 +14,8 @@ import pl.handsome.club.domain.product.Product
 class MacronutrientAnalyzerTest(
     private val product: Product,
     private val preferences: MacronutrientPreferences,
-    private val fatRate: KetoRate,
-    private val carbsRate: KetoRate
+    private val fatRate: DietRate,
+    private val carbsRate: DietRate
 ) {
 
     private val analyzer = MacronutrientAnalyzer
