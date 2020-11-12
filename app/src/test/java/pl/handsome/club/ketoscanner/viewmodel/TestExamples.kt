@@ -1,5 +1,8 @@
 package pl.handsome.club.ketoscanner.viewmodel
 
+import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
+import pl.handsome.club.domain.analyze.macronutrient.DietRate
+import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.preferences.IngredientPreferences
 import pl.handsome.club.domain.preferences.MacronutrientPreferences
@@ -20,7 +23,11 @@ val exampleNutrients = ProductNutriments(40.0, 20.0, 30.0)
 val testProduct =
     Product(PRODUCT_NAME, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, exampleNutrients, PRODUCT_URL,)
 
-val examplePreferences = MacronutrientPreferences(75, 10, 15, 40)
-val exampleIngredientPreferences = IngredientPreferences(true, emptyList(), emptyList())
+val exampleMacronutrientPreferences = MacronutrientPreferences(75, 10, 15, 40)
+val exampleIngredientPreferences = IngredientPreferences()
 val exampleDietPreferences =
-    DietPreferences(KCAL_2500, exampleIngredientPreferences, examplePreferences)
+    DietPreferences(KCAL_2500, exampleMacronutrientPreferences, exampleIngredientPreferences)
+
+
+val exampleMacronutrientAnalysisResult = MacronutrientAnalysisResult(DietRate.GOOD, 1)
+val exampleIngredientAnalysisResult = IngredientAnalysisResult()

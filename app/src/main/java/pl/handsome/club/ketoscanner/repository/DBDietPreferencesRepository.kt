@@ -1,6 +1,7 @@
 package pl.handsome.club.ketoscanner.repository
 
 import pl.handsome.club.domain.preferences.DietPreferences
+import pl.handsome.club.domain.preferences.IngredientPreferences
 import pl.handsome.club.domain.preferences.MacronutrientPreferences
 import pl.handsome.club.domain.repository.DietPreferencesRepository
 
@@ -25,10 +26,11 @@ class DBDietPreferencesRepository : DietPreferencesRepository {
     // TODO TO REMOVE
     companion object {
         private val TEMPORARY_MACRONUTRIENT_PREFERENCES = MacronutrientPreferences(75, 10, 15, 40)
+        private val TEMPORARY_INGREDIENTS_PREFERENCES = IngredientPreferences()
         private val TEMPORARY_DIET_PREFERENCES = DietPreferences(
             2000,
             TEMPORARY_MACRONUTRIENT_PREFERENCES,
-            null
+            TEMPORARY_INGREDIENTS_PREFERENCES
         )
     }
 

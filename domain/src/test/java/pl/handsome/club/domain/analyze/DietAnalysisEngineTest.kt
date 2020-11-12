@@ -1,6 +1,7 @@
 package pl.handsome.club.domain.analyze
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import pl.handsome.club.domain.*
 import pl.handsome.club.domain.preferences.DietPreferences
@@ -16,41 +17,12 @@ class DietAnalysisEngineTest {
     @Test
     fun `when analyze complete set of data then result should contain all types of results`() {
         val completePreferences =
-            DietPreferences(KCAL_2500, exampleIngredientPreferences, exampleKetoPreferences)
+            DietPreferences(KCAL_2500, exampleKetoPreferences, exampleIngredientPreferences)
 
         val analysisResult = dietAnalysisEngine.analyze(completePreferences, exampleProduct)
 
-        with(analysisResult) {
-            assertEquals(exampleProduct, product)
-            assertNotNull(ingredientAnalysisResult)
-            assertNotNull(macronutrientAnalysisResult)
-        }
-    }
-
-    @Test
-    fun `when analyze data without ingredient preferences preferences then information about it should be in result`() {
-        val preferences = DietPreferences(KCAL_2500, null, exampleKetoPreferences)
-
-        val analysisResult = dietAnalysisEngine.analyze(preferences, exampleProduct)
-
-        with(analysisResult) {
-            assertEquals(exampleProduct, product)
-            assertNull(ingredientAnalysisResult)
-            assertNotNull(macronutrientAnalysisResult)
-        }
-    }
-
-    @Test
-    fun `when analyze data without macronutrient preferences then information about it should be in result`() {
-        val preferences = DietPreferences(KCAL_2500, exampleIngredientPreferences, null)
-
-        val analysisResult = dietAnalysisEngine.analyze(preferences, exampleProduct)
-
-        with(analysisResult) {
-            assertEquals(exampleProduct, product)
-            assertNotNull(ingredientAnalysisResult)
-            assertNull(macronutrientAnalysisResult)
-        }
+        assertNotNull(analysisResult)
+        assertEquals(exampleProduct, analysisResult.product)
     }
 
 }

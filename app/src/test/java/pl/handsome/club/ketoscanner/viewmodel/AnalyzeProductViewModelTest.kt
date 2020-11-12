@@ -50,7 +50,12 @@ class AnalyzeProductViewModelTest {
 
     @Before
     fun init() {
-        viewModel = AnalyzeProductViewModel(dietAnalysisEngine, preferencesRepository, productRepository, analysisHistoryRepository)
+        viewModel = AnalyzeProductViewModel(
+            dietAnalysisEngine,
+            preferencesRepository,
+            productRepository,
+            analysisHistoryRepository
+        )
         viewModel.getProductAnalysisState().observeForever(observer)
     }
 
@@ -65,7 +70,11 @@ class AnalyzeProductViewModelTest {
 
             `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
 
-            val resultToReturn = ProductAnalysisResult(product, null, null)
+            val resultToReturn = ProductAnalysisResult(
+                product,
+                exampleMacronutrientAnalysisResult,
+                exampleIngredientAnalysisResult
+            )
             `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
 
 
