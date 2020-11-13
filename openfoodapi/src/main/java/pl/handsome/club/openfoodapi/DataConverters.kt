@@ -21,7 +21,8 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
             response.barcode,
             brand,
             productNutriments,
-            frontImage
+            frontImage,
+            servingQuantity
         )
 
         ProductSearchState.Success(product)
@@ -31,8 +32,15 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
 fun parseProductNutrients(apiNutriments: ApiNutriments): ProductNutriments =
     with(apiNutriments) {
         ProductNutriments(
-            fatPerServing,
+            energyPerServing,
+            energyPer100g,
+            fatsPerServing,
+            fatsPer100g,
+            proteinsPerServing,
+            proteinsPer100g,
+            carbohydratesPer100g,
             carbohydratesPerServing,
-            proteinsPerServing
+            saltPerServing,
+            saltPer100g
         )
     }

@@ -12,8 +12,8 @@ private val dietRateColorsMap = mapOf(
 )
 
 
-fun getImageIdForDietRate(dietRate: DietRate) = dietRateImageMap.getValue(dietRate)
-private val dietRateImageMap = mapOf(
+fun getSummaryResultImageIdForDietRate(dietRate: DietRate) = summaryResultImageMap.getValue(dietRate)
+private val summaryResultImageMap = mapOf(
     Pair(DietRate.GOOD, R.drawable.face_happy_green_24dp),
     Pair(DietRate.NEUTRAL, R.drawable.face_neutral_yellow_24dp),
     Pair(DietRate.NOT_ADVISED, R.drawable.face_sad_red_24dp)
@@ -33,4 +33,12 @@ private val dietRateDetailsMap = mapOf(
     Pair(DietRate.GOOD, R.string.good_for_keto_details),
     Pair(DietRate.NEUTRAL, R.string.neutral_for_keto_details),
     Pair(DietRate.NOT_ADVISED, R.string.not_advised_for_keto_details)
+)
+
+
+fun getMaxServingImageIdForDietRate(dietRate: DietRate) = maxServingDietRateImageMap.getValue(dietRate)
+private val maxServingDietRateImageMap = mapOf(
+    Pair(DietRate.GOOD, R.drawable.local_pizza_positive_24dp),
+    Pair(DietRate.NEUTRAL, R.drawable.local_pizza_neutral_24dp),
+    Pair(DietRate.NOT_ADVISED, R.drawable.local_pizza_negative_24dp)
 )

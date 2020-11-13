@@ -22,7 +22,7 @@
             app:destination="@id/result" />
         <action
             android:id="@+id/to_favoriteProductsFragment"
-            app:destination="@id/favorites" />
+            app:destination="@id/favourites" />
     </fragment>
 
     <fragment
@@ -59,7 +59,7 @@
     </fragment>
 
     <fragment
-        android:id="@+id/favorites"
+        android:id="@+id/favourites"
         android:name="pl.handsome.club.ketoscanner.ui.FavoriteProductsFragment"
         android:label="FavoriteProductsFragment" >
         <action

@@ -11,9 +11,9 @@ data class ApiNutriments(
 	@Json(name = "energy_unit") val energyUnit: String,
 
 	@Json(name = "fat") val fat: Double,
-	@Json(name = "fat_100g") val fatPer100g: Double,
-	@Json(name = "fat_value") val fatValue: Double,
-	@Json(name = "fat_serving") val fatPerServing: Double,
+	@Json(name = "fat_100g") val fatsPer100g: Double,
+	@Json(name = "fat_value") val fatsValue: Double,
+	@Json(name = "fat_serving") val fatsPerServing: Double,
 	@Json(name = "fat_unit") val fatUnit: String,
 	@Json(name = "saturated-fat") val saturatedFat: Double,
 	@Json(name = "saturated-fat_100g") val saturatedFatPer100g: Double,

@@ -14,4 +14,20 @@
 
     </style>
 
+    <style name="MacronutrientTableText" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">@dimen/text_regular_100</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:text">@string/default_macronutrients_text</item>
+    </style>
+
+    <style name="MacronutrientValueTableText" parent="MacronutrientTableText">
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+
+    <style name="MacronutrientTableRow">
+        <item name="android:paddingTop">@dimen/small_100</item>
+        <item name="android:paddingBottom">@dimen/small_100</item>
+    </style>
+
+    <string name="default_macronutrients_text">-</string>
 </resources>

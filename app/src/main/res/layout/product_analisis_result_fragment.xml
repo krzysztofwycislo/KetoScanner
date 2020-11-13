@@ -1,116 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageButton
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/normal_100"
-        android:layout_marginTop="@dimen/normal_100"
-        android:background="@drawable/transparent_black_circle"
-        android:contentDescription="@string/back_button"
-        android:elevation="1dp"
-        android:padding="@dimen/small_100"
-        android:src="@drawable/arrow_back_white_32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/productImage"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/analysis_result_product_image_height"
-        android:contentDescription="@string/product_image"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/example_product_photo" />
-
-    <ImageButton
-        android:id="@+id/addToFavoritesButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginEnd="@dimen/normal_100"
-        android:background="@drawable/black_circle"
-        android:contentDescription="@string/add_to_favorites_button"
-        android:padding="@dimen/small_150"
-        android:scaleType="fitCenter"
-        android:src="@drawable/favorite_white_36dp"
-        app:layout_constraintBottom_toBottomOf="@+id/productImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productImage" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/titleContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/normal_100"
-        app:layout_constraintEnd_toStartOf="@id/addToFavoritesButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productImage">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/productBrand"
-            android:layout_width="0dp"
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textSize="@dimen/text_small_125"
+            android:layout_marginStart="@dimen/normal_100"
+            android:layout_marginTop="@dimen/normal_100"
+            android:background="@drawable/transparent_black_circle"
+            android:contentDescription="@string/back_button"
+            android:elevation="1dp"
+            android:padding="@dimen/small_100"
+            android:src="@drawable/arrow_back_white_32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/productImage"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/analysis_result_product_image_height"
+            android:contentDescription="@string/product_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/product_brand" />
+            tools:src="@drawable/example_product_photo" />
 
-        <TextView
-            android:id="@+id/productName"
+        <ImageButton
+            android:id="@+id/addToFavouritesButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="@dimen/normal_100"
+            android:background="@drawable/black_circle"
+            android:contentDescription="@string/add_to_favourites_button"
+            android:padding="@dimen/small_150"
+            android:scaleType="fitCenter"
+            android:src="@drawable/favorite_white_36dp"
+            app:layout_constraintBottom_toBottomOf="@+id/productImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productImage" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/titleContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_100"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/product_name"
-            android:textSize="@dimen/text_regular_125"
+            android:padding="@dimen/normal_100"
+            app:layout_constraintEnd_toStartOf="@id/addToFavouritesButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productImage">
+
+            <TextView
+                android:id="@+id/productBrand"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="@dimen/text_small_125"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/product_brand" />
+
+            <TextView
+                android:id="@+id/productName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/small_100"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/product_name"
+                android:textSize="@dimen/text_regular_125"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/productBrand" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/analysisResultsContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/large_100"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/productBrand" />
+            app:layout_constraintTop_toBottomOf="@+id/titleContainer">
+
+            <include
+                android:id="@+id/macronutrientsResultContainer"
+                layout="@layout/macronutrients_result_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/normal_100" />
+
+            <include
+                android:id="@+id/contentsResultContainer"
+                layout="@layout/contents_result_view" />
+
+            <include
+                android:id="@+id/nutrientsTableContainer"
+                layout="@layout/nutrients_table_view" />
+
+        </LinearLayout>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/productAnalysisProgressBar"
+            style="@android:style/Widget.Material.ProgressBar.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/analysisResultsContainer"
+            app:layout_constraintEnd_toEndOf="@+id/analysisResultsContainer"
+            app:layout_constraintStart_toStartOf="@+id/analysisResultsContainer"
+            app:layout_constraintTop_toTopOf="@+id/analysisResultsContainer"
+            tools:visibility="visible" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:id="@+id/analysisResultsContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleContainer">
-
-        <include
-            android:id="@+id/macronutrientsResultContainer"
-            layout="@layout/macronutrients_result_view" />
-
-        <include
-            android:id="@+id/contentsResultContainer"
-            layout="@layout/contents_result_view" />
-
-    </LinearLayout>
-
-    <androidx.core.widget.ContentLoadingProgressBar
-        android:id="@+id/productAnalysisProgressBar"
-        style="@android:style/Widget.Material.ProgressBar.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/analysisResultsContainer"
-        app:layout_constraintEnd_toEndOf="@+id/analysisResultsContainer"
-        app:layout_constraintStart_toStartOf="@+id/analysisResultsContainer"
-        app:layout_constraintTop_toTopOf="@+id/analysisResultsContainer"
-        tools:visibility="visible" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

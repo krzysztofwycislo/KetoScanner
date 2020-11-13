@@ -10,20 +10,46 @@ internal object MacronutrientAnalyzer {
         preferences: MacronutrientPreferences,
         productNutriments: ProductNutriments
     ): MacronutrientAnalysisResult {
-        val maxCarbohydratesAmount = preferences.maxCarbohydratesAmount
+        val dailyCarbConsumption = preferences.maxCarbohydratesAmount
         val carbohydratesPerServing = productNutriments.carbohydratesPerServing
 
-        val highRateCarbAmount = maxCarbohydratesAmount / 3
+        val maxProductAmount = getMaxProductAmount(productNutriments, dailyCarbConsumption)
+
+        val highRateCarbAmount = dailyCarbConsumption / 3
         if (carbohydratesPerServing <= highRateCarbAmount) {
-            return MacronutrientAnalysisResult(DietRate.GOOD, highRateCarbAmount)
+            return MacronutrientAnalysisResult(
+                DietRate.GOOD,
+                highRateCarbAmount,
+                maxProductAmount,
+                dailyCarbConsumption
+            )
         }
 
-        val neutralRateCarbAmount = maxCarbohydratesAmount / 2
+        val neutralRateCarbAmount = dailyCarbConsumption / 2
         if (carbohydratesPerServing <= neutralRateCarbAmount) {
-            return MacronutrientAnalysisResult(DietRate.NEUTRAL, neutralRateCarbAmount)
+            return MacronutrientAnalysisResult(
+                DietRate.NEUTRAL,
+                neutralRateCarbAmount,
+                maxProductAmount,
+                dailyCarbConsumption
+            )
         }
 
-        return MacronutrientAnalysisResult(DietRate.NOT_ADVISED, maxCarbohydratesAmount)
+        return MacronutrientAnalysisResult(
+            DietRate.NOT_ADVISED,
+            dailyCarbConsumption,
+            maxProductAmount,
+            dailyCarbConsumption
+        )
+    }
+
+    private fun getMaxProductAmount(
+        productNutriments: ProductNutriments,
+        dailyCarbConsumption: Int
+    ): Double {
+        val carbohydratesPer100grams = productNutriments.carbohydratesPer100g
+
+        return dailyCarbConsumption / carbohydratesPer100grams * 100
     }
 
 }
