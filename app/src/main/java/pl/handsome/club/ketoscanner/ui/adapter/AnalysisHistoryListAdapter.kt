@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.history_list_item.view.*
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.util.getImageIdForDietRate
+import pl.handsome.club.ketoscanner.util.getSummaryResultImageIdForDietRate
 
 
 class AnalysisHistoryListAdapter(
@@ -45,7 +45,7 @@ class AnalysisHistoryListAdapter(
         ) {
             productAnalysisHistoryEntry.macronutrientAnalysisResult
                 .carbsRate
-                .let(::getImageIdForDietRate)
+                .let(::getSummaryResultImageIdForDietRate)
                 .also(resultStatusIcon::setImageResource)
 
             productNameText.text = productAnalysisHistoryEntry.productName

@@ -17,10 +17,10 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/favorites"
+        android:id="@+id/favourites"
         android:icon="@drawable/favorite_white_36dp"
         android:orderInCategory="3"
-        android:title="@string/bottom_navigation_favorites"
+        android:title="@string/bottom_navigation_favourites"
         app:showAsAction="ifRoom" />
 
 </menu>

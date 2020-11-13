@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.macronutrients_result_view.*
+import kotlinx.android.synthetic.main.nutrients_table_view.*
 import kotlinx.android.synthetic.main.product_analisis_result_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
@@ -15,13 +16,10 @@ import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.util.getColorIdForDietRate
-import pl.handsome.club.ketoscanner.util.getDetailTextIdForDietRate
-import pl.handsome.club.ketoscanner.util.getImageIdForDietRate
-import pl.handsome.club.ketoscanner.util.getSummaryTextIdForDietRate
+import pl.handsome.club.ketoscanner.util.*
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
 
-
+// TODO lets consider fragments separation
 class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
 
     private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
@@ -40,9 +38,11 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
     // TODO fix? "StaticLayout: maxLineHeight should not be -1.  maxLines:1 lineCount:1"
     private fun initializeView(result: ProductAnalysisResult) {
+        val product = result.product
         initializeProductInfo(result.product)
 
         initializeMacronutrientAnalysisResults(result.macronutrientAnalysisResult)
+        initializeProductMacronutrientTable(product)
 
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
 
@@ -67,9 +67,9 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         with(macronutrientAnalysisResult) {
             getColor(requireContext(), getColorIdForDietRate(carbsRate))
                 .also(carbsResultSummary::setTextColor)
-                .also(maxPortionResultSummary::setTextColor)
+                .also(maxServingResultSummary::setTextColor)
 
-            getImageIdForDietRate(carbsRate)
+            getSummaryResultImageIdForDietRate(carbsRate)
                 .also(carbsResultImage::setImageResource)
 
             getSummaryTextIdForDietRate(carbsRate)
@@ -79,7 +79,40 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
                 getDetailTextIdForDietRate(carbsRate),
                 maxRateCarbAmount
             ).also(carbsResultDetails::setText)
+
+            getMaxServingImageIdForDietRate(carbsRate)
+                .also(maxServingResultImage::setImageResource)
+
+            getString(
+                R.string.maxServingResultDetailsText,
+                maxProductAmount,
+                dailyCarbConsumption
+            ).also(maxServingResultDetails::setText)
+
         }
+
+    // TODO refactor
+    private fun initializeProductMacronutrientTable(product: Product) {
+        val nutriments = product.nutriments
+
+        perServingHeader.text = product.servingAmount
+            ?.let { getString(R.string.per_serving_with_value, it) }
+
+        energyPerServing.text = getString(R.string.value_with_kcal, nutriments.energyPerServing)
+        energyPer100g.text = getString(R.string.value_with_kcal, nutriments.energyPer100g)
+
+        fatsPerServing.text = getString(R.string.value_with_g, nutriments.fatsPerServing)
+        fatsPer100g.text = getString(R.string.value_with_g, nutriments.fatsPer100g)
+
+        proteinsPerServing.text = getString(R.string.value_with_g, nutriments.proteinsPerServing)
+        proteinsPer100g.text = getString(R.string.value_with_g, nutriments.proteinsPer100g)
+
+        carbsPerServing.text = getString(R.string.value_with_g, nutriments.carbohydratesPerServing)
+        carbsPer100g.text = getString(R.string.value_with_g, nutriments.carbohydratesPer100g)
+
+        saltPerServing.text = getString(R.string.value_with_g, nutriments.saltPerServing)
+        saltPer100g.text = getString(R.string.value_with_g, nutriments.saltPer100g)
+    }
 
     // TODO
     private fun initializeIngredientAnalysisResults(ingredientAnalysisResult: IngredientAnalysisResult) {

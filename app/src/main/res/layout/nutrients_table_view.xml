@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/macronutrientsTableTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/normal_100"
+        android:text="@string/macros"
+        android:textSize="@dimen/text_regular_125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TableLayout
+        android:id="@+id/macronutrientsTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/black"
+        android:paddingStart="@dimen/normal_100"
+        android:paddingEnd="@dimen/normal_100"
+        android:showDividers="middle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/macronutrientsTableTitle">
+
+        <TableRow
+            android:id="@+id/headerRow"
+            android:layout_marginBottom="@dimen/small_50"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/perServingHeader"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="per serving - 200 g/ml" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="textEnd"
+                android:layout_weight="1"
+                android:text="@string/per_100g" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/energyRow"
+            style="@style/MacronutrientTableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MacronutrientTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/energy" />
+
+            <TextView
+                android:id="@+id/energyPerServing"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="529 kJ / 123 kcal" />
+
+            <TextView
+                android:id="@+id/energyPer100g"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="222 kJ / 53 kcal" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/fatsRow"
+            style="@style/MacronutrientTableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MacronutrientTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/fats" />
+
+            <TextView
+                android:id="@+id/fatsPerServing"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="2,6 g" />
+
+            <TextView
+                android:id="@+id/fatsPer100g"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="1,3 g" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/proteinsRow"
+            style="@style/MacronutrientTableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MacronutrientTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/proteins" />
+
+            <TextView
+                android:id="@+id/proteinsPerServing"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="1 g" />
+
+            <TextView
+                android:id="@+id/proteinsPer100g"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="0,5 g" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/carbsRow"
+            style="@style/MacronutrientTableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MacronutrientTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/carbs" />
+
+            <TextView
+                android:id="@+id/carbsPerServing"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="6,2 g" />
+
+            <TextView
+                android:id="@+id/carbsPer100g"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="3,1 g" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/saltRow"
+            style="@style/MacronutrientTableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MacronutrientTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/salt" />
+
+            <TextView
+                android:id="@+id/saltPerServing"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="0,25 g" />
+
+            <TextView
+                android:id="@+id/saltPer100g"
+                style="@style/MacronutrientValueTableText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="0,13 g" />
+
+        </TableRow>
+
+    </TableLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
