@@ -47,4 +47,5 @@
     <string name="per_100g">per 100 g/ml</string>
     <string name="value_with_g">%.1f g</string>
     <string name="value_with_kcal">%.0f kcal</string>
+    <string name="product_has_been_added_to_favourites">Product has been added to favourites</string>
 </resources>

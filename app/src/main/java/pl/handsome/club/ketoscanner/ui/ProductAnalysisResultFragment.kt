@@ -2,6 +2,7 @@ package pl.handsome.club.ketoscanner.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -17,6 +18,7 @@ import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.*
+import pl.handsome.club.ketoscanner.viewmodel.AddToFavouritesState
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.FavouriteProductsViewModel
 
@@ -49,6 +51,8 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
 
+
+        favouriteProductsViewModel.getAddToFavouritesState().observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
         addToFavouritesButton.setOnClickListener {
             favouriteProductsViewModel.addToFavourites(product)
         }
@@ -67,6 +71,21 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         productBrand.text = product.brand
 
         product.imageUrl?.also(::loadImage)
+    }
+
+    private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState?) {
+        when(addToFavouritesState) {
+            is AddToFavouritesState.Success -> showMessage(R.string.product_has_been_added_to_favourites)
+            is AddToFavouritesState.Error -> {
+                logException(addToFavouritesState.throwable)
+                showMessage(R.string.something_went_wrong)
+            }
+            else -> {}
+        }
+    }
+
+    private fun showMessage(messageId: Int) {
+        Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
     // TODO maxPortionResultImage, maxPortionResultDetails
