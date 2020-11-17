@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.repository.database
+package pl.handsome.club.ketoscanner.database
 
 import androidx.room.TypeConverter
 import pl.handsome.club.domain.analyze.macronutrient.DietRate

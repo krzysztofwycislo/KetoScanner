@@ -1,10 +1,12 @@
-package pl.handsome.club.ketoscanner.repository.database
+package pl.handsome.club.ketoscanner.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryDao
+import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity
 
 
 @Database(entities = [ProductAnalysisHistoryEntryEntity::class], version = 2)

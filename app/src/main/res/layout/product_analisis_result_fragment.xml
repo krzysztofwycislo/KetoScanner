@@ -39,7 +39,7 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_marginEnd="@dimen/normal_100"
-            android:background="@drawable/black_circle"
+            android:background="@drawable/ripple_black_oval_background"
             android:contentDescription="@string/add_to_favourites_button"
             android:padding="@dimen/small_150"
             android:scaleType="fitCenter"
