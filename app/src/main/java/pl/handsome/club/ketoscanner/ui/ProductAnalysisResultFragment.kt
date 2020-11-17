@@ -18,16 +18,16 @@ import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.*
+import pl.handsome.club.ketoscanner.viewmodel.AddFavouriteProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.AddToFavouritesState
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.FavouriteProductsViewModel
 
 
 // TODO lets consider fragments separation
 class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
 
     private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
-    private val favouriteProductsViewModel: FavouriteProductsViewModel by sharedViewModel()
+    private val addFavouriteProductViewModel: AddFavouriteProductViewModel by sharedViewModel()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,9 +52,9 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
 
 
-        favouriteProductsViewModel.getAddToFavouritesState().observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
+        addFavouriteProductViewModel.getAddToFavouritesState().observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
         addToFavouritesButton.setOnClickListener {
-            favouriteProductsViewModel.addToFavourites(product)
+            addFavouriteProductViewModel.addToFavourites(product)
         }
 
         backButton.setOnClickListener {
@@ -88,7 +88,7 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
-    // TODO maxPortionResultImage, maxPortionResultDetails
+    // TODO refactor
     private fun initializeMacronutrientAnalysisResults(macronutrientAnalysisResult: MacronutrientAnalysisResult) =
         with(macronutrientAnalysisResult) {
             getColor(requireContext(), getColorIdForDietRate(carbsRate))

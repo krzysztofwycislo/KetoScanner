@@ -48,4 +48,6 @@
     <string name="value_with_g">%.1f g</string>
     <string name="value_with_kcal">%.0f kcal</string>
     <string name="product_has_been_added_to_favourites">Product has been added to favourites</string>
+    <string name="favourite_products">Favourite products</string>
+    <string name="product_icon">Product image</string>
 </resources>

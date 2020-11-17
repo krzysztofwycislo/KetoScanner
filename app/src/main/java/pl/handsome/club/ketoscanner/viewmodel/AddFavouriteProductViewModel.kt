@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.repository.FavouriteProductsRepository
 
-class FavouriteProductsViewModel (
+class AddFavouriteProductViewModel (
     private val favouriteProducts: FavouriteProductsRepository
 ) : ViewModel() {
 
