@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.database.history
+package pl.handsome.club.ketoscanner.preferences
 
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.preferences.IngredientPreferences
@@ -6,7 +6,7 @@ import pl.handsome.club.domain.preferences.MacronutrientPreferences
 import pl.handsome.club.domain.repository.DietPreferencesRepository
 
 
-class DBDietPreferencesRepository : DietPreferencesRepository {
+class DietSharedPreferencesRepository : DietPreferencesRepository {
 
     private var dietPreferences: DietPreferences = initializeDietPreferences()
 
