@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.repository
+package pl.handsome.club.ketoscanner.database.history
 
 import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.preferences.IngredientPreferences

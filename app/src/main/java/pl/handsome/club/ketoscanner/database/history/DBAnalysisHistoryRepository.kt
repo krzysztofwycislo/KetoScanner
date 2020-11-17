@@ -1,14 +1,13 @@
-package pl.handsome.club.ketoscanner.repository
+package pl.handsome.club.ketoscanner.database.history
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.domain.repository.AnalysisHistoryRepository
-import pl.handsome.club.ketoscanner.repository.database.AppDatabase
-import pl.handsome.club.ketoscanner.repository.database.ProductAnalysisHistoryDao
-import pl.handsome.club.ketoscanner.repository.database.toDomain
-import pl.handsome.club.ketoscanner.repository.database.toHistoryEntry
+import pl.handsome.club.ketoscanner.database.AppDatabase
+import pl.handsome.club.ketoscanner.database.toDomain
+import pl.handsome.club.ketoscanner.database.toHistoryEntry
 
 
 class DBAnalysisHistoryRepository(

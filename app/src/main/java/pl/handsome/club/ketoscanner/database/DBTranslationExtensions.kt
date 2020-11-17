@@ -1,7 +1,8 @@
-package pl.handsome.club.ketoscanner.repository.database
+package pl.handsome.club.ketoscanner.database
 
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
+import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity
 
 
 internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistoryEntry {

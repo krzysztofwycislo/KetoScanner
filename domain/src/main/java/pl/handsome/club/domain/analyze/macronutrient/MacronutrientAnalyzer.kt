@@ -11,12 +11,12 @@ internal object MacronutrientAnalyzer {
         productNutriments: ProductNutriments
     ): MacronutrientAnalysisResult {
         val dailyCarbConsumption = preferences.maxCarbohydratesAmount
-        val carbohydratesPerServing = productNutriments.carbohydratesPerServing
+        val carbohydratesPer100g = productNutriments.carbohydratesPer100g
 
         val maxProductAmount = getMaxProductAmount(productNutriments, dailyCarbConsumption)
 
         val highRateCarbAmount = dailyCarbConsumption / 3
-        if (carbohydratesPerServing <= highRateCarbAmount) {
+        if (carbohydratesPer100g <= highRateCarbAmount) {
             return MacronutrientAnalysisResult(
                 DietRate.GOOD,
                 highRateCarbAmount,
@@ -26,7 +26,7 @@ internal object MacronutrientAnalyzer {
         }
 
         val neutralRateCarbAmount = dailyCarbConsumption / 2
-        if (carbohydratesPerServing <= neutralRateCarbAmount) {
+        if (carbohydratesPer100g <= neutralRateCarbAmount) {
             return MacronutrientAnalysisResult(
                 DietRate.NEUTRAL,
                 neutralRateCarbAmount,

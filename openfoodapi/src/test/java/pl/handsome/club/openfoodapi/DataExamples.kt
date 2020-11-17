@@ -5,10 +5,11 @@ import pl.handsome.club.openfoodapi.data.ApiProduct
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
 
-private const val PRODUCT_NAME: String = "test name"
-private const val PRODUCT_BARCODE: String = "test barcode"
-private const val PRODUCT_URL: String = "test url"
-private const val PRODUCT_BRAND: String = "test url"
+private const val PRODUCT_NAME = "test name"
+private const val PRODUCT_BARCODE = "test barcode"
+private const val PRODUCT_URL = "test url"
+private const val PRODUCT_BRAND = "test url"
+private const val PRODUCT_SERVING = "50"
 
 fun getProductResponseWithProduct(): GetProductResponse =
     GetProductResponse(1, PRODUCT_BARCODE, testApiProduct())
@@ -23,7 +24,8 @@ private fun testApiProduct(): ApiProduct = ApiProduct(
     listOf("ingredient_tag_1", "ingredient_tag_2"),
     PRODUCT_NAME,
     PRODUCT_URL,
-    PRODUCT_BRAND
+    PRODUCT_BRAND,
+    PRODUCT_SERVING
 )
 
 private fun testApiNutriments(): ApiNutriments = ApiNutriments(

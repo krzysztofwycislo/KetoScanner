@@ -18,11 +18,14 @@ import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.*
 import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.FavouriteProductsViewModel
+
 
 // TODO lets consider fragments separation
 class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
 
     private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
+    private val favouriteProductsViewModel: FavouriteProductsViewModel by sharedViewModel()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,6 +48,10 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         initializeProductMacronutrientTable(product)
 
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
+
+        addToFavouritesButton.setOnClickListener {
+            favouriteProductsViewModel.addToFavourites(product)
+        }
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
@@ -85,7 +92,7 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
             getString(
                 R.string.maxServingResultDetailsText,
-                maxProductAmount,
+                maxProductPortion,
                 dailyCarbConsumption
             ).also(maxServingResultDetails::setText)
 

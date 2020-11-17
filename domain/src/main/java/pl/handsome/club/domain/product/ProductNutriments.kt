@@ -11,8 +11,8 @@ data class ProductNutriments(
     val proteinsPerServing: Double,
     val proteinsPer100g: Double,
 
-    val carbohydratesPer100g: Double,
     val carbohydratesPerServing: Double,
+    val carbohydratesPer100g: Double,
 
     val saltPerServing: Double,
     val saltPer100g: Double

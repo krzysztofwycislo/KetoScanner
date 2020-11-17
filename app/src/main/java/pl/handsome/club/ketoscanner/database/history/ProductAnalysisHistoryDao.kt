@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.repository.database
+package pl.handsome.club.ketoscanner.database.history
 
 import androidx.room.Dao
 import androidx.room.Delete

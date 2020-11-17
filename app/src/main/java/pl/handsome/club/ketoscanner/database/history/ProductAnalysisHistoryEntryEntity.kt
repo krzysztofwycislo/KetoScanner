@@ -1,11 +1,11 @@
-package pl.handsome.club.ketoscanner.repository.database
+package pl.handsome.club.ketoscanner.database.history
 
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
-import pl.handsome.club.ketoscanner.repository.database.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
+import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
 import java.util.*
 
 
