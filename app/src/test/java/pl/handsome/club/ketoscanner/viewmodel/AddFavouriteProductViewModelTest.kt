@@ -17,7 +17,7 @@ import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
-class FavouriteProductsViewModelTest {
+class AddFavouriteProductViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -25,7 +25,7 @@ class FavouriteProductsViewModelTest {
     @get:Rule
     val coroutineTestRule = CoroutineTestRule()
 
-    private lateinit var viewModel: FavouriteProductsViewModel
+    private lateinit var viewModelAdd: AddFavouriteProductViewModel
 
     @Mock
     private lateinit var favouriteProductsRepository: FavouriteProductsRepository
@@ -36,15 +36,15 @@ class FavouriteProductsViewModelTest {
 
     @Before
     fun initViewModel() {
-        viewModel = FavouriteProductsViewModel(favouriteProductsRepository)
-        viewModel.getAddToFavouritesState().observeForever(observer)
+        viewModelAdd = AddFavouriteProductViewModel(favouriteProductsRepository)
+        viewModelAdd.getAddToFavouritesState().observeForever(observer)
     }
 
     @Test
     fun `when we want to save favourite product then we should get success result`() {
         val product = exampleProduct
 
-        viewModel.addToFavourites(product)
+        viewModelAdd.addToFavourites(product)
 
         verify(observer).onChanged(AddToFavouritesState.InProgress)
         verify(observer).onChanged(AddToFavouritesState.Success)
@@ -57,7 +57,7 @@ class FavouriteProductsViewModelTest {
             val throwable = IllegalStateException()
             `when`(favouriteProductsRepository.addToFavourites(product)).thenThrow(throwable)
 
-            viewModel.addToFavourites(product)
+            viewModelAdd.addToFavourites(product)
 
             verify(observer).onChanged(AddToFavouritesState.InProgress)
             verify(observer).onChanged(AddToFavouritesState.Error(throwable))

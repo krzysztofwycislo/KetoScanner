@@ -29,5 +29,10 @@
         <item name="android:paddingBottom">@dimen/small_100</item>
     </style>
 
+    <style name="feature_title" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">@dimen/text_regular_125</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <string name="default_macronutrients_text">-</string>
 </resources>
