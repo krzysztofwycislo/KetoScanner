@@ -7,5 +7,6 @@ data class FavouriteProduct(
     val productBarcode: String,
     val productName: String,
     val productBrand: String,
-    var updateTime: Date
+    val updateTime: Date,
+    val imageUrl: String?
 )

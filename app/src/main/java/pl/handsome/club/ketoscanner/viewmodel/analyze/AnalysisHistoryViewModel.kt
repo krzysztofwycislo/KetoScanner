@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.viewmodel
+package pl.handsome.club.ketoscanner.viewmodel.analyze
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

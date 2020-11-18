@@ -14,8 +14,8 @@ import pl.handsome.club.ketoscanner.ui.adapter.AnalysisHistoryListAdapter
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.logWarning
 import pl.handsome.club.ketoscanner.util.navigateTo
-import pl.handsome.club.ketoscanner.viewmodel.AnalysisHistoryViewModel
-import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 
 class LastAnalysisHistoryFragment : Fragment(R.layout.last_analysis_history_fragment) {

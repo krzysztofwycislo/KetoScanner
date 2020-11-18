@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.viewmodel
+package pl.handsome.club.ketoscanner.viewmodel.favourite.add
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +10,7 @@ import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.repository.FavouriteProductsRepository
 
 class AddFavouriteProductViewModel (
-    private val favouriteProducts: FavouriteProductsRepository
+    private val favouriteProductsRepository: FavouriteProductsRepository
 ) : ViewModel() {
 
     private val addToFavouritesState = MutableLiveData<AddToFavouritesState>()
@@ -26,8 +26,14 @@ class AddFavouriteProductViewModel (
         addToFavouritesState.value = AddToFavouritesState.InProgress
 
         viewModelScope.launch(coroutineExceptionHandler) {
-            favouriteProducts.addToFavourites(product)
-            addToFavouritesState.postValue(AddToFavouritesState.Success)
+            val productCheck = favouriteProductsRepository.findByBarcode(product.barcode)
+
+            if(productCheck != null ) {
+                addToFavouritesState.postValue(AddToFavouritesState.AlreadyAdded)
+            } else {
+                favouriteProductsRepository.addToFavourites(product)
+                addToFavouritesState.postValue(AddToFavouritesState.Success)
+            }
         }
     }
 

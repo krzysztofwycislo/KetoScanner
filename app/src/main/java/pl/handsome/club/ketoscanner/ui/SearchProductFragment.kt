@@ -19,7 +19,7 @@ import pl.handsome.club.ketoscanner.util.getNotEmptyString
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.util.onKeyEnter
-import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 
 class SearchProductFragment : Fragment(R.layout.search_product_fragment) {

@@ -18,6 +18,7 @@ import pl.handsome.club.domain.repository.AnalysisHistoryRepository
 import pl.handsome.club.domain.repository.DietPreferencesRepository
 import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 
 @ExperimentalCoroutinesApi

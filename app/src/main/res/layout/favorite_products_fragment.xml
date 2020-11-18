@@ -11,16 +11,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/normal_100"
+        android:layout_marginTop="@dimen/normal_100"
         android:text="@string/favourite_products"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favouriteProductsList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/normal_100"
-        app:layout_constraintTop_toBottomOf="@+id/favouriteProductsTitle"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/favouriteProductsTitle"
         tools:listitem="@layout/favorite_products_list_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

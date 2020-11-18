@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.viewmodel
+package pl.handsome.club.ketoscanner.viewmodel.favourite.add
 
 
 sealed class AddToFavouritesState {
@@ -6,5 +6,6 @@ sealed class AddToFavouritesState {
     object InProgress : AddToFavouritesState()
     data class Error(val throwable: Throwable) : AddToFavouritesState()
     object Success : AddToFavouritesState()
+    object AlreadyAdded : AddToFavouritesState()
 
 }
