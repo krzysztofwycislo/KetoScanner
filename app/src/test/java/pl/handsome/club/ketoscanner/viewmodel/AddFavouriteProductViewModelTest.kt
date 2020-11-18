@@ -13,6 +13,8 @@ import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.repository.FavouriteProductsRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
+import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddToFavouritesState
 
 
 @ExperimentalCoroutinesApi

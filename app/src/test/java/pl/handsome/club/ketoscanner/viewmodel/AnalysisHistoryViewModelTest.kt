@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.domain.repository.AnalysisHistoryRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
 
 
 @RunWith(MockitoJUnitRunner::class)

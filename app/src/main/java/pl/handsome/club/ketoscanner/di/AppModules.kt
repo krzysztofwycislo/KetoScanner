@@ -10,9 +10,10 @@ import pl.handsome.club.domain.repository.ProductRepository
 import pl.handsome.club.ketoscanner.database.AppDatabase
 import pl.handsome.club.ketoscanner.database.favourite.DBFavouriteProductsRepository
 import pl.handsome.club.ketoscanner.database.history.DBAnalysisHistoryRepository
-import pl.handsome.club.ketoscanner.viewmodel.AddFavouriteProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.AnalysisHistoryViewModel
-import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
 import pl.handsome.club.openfoodapi.OpenFoodFactsRepository
 
 
@@ -33,6 +34,7 @@ val appModules = module {
         // view model
         viewModel { AnalyzeProductViewModel(get(), get(), get(), get()) },
         viewModel { AnalysisHistoryViewModel(get()) },
-        viewModel { AddFavouriteProductViewModel(get()) }
+        viewModel { AddFavouriteProductViewModel(get()) },
+        viewModel { FavouriteProductsListViewModel(get()) }
     )
 }

@@ -9,7 +9,8 @@ internal fun FavouriteProductEntity.toDomain(): FavouriteProduct {
         productBarcode,
         productName,
         productBrand,
-        updateTime
+        updateTime,
+        imageUrl
     )
 }
 
@@ -17,6 +18,7 @@ internal fun Product.toFavouriteProductEntity(): FavouriteProductEntity {
     return FavouriteProductEntity(
         barcode,
         name,
-        brand
+        brand,
+        imageUrl
     )
 }

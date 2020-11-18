@@ -18,9 +18,9 @@ import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.*
-import pl.handsome.club.ketoscanner.viewmodel.AddFavouriteProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.AddToFavouritesState
-import pl.handsome.club.ketoscanner.viewmodel.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddToFavouritesState
 
 
 // TODO lets consider fragments separation
@@ -73,14 +73,14 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         product.imageUrl?.also(::loadImage)
     }
 
-    private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState?) {
+    private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState) {
         when(addToFavouritesState) {
             is AddToFavouritesState.Success -> showMessage(R.string.product_has_been_added_to_favourites)
             is AddToFavouritesState.Error -> {
                 logException(addToFavouritesState.throwable)
                 showMessage(R.string.something_went_wrong)
             }
-            else -> {}
+            is AddToFavouritesState.AlreadyAdded -> showMessage(R.string.product_already_added_to_favourites)
         }
     }
 

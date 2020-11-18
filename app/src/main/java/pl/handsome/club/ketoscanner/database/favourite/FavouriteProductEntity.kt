@@ -10,7 +10,8 @@ import java.util.*
 data class FavouriteProductEntity(
     @PrimaryKey val productBarcode: String,
     val productName: String,
-    val productBrand: String
+    val productBrand: String,
+    val imageUrl: String?
 ) {
 
     var updateTime: Date = Calendar.getInstance().time
