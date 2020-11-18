@@ -2,19 +2,26 @@ package pl.handsome.club.ketoscanner.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.paging.PagedList
 import kotlinx.android.synthetic.main.favorite_products_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.product.FavouriteProduct
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.ui.adapter.FavouriteProductsListAdapter
+import pl.handsome.club.ketoscanner.util.logException
+import pl.handsome.club.ketoscanner.util.logWarning
+import pl.handsome.club.ketoscanner.util.safeNavigateTo
+import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
 
 
 class FavoriteProductsFragment : Fragment(R.layout.favorite_products_fragment) {
 
     private val favouriteProductsListViewModel: FavouriteProductsListViewModel by viewModel()
+    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,14 +42,30 @@ class FavoriteProductsFragment : Fragment(R.layout.favorite_products_fragment) {
     private fun onProductClicked(favouriteProduct: FavouriteProduct) {
         val barcode = favouriteProduct.productBarcode
 
-//        with(analyzeProductViewModel) {
-//            searchAndAnalyzeProduct(barcode)
-//            getProductAnalysisState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
-//        }
+        with(analyzeProductViewModel) {
+            searchAndAnalyzeProduct(barcode)
+            getProductAnalysisState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
+        }
     }
 
-    private fun onFavouriteProductsChange(pagedList: PagedList<FavouriteProduct>) {
+    private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
+        when(productAnalysisState) {
+            is ProductAnalysisState.InProgress -> {/* TODO progressbar? */ }
+            is ProductAnalysisState.Success -> navigateToAnalyzeResult()
+            is ProductAnalysisState.Error -> showError(productAnalysisState.throwable)
+            else -> logWarning("Unhandled analysis state: $productAnalysisState")
+        }
+    }
 
+    private fun navigateToAnalyzeResult() {
+        FavoriteProductsFragmentDirections
+            .toProductAnalysisResultFragment()
+            .let(::safeNavigateTo)
+    }
+
+    private fun showError(throwable: Throwable) {
+        logException(throwable)
+        Toast.makeText(requireContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show()
     }
 
 }

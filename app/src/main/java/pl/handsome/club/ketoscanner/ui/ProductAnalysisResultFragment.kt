@@ -81,6 +81,7 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
                 showMessage(R.string.something_went_wrong)
             }
             is AddToFavouritesState.AlreadyAdded -> showMessage(R.string.product_already_added_to_favourites)
+            is AddToFavouritesState.InProgress -> { }
         }
     }
 

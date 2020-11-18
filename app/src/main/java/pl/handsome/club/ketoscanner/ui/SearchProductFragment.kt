@@ -17,8 +17,8 @@ import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.util.getNotEmptyString
 import pl.handsome.club.ketoscanner.util.logException
-import pl.handsome.club.ketoscanner.util.navigateTo
 import pl.handsome.club.ketoscanner.util.onKeyEnter
+import pl.handsome.club.ketoscanner.util.safeNavigateTo
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 
@@ -111,7 +111,7 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     private fun navigateToAnalyzeResult() {
         SearchProductFragmentDirections
             .toProductAnalysisResultFragment()
-            .let(::navigateTo)
+            .let(::safeNavigateTo)
     }
 
     override fun onRequestPermissionsResult(
