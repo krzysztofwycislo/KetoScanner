@@ -34,4 +34,10 @@ class DBFavouriteProductsRepository(
         }
     }
 
+    override suspend fun removeFromFavourites(product: Product) {
+        return withContext(Dispatchers.IO) {
+            favouriteProductsDao.delete(product.toFavouriteProductEntity())
+        }
+    }
+
 }

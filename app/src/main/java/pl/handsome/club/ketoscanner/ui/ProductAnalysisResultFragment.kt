@@ -51,15 +51,28 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
 
-
-        addFavouriteProductViewModel.getAddToFavouritesState().observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
-        addToFavouritesButton.setOnClickListener {
-            addFavouriteProductViewModel.addToFavourites(product)
-        }
+        initializeFavouriteButton(product)
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
+    }
+
+    private fun initializeFavouriteButton(product: Product) {
+        addFavouriteProductViewModel.getAddToFavouritesState()
+            .observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
+
+        addToFavouritesButton.setOnClickListener {
+            addFavouriteProductViewModel.addOrRemoveFromFavourites(product)
+        }
+
+        addFavouriteProductViewModel.isProductInFavourites(product)
+        addFavouriteProductViewModel.getIsProductInFavourites()
+            .observe(viewLifecycleOwner, {
+                (if (it) R.drawable.favorite_white_36dp
+                else R.drawable.favorite_border_white_24dp)
+                    .also(addToFavouritesButton::setImageResource)
+            })
     }
 
     private fun initializeProductInfo(product: Product) {
@@ -74,14 +87,14 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
     }
 
     private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState) {
-        when(addToFavouritesState) {
+        when (addToFavouritesState) {
             is AddToFavouritesState.Success -> showMessage(R.string.product_has_been_added_to_favourites)
             is AddToFavouritesState.Error -> {
                 logException(addToFavouritesState.throwable)
                 showMessage(R.string.something_went_wrong)
             }
-            is AddToFavouritesState.AlreadyAdded -> showMessage(R.string.product_already_added_to_favourites)
-            is AddToFavouritesState.InProgress -> { }
+            is AddToFavouritesState.Removed -> showMessage(R.string.product_has_been_removed_from_favourites)
+            is AddToFavouritesState.InProgress -> {}
         }
     }
 

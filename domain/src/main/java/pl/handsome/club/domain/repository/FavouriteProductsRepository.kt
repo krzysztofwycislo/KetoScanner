@@ -13,4 +13,6 @@ interface FavouriteProductsRepository {
 
     suspend fun findByBarcode(barcode: String): FavouriteProduct?
 
+    suspend fun removeFromFavourites(product: Product)
+
 }

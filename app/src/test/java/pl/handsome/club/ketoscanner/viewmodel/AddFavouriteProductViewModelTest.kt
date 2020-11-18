@@ -46,7 +46,7 @@ class AddFavouriteProductViewModelTest {
     fun `when we want to save favourite product then we should get success result`() {
         val product = exampleProduct
 
-        viewModelAdd.addToFavourites(product)
+        viewModelAdd.addOrRemoveFromFavourites(product)
 
         verify(observer).onChanged(AddToFavouritesState.InProgress)
         verify(observer).onChanged(AddToFavouritesState.Success)
@@ -59,7 +59,7 @@ class AddFavouriteProductViewModelTest {
             val throwable = IllegalStateException()
             `when`(favouriteProductsRepository.addToFavourites(product)).thenThrow(throwable)
 
-            viewModelAdd.addToFavourites(product)
+            viewModelAdd.addOrRemoveFromFavourites(product)
 
             verify(observer).onChanged(AddToFavouritesState.InProgress)
             verify(observer).onChanged(AddToFavouritesState.Error(throwable))
