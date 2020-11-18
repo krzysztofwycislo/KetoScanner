@@ -9,11 +9,12 @@ import kotlinx.coroutines.launch
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.domain.repository.FavouriteProductsRepository
 
-class AddFavouriteProductViewModel (
+class AddFavouriteProductViewModel(
     private val favouriteProductsRepository: FavouriteProductsRepository
 ) : ViewModel() {
 
     private val addToFavouritesState = MutableLiveData<AddToFavouritesState>()
+    private val isProductInFavourites = MutableLiveData<Boolean>()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         AddToFavouritesState.Error(throwable).also(addToFavouritesState::postValue)
@@ -21,19 +22,38 @@ class AddFavouriteProductViewModel (
 
 
     fun getAddToFavouritesState(): LiveData<AddToFavouritesState> = addToFavouritesState
+    fun getIsProductInFavourites(): LiveData<Boolean> = isProductInFavourites
 
-    fun addToFavourites(product: Product) {
+    fun addOrRemoveFromFavourites(product: Product) {
         addToFavouritesState.value = AddToFavouritesState.InProgress
 
         viewModelScope.launch(coroutineExceptionHandler) {
-            val productCheck = favouriteProductsRepository.findByBarcode(product.barcode)
+            val favouriteProductCheck = favouriteProductsRepository.findByBarcode(product.barcode)
 
-            if(productCheck != null ) {
-                addToFavouritesState.postValue(AddToFavouritesState.AlreadyAdded)
+            if (favouriteProductCheck == null) {
+                addToFavourites(product)
             } else {
-                favouriteProductsRepository.addToFavourites(product)
-                addToFavouritesState.postValue(AddToFavouritesState.Success)
+                removeFromFavourites(product)
             }
+        }
+    }
+
+    private suspend fun removeFromFavourites(product: Product) {
+        favouriteProductsRepository.removeFromFavourites(product)
+        isProductInFavourites.postValue(false)
+        addToFavouritesState.postValue(AddToFavouritesState.Removed)
+    }
+
+    private suspend fun addToFavourites(product: Product) {
+        favouriteProductsRepository.addToFavourites(product)
+        isProductInFavourites.postValue(true)
+        addToFavouritesState.postValue(AddToFavouritesState.Success)
+    }
+
+    fun isProductInFavourites(product: Product) {
+        viewModelScope.launch {
+            val productCheck = favouriteProductsRepository.findByBarcode(product.barcode)
+            isProductInFavourites.postValue(productCheck != null)
         }
     }
 
