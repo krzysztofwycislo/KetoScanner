@@ -13,7 +13,7 @@ import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.ui.adapter.AnalysisHistoryListAdapter
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.logWarning
-import pl.handsome.club.ketoscanner.util.navigateTo
+import pl.handsome.club.ketoscanner.util.safeNavigateTo
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
@@ -55,10 +55,9 @@ class LastAnalysisHistoryFragment : Fragment(R.layout.last_analysis_history_frag
     private fun navigateToAnalyzeResult() {
         HomeFragmentDirections
             .toProductAnalysisResultFragment()
-            .let(::navigateTo)
+            .let(::safeNavigateTo)
     }
 
-    // TODO converting exceptions into user messages
     private fun showError(throwable: Throwable) {
         logException(throwable)
         Toast.makeText(requireContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show()
