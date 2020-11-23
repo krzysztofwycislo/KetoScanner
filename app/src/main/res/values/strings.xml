@@ -51,4 +51,6 @@
     <string name="favourite_products">Favourite products</string>
     <string name="product_icon">Product image</string>
     <string name="product_has_been_removed_from_favourites">Product has been removed from favourites</string>
+    <string name="image_preview">Image preview</string>
+    <string name="default_macronutrients_text">-</string>
 </resources>

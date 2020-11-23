@@ -1,7 +1,10 @@
 package pl.handsome.club.ketoscanner.ui
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -84,7 +87,27 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
         productBrand.text = product.brand
 
-        product.imageUrl?.also(::loadImage)
+        product.imageUrl?.also { imageUrl ->
+            loadImagePreview(imageUrl, productImage)
+
+            productImage.setOnClickListener {
+                showFullImage(imageUrl)
+            }
+        }
+    }
+
+    private fun showFullImage(imageUrl: String) {
+        val dialog = Dialog(requireContext(), R.style.ImagePreviewDialog)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.image_preview_dialog)
+        dialog.window?.setBackgroundDrawableResource(R.color.transparent)
+        val imagePreview: ImageView = dialog.findViewById(R.id.imagePreview)
+
+        Glide.with(this)
+            .load(imageUrl)
+            .into(imagePreview)
+
+        dialog.show()
     }
 
     private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState) {
@@ -95,7 +118,8 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
                 showMessage(R.string.something_went_wrong)
             }
             is AddToFavouritesState.Removed -> showMessage(R.string.product_has_been_removed_from_favourites)
-            is AddToFavouritesState.InProgress -> {}
+            is AddToFavouritesState.InProgress -> {
+            }
         }
     }
 
@@ -160,11 +184,11 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         /* NOTHING SO FAR */
     }
 
-    private fun loadImage(imageUrl: String) {
+    private fun loadImagePreview(imageUrl: String, imageView: ImageView) {
         Glide.with(this)
             .load(imageUrl)
             .centerCrop()
-            .into(productImage)
+            .into(imageView)
     }
 
 }
