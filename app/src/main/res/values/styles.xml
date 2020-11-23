@@ -34,5 +34,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <string name="default_macronutrients_text">-</string>
+    <style name="ImagePreviewDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/ImagePreviewDialogAnimation</item>
+    </style>
+
+    <style name="ImagePreviewDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_fade_in</item>
+        <item name="android:windowExitAnimation">@anim/dialog_fade_out</item>
+    </style>
+
+
 </resources>
