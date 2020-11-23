@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.macronutrients_result_view.*
 import kotlinx.android.synthetic.main.nutrients_table_view.*
 import kotlinx.android.synthetic.main.product_analisis_result_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
@@ -27,7 +28,7 @@ import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddToFavouritesState
 class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
 
     private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
-    private val addFavouriteProductViewModel: AddFavouriteProductViewModel by sharedViewModel()
+    private val addFavouriteProductViewModel: AddFavouriteProductViewModel by viewModel()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

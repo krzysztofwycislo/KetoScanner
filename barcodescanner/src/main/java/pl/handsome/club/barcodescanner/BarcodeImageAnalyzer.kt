@@ -1,6 +1,6 @@
 package pl.handsome.club.barcodescanner
 
-import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -10,28 +10,30 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
 
-// TODO fix image rotation issue
-// TODO analyze smaller spot
+// TODO analyze area overlay
 class BarcodeImageAnalyzer(
-    private val onScanSuccess: (String) -> Unit
+    private val onScanSuccess: (String) -> Unit,
+    private val imageCropPercentages: Pair<Int, Int>
 ) : ImageAnalysis.Analyzer {
 
-    @SuppressLint("UnsafeExperimentalUsageError")
     override fun analyze(imageProxy: ImageProxy) {
-        val mediaImage = imageProxy.image
-        if (mediaImage == null) {
-            imageProxy.close()
-            return
-        }
+        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
 
-//        val imageBitmap = imageProxy.toBitmap()
-//        val resizedBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height/2)
-//        val rotation = imageProxy.imageInfo.rotationDegrees
-//        val image = InputImage.fromBitmap(resizedBitmap, imageProxy.imageInfo.rotationDegrees)
-//        Log.d(ContentValues.TAG, "image: ${image.width}, ${image.height}")
+//        val widthCropPercent = imageCropPercentages.second
+//        val heightCropPercent = imageCropPercentages.first
+//        val (widthCrop, heightCrop) = when (targetRotation) {
+//            90, 270 -> Pair(heightCropPercent / 100f, widthCropPercent / 100f)
+//            else -> Pair(widthCropPercent / 100f, heightCropPercent / 100f)
+//        }
 
-        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-//        Log.d(ContentValues.TAG, "mediaImage: ${mediaImage.width}, ${mediaImage.height}, $rotation")
+        val cropRect = Rect(0, 0, imageProxy.width, imageProxy.height)
+//        cropRect.inset(
+//            (mediaImage.width * widthCrop / 2).toInt(),
+//            (mediaImage.height * heightCrop / 2).toInt()
+//        )
+
+        val finalBitmap = imageProxy.convertYuv420888ImageToBitmap().rotateAndCrop(rotationDegrees, cropRect)
+        val image = InputImage.fromBitmap(finalBitmap, 0)
 
         val options = BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_EAN_13, Barcode.FORMAT_EAN_8)
