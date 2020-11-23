@@ -4,7 +4,10 @@ import android.Manifest
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -54,17 +57,15 @@ class BarcodeCameraScanner(
 
     private fun bindCamera(cameraProvider: ProcessCameraProvider) {
         val metrics = DisplayMetrics().also { cameraPreviewView.display.getRealMetrics(it) }
-        Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
-
         val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-        Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
-
         val rotation = cameraPreviewView.display.rotation
+
+        val imageCropPercentages = Pair(40, 60)
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         preview = createPreview(rotation, screenAspectRatio)
 
-        barcodeImageAnalyzer = BarcodeImageAnalyzer(::onScanSuccess)
+        barcodeImageAnalyzer = BarcodeImageAnalyzer(::onScanSuccess, imageCropPercentages)
         imageAnalyzer = createBarcodeImageAnalyzer(rotation, screenAspectRatio)
 
         try {
@@ -79,7 +80,10 @@ class BarcodeCameraScanner(
         }
     }
 
-    private fun createPreview(rotation: Int, screenAspectRatio: Int): Preview {
+    private fun createPreview(
+        rotation: Int,
+        screenAspectRatio: Int
+    ): Preview {
         return Preview.Builder()
             .setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation)

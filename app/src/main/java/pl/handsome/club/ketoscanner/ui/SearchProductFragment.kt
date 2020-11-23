@@ -80,6 +80,7 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         requestPermissions(permissions, CAMERA_PERMISSION_RC)
     }
 
+    // TODO converting exceptions into user messages
     private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
         if (productAnalysisState !is ProductAnalysisState.InProgress) {
             progressBar.hide()
@@ -87,20 +88,17 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
 
         when (productAnalysisState) {
             is ProductAnalysisState.InProgress -> progressBar.show()
-            is ProductAnalysisState.ProductNotFound -> showMessage(R.string.product_not_found)
+            is ProductAnalysisState.ProductNotFound -> showMessageAndResumeScanning(R.string.product_not_found)
             is ProductAnalysisState.Success -> navigateToAnalyzeResult()
-            is ProductAnalysisState.Error -> showErrorAndResumeScanning(productAnalysisState.throwable)
+            is ProductAnalysisState.Error -> {
+                logException(productAnalysisState.throwable)
+                showMessageAndResumeScanning(R.string.something_went_wrong)
+            }
         }
     }
 
-    // TODO converting exceptions into user messages
-    private fun showErrorAndResumeScanning(throwable: Throwable) {
+    private fun showMessageAndResumeScanning(messageId: Int) {
         barcodeCameraScanner?.resume()
-        logException(throwable)
-        showMessage(R.string.something_went_wrong)
-    }
-
-    private fun showMessage(messageId: Int) {
         Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
