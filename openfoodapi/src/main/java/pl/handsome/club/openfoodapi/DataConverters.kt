@@ -19,7 +19,7 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
         val product = Product(
             productName,
             response.barcode,
-            brand,
+            brand ?: "",
             productNutriments,
             frontImage,
             servingQuantity

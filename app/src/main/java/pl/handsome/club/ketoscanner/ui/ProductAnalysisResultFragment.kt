@@ -45,12 +45,16 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         }
     }
 
-    // TODO fix? "StaticLayout: maxLineHeight should not be -1.  maxLines:1 lineCount:1"
     private fun initializeView(result: ProductAnalysisResult) {
         val product = result.product
         initializeProductInfo(result.product)
 
-        initializeMacronutrientAnalysisResults(result.macronutrientAnalysisResult)
+        val macronutrientAnalysisResult = result.macronutrientAnalysisResult
+        if (macronutrientAnalysisResult != null)
+            showMacronutrientAnalysisResult(macronutrientAnalysisResult)
+        else
+            showLackOfMacronutrientAnalysisResult()
+
         initializeProductMacronutrientTable(product)
 
         result.ingredientAnalysisResult.also(::initializeIngredientAnalysisResults)
@@ -127,9 +131,16 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
-    // TODO refactor
-    private fun initializeMacronutrientAnalysisResults(macronutrientAnalysisResult: MacronutrientAnalysisResult) =
-        with(macronutrientAnalysisResult) {
+    private fun showLackOfMacronutrientAnalysisResult() {
+        maxServingResultContainer.visibility = View.GONE
+
+        carbsResultImage.setImageResource(R.drawable.question_outline_negative_24dp)
+
+        lackOfCarbsResultSummary.visibility = View.VISIBLE
+    }
+
+    private fun showMacronutrientAnalysisResult(result: MacronutrientAnalysisResult) =
+        with(result) {
             getColor(requireContext(), getColorIdForDietRate(carbsRate))
                 .also(carbsResultSummary::setTextColor)
                 .also(maxServingResultSummary::setTextColor)
@@ -156,27 +167,48 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
 
         }
 
-    // TODO refactor
     private fun initializeProductMacronutrientTable(product: Product) {
         val nutriments = product.nutriments
 
-        perServingHeader.text = product.servingAmount
-            ?.let { getString(R.string.per_serving_with_value, it) }
+        val servingAmount = product.servingAmount
+        if (servingAmount != null) {
+            perServingHeader.text = getString(R.string.per_serving_with_value, servingAmount)
+        }
 
-        energyPerServing.text = getString(R.string.value_with_kcal, nutriments.energyPerServing)
-        energyPer100g.text = getString(R.string.value_with_kcal, nutriments.energyPer100g)
+        nutriments.energyPerServing
+            ?.let { getString(R.string.value_with_kcal, it) }
+            ?.also(energyPerServing::setText)
+        nutriments.energyPer100g
+            ?.let { getString(R.string.value_with_kcal, it) }
+            ?.also(energyPer100g::setText)
 
-        fatsPerServing.text = getString(R.string.value_with_g, nutriments.fatsPerServing)
-        fatsPer100g.text = getString(R.string.value_with_g, nutriments.fatsPer100g)
+        nutriments.fatsPerServing
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(fatsPerServing::setText)
+        nutriments.fatsPer100g
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(fatsPer100g::setText)
 
-        proteinsPerServing.text = getString(R.string.value_with_g, nutriments.proteinsPerServing)
-        proteinsPer100g.text = getString(R.string.value_with_g, nutriments.proteinsPer100g)
+        nutriments.proteinsPerServing
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(proteinsPerServing::setText)
+        nutriments.proteinsPer100g
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(proteinsPer100g::setText)
 
-        carbsPerServing.text = getString(R.string.value_with_g, nutriments.carbohydratesPerServing)
-        carbsPer100g.text = getString(R.string.value_with_g, nutriments.carbohydratesPer100g)
+        nutriments.carbohydratesPerServing
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(carbsPerServing::setText)
+        nutriments.carbohydratesPer100g
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(carbsPer100g::setText)
 
-        saltPerServing.text = getString(R.string.value_with_g, nutriments.saltPerServing)
-        saltPer100g.text = getString(R.string.value_with_g, nutriments.saltPer100g)
+        nutriments.saltPerServing
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(saltPerServing::setText)
+        nutriments.saltPer100g
+            ?.let { getString(R.string.value_with_g, it) }
+            ?.also(saltPer100g::setText)
     }
 
     // TODO

@@ -53,4 +53,6 @@
     <string name="product_has_been_removed_from_favourites">Product has been removed from favourites</string>
     <string name="image_preview">Image preview</string>
     <string name="default_macronutrients_text">-</string>
+    <string name="lack_of_required_information">Lack of required information</string>
+    <string name="per_serving">Per serving</string>
 </resources>

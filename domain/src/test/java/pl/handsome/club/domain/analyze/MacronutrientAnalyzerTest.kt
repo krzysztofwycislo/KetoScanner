@@ -1,6 +1,6 @@
 package pl.handsome.club.domain.analyze
 
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -23,7 +23,10 @@ class MacronutrientAnalyzerTest(
     fun `when we want to analyze product then result we should get correct ratings`() {
         val result = analyzer.analyze(preferences, product.nutriments)
 
-        assertTrue(result.carbsRate == carbsRate)
+        assertThat(result).isNotNull()
+        if (result != null) {
+            assertThat(result.carbsRate).isEqualTo(carbsRate)
+        }
     }
 
 

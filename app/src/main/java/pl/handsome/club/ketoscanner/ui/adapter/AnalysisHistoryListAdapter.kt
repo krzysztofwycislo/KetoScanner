@@ -44,7 +44,7 @@ class AnalysisHistoryListAdapter(
             onItemClick: (ProductAnalysisHistoryEntry) -> Unit
         ) {
             productAnalysisHistoryEntry.macronutrientAnalysisResult
-                .carbsRate
+                ?.carbsRate
                 .let(::getSummaryResultImageIdForDietRate)
                 .also(resultStatusIcon::setImageResource)
 

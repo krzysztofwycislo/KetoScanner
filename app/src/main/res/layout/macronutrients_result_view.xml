@@ -44,6 +44,18 @@
             app:layout_constraintTop_toBottomOf="@id/carbsResultSummary"
             tools:text="&lt; 10g carbs per 100 g/ml" />
 
+        <TextView
+            android:id="@+id/lackOfCarbsResultSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/normal_100"
+            android:text="@string/lack_of_required_information"
+            android:textSize="@dimen/text_regular_100"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/carbsResultImage"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
