@@ -6,6 +6,7 @@ import org.koin.core.context.GlobalContext.startKoin
 import pl.handsome.club.ketoscanner.di.appModules
 
 
+@Suppress("unused")
 class KetoSApplication : Application() {
 
     override fun onCreate(){
