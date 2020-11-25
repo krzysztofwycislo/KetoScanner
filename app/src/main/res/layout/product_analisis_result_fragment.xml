@@ -96,20 +96,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/titleContainer">
 
-            <include
-                android:id="@+id/macronutrientsResultContainer"
-                layout="@layout/macronutrients_result_view"
+            <fragment
+                android:id="@+id/macronutrientsResultFragment"
+                android:name="pl.handsome.club.ketoscanner.ui.MacronutrientsResultFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/normal_100" />
+                android:layout_marginBottom="@dimen/normal_100"
+                tools:layout="@layout/macronutrients_result_fragment" />
 
             <include
                 android:id="@+id/contentsResultContainer"
                 layout="@layout/contents_result_view" />
 
-            <include
+            <fragment
                 android:id="@+id/nutrientsTableContainer"
-                layout="@layout/nutrients_table_view" />
+                android:name="pl.handsome.club.ketoscanner.ui.MacronutrientsTableFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/normal_100"
+                tools:layout="@layout/nutrients_table_fragment" />
 
         </LinearLayout>
 
