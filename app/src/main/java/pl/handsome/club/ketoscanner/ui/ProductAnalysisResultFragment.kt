@@ -43,6 +43,12 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         val product = result.product
         initializeProductInfo(result.product)
 
+        (childFragmentManager.findFragmentById(R.id.macronutrientsResultFragment) as MacronutrientsResultFragment)
+            .initializeResults(result.macronutrientAnalysisResult)
+
+        (childFragmentManager.findFragmentById(R.id.nutrientsTableContainer) as MacronutrientsTableFragment)
+            .initializeProductMacronutrientTable(product)
+
         initializeFavouriteButton(product)
 
         backButton.setOnClickListener {

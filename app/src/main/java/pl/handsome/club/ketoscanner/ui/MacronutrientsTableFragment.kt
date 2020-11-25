@@ -1,31 +1,14 @@
 package pl.handsome.club.ketoscanner.ui
 
-import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.nutrients_table_fragment.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.product.Product
 import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 
 class MacronutrientsTableFragment : Fragment(R.layout.nutrients_table_fragment) {
 
-    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val analysisState = analyzeProductViewModel.getProductAnalysisState().value
-        if (analysisState is ProductAnalysisState.Success) {
-            initializeProductMacronutrientTable(analysisState.result.product)
-        }
-    }
-
-    private fun initializeProductMacronutrientTable(product: Product) {
+    fun initializeProductMacronutrientTable(product: Product) {
         val nutriments = product.nutriments
 
         val servingAmount = product.servingAmount
