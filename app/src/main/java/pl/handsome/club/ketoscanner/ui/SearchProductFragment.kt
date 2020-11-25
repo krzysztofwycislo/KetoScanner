@@ -71,7 +71,9 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         barcodeCameraScanner = BarcodeCameraScanner(this, cameraPreviewView)
             .apply {
                 start()
-                getScannedBarcode().observe(viewLifecycleOwner, ::onBarcodeScanned)
+                getScannedBarcode().observe(viewLifecycleOwner, {
+                    it?.also(::searchProduct)
+                })
             }
     }
 
@@ -100,10 +102,6 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     private fun showMessageAndResumeScanning(messageId: Int) {
         barcodeCameraScanner?.resume()
         Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
-    }
-
-    private fun onBarcodeScanned(barcode: String?) {
-        barcode?.also(::searchProduct)
     }
 
     private fun navigateToAnalyzeResult() {

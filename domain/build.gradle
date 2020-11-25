@@ -29,4 +29,5 @@ dependencies {
     implementation "androidx.paging:paging-common-ktx:$androidx_paging"
 
     testImplementation "junit:junit:$junit_version"
+    testImplementation "com.google.truth:truth:$goolge_truth_version"
 }

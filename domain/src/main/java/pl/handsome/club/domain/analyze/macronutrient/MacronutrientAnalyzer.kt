@@ -9,11 +9,12 @@ internal object MacronutrientAnalyzer {
     fun analyze(
         preferences: MacronutrientPreferences,
         productNutriments: ProductNutriments
-    ): MacronutrientAnalysisResult {
-        val dailyCarbConsumption = preferences.maxCarbohydratesAmount
+    ): MacronutrientAnalysisResult? {
         val carbohydratesPer100g = productNutriments.carbohydratesPer100g
+            ?: return null
 
-        val maxProductAmount = getMaxProductAmount(productNutriments, dailyCarbConsumption)
+        val dailyCarbConsumption = preferences.maxCarbohydratesAmount
+        val maxProductAmount = dailyCarbConsumption / carbohydratesPer100g * 100
 
         val highRateCarbAmount = dailyCarbConsumption / 3
         if (carbohydratesPer100g <= highRateCarbAmount) {
@@ -41,15 +42,6 @@ internal object MacronutrientAnalyzer {
             maxProductAmount,
             dailyCarbConsumption
         )
-    }
-
-    private fun getMaxProductAmount(
-        productNutriments: ProductNutriments,
-        dailyCarbConsumption: Int
-    ): Double {
-        val carbohydratesPer100grams = productNutriments.carbohydratesPer100g
-
-        return dailyCarbConsumption / carbohydratesPer100grams * 100
     }
 
 }

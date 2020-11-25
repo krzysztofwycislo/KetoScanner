@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
 import pl.handsome.club.domain.analyze.ProductAnalysisResult
@@ -37,7 +36,7 @@ class AnalyzeProductViewModel(
         if (productAnalysisState.value is ProductAnalysisState.InProgress) return
         productAnalysisState.value = ProductAnalysisState.InProgress
 
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        viewModelScope.launch(coroutineExceptionHandler) {
             productRepository.searchProductByBarcode(barcode)
                 .also { handleSearchResult(it) }
         }
