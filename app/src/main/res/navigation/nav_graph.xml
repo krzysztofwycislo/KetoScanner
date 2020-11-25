@@ -9,9 +9,6 @@
         android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
         android:label="HomeFragment">
         <action
-            android:id="@+id/to_preferencesFragment"
-            app:destination="@id/preferences" />
-        <action
             android:id="@+id/to_ketoPreferencesFragment"
             app:destination="@id/dietPreferences" />
         <action
@@ -43,11 +40,6 @@
         android:id="@+id/productDetails"
         android:name="pl.handsome.club.ketoscanner.ui.ProductDetailsFragment"
         android:label="ProductDetailsFragment" />
-
-    <fragment
-        android:id="@+id/preferences"
-        android:name="pl.handsome.club.ketoscanner.ui.PreferencesFragment"
-        android:label="PreferencesFragment" />
 
     <fragment
         android:id="@+id/search"
