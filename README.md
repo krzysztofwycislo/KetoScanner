@@ -1,5 +1,7 @@
 # KetoS (Proof of concept)
 
+Status: In Progress
+
 Application made for people on keto/low carb diet. 
 Main purpose is to make shopping faster by reducing time of checking macronutrients.
 
