@@ -10,6 +10,7 @@ import pl.handsome.club.ketoscanner.database.toDomain
 import pl.handsome.club.ketoscanner.database.toHistoryEntry
 
 
+// TODO removing old entries
 class DBAnalysisHistoryRepository(
     appDatabase: AppDatabase
 ) : AnalysisHistoryRepository {
