@@ -18,7 +18,7 @@ import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
 
 
-class FavoriteProductsFragment : Fragment(R.layout.favorite_products_fragment) {
+class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) {
 
     private val favouriteProductsListViewModel: FavouriteProductsListViewModel by viewModel()
     private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()

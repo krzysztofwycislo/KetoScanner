@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/favourites"
-        android:name="pl.handsome.club.ketoscanner.ui.FavoriteProductsFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.FavouriteProductsFragment"
         android:label="FavoriteProductsFragment" >
         <action
             android:id="@+id/to_productAnalysisResultFragment"
