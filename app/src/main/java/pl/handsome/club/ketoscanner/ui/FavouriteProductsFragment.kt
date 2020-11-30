@@ -49,8 +49,12 @@ class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) 
     }
 
     private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
+        if (productAnalysisState !is ProductAnalysisState.InProgress) {
+            progressBar.hide()
+        }
+
         when(productAnalysisState) {
-            is ProductAnalysisState.InProgress -> {/* TODO progressbar? */ }
+            is ProductAnalysisState.InProgress -> { progressBar.show() }
             is ProductAnalysisState.Success -> navigateToAnalyzeResult()
             is ProductAnalysisState.Error -> showError(productAnalysisState.throwable)
             else -> logWarning("Unhandled analysis state: $productAnalysisState")
@@ -58,7 +62,7 @@ class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) 
     }
 
     private fun navigateToAnalyzeResult() {
-        FavoriteProductsFragmentDirections
+        FavouriteProductsFragmentDirections
             .toProductAnalysisResultFragment()
             .let(::safeNavigateTo)
     }
