@@ -1,7 +1,10 @@
 package pl.handsome.club.ketoscanner.database.favourite
 
-import androidx.paging.DataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import pl.handsome.club.domain.product.FavouriteProduct
 import pl.handsome.club.domain.product.Product
@@ -22,11 +25,13 @@ class DBFavouriteProductsRepository(
         }
     }
 
-    override suspend fun load(): DataSource.Factory<Int, FavouriteProduct> {
-        return favouriteProductsDao
-            .loadFavouriteProductsOrderByUpdateTime()
-            .map { it.toDomain() }
-    }
+    override suspend fun search(name: String): Flow<List<FavouriteProduct>> =
+        favouriteProductsDao
+            .searchAndOrderByUpdateTime(name)
+            .map { list -> list.map(FavouriteProductEntity::toDomain) }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+
 
     override suspend fun findByBarcode(barcode: String): FavouriteProduct? {
         return withContext(Dispatchers.IO) {

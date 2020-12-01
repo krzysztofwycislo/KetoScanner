@@ -1,18 +1,18 @@
 package pl.handsome.club.ketoscanner.database.favourite
 
-import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import pl.handsome.club.domain.product.FavouriteProduct
 
 
 @Dao
 interface FavouriteProductDao {
 
-    @Query("SELECT * FROM ${FavouriteProductEntity.TABLE_NAME} ORDER BY updateTime DESC")
-    fun loadFavouriteProductsOrderByUpdateTime(): DataSource.Factory<Int, FavouriteProductEntity>
+    @Query("SELECT * FROM ${FavouriteProductEntity.TABLE_NAME} WHERE productName LIKE '%' || :name || '%' ORDER BY updateTime DESC")
+    fun searchAndOrderByUpdateTime(name: String): Flow<List<FavouriteProductEntity>>
 
     @Insert
     suspend fun insert(favouriteProduct: FavouriteProductEntity)

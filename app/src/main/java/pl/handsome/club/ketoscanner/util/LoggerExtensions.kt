@@ -11,3 +11,7 @@ fun Fragment.logException(throwable: Throwable) {
 fun Fragment.logWarning(message: String) {
     Log.w(this::class.java.simpleName, message)
 }
+
+fun Any.logInfo(message: String) {
+    Log.w(this::class.java.simpleName, message)
+}

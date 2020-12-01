@@ -43,5 +43,8 @@
         <item name="android:windowExitAnimation">@anim/dialog_fade_out</item>
     </style>
 
+    <style name="SearchEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/rounded_corners_white</item>
+    </style>
 
 </resources>
