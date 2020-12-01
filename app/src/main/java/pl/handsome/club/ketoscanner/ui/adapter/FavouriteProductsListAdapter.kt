@@ -5,8 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.favorite_products_list_item.view.*
@@ -15,11 +13,19 @@ import pl.handsome.club.ketoscanner.R
 
 class FavouriteProductsListAdapter(
     private val onItemClick: (FavouriteProduct) -> Unit
-) : PagedListAdapter<FavouriteProduct, FavouriteProductsListAdapter.ViewHolder>(DIFF_CALLBACK) {
+) : RecyclerView.Adapter<FavouriteProductsListAdapter.ViewHolder>() {
 
+    private var favouriteProducts: List<FavouriteProduct> = listOf()
+
+    fun setProducts(newFavouriteProducts: List<FavouriteProduct>) {
+        favouriteProducts = newFavouriteProducts
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount(): Int = favouriteProducts.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        getItem(position).also { holder.bind(it, onItemClick) }
+        favouriteProducts[position].also { holder.bind(it, onItemClick) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,24 +54,6 @@ class FavouriteProductsListAdapter(
             Glide.with(itemView)
                 .load(imageUrl)
                 .into(productImage)
-        }
-
-    }
-
-    companion object {
-
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FavouriteProduct>() {
-
-            override fun areItemsTheSame(
-                oldProduct: FavouriteProduct,
-                newProduct: FavouriteProduct
-            ) = oldProduct.productBarcode == newProduct.productBarcode
-
-            override fun areContentsTheSame(
-                oldProduct: FavouriteProduct,
-                newProduct: FavouriteProduct
-            ) = oldProduct == newProduct
-
         }
 
     }

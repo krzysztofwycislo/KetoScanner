@@ -8,13 +8,27 @@
     <TextView
         android:id="@+id/favouriteProductsTitle"
         style="@style/feature_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/normal_100"
         android:layout_marginTop="@dimen/normal_100"
+        android:layout_marginStart="@dimen/normal_100"
+        android:layout_marginEnd="@dimen/normal_100"
         android:text="@string/favourite_products"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/searchFavouriteProductEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints="product name"
+        android:hint="@string/search_by_name"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@id/favouriteProductsList"
+        app:layout_constraintEnd_toEndOf="@id/favouriteProductsTitle"
+        app:layout_constraintStart_toStartOf="@id/favouriteProductsTitle"
+        app:layout_constraintTop_toBottomOf="@id/favouriteProductsTitle" />
 
     <androidx.core.widget.ContentLoadingProgressBar
         android:id="@+id/progressBar"
@@ -23,7 +37,7 @@
         android:layout_height="1dp"
         android:indeterminateOnly="true"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/favouriteProductsTitle"
+        app:layout_constraintBottom_toTopOf="@id/favouriteProductsList"
         tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -33,7 +47,7 @@
         android:layout_marginTop="@dimen/normal_100"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/searchFavouriteProductEditText"
         tools:listitem="@layout/favorite_products_list_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
