@@ -56,4 +56,6 @@
     <string name="lack_of_required_information">Lack of required information</string>
     <string name="per_serving">Per serving</string>
     <string name="search_by_name">Search by name</string>
+    <string name="home_menu_macronutrients">Macronutrients</string>
+    <string name="about">About</string>
 </resources>

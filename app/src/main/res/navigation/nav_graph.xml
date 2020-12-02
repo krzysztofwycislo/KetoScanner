@@ -9,8 +9,8 @@
         android:name="pl.handsome.club.ketoscanner.ui.HomeFragment"
         android:label="HomeFragment">
         <action
-            android:id="@+id/to_ketoPreferencesFragment"
-            app:destination="@id/dietPreferences" />
+            android:id="@+id/to_macronutrientPreferencesFragment"
+            app:destination="@id/macronutrientPreferences" />
         <action
             android:id="@+id/to_searchProductFragment"
             app:destination="@id/search" />
@@ -20,6 +20,9 @@
         <action
             android:id="@+id/to_favoriteProductsFragment"
             app:destination="@id/favourites" />
+        <action
+            android:id="@+id/to_aboutFragment"
+            app:destination="@id/aboutFragment" />
     </fragment>
 
     <fragment
@@ -32,9 +35,9 @@
     </fragment>
 
     <fragment
-        android:id="@+id/dietPreferences"
-        android:name="pl.handsome.club.ketoscanner.ui.KetoPreferencesFragment"
-        android:label="KetoPreferencesFragment" />
+        android:id="@+id/macronutrientPreferences"
+        android:name="pl.handsome.club.ketoscanner.ui.MacronutrientPreferencesFragment"
+        android:label="MacronutrientPreferencesFragment" />
 
     <fragment
         android:id="@+id/productDetails"
@@ -58,5 +61,9 @@
             android:id="@+id/to_productAnalysisResultFragment"
             app:destination="@id/result" />
     </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="pl.handsome.club.ketoscanner.ui.AboutFragment"
+        android:label="AboutFragment" />
 
 </navigation>
