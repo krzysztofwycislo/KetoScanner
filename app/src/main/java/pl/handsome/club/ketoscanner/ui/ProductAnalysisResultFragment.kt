@@ -57,7 +57,7 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
     }
 
     private fun initializeFavouriteButton(product: Product) {
-        addFavouriteProductViewModel.getAddToFavouritesState()
+        addFavouriteProductViewModel.addToFavouritesState()
             .observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
 
         addToFavouritesButton.setOnClickListener {
@@ -65,7 +65,6 @@ class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_
         }
 
         addFavouriteProductViewModel.isProductInFavourites(product)
-        addFavouriteProductViewModel.getIsProductInFavourites()
             .observe(viewLifecycleOwner, {
                 (if (it) R.drawable.favorite_white_36dp
                 else R.drawable.favorite_border_white_24dp)
