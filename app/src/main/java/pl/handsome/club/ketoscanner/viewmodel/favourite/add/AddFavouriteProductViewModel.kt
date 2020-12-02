@@ -21,8 +21,7 @@ class AddFavouriteProductViewModel(
     }
 
 
-    fun getAddToFavouritesState(): LiveData<AddToFavouritesState> = addToFavouritesState
-    fun getIsProductInFavourites(): LiveData<Boolean> = isProductInFavourites
+    fun addToFavouritesState(): LiveData<AddToFavouritesState> = addToFavouritesState
 
     fun addOrRemoveFromFavourites(product: Product) {
         addToFavouritesState.value = AddToFavouritesState.InProgress
@@ -50,11 +49,13 @@ class AddFavouriteProductViewModel(
         addToFavouritesState.postValue(AddToFavouritesState.Success)
     }
 
-    fun isProductInFavourites(product: Product) {
+    fun isProductInFavourites(product: Product): MutableLiveData<Boolean> {
         viewModelScope.launch {
             val productCheck = favouriteProductsRepository.findByBarcode(product.barcode)
             isProductInFavourites.postValue(productCheck != null)
         }
+
+        return isProductInFavourites
     }
 
 }
