@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <ImageButton
+        android:id="@+id/homeMenuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/normal_100"
         android:contentDescription="@string/menu_button"
+        android:background="@drawable/ripple_light"
         android:src="@drawable/more_vertical_black_32dp"
         app:layout_constraintBottom_toBottomOf="@id/welcomeText"
         app:layout_constraintEnd_toEndOf="parent"
