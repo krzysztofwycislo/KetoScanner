@@ -31,7 +31,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
 
     private fun onMenuOptionChoose(itemId: Int) {
         when (itemId) {
-            R.id.homeMenuMacronutrientPreferences ->
+            R.id.homeMenuDietPreferences ->
                 safeNavigateTo(HomeFragmentDirections.toMacronutrientPreferencesFragment())
 
             R.id.homeMenuAbout ->

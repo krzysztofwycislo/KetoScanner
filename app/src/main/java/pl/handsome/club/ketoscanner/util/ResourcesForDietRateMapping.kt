@@ -23,17 +23,17 @@ private val summaryResultImageMap = mapOf(
 
 fun getSummaryTextIdForDietRate(dietRate: DietRate) = dietRateSummaryMap.getValue(dietRate)
 private val dietRateSummaryMap = mapOf(
-    Pair(DietRate.GOOD, R.string.good_for_keto_summary),
-    Pair(DietRate.NEUTRAL, R.string.neutral_for_keto_summary),
-    Pair(DietRate.NOT_ADVISED, R.string.not_advised_for_keto_summary)
+    Pair(DietRate.GOOD, R.string.good_for_preferences_summary),
+    Pair(DietRate.NEUTRAL, R.string.neutral_for_preferences_summary),
+    Pair(DietRate.NOT_ADVISED, R.string.not_advised_for_preferences_summary)
 )
 
 
 fun getDetailTextIdForDietRate(carbsRate: DietRate): Int = dietRateDetailsMap.getValue(carbsRate)
 private val dietRateDetailsMap = mapOf(
-    Pair(DietRate.GOOD, R.string.good_for_keto_details),
-    Pair(DietRate.NEUTRAL, R.string.neutral_for_keto_details),
-    Pair(DietRate.NOT_ADVISED, R.string.not_advised_for_keto_details)
+    Pair(DietRate.GOOD, R.string.good_for_preferences_details),
+    Pair(DietRate.NEUTRAL, R.string.neutral_for_preferences_details),
+    Pair(DietRate.NOT_ADVISED, R.string.not_advised_for_preferences_details)
 )
 
 

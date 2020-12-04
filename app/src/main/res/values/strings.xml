@@ -29,12 +29,12 @@
     <string name="add_to_favourites_button">Add to favourites button</string>
     <string name="product_brand">Brand</string>
     <string name="carbs_result_summary_image">Carb result summary description</string>
-    <string name="good_for_keto_summary">Good for your diet preferences</string>
-    <string name="neutral_for_keto_summary">Neutral for your diet preferences</string>
-    <string name="not_advised_for_keto_summary">Not advised for your diet preferences</string>
-    <string name="not_advised_for_keto_details">> %d g carbs per 100 g</string>
-    <string name="neutral_for_keto_details">&lt; %d g carbs per 100 g</string>
-    <string name="good_for_keto_details">&lt; %d g carbs per 100 g</string>
+    <string name="good_for_preferences_summary">Good for your preferences</string>
+    <string name="neutral_for_preferences_summary">Neutral for your preferences</string>
+    <string name="not_advised_for_preferences_summary">Not advised for your preferences</string>
+    <string name="not_advised_for_preferences_details">> %d g carbs per 100 g</string>
+    <string name="neutral_for_preferences_details">&lt; %d g carbs per 100 g</string>
+    <string name="good_for_preferences_details">&lt; %d g carbs per 100 g</string>
     <string name="maxServingResultDetailsText">%.0f g/ml (%d g carbs) </string>
     <string name="maximum_portion">Maximum portion</string>
     <string name="macros">Macros</string>
@@ -56,11 +56,10 @@
     <string name="lack_of_required_information">Lack of required information</string>
     <string name="per_serving">Per serving</string>
     <string name="search_by_name">Search by name</string>
-    <string name="home_menu_macronutrients">Macronutrients</string>
+    <string name="home_menu_diet_preferences">Diet preferences</string>
     <string name="about">About</string>
     <string name="there_should_be_about_screen">There should be about screen</string>
-    <string name="preferences_is_on_keto_title">Are you on Keto diet?</string>
     <string name="preferences_max_carb_amount_title">Carbohydrates amount</string>
-    <string name="preferences_max_carb_amount_summary">Maximal daily carbohydrates consumption: %d</string>
-    <string name="preferences_category_diet">Diet</string>
+    <string name="preferences_max_carb_amount_summary">Max daily carbohydrates consumption: %d</string>
+    <string name="preferences_category_diet">Diet Preferences</string>
 </resources>
