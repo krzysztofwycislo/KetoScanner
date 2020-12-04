@@ -75,4 +75,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_coroutines_test_version"
     testImplementation "androidx.arch.core:core-testing:$androidx_arch_core_testing_version"
     testImplementation "com.google.truth:truth:$goolge_truth_version"
+
+    // maintenance
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
 }
