@@ -26,6 +26,7 @@ ext {
     androidx_camerax_version = "1.0.0-beta10"
     androidx_camera_view_version = "1.0.0-alpha17"
     androidx_paging = "2.1.2"
+    androidx_preferences = "1.1.1"
 
     retrofit_version = "2.8.1"
     retrofit_converter_moshi_version = "2.6.1"

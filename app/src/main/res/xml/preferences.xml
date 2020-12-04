@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="categoryDiet"
+        android:title="@string/preferences_category_diet">
+
+        <SwitchPreference
+            android:key="isOnKeto"
+            android:title="@string/preferences_is_on_keto_title" />
+
+        <EditTextPreference
+            android:key="maxCarbAmount"
+            android:title="@string/preferences_max_carb_amount_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

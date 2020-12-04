@@ -58,4 +58,9 @@
     <string name="search_by_name">Search by name</string>
     <string name="home_menu_macronutrients">Macronutrients</string>
     <string name="about">About</string>
+    <string name="there_should_be_about_screen">There should be about screen</string>
+    <string name="preferences_is_on_keto_title">Are you on Keto diet?</string>
+    <string name="preferences_max_carb_amount_title">Carbohydrates amount</string>
+    <string name="preferences_max_carb_amount_summary">Maximal daily carbohydrates consumption: %d</string>
+    <string name="preferences_category_diet">Diet</string>
 </resources>
