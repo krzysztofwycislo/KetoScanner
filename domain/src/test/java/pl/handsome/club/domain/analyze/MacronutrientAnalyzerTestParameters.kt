@@ -2,7 +2,7 @@ package pl.handsome.club.domain.analyze
 
 import pl.handsome.club.domain.analyze.macronutrient.DietRate
 import pl.handsome.club.domain.createProduct
-import pl.handsome.club.domain.exampleKetoPreferences
+import pl.handsome.club.domain.exampleDietPreferences
 import pl.handsome.club.domain.product.createProductNutriments
 
 
@@ -24,43 +24,43 @@ private val coconutMilkNutriments = createProductNutriments(50, 201.0, 18.0, 8.1
 val macronutrientAnalyzerTestParameters = listOf(
     arrayOf(
         createProduct("avocado", avocadoNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("salmonFillet", salmonFilletNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("sourCream", sourCreamNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("wholemealPasta", wholemealPastaNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.NOT_ADVISED
     ),
 
     arrayOf(
         createProduct("tomato", tomatoNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("carrot", carrotNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 
     arrayOf(
         createProduct("coconutMilk", coconutMilkNutriments),
-        exampleKetoPreferences,
+        exampleDietPreferences,
         DietRate.GOOD
     ),
 )

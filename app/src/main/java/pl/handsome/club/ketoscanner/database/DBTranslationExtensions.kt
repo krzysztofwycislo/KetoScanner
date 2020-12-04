@@ -12,8 +12,7 @@ internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistor
         productBarcode,
         productBrand,
         updateTime,
-        macronutrientAnalysisResult,
-        ingredientAnalysisResult
+        macronutrientAnalysisResult
     )
 }
 
@@ -22,7 +21,6 @@ internal fun ProductAnalysisResult.toHistoryEntry(): ProductAnalysisHistoryEntry
         product.name,
         product.barcode,
         product.brand,
-        macronutrientAnalysisResult,
-        ingredientAnalysisResult
+        macronutrientAnalysisResult
     )
 }
