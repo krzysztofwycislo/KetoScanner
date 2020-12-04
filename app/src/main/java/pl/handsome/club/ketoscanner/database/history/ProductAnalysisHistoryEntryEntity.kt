@@ -3,7 +3,6 @@ package pl.handsome.club.ketoscanner.database.history
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
 import java.util.*
@@ -14,8 +13,7 @@ data class ProductAnalysisHistoryEntryEntity(
     val productName: String,
     val productBarcode: String,
     val productBrand: String,
-    @Embedded val macronutrientAnalysisResult: MacronutrientAnalysisResult?,
-    @Embedded val ingredientAnalysisResult: IngredientAnalysisResult?
+    @Embedded val macronutrientAnalysisResult: MacronutrientAnalysisResult?
 ) {
 
     @PrimaryKey(autoGenerate = true)

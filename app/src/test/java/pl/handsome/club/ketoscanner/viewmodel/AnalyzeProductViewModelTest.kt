@@ -68,19 +68,12 @@ class AnalyzeProductViewModelTest {
 
             `when`(productRepository.searchProductByBarcode(product.barcode))
                 .thenReturn(ProductSearchState.Success(product))
-
             `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
 
-            val resultToReturn = ProductAnalysisResult(
-                product,
-                exampleMacronutrientAnalysisResult,
-                exampleIngredientAnalysisResult
-            )
+            val resultToReturn = ProductAnalysisResult(product, exampleMacronutrientAnalysisResult)
             `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
 
-
             viewModel.searchAndAnalyzeProduct(product.barcode)
-
 
             verify(observer).onChanged(ProductAnalysisState.InProgress)
             verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))

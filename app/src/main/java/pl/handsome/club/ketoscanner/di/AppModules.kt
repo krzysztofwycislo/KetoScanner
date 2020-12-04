@@ -31,12 +31,12 @@ val appModules = module {
 
         // repository
         single<ProductRepository> { OpenFoodFactsRepository() },
-        single<DietPreferencesRepository> { DietSharedPreferencesRepository() },
+        single<DietPreferencesRepository> { DietSharedPreferencesRepository(get()) },
         single<AnalysisHistoryRepository> { DBAnalysisHistoryRepository(get()) },
         single<FavouriteProductsRepository> { DBFavouriteProductsRepository(get()) },
 
         // preferences
-        single<SharedPreferenceMediator> { SharedPreferenceMediatorImpl(get()) },
+        single<SharedPreferenceMediator> { SharedPreferenceMediatorImpl(androidContext()) },
 
         // view model
         viewModel { AnalyzeProductViewModel(get(), get(), get(), get()) },

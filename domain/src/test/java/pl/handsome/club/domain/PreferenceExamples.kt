@@ -1,14 +1,8 @@
 package pl.handsome.club.domain
 
-import pl.handsome.club.domain.preferences.IngredientPreferences
-import pl.handsome.club.domain.preferences.MacronutrientPreferences
+import pl.handsome.club.domain.preferences.DietPreferences
 
 
-val exampleKetoPreferences = MacronutrientPreferences(
-    75,
-    10,
-    15,
+val exampleDietPreferences = DietPreferences(
     40
 )
-
-val exampleIngredientPreferences = IngredientPreferences()

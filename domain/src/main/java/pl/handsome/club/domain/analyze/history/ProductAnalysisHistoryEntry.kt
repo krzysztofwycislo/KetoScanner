@@ -1,6 +1,5 @@
 package pl.handsome.club.domain.analyze.history
 
-import pl.handsome.club.domain.analyze.ingredient.IngredientAnalysisResult
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import java.util.*
 
@@ -11,6 +10,5 @@ data class ProductAnalysisHistoryEntry(
     val productBarcode: String,
     val productBrand: String,
     val updateTime: Date,
-    val macronutrientAnalysisResult: MacronutrientAnalysisResult?,
-    val ingredientAnalysisResult: IngredientAnalysisResult?
+    val macronutrientAnalysisResult: MacronutrientAnalysisResult?
 )

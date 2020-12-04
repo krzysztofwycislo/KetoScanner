@@ -6,14 +6,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import pl.handsome.club.domain.analyze.macronutrient.DietRate
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalyzer
-import pl.handsome.club.domain.preferences.MacronutrientPreferences
+import pl.handsome.club.domain.preferences.DietPreferences
 import pl.handsome.club.domain.product.Product
 
 
 @RunWith(Parameterized::class)
 class MacronutrientAnalyzerTest(
     private val product: Product,
-    private val preferences: MacronutrientPreferences,
+    private val preferences: DietPreferences,
     private val carbsRate: DietRate
 ) {
 

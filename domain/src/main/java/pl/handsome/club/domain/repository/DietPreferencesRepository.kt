@@ -7,6 +7,4 @@ interface DietPreferencesRepository {
 
     fun getDietPreferences() : DietPreferences
 
-    suspend fun setDietPreferences(dietPreferences: DietPreferences)
-
 }
