@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -25,11 +26,14 @@ android {
 dependencies {
     implementation(project(":domain"))
 
-    implementation(libs.retrofit)
+    api(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.okhttp)
+    api(libs.moshi)
+    ksp(libs.moshi.kotlin.codegen)
+    api(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.okhttp.mockwebserver3)
 }

@@ -14,10 +14,10 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
 
     val apiProduct = response.apiProduct
     return with(apiProduct) {
-        val productNutriments = parseProductNutrients(nutriments)
+        val productNutriments = parseProductNutrients(nutriments ?: ApiNutriments())
 
         val product = Product(
-            productName,
+            productName ?: "",
             response.barcode,
             brand ?: "",
             productNutriments,
@@ -32,15 +32,15 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
 fun parseProductNutrients(apiNutriments: ApiNutriments): ProductNutriments =
     with(apiNutriments) {
         ProductNutriments(
-            energyPerServing,
-            energyPer100g,
-            fatsPerServing,
-            fatsPer100g,
-            proteinsPerServing,
-            proteinsPer100g,
-            carbohydratesPer100g,
-            carbohydratesPerServing,
-            saltPerServing,
-            saltPer100g
+            energyPerServing = energyPerServing,
+            energyPer100g = energyPer100g,
+            fatsPerServing = fatsPerServing,
+            fatsPer100g = fatsPer100g,
+            proteinsPerServing = proteinsPerServing,
+            proteinsPer100g = proteinsPer100g,
+            carbohydratesPerServing = carbohydratesPerServing,
+            carbohydratesPer100g = carbohydratesPer100g,
+            saltPerServing = saltPerServing,
+            saltPer100g = saltPer100g
         )
     }

@@ -25,7 +25,7 @@ private fun testApiProduct(): ApiProduct = ApiProduct(
     PRODUCT_SERVING
 )
 
-private fun testApiNutriments(): ApiNutriments = ApiNutriments(
+fun testApiNutriments(): ApiNutriments = ApiNutriments(
     512.0,
     206.0,
     30.0,

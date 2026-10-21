@@ -18,8 +18,16 @@ import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
+import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.openfoodapi.OpenFoodFactsRepository
+import pl.handsome.club.openfoodapi.api.OPEN_FOOD_FACTS_BASE_URL
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
 
+
+private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo/KetoScanner"
 
 val appModules = module {
     listOf(
@@ -29,8 +37,19 @@ val appModules = module {
         // database
         single { AppDatabase.provide(androidContext()) },
 
+        // network
+        single { createOpenFoodFactsMoshi() },
+        single {
+            createOpenFoodFactsOkHttpClient(
+                userAgent = "KetoScanner/${BuildConfig.VERSION_NAME} ($OPEN_FOOD_FACTS_CONTACT)",
+                enableBodyLogging = BuildConfig.DEBUG
+            )
+        },
+        single { createOpenFoodFactsRetrofit(OPEN_FOOD_FACTS_BASE_URL, get(), get()) },
+        single { createOpenFoodFactsApi(get()) },
+
         // repository
-        single<ProductRepository> { OpenFoodFactsRepository() },
+        single<ProductRepository> { OpenFoodFactsRepository(get()) },
         single<DietPreferencesRepository> { DietSharedPreferencesRepository(get()) },
         single<AnalysisHistoryRepository> { DBAnalysisHistoryRepository(get()) },
         single<FavouriteProductsRepository> { DBFavouriteProductsRepository(get()) },
