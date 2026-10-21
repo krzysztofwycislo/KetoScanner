@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.history_list_item.view.*
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
-import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.databinding.HistoryListItemBinding
 import pl.handsome.club.ketoscanner.util.getSummaryResultImageIdForDietRate
 
 
@@ -19,8 +18,8 @@ class AnalysisHistoryListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return LayoutInflater.from(parent.context)
-            .inflate(R.layout.history_list_item, parent, false)
+        return HistoryListItemBinding
+            .inflate(LayoutInflater.from(parent.context), parent, false)
             .let(::ViewHolder)
     }
 
@@ -31,12 +30,12 @@ class AnalysisHistoryListAdapter(
     override fun getItemCount(): Int = productAnalysisResults.size
 
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(binding: HistoryListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        private val resultStatusIcon: ImageView = view.resultStatusIcon
-        private val productBrandText: TextView = view.productBrand
-        private val productNameText: TextView = view.productName
-        private val itemContainer: View = view.itemContainer
+        private val resultStatusIcon: ImageView = binding.resultStatusIcon
+        private val productBrandText: TextView = binding.productBrand
+        private val productNameText: TextView = binding.productName
+        private val itemContainer: View = binding.itemContainer
 
 
         fun bind(

@@ -9,12 +9,12 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.search_product_fragment.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.databinding.SearchProductFragmentBinding
 import pl.handsome.club.ketoscanner.util.getNotEmptyString
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.onKeyEnter
@@ -24,13 +24,17 @@ import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 
 class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
 
-    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
+    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModel()
 
     private var barcodeCameraScanner: BarcodeCameraScanner? = null
+
+    private var _binding: SearchProductFragmentBinding? = null
+    private val binding get() = _binding!!
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = SearchProductFragmentBinding.bind(view)
 
         if (hasCameraPermission())
             startBarcodeScanner()
@@ -41,17 +45,17 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     }
 
     private fun initializeView() {
-        searchInput.onKeyEnter {
+        binding.searchInput.onKeyEnter {
             onSearchFromInput()
         }
 
         if (BuildConfig.DEBUG) {
-            searchInput.setText(R.string.exampleBarcode)
+            binding.searchInput.setText(R.string.exampleBarcode)
         }
     }
 
     private fun onSearchFromInput() {
-        searchInput.getNotEmptyString()?.also(::searchProduct)
+        binding.searchInput.getNotEmptyString()?.also(::searchProduct)
     }
 
     private fun searchProduct(barcode: String) {
@@ -68,7 +72,7 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
 
     @SuppressLint("MissingPermission")
     private fun startBarcodeScanner() {
-        barcodeCameraScanner = BarcodeCameraScanner(this, cameraPreviewView)
+        barcodeCameraScanner = BarcodeCameraScanner(this, binding.cameraPreviewView)
             .apply {
                 start()
                 getScannedBarcode().observe(viewLifecycleOwner, {
@@ -85,11 +89,12 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     // TODO converting exceptions into user messages
     private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
         if (productAnalysisState !is ProductAnalysisState.InProgress) {
-            progressBar.hide()
+            binding.progressBar.hide()
         }
 
         when (productAnalysisState) {
-            is ProductAnalysisState.InProgress -> progressBar.show()
+            null -> Unit
+            is ProductAnalysisState.InProgress -> binding.progressBar.show()
             is ProductAnalysisState.ProductNotFound -> showMessageAndResumeScanning(R.string.product_not_found)
             is ProductAnalysisState.Success -> navigateToAnalyzeResult()
             is ProductAnalysisState.Error -> {
@@ -130,6 +135,7 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     override fun onDestroyView() {
         super.onDestroyView()
         barcodeCameraScanner?.close()
+        _binding = null
     }
 
     companion object {

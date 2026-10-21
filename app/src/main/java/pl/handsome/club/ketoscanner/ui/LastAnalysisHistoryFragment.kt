@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.last_analysis_history_fragment.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pl.handsome.club.domain.analyze.ProductAnalysisState
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.databinding.LastAnalysisHistoryFragmentBinding
 import pl.handsome.club.ketoscanner.ui.adapter.AnalysisHistoryListAdapter
 import pl.handsome.club.ketoscanner.util.logException
 import pl.handsome.club.ketoscanner.util.logWarning
@@ -21,17 +21,21 @@ import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 class LastAnalysisHistoryFragment : Fragment(R.layout.last_analysis_history_fragment) {
 
     private val historyViewModel: AnalysisHistoryViewModel by viewModel()
-    private val analyzeProductViewModel: AnalyzeProductViewModel by sharedViewModel()
+    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModel()
+
+    private var _binding: LastAnalysisHistoryFragmentBinding? = null
+    private val binding get() = _binding!!
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = LastAnalysisHistoryFragmentBinding.bind(view)
         historyViewModel.loadLastUniqueEntries(HISTORY_ENTRIES_AMOUNT)
         historyViewModel.getLastUniqueEntries().observe(viewLifecycleOwner, ::initializeList)
     }
 
     private fun initializeList(lastEntries: List<ProductAnalysisHistoryEntry>) {
-        lastAnalysisList.adapter = AnalysisHistoryListAdapter(lastEntries, ::onHistoryEntryClicked)
+        binding.lastAnalysisList.adapter = AnalysisHistoryListAdapter(lastEntries, ::onHistoryEntryClicked)
     }
 
     private fun onHistoryEntryClicked(productAnalysisResults: ProductAnalysisHistoryEntry) {
@@ -61,6 +65,11 @@ class LastAnalysisHistoryFragment : Fragment(R.layout.last_analysis_history_frag
     private fun showError(throwable: Throwable) {
         logException(throwable)
         Toast.makeText(requireContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

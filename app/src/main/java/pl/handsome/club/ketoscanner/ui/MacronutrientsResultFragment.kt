@@ -3,9 +3,9 @@ package pl.handsome.club.ketoscanner.ui
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.macronutrients_result_fragment.*
 import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
 import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.databinding.MacronutrientsResultFragmentBinding
 import pl.handsome.club.ketoscanner.util.*
 
 
@@ -13,45 +13,50 @@ class MacronutrientsResultFragment : Fragment(R.layout.macronutrients_result_fra
 
 
     fun initializeResults(macronutrientAnalysisResult: MacronutrientAnalysisResult?) {
+        val binding = MacronutrientsResultFragmentBinding.bind(requireView())
+
         if (macronutrientAnalysisResult != null)
-            showMacronutrientAnalysisResult(macronutrientAnalysisResult)
+            showMacronutrientAnalysisResult(binding, macronutrientAnalysisResult)
         else
-            showLackOfMacronutrientAnalysisResult()
+            showLackOfMacronutrientAnalysisResult(binding)
     }
 
-    private fun showLackOfMacronutrientAnalysisResult() {
-        maxServingResultContainer.visibility = View.GONE
+    private fun showLackOfMacronutrientAnalysisResult(binding: MacronutrientsResultFragmentBinding) {
+        binding.maxServingResultContainer.visibility = View.GONE
 
-        carbsResultImage.setImageResource(R.drawable.question_outline_negative_24dp)
+        binding.carbsResultImage.setImageResource(R.drawable.question_outline_negative_24dp)
 
-        lackOfCarbsResultSummary.visibility = View.VISIBLE
+        binding.lackOfCarbsResultSummary.visibility = View.VISIBLE
     }
 
-    private fun showMacronutrientAnalysisResult(result: MacronutrientAnalysisResult) =
+    private fun showMacronutrientAnalysisResult(
+        binding: MacronutrientsResultFragmentBinding,
+        result: MacronutrientAnalysisResult
+    ) =
         with(result) {
             ContextCompat.getColor(requireContext(), getColorIdForDietRate(carbsRate))
-                .also(carbsResultSummary::setTextColor)
-                .also(maxServingResultSummary::setTextColor)
+                .also(binding.carbsResultSummary::setTextColor)
+                .also(binding.maxServingResultSummary::setTextColor)
 
             getSummaryResultImageIdForDietRate(carbsRate)
-                .also(carbsResultImage::setImageResource)
+                .also(binding.carbsResultImage::setImageResource)
 
             getSummaryTextIdForDietRate(carbsRate)
-                .also(carbsResultSummary::setText)
+                .also(binding.carbsResultSummary::setText)
 
             getString(
                 getDetailTextIdForDietRate(carbsRate),
                 maxRateCarbAmount
-            ).also(carbsResultDetails::setText)
+            ).also(binding.carbsResultDetails::setText)
 
             getMaxServingImageIdForDietRate(carbsRate)
-                .also(maxServingResultImage::setImageResource)
+                .also(binding.maxServingResultImage::setImageResource)
 
             getString(
                 R.string.maxServingResultDetailsText,
                 maxProductPortion,
                 dailyCarbConsumption
-            ).also(maxServingResultDetails::setText)
+            ).also(binding.maxServingResultDetails::setText)
 
         }
 

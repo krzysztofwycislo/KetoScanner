@@ -1,6 +1,0 @@
-include ':openfoodapi'
-include ':openfoodapi'
-include ':domain'
-include ':barcodescanner'
-include ':app'
-rootProject.name = "KetoScanner"

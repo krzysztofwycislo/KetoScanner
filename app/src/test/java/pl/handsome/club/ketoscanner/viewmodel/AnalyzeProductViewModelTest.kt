@@ -62,7 +62,7 @@ class AnalyzeProductViewModelTest {
 
     @Test
     fun `when we want to search and analyze product then result should be saved in history and observed`() =
-        coroutinesTestRule.runBlockingTest {
+        coroutinesTestRule.runTest {
             val product = exampleProduct
             val preferences = exampleDietPreferences
 

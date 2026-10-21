@@ -8,8 +8,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyInt
+import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
 import pl.handsome.club.domain.repository.AnalysisHistoryRepository
@@ -44,7 +44,7 @@ class AnalysisHistoryViewModelTest {
 
     @Test
     fun `when we want to get last products analysis then we should be able to observe only unique products`() =
-        coroutinesTestRule.runBlockingTest {
+        coroutinesTestRule.runTest {
             val historyEntriesToReturn = listOf<ProductAnalysisHistoryEntry>()
             val anyAmountToReturn = anyInt()
             `when`(analysisHistoryRepository.getLastUniqueEntries(anyAmountToReturn))

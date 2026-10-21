@@ -9,7 +9,7 @@ import org.junit.runner.Description
 
 @ExperimentalCoroutinesApi
 class CoroutineTestRule(
-    private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
 ) : TestWatcher() {
 
 
@@ -21,11 +21,9 @@ class CoroutineTestRule(
     override fun finished(description: Description?) {
         super.finished(description)
         Dispatchers.resetMain()
-        testDispatcher.cleanupTestCoroutines()
     }
 
-    fun runBlockingTest(block: suspend TestCoroutineScope.() -> Unit) {
-        testDispatcher.runBlockingTest(block)
-    }
+    fun runTest(block: suspend TestScope.() -> Unit): TestResult =
+        kotlinx.coroutines.test.runTest(testDispatcher, testBody = block)
 
 }

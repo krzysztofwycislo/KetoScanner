@@ -1,0 +1,116 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "4d3c4f526996fd6b89986892a59f8e1b",
+    "entities": [
+      {
+        "tableName": "product_analysis_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`productName` TEXT NOT NULL, `productBarcode` TEXT NOT NULL, `productBrand` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `updateTime` INTEGER NOT NULL, `carbsRate` TEXT, `maxRateCarbAmount` INTEGER, `maxProductPortion` REAL, `dailyCarbConsumption` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBarcode",
+            "columnName": "productBarcode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBrand",
+            "columnName": "productBrand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "macronutrientAnalysisResult.carbsRate",
+            "columnName": "carbsRate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "macronutrientAnalysisResult.maxRateCarbAmount",
+            "columnName": "maxRateCarbAmount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "macronutrientAnalysisResult.maxProductPortion",
+            "columnName": "maxProductPortion",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "macronutrientAnalysisResult.dailyCarbConsumption",
+            "columnName": "dailyCarbConsumption",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "favourite_product",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`productBarcode` TEXT NOT NULL, `productName` TEXT NOT NULL, `productBrand` TEXT NOT NULL, `imageUrl` TEXT, `updateTime` INTEGER NOT NULL, PRIMARY KEY(`productBarcode`))",
+        "fields": [
+          {
+            "fieldPath": "productBarcode",
+            "columnName": "productBarcode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBrand",
+            "columnName": "productBrand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "productBarcode"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d3c4f526996fd6b89986892a59f8e1b')"
+    ]
+  }
+}

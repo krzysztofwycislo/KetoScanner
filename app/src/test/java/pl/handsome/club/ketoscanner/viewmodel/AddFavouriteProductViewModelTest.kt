@@ -3,14 +3,13 @@ package pl.handsome.club.ketoscanner.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.domain.product.FavouriteProduct
 import pl.handsome.club.domain.repository.FavouriteProductsRepository
@@ -56,7 +55,7 @@ class AddFavouriteProductViewModelTest {
     }
 
     @Test
-    fun `when we want to add favourite product that already is added then it should be removed`() = runBlockingTest {
+    fun `when we want to add favourite product that already is added then it should be removed`() = coroutineTestRule.runTest {
         val product = exampleProduct
         val favouriteProductInRepository = FavouriteProduct(product.barcode, product.name, product.brand, Date(), null)
 
@@ -70,7 +69,7 @@ class AddFavouriteProductViewModelTest {
 
     @Test
     fun `when we want to add favourite product and repository exception occurred then we should get error result with given exception`() =
-        coroutineTestRule.runBlockingTest {
+        coroutineTestRule.runTest {
             val product = exampleProduct
             val throwable = IllegalStateException()
             `when`(favouriteProductsRepository.addToFavourites(product)).thenThrow(throwable)

@@ -4,17 +4,21 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.home_fragment.*
 import pl.handsome.club.ketoscanner.R
+import pl.handsome.club.ketoscanner.databinding.HomeFragmentBinding
 import pl.handsome.club.ketoscanner.util.safeNavigateTo
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
 
+    private var _binding: HomeFragmentBinding? = null
+    private val binding get() = _binding!!
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = HomeFragmentBinding.bind(view)
 
-        homeMenuButton.setOnClickListener {
+        binding.homeMenuButton.setOnClickListener {
             showMenu(it)
         }
     }
@@ -37,6 +41,11 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             R.id.homeMenuAbout ->
                 safeNavigateTo(HomeFragmentDirections.toAboutFragment())
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

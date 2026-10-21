@@ -1,7 +1,7 @@
 package pl.handsome.club.ketoscanner.di
 
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
 import pl.handsome.club.domain.repository.AnalysisHistoryRepository
