@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.material)
 
     // navigation

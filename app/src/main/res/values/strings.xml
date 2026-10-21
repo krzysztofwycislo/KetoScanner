@@ -62,6 +62,8 @@
     <string name="preferences_max_carb_amount_title">Carbohydrates amount</string>
     <string name="preferences_max_carb_amount_summary">Max daily carbohydrates consumption: %d</string>
     <string name="preferences_category_diet">Diet Preferences</string>
+    <string name="preferences_save">Save</string>
+    <string name="preferences_max_carb_amount_error">Enter a number from %1$d to %2$d</string>
     <string name="camera_permission_rationale">KetoScanner needs the camera to scan product barcodes. You can still type a barcode below.</string>
     <string name="camera_permission_denied">Camera access is turned off. Enable it in Settings to scan barcodes, or type a barcode below.</string>
     <string name="camera_permission_allow">Allow camera</string>

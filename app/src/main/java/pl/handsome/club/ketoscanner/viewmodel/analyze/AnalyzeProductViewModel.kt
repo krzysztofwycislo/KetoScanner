@@ -58,7 +58,7 @@ class AnalyzeProductViewModel(
             .let { ProductAnalysisState.Success(it) }
     }
 
-    private fun analyzeProduct(product: Product): ProductAnalysisResult {
+    private suspend fun analyzeProduct(product: Product): ProductAnalysisResult {
         val preferences = preferencesRepository.getDietPreferences()
         return dietAnalysisEngine.analyze(preferences, product)
     }

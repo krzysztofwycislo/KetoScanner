@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/preferencesTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/normal_100"
+        android:text="@string/preferences_category_diet"
+        android:textSize="@dimen/text_regular_125"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/preferencesMaxCarbsSummary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/normal_100"
+        android:layout_marginEnd="@dimen/normal_100"
+        android:textSize="@dimen/text_regular_100"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preferencesTitle" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/preferencesMaxCarbsInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/normal_100"
+        android:hint="@string/preferences_max_carb_amount_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preferencesMaxCarbsSummary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/preferencesMaxCarbsInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLength="3" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/preferencesSaveButton"
+        style="@style/BeautifulButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/normal_100"
+        android:text="@string/preferences_save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preferencesMaxCarbsInputLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
