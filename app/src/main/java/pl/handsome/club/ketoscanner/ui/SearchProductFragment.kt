@@ -2,13 +2,18 @@ package pl.handsome.club.ketoscanner.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
 import pl.handsome.club.domain.analyze.ProductAnalysisState
@@ -31,17 +36,34 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
     private var _binding: SearchProductFragmentBinding? = null
     private val binding get() = _binding!!
 
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+        ::onCameraPermissionResult
+    )
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = SearchProductFragmentBinding.bind(view)
 
-        if (hasCameraPermission())
-            startBarcodeScanner()
-        else
-            askForPermissions()
+        when {
+            hasCameraPermission() -> startBarcodeScanner()
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> showCameraPermissionRationale()
+            savedInstanceState == null -> requestCameraPermission()
+            // restored state: a permission request may still be in flight, don't launch a second one
+            else -> Unit
+        }
 
         initializeView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // picks up a permission granted in the app Settings; never request from here (it would loop on denial)
+        if (barcodeCameraScanner == null && hasCameraPermission()) {
+            hideCameraPermissionPanel()
+            startBarcodeScanner()
+        }
     }
 
     private fun initializeView() {
@@ -72,7 +94,8 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
 
     @SuppressLint("MissingPermission")
     private fun startBarcodeScanner() {
-        barcodeCameraScanner = BarcodeCameraScanner(this, binding.cameraPreviewView)
+        if (barcodeCameraScanner != null) return
+        barcodeCameraScanner =BarcodeCameraScanner(this, binding.cameraPreviewView)
             .apply {
                 start()
                 getScannedBarcode().observe(viewLifecycleOwner, {
@@ -81,9 +104,51 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
             }
     }
 
-    private fun askForPermissions() {
-        val permissions = arrayOf(Manifest.permission.CAMERA)
-        requestPermissions(permissions, CAMERA_PERMISSION_RC)
+    private fun requestCameraPermission() {
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+    private fun onCameraPermissionResult(granted: Boolean) {
+        when {
+            granted -> {
+                hideCameraPermissionPanel()
+                startBarcodeScanner()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> showCameraPermissionRationale()
+            else -> showCameraPermissionDenied()
+        }
+    }
+
+    private fun showCameraPermissionRationale() {
+        showCameraPermissionPanel(R.string.camera_permission_rationale, R.string.camera_permission_allow) {
+            requestCameraPermission()
+        }
+    }
+
+    private fun showCameraPermissionDenied() {
+        showCameraPermissionPanel(R.string.camera_permission_denied, R.string.camera_permission_open_settings) {
+            openAppSettings()
+        }
+    }
+
+    private fun showCameraPermissionPanel(
+        @StringRes messageId: Int,
+        @StringRes buttonTextId: Int,
+        onButtonClick: () -> Unit
+    ) {
+        binding.cameraPermissionMessage.setText(messageId)
+        binding.cameraPermissionButton.setText(buttonTextId)
+        binding.cameraPermissionButton.setOnClickListener { onButtonClick() }
+        binding.cameraPermissionPanel.isVisible = true
+    }
+
+    private fun hideCameraPermissionPanel() {
+        binding.cameraPermissionPanel.isVisible = false
+    }
+
+    private fun openAppSettings() {
+        val uri = Uri.fromParts("package", requireContext().packageName, null)
+        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri))
     }
 
     // TODO converting exceptions into user messages
@@ -115,30 +180,10 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
             .let(::safeNavigateTo)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        if (requestCode != CAMERA_PERMISSION_RC || grantResults.isEmpty()) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            return
-        }
-
-        if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-            startBarcodeScanner()
-        } else {
-            findNavController().navigateUp()
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         barcodeCameraScanner?.close()
+        barcodeCameraScanner = null
         _binding = null
-    }
-
-    companion object {
-        private const val CAMERA_PERMISSION_RC = 1
     }
 }
