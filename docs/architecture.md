@@ -25,7 +25,8 @@ Code outside the Android-only zones must compile for `commonMain` once the modul
 - No `android.*`, `androidx.*` Android-only APIs, or `java.*` APIs where a Kotlin equivalent exists:
   - time: `kotlin.time.Instant` / `kotlinx-datetime`, never `java.util.Date` or `Calendar`;
   - `kotlin.uuid.Uuid`, never `java.util.UUID`;
-  - `String.format` is JVM-only, so number/date formatting goes through a formatter in `core:common` (section 5, Resources).
+  - `String.format` is JVM-only, so numbers and dates reach the UI as raw values in `UiArg` and are formatted when
+    `UiText` is resolved in `core:designsystem` (section 5, Resources). That formatter is the one place to replace at the KMP move.
 - Only KMP libraries in shared code. Currently KMP-capable: Koin, kotlinx.coroutines, kotlinx.serialization,
   kotlinx.collections.immutable, androidx lifecycle ViewModel, Room (2.7+), DataStore (1.1+), Compose Multiplatform,
   Navigation Compose, Coil 3, Ktor client.
@@ -51,6 +52,9 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 - **Start small.** A new feature starts as `ui` (plus `data` if it loads or saves anything). Add `domain` only when
   the feature has business rules beyond loading and saving, and split out `api` only when another feature needs its
   contracts. Splitting later is cheap because packages already follow the same names.
+- **Rule of thumb for KetoScanner:** one `ui` module per feature, plus `data` when it does IO, plus `domain` only for
+  analysis. With five features (scanner, product/analysis, history, favourites, preferences) that is about 11 feature
+  modules. Core modules are created when the first code needs them, not up front. A plan that adds a module says why.
 - `domain` keeps the meaning it already has in this project: pure business rules such as `DietAnalysisEngine`. It is
   the code that moves to `commonMain` first. (The original guide used `domain` for all implementations, IO included;
   here that is split into `domain` and `data`.)
@@ -72,11 +76,11 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 | Module | Holds | KMP |
 |---|---|---|
 | `core:model` | Shared vocabulary: `@JvmInline value class` ids (`Barcode`, `ProductId`), enums, constants | common |
-| `core:common` | Pure Kotlin utilities: `AppDispatchers`, `Outcome`/error types, formatters | common |
-| `core:designsystem` | Theme, tokens, `Ui.*` components, shared composables, `UiText` resolution | common (Compose MP) |
+| `core:common` | Pure Kotlin utilities: `AppDispatchers`, `Outcome`/error types | common |
+| `core:designsystem` | Theme, tokens, `Ui.*` components, shared composables, `UiText` resolution and number formatting | Android Compose now, Compose MP-ready (strings swap at the KMP move, section 5) |
 | `core:network` | HTTP client setup. Retrofit/OkHttp/Moshi now, Ktor + kotlinx.serialization later | swap target |
 | `core:database` | Room database, entities, DAOs, migrations | common (Room KMP) |
-| `core:datastore` | DataStore setup and `FooPersistenceManager`s | common |
+| `core:datastore` | DataStore instances, their serializers and file locations. No feature logic | common |
 | `core:testing` | Fakes, test dispatchers, fixtures | common |
 
 - Value classes instead of the guide's typealiases: a `typealias Barcode = String` accepts any string, a value class
@@ -115,7 +119,8 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 - Interface `Foo` is implemented by `FooImpl`: `internal`, constructor-injected (Koin), no service locator calls inside.
 - **Threading is the implementation's job.** `data` runs IO in `withContext(dispatchers.io)`; `domain` runs heavy
   computation, if any, in `withContext(dispatchers.default)`. Both use the injected `AppDispatchers` from
-  `core:common`, never `kotlinx.coroutines.Dispatchers` directly.
+  `core:common`, never `kotlinx.coroutines.Dispatchers` directly. This ban covers `domain` and `data`; UI plumbing in
+  `core:designsystem`, such as `ObserveEvents` collecting on `Dispatchers.Main.immediate`, may use `Dispatchers`.
 
 ### `domain`
 - Use case implementations and business rules. Rules are plain classes or functions (e.g. `DietAnalysisEngine`), tested
@@ -131,11 +136,14 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
   internal fun List<FooEntity>.toDomain(): List<Foo> = map(FooEntity::toDomain)
   ```
 
-- **Storage** goes through the feature's own `FooPersistence` interface (`FooPersistenceImpl`), so the rest of the
-  feature never touches a DAO or DataStore directly.
+- **Storage** goes through the feature's own `FooPersistence` interface (`FooPersistenceImpl`), whether it's backed by
+  Room or DataStore. The rest of the feature never touches a DAO or a `DataStore` directly. (`FooPersistence` is the
+  only name for this; there is no separate "persistence manager".)
 - **Network**: API interfaces are `FooApi`, one suspend method per endpoint. DTOs are named by direction:
-  `FooResponseDto`, `FooRequestDto`. **DTOs and entities never leave `data`.** Repositories return `api` models, so
-  swapping Retrofit/Moshi for Ktor/kotlinx.serialization changes `data` and `core:network` only.
+  `FooResponseDto`, `FooRequestDto`.
+- **DTOs and entities stay in the data layer**: `data` modules plus `core:network` / `core:database` /
+  `core:datastore`. They never reach `api`, `domain` or `ui`. Repositories return `api` models, so swapping
+  Retrofit/Moshi for Ktor/kotlinx.serialization changes `data` and `core:network` only.
 - Enums decoded from responses get a fallback value for unknown entries, so a new backend value can't fail the
   whole response.
 - **Room**: entities and DAOs in `core:database`. Schema changes ship with a `Migration`, never
@@ -281,21 +289,29 @@ The guide injected Android `Resources` into a formatter class. That is Android-o
 `Resources` doesn't follow an in-app language change. Instead:
 
 - `UiText` (in `core:designsystem`) is a small sealed type: a string resource with arguments, a plural, or a raw
-  dynamic value (a product name from the API).
-- `FooStrings` (`internal`, `factoryOf`) has one method per piece of dynamic text and returns `UiText`:
+  dynamic value (a product name from the API). Arguments are `UiArg`s: text, another `UiText`, or a **raw number
+  with a format style** (`UiArg.Grams(57.5)`, `UiArg.Percent(0.31)`).
+- `FooStrings` (`internal`, `factoryOf`) has one method per piece of dynamic text and returns `UiText`. It decides
+  *which* text and *which* number style, but formats nothing:
 
   ```kotlin
-  internal class ProductStrings(private val numbers: NumberFormatter) {
+  internal class ProductStrings {
       fun carbsPer100g(grams: Double): UiText =
-          UiText.Res(Res.string.product_carbs_per_100g, numbers.grams(grams))
+          UiText.Res(R.string.product_carbs_per_100g, UiArg.Grams(grams))
   }
   ```
 
-- Composables resolve it with `text.resolve()`, which uses Compose Multiplatform resources (`stringResource`).
-  Resolution happens at render time, so language changes apply immediately.
+- Composables resolve it with `text.resolve()` at render time. Strings *and* numbers are formatted there with the
+  current locale, so a language change applies to both immediately.
 - Only the state factory and `FooStrings` build dynamic text. Static labels in composables use `stringResource(...)`
   directly.
-- Factory tests assert on `UiText` values, so they need no resources and run on the JVM or in `commonTest`.
+- Factory tests assert on `UiText` values, so they need no resources or locale.
+
+**Where strings live, now and after the KMP move.** Until the KMP move, strings stay in Android
+`res/values/strings.xml` and `UiText.Res` wraps an Android `@StringRes Int`. This avoids adding the JetBrains Compose
+plugin to an Android-only app. The KMP move then swaps `UiText.Res` to Compose Multiplatform resources
+(`composeResources/`, `Res.string.…`). Because only `FooStrings` and composables mention string ids, that swap is
+mechanical: new string ids and imports, no logic changes.
 
 ### Previews
 
@@ -312,6 +328,18 @@ The guide injected Android `Resources` into a formatter class. That is Android-o
   `Color(0x...)` or `.dp` literals.
 - Reusable components are extension functions on a marker object, called as `Ui.Toolbar(...)`, `Ui.TextButton(...)`.
 - Images load through Coil 3 (KMP), wrapped in a `Ui.ProductImage(...)` component.
+
+### Layout and insets
+- The app is edge-to-edge: `MainActivity` calls `enableEdgeToEdge()`. The current View-based padding on the
+  activity root is removed when Compose takes over the activity.
+- The app-level `Scaffold` (in `app`) owns the bottom navigation and passes its `innerPadding` to the NavHost.
+  Screens apply it with `Modifier.padding(innerPadding)` and `consumeWindowInsets(innerPadding)`, so nothing is
+  padded twice.
+- Each screen's own top area uses `Ui.Screen(...)` from the design system, which handles the status bar inset
+  (`WindowInsets.safeDrawing`). Feature code doesn't read `WindowInsets` itself.
+- Exceptions are explicit: the camera preview draws behind the system bars, while its controls respect the insets.
+- Screens with text input apply `imePadding()` and hide the keyboard when a search is submitted or the screen
+  navigates away (`LocalSoftwareKeyboardController`). (The Maestro trial found the keyboard staying open.)
 
 ---
 
@@ -343,6 +371,14 @@ The guide injected Android `Resources` into a formatter class. That is Android-o
   branch) and use cases with fake repositories, then `data` (mappers, repositories with fake persistence and API).
 - Dispatchers in tests come from `core:testing` (`TestAppDispatchers` backed by `StandardTestDispatcher`).
 
+### UI tests
+- **Maestro flows are the UI test layer** (`.maestro/`, run on an emulator). They cover user journeys end to end:
+  scan or type a barcode, see the analysis, save a favourite, permission denied/allowed. They're added once the
+  Compose rework has settled; until then, screens are verified by state factory tests and previews.
+- **No Compose UI tests by default.** The state factory tests cover what is shown and previews cover how it looks.
+  A Compose UI test (`runComposeUiTest`, which is KMP-capable) is added only for interaction logic that lives in a
+  composable and can't be tested through the ViewModel, and the plan has to say why.
+
 ---
 
 ## 9. Android-only zones
@@ -351,8 +387,14 @@ These stay Android-specific and sit behind an interface, so a KMP move only need
 
 | Zone | Interface | Android implementation |
 |---|---|---|
-| Barcode scanning (CameraX + ML Kit) | `BarcodeScanner` in `feature/scanner/api` (a `Flow<Barcode>`), plus a `CameraPreview` composable slot | `feature/scanner/data` |
-| Camera permission | `PermissionState` in `core:designsystem` | Activity Result API wrapper |
+| Barcode scanning (CameraX + ML Kit) | `BarcodeScanner` in `feature/scanner/api` (a `Flow<Barcode>`) | `feature/scanner/data` |
+| Camera preview and camera permission | none outside the scanner feature | `feature/scanner/ui`, package `ui/camera/` only |
+
+**The scanner feature** owns the Scan screen. Its screen pattern code (ViewModel, prototype, factory, state, the
+non-camera parts of the screen) follows the KMP rules like any other feature. Only the `ui/camera/` package uses
+Android APIs: the CameraX preview composable and the permission handling (Activity Result API). It becomes
+`androidMain` at the KMP move, and another platform supplies its own camera package. Nothing outside
+`feature/scanner` touches the camera or the permission, so `core:designsystem` stays free of Android-only APIs.
 | App entry | none | `MainActivity`, `Application` (start Koin, set content) |
 | Debug tooling | none | LeakCanary, debug-only |
 
@@ -382,8 +424,25 @@ These stay Android-specific and sit behind an interface, so a KMP move only need
 | Glide | Coil 3 | KMP |
 | Navigation (fragments, safe-args) | Navigation Compose, `@Serializable` routes | |
 
-Suggested order:
-1. `core:common`, `core:model`, `core:testing`, `core:designsystem` (theme and first components).
+### Known issues to fix during the migration
+
+These were deliberately left for the rewrite. The plan for the affected screen must list each one as an acceptance
+criterion. Delete a line here once its fix is merged.
+
+| Screen / area | Issue | Fix expected |
+|---|---|---|
+| Scan | After the camera permission is permanently denied, a rotation or process-death restore hides the permission panel: black preview, no way to reach Settings (review finding R1-1 in `camera-permission-modernization`) | Permission state is part of the screen state and survives config changes and process death |
+| Scan | Pausing the scanner clears the `LifecycleCameraController` analyzer, which rebuilds the camera pipeline on every pause/resume (~300 ms, `E/ConsumerBase … abandoned` in logcat) | Keep the analyzer attached; ignore results while a `paused` flag is set |
+| Scan | The keyboard stays open after a typed search and on the following screens (Maestro trial, 2026-10-21) | Hide it on submit and on navigation (section 6, Layout) |
+| Product result | The product image doesn't show, although the API returns `image_url` (Maestro trial; cause unknown) | Image loads through `Ui.ProductImage` (Coil); find the cause first |
+| Search, Favourites, History | Observers are registered again on every search or resume, so results are delivered more than once (`viewmodel-stateflow` plan) | Each screen collects its state once, in `FooScreen` |
+| History | `AnalysisHistoryViewModelTest` has no real assertion | Replaced by state factory and ViewModel tests (section 8) |
+| Database | `fallbackToDestructiveMigration()` wipes history and favourites on any schema change | Real `Migration`s (section 4) |
+| UI tests | `.maestro/camera-permission.yaml` expects the old "go back on denial" behaviour | Update to the inline permission panel when Maestro flows are added back (section 8) |
+
+### Suggested order
+1. The core modules the first screen needs: `core:common`, `core:model`, `core:testing`, `core:designsystem` (theme and
+   first components). Others come with the screen that needs them.
 2. Move today's `domain` module into `api` + `domain` shapes; replace `java.util.Date`.
 3. One screen end to end (History is the smallest) to prove the pattern, Compose hosted in the existing activity.
 4. Remaining screens, then Navigation Compose replaces fragment navigation.
