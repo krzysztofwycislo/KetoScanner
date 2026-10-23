@@ -43,21 +43,29 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 
 | Module | Holds | Visibility |
 |---|---|---|
-| `api` | Contracts and models: interfaces, use case interfaces, `data class` models in `api/model/`. No implementations, no IO | public |
-| `impl` | Implementations of `api`: use cases, repositories, pure business rules, mappers, persistence facade, the Koin module | `internal` (only the Koin module is public) |
+| `api` | Contracts and models: use case and repository interfaces, `data class` models in `api/model/`. No implementations, no IO | public |
+| `domain` | Business rules and use case implementations. Pure Kotlin: no IO, no Android, no `core:network`/`core:database`/`core:datastore` | `internal` (only the Koin module is public) |
+| `data` | IO-backed implementations of `api` contracts: repositories, API clients, persistence facade, DTOs, mappers (Room entities and DAOs stay in `core:database`, which owns the `@Database`) | `internal` (only the Koin module is public) |
 | `ui` | Compose screens, ViewModels, state classes, state factory, screen strings, the feature's navigation entry | `internal` (only the nav entry and Koin module are public) |
 
-- **Start small.** A new feature starts as one `ui` module (or `ui` + `impl`). Split out `api` only when another feature
-  needs its contracts. Splitting later is cheap because packages already follow the same names.
-- The original guide's `domain` module is called `impl` here. In this project "domain" means pure business rules
-  (like `DietAnalysisEngine`), which live in `impl` under a `rules/` package with no IO dependencies.
+- **Start small.** A new feature starts as `ui` (plus `data` if it loads or saves anything). Add `domain` only when
+  the feature has business rules beyond loading and saving, and split out `api` only when another feature needs its
+  contracts. Splitting later is cheap because packages already follow the same names.
+- `domain` keeps the meaning it already has in this project: pure business rules such as `DietAnalysisEngine`. It is
+  the code that moves to `commonMain` first. (The original guide used `domain` for all implementations, IO included;
+  here that is split into `domain` and `data`.)
 - No per-feature shared component module. Composables shared between features go to `core:designsystem`.
 
 ### Dependency direction
 
-- `ui` → `api`. `impl` → `api`. Never `ui` → `impl`.
-- A feature depends on another feature's `api` only, never its `impl` or `ui`.
-- `app` is the composition root: the only module that sees every `impl` and `ui`. It starts Koin and builds the NavHost.
+- `ui` → `api`. `domain` → `api`. `data` → `api`.
+- `domain` and `data` don't depend on each other. A use case that needs data (e.g. `AnalyzeProduct`: load the product,
+  then run the rules) lives in `domain` and reaches the data through a repository interface in `api`, which `data`
+  implements.
+- `ui` never depends on `domain` or `data`.
+- A feature depends on another feature's `api` only, never its `domain`, `data` or `ui`.
+- `app` is the composition root: the only module that sees every `domain`, `data` and `ui`. It starts Koin and builds
+  the NavHost.
 
 ### Core modules
 
@@ -73,7 +81,7 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 
 - Value classes instead of the guide's typealiases: a `typealias Barcode = String` accepts any string, a value class
   doesn't, and costs nothing at runtime.
-- `core:network`, `core:database` and `core:datastore` are consumed only by `impl` modules.
+- `core:network`, `core:database` and `core:datastore` are consumed only by `data` modules.
 
 ---
 
@@ -102,11 +110,20 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 
 ---
 
-## 4. Implementations (`impl`) and data
+## 4. Implementations (`domain` and `data`)
 
 - Interface `Foo` is implemented by `FooImpl`: `internal`, constructor-injected (Koin), no service locator calls inside.
-- **Threading is the implementation's job.** Work runs in `withContext(dispatchers.io)` through the injected
-  `AppDispatchers` from `core:common`, never `kotlinx.coroutines.Dispatchers` directly.
+- **Threading is the implementation's job.** `data` runs IO in `withContext(dispatchers.io)`; `domain` runs heavy
+  computation, if any, in `withContext(dispatchers.default)`. Both use the injected `AppDispatchers` from
+  `core:common`, never `kotlinx.coroutines.Dispatchers` directly.
+
+### `domain`
+- Use case implementations and business rules. Rules are plain classes or functions (e.g. `DietAnalysisEngine`), tested
+  directly, with no interface unless another module needs one (section 3).
+- Gets data only through repository interfaces from `api`. Never imports a DTO, entity, DAO or HTTP type.
+- Pure Kotlin under the KMP rules (section 1), so it can become `commonMain` with no code changes.
+
+### `data`
 - **Mapping** lives in lowercase files of top-level extension functions (`entityMapper.kt`, `dtoMapper.kt`) exposing
   `toDomain()`, `toEntity()`, `toRequest()`. List variants delegate:
 
@@ -117,21 +134,27 @@ A feature lives under `feature/<name>/` and owns only the modules it needs:
 - **Storage** goes through the feature's own `FooPersistence` interface (`FooPersistenceImpl`), so the rest of the
   feature never touches a DAO or DataStore directly.
 - **Network**: API interfaces are `FooApi`, one suspend method per endpoint. DTOs are named by direction:
-  `FooResponseDto`, `FooRequestDto`. **DTOs and entities never leave `impl`.** Repositories return `api` models, so
-  swapping Retrofit/Moshi for Ktor/kotlinx.serialization changes `impl` and `core:network` only.
+  `FooResponseDto`, `FooRequestDto`. **DTOs and entities never leave `data`.** Repositories return `api` models, so
+  swapping Retrofit/Moshi for Ktor/kotlinx.serialization changes `data` and `core:network` only.
 - Enums decoded from responses get a fallback value for unknown entries, so a new backend value can't fail the
   whole response.
 - **Room**: entities and DAOs in `core:database`. Schema changes ship with a `Migration`, never
   `fallbackToDestructiveMigration()`. Schemas are exported and committed.
 
-### Koin module per `impl`
+### Koin module per module
 
-Each `impl` (and `ui`) module exposes exactly one Koin module. Use the DSL with constructor references; it needs no
-code generation and works the same on every KMP target:
+Each `domain`, `data` and `ui` module exposes exactly one Koin module. Use the DSL with constructor references; it
+needs no code generation and works the same on every KMP target:
 
 ```kotlin
-val productImplModule = module {
+// feature/product/data
+val productDataModule = module {
     singleOf(::ProductRepositoryImpl) bind ProductRepository::class
+}
+
+// feature/analysis/domain
+val analysisDomainModule = module {
+    factoryOf(::DietAnalysisEngine)
     factoryOf(::AnalyzeProductImpl) bind AnalyzeProduct::class
 }
 ```
@@ -305,9 +328,9 @@ The guide injected Android `Resources` into a formatter class. That is Android-o
 ## 8. Errors and testing
 
 ### Errors
-- `impl` maps failures (network, HTTP status, parsing, database) to a sealed `AppError` from `core:common` and returns
-  `Outcome<T>` (success or `AppError`). Exceptions don't cross into `ui`, except `CancellationException`, which is
-  always rethrown.
+- `data` maps failures (network, HTTP status, parsing, database) to a sealed `AppError` from `core:common` and returns
+  `Outcome<T>` (success or `AppError`). `domain` passes these through and adds its own rule outcomes (e.g. "not enough
+  nutrient data"). Exceptions don't cross into `ui`, except `CancellationException`, which is always rethrown.
 - The state factory turns an `AppError` into an `Error` content variant or a message `UiText`. Nothing else decides
   how an error looks.
 
@@ -316,8 +339,8 @@ The guide injected Android `Resources` into a formatter class. That is Android-o
   companion object.
 - **New tests are KMP-ready:** `kotlin.test` assertions and hand-written fakes from `core:testing`. Mockito and Truth
   are JVM-only; existing tests keep them, but new code that is meant for `commonMain` is tested without them.
-- Priority order per screen: state factory (every branch), ViewModel (action → prototype → state, events), then
-  `impl` (mappers, repositories with fake persistence and API).
+- Priority order: state factory (every branch), ViewModel (action → prototype → state, events), `domain` rules (every
+  branch) and use cases with fake repositories, then `data` (mappers, repositories with fake persistence and API).
 - Dispatchers in tests come from `core:testing` (`TestAppDispatchers` backed by `StandardTestDispatcher`).
 
 ---
@@ -328,7 +351,7 @@ These stay Android-specific and sit behind an interface, so a KMP move only need
 
 | Zone | Interface | Android implementation |
 |---|---|---|
-| Barcode scanning (CameraX + ML Kit) | `BarcodeScanner` in `feature/scanner/api` (a `Flow<Barcode>`), plus a `CameraPreview` composable slot | `feature/scanner/impl` |
+| Barcode scanning (CameraX + ML Kit) | `BarcodeScanner` in `feature/scanner/api` (a `Flow<Barcode>`), plus a `CameraPreview` composable slot | `feature/scanner/data` |
 | Camera permission | `PermissionState` in `core:designsystem` | Activity Result API wrapper |
 | App entry | none | `MainActivity`, `Application` (start Koin, set content) |
 | Debug tooling | none | LeakCanary, debug-only |
@@ -337,7 +360,7 @@ These stay Android-specific and sit behind an interface, so a KMP move only need
 
 ## 10. Cross-cutting conventions
 
-- `internal` by default in `impl`, `ui` and `app`. Only `api` types, Koin modules and nav entries are public.
+- `internal` by default in `domain`, `data`, `ui` and `app`. Only `api` types, Koin modules and nav entries are public.
 - Constructor injection everywhere. `KoinComponent`/`inject()` only where the framework owns the constructor
   (`Application`, `Activity`).
 - Nested sealed members are imported individually, so `when` branches read as bare names.
@@ -350,18 +373,18 @@ These stay Android-specific and sit behind an interface, so a KMP move only need
 
 | Today | Target | Notes |
 |---|---|---|
-| `domain` (pure Kotlin, `DietAnalysisEngine`, models, repository interfaces) | split: models/interfaces → `feature/*/api` + `core:model`; engine → `feature/analysis/impl/rules` | `ProductAnalysisHistoryEntry` and `FavouriteProduct` use `java.util.Date` → `kotlin.time.Instant` |
-| `openfoodapi` (Retrofit, Moshi codegen, OkHttp) | `core:network` + `feature/product/impl` | Already behind interfaces; later swap to Ktor + kotlinx.serialization |
-| `barcodescanner` (CameraX controller + `MlKitAnalyzer`) | `feature/scanner/impl` (Android-only) | Expose results as `Flow<Barcode>` |
+| `domain` (pure Kotlin, `DietAnalysisEngine`, models, repository interfaces) | split: models/interfaces → `feature/*/api` + `core:model`; engine and analysis rules → `feature/analysis/domain` | `ProductAnalysisHistoryEntry` and `FavouriteProduct` use `java.util.Date` → `kotlin.time.Instant` |
+| `openfoodapi` (Retrofit, Moshi codegen, OkHttp) | `core:network` + `feature/product/data` | Already behind interfaces; later swap to Ktor + kotlinx.serialization |
+| `barcodescanner` (CameraX controller + `MlKitAnalyzer`) | `feature/scanner/data` (Android-only) | Expose results as `Flow<Barcode>` |
 | `app` fragments + ViewBinding + LiveData | `feature/*/ui` Compose screens | Screen by screen; `.claude/work/viewmodel-stateflow/plan.md` is input, its event approach is replaced by section 5 |
 | `app` Room database | `core:database` | Add real migrations, drop `fallbackToDestructiveMigration()` |
-| `app` DataStore preferences | `core:datastore` + `feature/preferences/impl` | Already on DataStore |
+| `app` DataStore preferences | `core:datastore` + `feature/preferences/data` | Already on DataStore |
 | Glide | Coil 3 | KMP |
 | Navigation (fragments, safe-args) | Navigation Compose, `@Serializable` routes | |
 
 Suggested order:
 1. `core:common`, `core:model`, `core:testing`, `core:designsystem` (theme and first components).
-2. Move `domain` code into `api`/`impl` shapes; replace `java.util.Date`.
+2. Move today's `domain` module into `api` + `domain` shapes; replace `java.util.Date`.
 3. One screen end to end (History is the smallest) to prove the pattern, Compose hosted in the existing activity.
 4. Remaining screens, then Navigation Compose replaces fragment navigation.
 5. Coil, Room migrations, then the network swap.
