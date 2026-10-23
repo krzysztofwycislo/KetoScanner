@@ -1,25 +1,9 @@
 plugins {
-    alias(libs.plugins.android.library)
+    id("ketoscanner.android.library")
 }
 
 android {
     namespace = "pl.handsome.club.barcodescanner"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }
 
 dependencies {

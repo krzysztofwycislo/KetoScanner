@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":barcodescanner"))
     implementation(project(":openfoodapi"))
+    implementation(project(":core:common"))
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)

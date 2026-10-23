@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import pl.handsome.club.core.common.AppDispatchers
+import pl.handsome.club.core.common.DefaultAppDispatchers
 import pl.handsome.club.domain.analyze.DietAnalysisEngine
 import pl.handsome.club.domain.repository.AnalysisHistoryRepository
 import pl.handsome.club.domain.repository.DietPreferencesRepository
@@ -35,6 +37,9 @@ val appModules = module {
     listOf(
         // analysis
         single { DietAnalysisEngine() },
+
+        // coroutines
+        single<AppDispatchers> { DefaultAppDispatchers },
 
         // database
         single { AppDatabase.provide(androidContext()) },

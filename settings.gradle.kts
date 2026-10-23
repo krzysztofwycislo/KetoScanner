@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "KetoScanner"
-include(":app", ":domain", ":openfoodapi", ":barcodescanner")
+include(":app", ":domain", ":openfoodapi", ":barcodescanner", ":core:common", ":core:model", ":core:testing")
