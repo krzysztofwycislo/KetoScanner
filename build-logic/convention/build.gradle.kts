@@ -21,5 +21,9 @@ gradlePlugin {
             id = "ketoscanner.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
+        register("compose") {
+            id = "ketoscanner.compose"
+            implementationClass = "ComposeConventionPlugin"
+        }
     }
 }

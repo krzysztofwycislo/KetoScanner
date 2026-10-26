@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="designsystem_preview_title">Sample title</string>
+    <string name="designsystem_preview_body">Sample body text</string>
+    <string name="designsystem_preview_carbs">%1$s g carbs</string>
+    <string name="designsystem_preview_energy">%1$s kcal</string>
+    <string name="designsystem_preview_scans">%1$s scans</string>
+    <string name="designsystem_preview_share">%1$s of energy from carbs</string>
+    <string name="designsystem_preview_product">Product: %1$s</string>
+    <string name="designsystem_preview_image">Sample product image</string>
+    <string name="designsystem_preview_snackbar">Sample snackbar message</string>
+    <plurals name="designsystem_preview_products">
+        <item quantity="one">%1$s product</item>
+        <item quantity="other">%1$s products</item>
+    </plurals>
+</resources>
