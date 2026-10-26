@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import pl.handsome.club.domain.product.FavouriteProduct
-import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
+import pl.handsome.club.feature.product.api.model.Product
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.ketoscanner.database.AppDatabase
 
 
@@ -35,7 +35,7 @@ class DBFavouriteProductsRepository(
 
     override suspend fun findByBarcode(barcode: String): FavouriteProduct? {
         return withContext(Dispatchers.IO) {
-            favouriteProductsDao.findByBarcode(barcode)
+            favouriteProductsDao.findByBarcode(barcode)?.toDomain()
         }
     }
 

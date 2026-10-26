@@ -12,7 +12,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import pl.handsome.club.domain.preferences.DietPreferences
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import java.io.File
 
 

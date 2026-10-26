@@ -3,7 +3,7 @@ package pl.handsome.club.ketoscanner.ui
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.MacronutrientsResultFragmentBinding
 import pl.handsome.club.ketoscanner.util.*

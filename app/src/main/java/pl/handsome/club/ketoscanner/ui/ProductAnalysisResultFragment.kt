@@ -11,9 +11,9 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import pl.handsome.club.domain.analyze.ProductAnalysisResult
-import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.product.Product
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
+import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.ProductAnalisisResultFragmentBinding
 import pl.handsome.club.ketoscanner.util.logException

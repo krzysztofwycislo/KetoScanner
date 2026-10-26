@@ -11,12 +11,12 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.product.FavouriteProduct
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddToFavouritesState
-import java.util.*
+import kotlin.time.Instant
 
 
 @ExperimentalCoroutinesApi
@@ -57,7 +57,7 @@ class AddFavouriteProductViewModelTest {
     @Test
     fun `when we want to add favourite product that already is added then it should be removed`() = coroutineTestRule.runTest {
         val product = exampleProduct
-        val favouriteProductInRepository = FavouriteProduct(product.barcode, product.name, product.brand, Date(), null)
+        val favouriteProductInRepository = FavouriteProduct(product.barcode, product.name, product.brand, Instant.fromEpochMilliseconds(0), null)
 
         `when`(favouriteProductsRepository.findByBarcode(product.barcode)).thenReturn(favouriteProductInRepository)
 

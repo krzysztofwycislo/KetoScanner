@@ -10,8 +10,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.product.FavouriteProduct
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.FavoriteProductsFragmentBinding
 import pl.handsome.club.ketoscanner.ui.adapter.FavouriteProductsListAdapter

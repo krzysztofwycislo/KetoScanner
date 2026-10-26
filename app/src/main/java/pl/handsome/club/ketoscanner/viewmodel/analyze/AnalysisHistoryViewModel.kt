@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
-import pl.handsome.club.domain.repository.AnalysisHistoryRepository
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 
 
 class AnalysisHistoryViewModel(

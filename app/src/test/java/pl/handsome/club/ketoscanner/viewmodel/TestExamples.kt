@@ -1,10 +1,10 @@
 package pl.handsome.club.ketoscanner.viewmodel
 
-import pl.handsome.club.domain.analyze.macronutrient.DietRate
-import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
-import pl.handsome.club.domain.preferences.DietPreferences
-import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.product.ProductNutriments
+import pl.handsome.club.feature.analysis.api.model.DietRate
+import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.handsome.club.feature.product.api.model.Product
+import pl.handsome.club.feature.product.api.model.ProductNutriments
 
 
 private const val PRODUCT_NAME: String = "test name"

@@ -11,8 +11,8 @@ import org.mockito.Mock
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
-import pl.handsome.club.domain.repository.AnalysisHistoryRepository
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
 

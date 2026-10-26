@@ -1,7 +1,7 @@
 package pl.handsome.club.ketoscanner.ui
 
 import androidx.fragment.app.Fragment
-import pl.handsome.club.domain.product.Product
+import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.NutrientsTableFragmentBinding
 

@@ -10,13 +10,13 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.analyze.DietAnalysisEngine
-import pl.handsome.club.domain.analyze.ProductAnalysisResult
-import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.product.ProductSearchState
-import pl.handsome.club.domain.repository.AnalysisHistoryRepository
-import pl.handsome.club.domain.repository.DietPreferencesRepository
-import pl.handsome.club.domain.repository.ProductRepository
+import pl.handsome.club.feature.analysis.domain.DietAnalysisEngine
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
+import pl.handsome.club.feature.product.api.model.ProductSearchState
+import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 

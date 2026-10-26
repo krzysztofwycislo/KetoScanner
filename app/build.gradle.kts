@@ -41,7 +41,12 @@ room {
 }
 
 dependencies {
-    implementation(project(":domain"))
+    implementation(project(":feature:product:api"))
+    implementation(project(":feature:preferences:api"))
+    implementation(project(":feature:analysis:api"))
+    implementation(project(":feature:history:api"))
+    implementation(project(":feature:favourites:api"))
+    implementation(project(":feature:analysis:domain"))
     implementation(project(":barcodescanner"))
     implementation(project(":openfoodapi"))
     implementation(project(":core:common"))
@@ -83,6 +88,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlin.test.junit)
 
     // maintenance
     debugImplementation(libs.leakcanary.android)

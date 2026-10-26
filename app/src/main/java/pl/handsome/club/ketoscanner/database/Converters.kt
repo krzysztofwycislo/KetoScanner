@@ -1,8 +1,8 @@
 package pl.handsome.club.ketoscanner.database
 
 import androidx.room.TypeConverter
-import pl.handsome.club.domain.analyze.macronutrient.DietRate
-import java.util.*
+import pl.handsome.club.feature.analysis.api.model.DietRate
+import kotlin.time.Instant
 
 
 internal class Converters {
@@ -18,13 +18,9 @@ internal class Converters {
     }
 
     @TypeConverter
-    fun toDate(timestamp: Long?): Date? {
-        return timestamp?.let { Date(it) }
-    }
+    fun toInstant(epochMillis: Long?): Instant? = epochMillis?.let(Instant::fromEpochMilliseconds)
 
     @TypeConverter
-    fun toTimestamp(date: Date?): Long? {
-        return date?.time
-    }
+    fun toEpochMillis(instant: Instant?): Long? = instant?.toEpochMilliseconds()
 
 }

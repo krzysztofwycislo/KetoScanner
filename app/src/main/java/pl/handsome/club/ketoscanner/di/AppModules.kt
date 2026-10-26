@@ -7,11 +7,10 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import pl.handsome.club.core.common.AppDispatchers
 import pl.handsome.club.core.common.DefaultAppDispatchers
-import pl.handsome.club.domain.analyze.DietAnalysisEngine
-import pl.handsome.club.domain.repository.AnalysisHistoryRepository
-import pl.handsome.club.domain.repository.DietPreferencesRepository
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
-import pl.handsome.club.domain.repository.ProductRepository
+import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
+import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.ketoscanner.database.AppDatabase
 import pl.handsome.club.ketoscanner.database.favourite.DBFavouriteProductsRepository
 import pl.handsome.club.ketoscanner.database.history.DBAnalysisHistoryRepository
@@ -35,9 +34,6 @@ private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo
 
 val appModules = module {
     listOf(
-        // analysis
-        single { DietAnalysisEngine() },
-
         // coroutines
         single<AppDispatchers> { DefaultAppDispatchers },
 

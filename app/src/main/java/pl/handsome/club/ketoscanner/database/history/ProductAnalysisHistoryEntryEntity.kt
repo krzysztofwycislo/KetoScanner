@@ -3,9 +3,10 @@ package pl.handsome.club.ketoscanner.database.history
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import pl.handsome.club.domain.analyze.macronutrient.MacronutrientAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
-import java.util.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 
 @Entity(tableName = TABLE_NAME)
@@ -19,7 +20,7 @@ data class ProductAnalysisHistoryEntryEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
 
-    var updateTime: Date = Calendar.getInstance().time
+    var updateTime: Instant = Clock.System.now()
 
     companion object {
         const val TABLE_NAME = "product_analysis_history"

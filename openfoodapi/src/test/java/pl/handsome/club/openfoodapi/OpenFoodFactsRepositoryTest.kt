@@ -9,8 +9,8 @@ import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
-import pl.handsome.club.domain.product.ProductNutriments
-import pl.handsome.club.domain.product.ProductSearchState
+import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.handsome.club.feature.product.api.model.ProductSearchState
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient

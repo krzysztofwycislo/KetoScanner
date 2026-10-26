@@ -13,11 +13,11 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.product.FavouriteProduct
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
-import java.util.*
+import kotlin.time.Instant
 
 
 @ExperimentalCoroutinesApi
@@ -58,8 +58,8 @@ class FavouriteProductsListViewModelTest {
 
     @Test
     fun `when we want to get initial favourite products list then we should get populated list`() = coroutinesTestRule.runTest {
-        val product1 = FavouriteProduct("barcode", "testtest", "brand", Date(), null)
-        val product2 = FavouriteProduct("barcode", "other", "brand", Date(), null)
+        val product1 = FavouriteProduct("barcode", "testtest", "brand", Instant.fromEpochMilliseconds(0), null)
+        val product2 = FavouriteProduct("barcode", "other", "brand", Instant.fromEpochMilliseconds(0), null)
         val allProducts = listOf(product1, product2)
 
         initViewModel(allProducts)
@@ -69,9 +69,9 @@ class FavouriteProductsListViewModelTest {
 
     @Test
     fun `when we want to search products by name then we should get only products that contains given name`() = coroutinesTestRule.runTest {
-        val testLikeNameProduct1 = FavouriteProduct("barcode", "test", "brand", Date(), null)
-        val testLikeNameProduct2 = FavouriteProduct("barcode", "product test", "brand", Date(), null)
-        val someOtherProduct = FavouriteProduct("barcode", "other", "brand", Date(), null)
+        val testLikeNameProduct1 = FavouriteProduct("barcode", "test", "brand", Instant.fromEpochMilliseconds(0), null)
+        val testLikeNameProduct2 = FavouriteProduct("barcode", "product test", "brand", Instant.fromEpochMilliseconds(0), null)
+        val someOtherProduct = FavouriteProduct("barcode", "other", "brand", Instant.fromEpochMilliseconds(0), null)
 
         val allProducts = listOf(testLikeNameProduct1, someOtherProduct, testLikeNameProduct2)
         val testLikeNameProducts = listOf(testLikeNameProduct1, testLikeNameProduct2)

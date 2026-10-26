@@ -1,7 +1,7 @@
 package pl.handsome.club.openfoodapi
 
-import pl.handsome.club.domain.product.ProductSearchState
-import pl.handsome.club.domain.repository.ProductRepository
+import pl.handsome.club.feature.product.api.model.ProductSearchState
+import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
 import retrofit2.HttpException
 

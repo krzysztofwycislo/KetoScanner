@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
-import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
+import pl.handsome.club.feature.product.api.model.Product
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 
 class AddFavouriteProductViewModel(
     private val favouriteProductsRepository: FavouriteProductsRepository

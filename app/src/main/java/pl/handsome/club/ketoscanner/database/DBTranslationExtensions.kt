@@ -1,7 +1,7 @@
 package pl.handsome.club.ketoscanner.database
 
-import pl.handsome.club.domain.analyze.ProductAnalysisResult
-import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.database.history.ProductAnalysisHistoryEntryEntity
 
 

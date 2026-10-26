@@ -3,6 +3,7 @@ package pl.handsome.club.ketoscanner
 import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import pl.handsome.club.feature.analysis.domain.analysisDomainModule
 import pl.handsome.club.ketoscanner.di.appModules
 
 
@@ -14,7 +15,7 @@ class KetoSApplication : Application() {
 
         startKoin {
             androidContext(this@KetoSApplication)
-            modules(appModules)
+            modules(appModules, analysisDomainModule)
         }
     }
 

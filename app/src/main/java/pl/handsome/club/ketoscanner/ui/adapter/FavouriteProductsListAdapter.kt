@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import pl.handsome.club.domain.product.FavouriteProduct
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.ketoscanner.databinding.FavoriteProductsListItemBinding
 
 class FavouriteProductsListAdapter(

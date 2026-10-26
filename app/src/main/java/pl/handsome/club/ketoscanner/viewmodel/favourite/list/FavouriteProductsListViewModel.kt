@@ -5,7 +5,7 @@ import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import pl.handsome.club.domain.repository.FavouriteProductsRepository
+import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 
 
 @ExperimentalCoroutinesApi

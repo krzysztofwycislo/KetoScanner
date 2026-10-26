@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import pl.handsome.club.domain.preferences.DietPreferences
-import pl.handsome.club.domain.repository.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import java.io.IOException
 
 

@@ -7,10 +7,6 @@ import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
-/**
- * Plain Kotlin/JVM library, configured like `domain` (JVM 17). Tests use kotlin.test on JUnit4.
- * Code in these modules avoids java.* / android.* so a later KMP move only changes Gradle files.
- */
 class KotlinLibraryConventionPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -21,9 +17,11 @@ class KotlinLibraryConventionPlugin : Plugin<Project> {
             targetCompatibility = JavaVersion.VERSION_17
         }
 
+        val kotlinModuleName = project.path.removePrefix(":").replace(':', '-')
         project.extensions.configure(KotlinJvmProjectExtension::class.java) {
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_17)
+                moduleName.set(kotlinModuleName)
             }
         }
 

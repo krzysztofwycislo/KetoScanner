@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.LastAnalysisHistoryFragmentBinding
 import pl.handsome.club.ketoscanner.ui.adapter.AnalysisHistoryListAdapter

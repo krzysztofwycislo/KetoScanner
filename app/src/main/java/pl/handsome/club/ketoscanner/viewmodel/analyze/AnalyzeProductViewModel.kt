@@ -6,14 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
-import pl.handsome.club.domain.analyze.DietAnalysisEngine
-import pl.handsome.club.domain.analyze.ProductAnalysisResult
-import pl.handsome.club.domain.analyze.ProductAnalysisState
-import pl.handsome.club.domain.product.Product
-import pl.handsome.club.domain.product.ProductSearchState
-import pl.handsome.club.domain.repository.AnalysisHistoryRepository
-import pl.handsome.club.domain.repository.DietPreferencesRepository
-import pl.handsome.club.domain.repository.ProductRepository
+import pl.handsome.club.feature.analysis.domain.DietAnalysisEngine
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.product.api.model.Product
+import pl.handsome.club.feature.product.api.model.ProductSearchState
+import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.product.api.ProductRepository
 
 
 class AnalyzeProductViewModel(

@@ -1,6 +1,6 @@
 package pl.handsome.club.ketoscanner.util
 
-import pl.handsome.club.domain.analyze.macronutrient.DietRate
+import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.ketoscanner.R
 
 

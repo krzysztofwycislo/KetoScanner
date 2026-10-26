@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import pl.handsome.club.domain.analyze.history.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.ketoscanner.databinding.HistoryListItemBinding
 import pl.handsome.club.ketoscanner.util.getSummaryResultImageIdForDietRate
 

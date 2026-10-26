@@ -16,7 +16,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import pl.handsome.club.barcodescanner.BarcodeCameraScanner
-import pl.handsome.club.domain.analyze.ProductAnalysisState
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.SearchProductFragmentBinding

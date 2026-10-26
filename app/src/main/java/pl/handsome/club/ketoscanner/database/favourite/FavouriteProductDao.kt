@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.domain.product.FavouriteProduct
 
 
 @Dao
@@ -21,6 +20,6 @@ interface FavouriteProductDao {
     suspend fun delete(favouriteProduct: FavouriteProductEntity)
 
     @Query("SELECT * FROM ${FavouriteProductEntity.TABLE_NAME} WHERE productBarcode = :barcode LIMIT 1")
-    fun findByBarcode(barcode: String): FavouriteProduct?
+    fun findByBarcode(barcode: String): FavouriteProductEntity?
 
 }

@@ -7,7 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import pl.handsome.club.domain.repository.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 
 
 class DietPreferencesViewModel(

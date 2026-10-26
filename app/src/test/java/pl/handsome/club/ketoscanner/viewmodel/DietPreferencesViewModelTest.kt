@@ -15,8 +15,8 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import pl.handsome.club.domain.preferences.DietPreferences
-import pl.handsome.club.domain.repository.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.preferences.DietPreferencesViewModel
 
