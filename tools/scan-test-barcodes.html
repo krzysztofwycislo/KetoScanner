@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KetoScanner test barcodes</title>
+<style>
+  :root { --ink: #15201B; --muted: #56615B; --line: #E3E6E1; --bg: #F6F7F4; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  p.lead { margin: 0 0 24px; color: var(--muted); font-size: 14px; max-width: 760px; line-height: 1.5; }
+  h2 { margin: 28px 0 12px; font-size: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; break-inside: avoid; }
+  .name { font-weight: 700; font-size: 15px; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .carbs { font-weight: 700; }
+  .code { display: flex; justify-content: center; padding: 8px 0 0; background: #fff; }
+  svg { display: block; }
+  .bad { color: #9E2318; }
+  button.card { font: inherit; color: inherit; text-align: left; cursor: zoom-in; transition: box-shadow .15s, border-color .15s; }
+  button.card:hover, button.card:focus-visible { border-color: #1E6B47; box-shadow: 0 0 0 3px rgba(30,107,71,.18); outline: none; }
+  .hint { font-size: 12px; color: var(--muted); text-align: center; }
+  #zoom { position: fixed; inset: 0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; z-index: 10; }
+  #zoom.open { display: flex; }
+  #zoom .zname { font-size: 28px; font-weight: 800; text-align: center; }
+  #zoom .zmeta { font-size: 16px; color: var(--muted); text-align: center; }
+  #zoom .zcode svg { width: min(92vw, 1100px); height: auto; }
+  #zoom .bar { display: flex; gap: 12px; }
+  #zoom button { font: inherit; font-size: 16px; font-weight: 700; height: 48px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #D5DAD3; background: #F6F7F4; color: var(--ink); cursor: pointer; }
+  #zoom button.close { background: #15201B; color: #fff; border-color: #15201B; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card { border-color: #999; }
+    p.lead { display: none; }
+  }
+</style>
+</head>
+<body>
+<h1>KetoScanner test barcodes</h1>
+<p class="lead">Real EAN-13 barcodes, each checked against Open Food Facts (world.openfoodfacts.org) on 2026-10-27. Scan them from the screen at full brightness, or print the page. Carb values are total carbohydrates per 100 g as Open Food Facts listed them that day; the verdict the app shows depends on your diet preferences.</p>
+
+<h2>Low carb (0–5 g per 100 g)</h2>
+<div class="grid" id="low"></div>
+
+<h2>Medium (5–15 g per 100 g)</h2>
+<div class="grid" id="mid"></div>
+
+<h2>High carb (over 15 g per 100 g)</h2>
+<div class="grid" id="high"></div>
+
+<h2>Edge cases</h2>
+<div class="grid" id="edge"></div>
+
+<div id="zoom" role="dialog" aria-modal="true" aria-labelledby="zname">
+  <div class="zname" id="zname"></div>
+  <div class="zmeta" id="zmeta"></div>
+  <div class="zcode" id="zcode"></div>
+  <div class="bar">
+    <button type="button" id="zprev" aria-label="Previous barcode">← Previous</button>
+    <button type="button" class="close" id="zclose">Close (Esc)</button>
+    <button type="button" id="znext" aria-label="Next barcode">Next →</button>
+  </div>
+</div>
+
+<script>
+var products = [
+  { group: 'low', code: '5411188112709', name: 'Alpro roasted almond drink, no sugar', meta: 'Alpro · 1 l', carbs: '0 g' },
+  { group: 'low', code: '5000112548167', name: 'Coca-Cola Light', meta: 'Coca-Cola · 0.5 l', carbs: '0 g' },
+  { group: 'low', code: '3228021170060', name: 'Chaussée aux Moines cheese', meta: 'Lactalis · 340 g', carbs: '0 g' },
+  { group: 'low', code: '5900820000011', name: 'UHT milk 3.2% fat', meta: 'Łaciate · 1 l', carbs: '4.7 g' },
+  { group: 'low', code: '5900512300320', name: 'Milk (name missing in Open Food Facts)', meta: 'Mlekovita · 1 l', carbs: '4.7 g' },
+  { group: 'mid', code: '4002971243703', name: 'High-protein pudding, chocolate', meta: 'Ehrmann · 200 g', carbs: '5.5 g' },
+  { group: 'mid', code: '5901234123457', name: 'Sauce chiltepin', meta: 'La lumbre · 190 ml (also the GS1 sample barcode)', carbs: '6 g' },
+  { group: 'mid', code: '5449000000996', name: 'Coca-Cola Original', meta: 'Coca-Cola · 330 ml', carbs: '10.6 g' },
+  { group: 'high', code: '3017620422003', name: 'Nutella', meta: 'Ferrero · 400 g', carbs: '57.5 g' },
+  { group: 'high', code: '3046920028370', name: 'Lindt Excellence Dark Orange Intense', meta: 'Lindt · 100 g', carbs: '51 g' },
+  { group: 'high', code: '7622210449283', name: 'Prince biscuits', meta: 'Mondelez · 300 g', carbs: '69 g' },
+  { group: 'high', code: '5000159407236', name: 'Mars bar', meta: 'Mars Wrigley · 51 g', carbs: '70 g' },
+  { group: 'high', code: '8076800195057', name: 'Spaghetti Nº5', meta: 'Barilla · 500 g', carbs: '71 g' },
+  { group: 'edge', code: '5900259000002', name: 'Not in Open Food Facts', meta: 'Valid check digit, returns 404: tests the “product not found” path', carbs: '–', bad: true }
+];
+
+var L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+var G = ['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
+var R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+var PARITY = ['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+
+function checkDigit(first12) {
+  var sum = 0;
+  for (var i = 0; i < 12; i++) sum += Number(first12[i]) * (i % 2 === 0 ? 1 : 3);
+  return (10 - (sum % 10)) % 10;
+}
+
+function ean13Bits(code) {
+  var d = code.split('').map(Number);
+  var parity = PARITY[d[0]];
+  var bits = '101';
+  for (var i = 1; i <= 6; i++) bits += (parity[i - 1] === 'L' ? L : G)[d[i]];
+  bits += '01010';
+  for (var j = 7; j <= 12; j++) bits += R[d[j]];
+  return bits + '101';
+}
+
+function ean13Svg(code) {
+  var module = 3, quiet = 11, barH = 110, guardExtra = 12, textH = 22;
+  var bits = ean13Bits(code);
+  var width = (bits.length + quiet * 2) * module;
+  var height = barH + guardExtra + textH;
+  var ns = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'EAN-13 barcode ' + code);
+  var bg = document.createElementNS(ns, 'rect');
+  bg.setAttribute('width', width); bg.setAttribute('height', height); bg.setAttribute('fill', '#fff');
+  svg.appendChild(bg);
+  for (var i = 0; i < bits.length; i++) {
+    if (bits[i] !== '1') continue;
+    var isGuard = i < 3 || (i >= 45 && i < 50) || i >= 92;
+    var bar = document.createElementNS(ns, 'rect');
+    bar.setAttribute('x', (quiet + i) * module);
+    bar.setAttribute('y', 0);
+    bar.setAttribute('width', module);
+    bar.setAttribute('height', barH + (isGuard ? guardExtra : 0));
+    bar.setAttribute('fill', '#000');
+    svg.appendChild(bar);
+  }
+  var parts = [
+    { text: code[0], x: (quiet - 4) * module },
+    { text: code.slice(1, 7), x: (quiet + 3 + 21) * module },
+    { text: code.slice(7), x: (quiet + 50 + 21) * module }
+  ];
+  parts.forEach(function (p) {
+    var t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', p.x);
+    t.setAttribute('y', height - 4);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-family', 'monospace');
+    t.setAttribute('font-size', '20');
+    t.setAttribute('letter-spacing', '3');
+    t.textContent = p.text;
+    svg.appendChild(t);
+  });
+  return svg;
+}
+
+function isValid(code) {
+  return /^\d{13}$/.test(code) && checkDigit(code.slice(0, 12)) === Number(code[12]);
+}
+
+var zoom = document.getElementById('zoom');
+var current = -1;
+var opener = null;
+
+function show(index) {
+  current = (index + products.length) % products.length;
+  var p = products[current];
+  document.getElementById('zname').textContent = p.name;
+  document.getElementById('zmeta').textContent = p.meta + ' · carbs per 100 g: ' + p.carbs;
+  var holder = document.getElementById('zcode');
+  holder.textContent = '';
+  holder.appendChild(isValid(p.code) ? ean13Svg(p.code) : document.createTextNode('Invalid check digit: ' + p.code));
+  zoom.classList.add('open');
+  document.getElementById('zclose').focus();
+}
+
+function hide() {
+  zoom.classList.remove('open');
+  if (opener) opener.focus();
+}
+
+document.getElementById('zclose').addEventListener('click', hide);
+document.getElementById('zprev').addEventListener('click', function () { show(current - 1); });
+document.getElementById('znext').addEventListener('click', function () { show(current + 1); });
+zoom.addEventListener('click', function (e) { if (e.target === zoom) hide(); });
+document.addEventListener('keydown', function (e) {
+  if (!zoom.classList.contains('open')) return;
+  if (e.key === 'Escape') hide();
+  if (e.key === 'ArrowRight') show(current + 1);
+  if (e.key === 'ArrowLeft') show(current - 1);
+});
+
+products.forEach(function (p, index) {
+  var card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
+  card.setAttribute('aria-label', 'Enlarge barcode for ' + p.name);
+  card.innerHTML =
+    '<span class="name' + (p.bad ? ' bad' : '') + '"></span>' +
+    '<span class="meta"></span>' +
+    '<span class="meta">Carbs per 100 g: <span class="carbs"></span></span>' +
+    '<span class="code"></span>' +
+    '<span class="hint">Click to enlarge</span>';
+  card.querySelector('.name').textContent = p.name;
+  card.querySelectorAll('.meta')[0].textContent = p.meta;
+  card.querySelector('.carbs').textContent = p.carbs;
+  card.querySelector('.code').appendChild(isValid(p.code) ? ean13Svg(p.code) : document.createTextNode('Invalid check digit: ' + p.code));
+  card.addEventListener('click', function () { opener = card; show(index); });
+  document.getElementById(p.group).appendChild(card);
+});
+</script>
+</body>
+</html>
