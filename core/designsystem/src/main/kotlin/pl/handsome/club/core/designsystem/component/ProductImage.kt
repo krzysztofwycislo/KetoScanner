@@ -15,7 +15,6 @@ import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
-// http(s) URLs load only if the app adds a Coil network fetcher (coil-network-*); without it they show the placeholder.
 @Composable
 fun Ui.ProductImage(
     url: String?,

@@ -17,6 +17,8 @@ sealed interface UiArg {
 
         data class Count(val value: Long) : Numeric
 
+        data class WholeNumber(val value: Double) : Numeric
+
         data class Percent(val fraction: Double) : Numeric
     }
 }

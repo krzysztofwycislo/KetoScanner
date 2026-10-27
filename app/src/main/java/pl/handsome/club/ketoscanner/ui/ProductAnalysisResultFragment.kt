@@ -1,140 +1,28 @@
 package pl.handsome.club.ketoscanner.ui
 
-import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.view.Window
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
-import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.ketoscanner.R
-import pl.handsome.club.ketoscanner.databinding.ProductAnalisisResultFragmentBinding
-import pl.handsome.club.ketoscanner.util.logException
-import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
-import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddToFavouritesState
+import pl.handsome.club.feature.product.ui.ProductScreen
+import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
+import pl.handsome.club.ketoscanner.util.setHostedScreen
 
 
-class ProductAnalysisResultFragment : Fragment(R.layout.product_analisis_result_fragment) {
+class ProductAnalysisResultFragment : Fragment() {
 
-    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModel()
-    private val addFavouriteProductViewModel: AddFavouriteProductViewModel by viewModel()
-
-    private var _binding: ProductAnalisisResultFragmentBinding? = null
-    private val binding get() = _binding!!
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        _binding = ProductAnalisisResultFragmentBinding.bind(view)
-
-        val analysisState = analyzeProductViewModel.getProductAnalysisState().value
-        if (analysisState is ProductAnalysisState.Success) {
-            initializeView(analysisState.result)
-        } else {
-            findNavController().navigateUp()
-        }
-    }
-
-    private fun initializeView(result: ProductAnalysisResult) {
-        val product = result.product
-        initializeProductInfo(result.product)
-
-        (childFragmentManager.findFragmentById(R.id.macronutrientsResultFragment) as MacronutrientsResultFragment)
-            .initializeResults(result.macronutrientAnalysisResult)
-
-        (childFragmentManager.findFragmentById(R.id.nutrientsTableContainer) as MacronutrientsTableFragment)
-            .initializeProductMacronutrientTable(product)
-
-        initializeFavouriteButton(product)
-
-        binding.backButton.setOnClickListener {
-            findNavController().navigateUp()
-        }
-    }
-
-    private fun initializeFavouriteButton(product: Product) {
-        addFavouriteProductViewModel.addToFavouritesState()
-            .observe(viewLifecycleOwner, ::onAddToFavouritesStateChanged)
-
-        binding.addToFavouritesButton.setOnClickListener {
-            addFavouriteProductViewModel.addOrRemoveFromFavourites(product)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        ComposeView(requireContext()).apply {
+            setHostedScreen { ProductScreen(::onProductNavigation) }
         }
 
-        addFavouriteProductViewModel.isProductInFavourites(product)
-            .observe(viewLifecycleOwner, {
-                (if (it) R.drawable.favorite_white_36dp
-                else R.drawable.favorite_border_white_24dp)
-                    .also(binding.addToFavouritesButton::setImageResource)
-            })
-    }
-
-    private fun initializeProductInfo(product: Product) {
-        val productName = binding.productName
-        productName.text = product.name
-        productName.setOnClickListener {
-            productName.maxLines = if (productName.maxLines == 1) 10 else 1
+    private fun onProductNavigation(navigation: ProductNavigation) {
+        when (navigation) {
+            ProductNavigation.NavigateBack -> findNavController().navigateUp()
         }
-
-        binding.productBrand.text = product.brand
-
-        product.imageUrl?.also { imageUrl ->
-            loadImagePreview(imageUrl, binding.productImage)
-
-            binding.productImage.setOnClickListener {
-                showFullImage(imageUrl)
-            }
-        }
-    }
-
-    private fun showFullImage(imageUrl: String) {
-        val dialog = Dialog(requireContext(), R.style.ImagePreviewDialog)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.image_preview_dialog)
-        dialog.window?.setBackgroundDrawableResource(R.color.transparent)
-        val imagePreview: ImageView = dialog.findViewById(R.id.imagePreview)
-
-        Glide.with(this)
-            .load(imageUrl)
-            .into(imagePreview)
-
-        dialog.show()
-    }
-
-    private fun onAddToFavouritesStateChanged(addToFavouritesState: AddToFavouritesState) {
-        when (addToFavouritesState) {
-            is AddToFavouritesState.Success -> showMessage(R.string.product_has_been_added_to_favourites)
-            is AddToFavouritesState.Error -> {
-                logException(addToFavouritesState.throwable)
-                showMessage(R.string.something_went_wrong)
-            }
-            is AddToFavouritesState.Removed -> showMessage(R.string.product_has_been_removed_from_favourites)
-            is AddToFavouritesState.InProgress -> {
-            }
-        }
-    }
-
-    private fun showMessage(messageId: Int) {
-        Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
-    }
-
-    private fun loadImagePreview(imageUrl: String, imageView: ImageView) {
-        Glide.with(this)
-            .load(imageUrl)
-            .centerCrop()
-            .into(imageView)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
 }

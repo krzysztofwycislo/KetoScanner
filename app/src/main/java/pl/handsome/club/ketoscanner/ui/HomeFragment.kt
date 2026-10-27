@@ -3,25 +3,19 @@ package pl.handsome.club.ketoscanner.ui
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.theme.AppTheme
 import pl.handsome.club.feature.history.ui.HistoryScreen
 import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.HomeFragmentBinding
-import pl.handsome.club.ketoscanner.util.logException
+import pl.handsome.club.ketoscanner.util.logAppError
 import pl.handsome.club.ketoscanner.util.safeNavigateTo
+import pl.handsome.club.ketoscanner.util.setHostedScreen
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
 
@@ -47,17 +41,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             showMenu(it)
         }
 
-        binding.historyComposeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AppTheme {
-                    // MainActivity already pads its root by the system bars, so the hosted screen must not apply them again.
-                    Box(Modifier.consumeWindowInsets(WindowInsets.safeDrawing)) {
-                        HistoryScreen(::onHistoryNavigation)
-                    }
-                }
-            }
-        }
+        binding.historyComposeView.setHostedScreen { HistoryScreen(::onHistoryNavigation) }
 
         analyzeProductViewModel.getProductAnalysisState()
             .observe(viewLifecycleOwner, ::onProductAnalysisStateChanged)
@@ -83,8 +67,8 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             is ProductAnalysisState.InProgress -> Unit
             is ProductAnalysisState.Success -> {
                 pendingBarcode = null
-                if (state.result.product.barcode == requestedBarcode) {
-                    safeNavigateTo(HomeFragmentDirections.toProductAnalysisResultFragment())
+                if (state.barcode == requestedBarcode) {
+                    safeNavigateTo(HomeFragmentDirections.toProductAnalysisResultFragment(requestedBarcode))
                 }
             }
             is ProductAnalysisState.ProductNotFound -> {
@@ -93,7 +77,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             }
             is ProductAnalysisState.Error -> {
                 pendingBarcode = null
-                logException(state.throwable)
+                logAppError(state.error)
                 appEvents send ShowMessage(UiText.Res(R.string.something_went_wrong))
             }
         }

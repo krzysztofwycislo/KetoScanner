@@ -14,6 +14,8 @@ import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.AppLogger
 import pl.handsome.club.core.common.EventQueue
 import pl.handsome.club.core.common.Outcome
+import pl.handsome.club.core.common.onFailure
+import pl.handsome.club.core.common.onSuccess
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.ui.event.HistoryAction
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnEntryClicked
@@ -55,11 +57,16 @@ internal class HistoryViewModel(
         statePrototype.update { it.copy(isLoading = true, loadError = null) }
 
         viewModelScope.launch {
-            when (val outcome = repository.getLastUniqueEntries(Prototype.ENTRIES_LIMIT)) {
-                is Outcome.Success -> statePrototype.update { it.copy(entries = outcome.value, isLoading = false) }
-                is Outcome.Failure ->
-                    if (statePrototype.value.entries == null) logAndShowError(outcome.error) else logError(outcome.error)
-            }
+            repository.getLastUniqueEntries(Prototype.ENTRIES_LIMIT)
+                .onSuccess { entries ->
+                    statePrototype.update { it.copy(entries = entries, isLoading = false) }
+                }
+                .onFailure { error ->
+                    if (statePrototype.value.entries == null)
+                        logAndShowError(error)
+                    else
+                        logError(error)
+                }
         }
     }
 

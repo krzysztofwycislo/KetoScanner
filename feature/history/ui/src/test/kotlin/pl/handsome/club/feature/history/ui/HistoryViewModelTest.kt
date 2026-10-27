@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.setMain
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.testing.FakeAppLogger
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.history.ui.event.HistoryAction
@@ -149,7 +149,7 @@ class HistoryViewModelTest {
         var pending: CompletableDeferred<Outcome<List<ProductAnalysisHistoryEntry>>>? = null
         val requestedAmounts = mutableListOf<Int>()
 
-        override suspend fun save(result: ProductAnalysisResult): Outcome<Unit> = Outcome.Success(Unit)
+        override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
 
         override suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>> {
             requestedAmounts += amount

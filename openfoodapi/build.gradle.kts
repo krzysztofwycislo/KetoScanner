@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":feature:product:api"))
+    implementation(project(":core:common"))
 
     api(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
@@ -21,4 +22,5 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.okhttp.mockwebserver3)
+    testImplementation(libs.kotlin.test.junit)
 }

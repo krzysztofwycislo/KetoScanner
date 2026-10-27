@@ -24,6 +24,7 @@ include(
     ":feature:history:api",
     ":feature:history:data",
     ":feature:history:ui",
+    ":feature:product:ui",
     ":feature:favourites:api",
     ":feature:analysis:domain",
 )

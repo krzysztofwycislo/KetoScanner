@@ -16,18 +16,17 @@ import pl.handsome.club.core.designsystem.theme.AppTheme
 
 @Composable
 fun Ui.RatingIcon(rating: Rating, contentDescription: UiText, modifier: Modifier = Modifier) {
-    val colors = AppTheme.colors.result
-    val (icon, tint) = when (rating) {
-        Rating.Positive -> RatingIcons.Happy to colors.positive
-        Rating.Neutral -> RatingIcons.Neutral to colors.neutral
-        Rating.Negative -> RatingIcons.Sad to colors.negative
-        Rating.Unknown -> RatingIcons.Question to colors.negative
+    val icon = when (rating) {
+        Rating.Positive -> RatingIcons.Happy
+        Rating.Neutral -> RatingIcons.Neutral
+        Rating.Negative -> RatingIcons.Sad
+        Rating.Unknown -> RatingIcons.Question
     }
     Icon(
         imageVector = icon,
         contentDescription = contentDescription.resolve(),
         modifier = modifier.size(AppTheme.sizes.iconS),
-        tint = tint,
+        tint = rating.color(),
     )
 }
 

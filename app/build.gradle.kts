@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":feature:history:data"))
     implementation(project(":feature:history:ui"))
+    implementation(project(":feature:product:ui"))
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)
@@ -71,6 +72,8 @@ dependencies {
 
     // image loading
     implementation(libs.glide)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // di
     implementation(platform(libs.koin.bom))

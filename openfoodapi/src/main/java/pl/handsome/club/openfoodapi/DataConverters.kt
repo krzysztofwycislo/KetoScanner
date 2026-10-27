@@ -2,21 +2,17 @@ package pl.handsome.club.openfoodapi
 
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.product.api.model.ProductSearchState
 import pl.handsome.club.openfoodapi.data.ApiNutriments
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
 
-internal fun parseGetProductResponse(response: GetProductResponse): ProductSearchState {
-    if (response.apiProduct == null) {
-        return ProductSearchState.NotFound
-    }
+internal fun parseGetProductResponse(response: GetProductResponse): Product? {
+    val apiProduct = response.apiProduct ?: return null
 
-    val apiProduct = response.apiProduct
     return with(apiProduct) {
         val productNutriments = parseProductNutrients(nutriments ?: ApiNutriments())
 
-        val product = Product(
+        Product(
             productName ?: "",
             response.barcode,
             brand ?: "",
@@ -24,8 +20,6 @@ internal fun parseGetProductResponse(response: GetProductResponse): ProductSearc
             frontImage,
             servingQuantity
         )
-
-        ProductSearchState.Success(product)
     }
 }
 

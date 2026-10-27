@@ -42,6 +42,11 @@ class NumberFormattingTest {
     }
 
     @Test
+    fun `when WholeNumber has a fraction then it is rounded half up to a whole number`() {
+        assertEquals("267", UiArg.Numeric.WholeNumber(266.6).format(US))
+    }
+
+    @Test
     fun `when Percent is a fraction then it is shown as a whole percent`() {
         assertEquals("31%", UiArg.Numeric.Percent(0.31).format(US))
     }

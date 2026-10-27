@@ -1,25 +1,37 @@
 package pl.handsome.club.ketoscanner
 
 import android.app.Application
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import okhttp3.OkHttpClient
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import pl.handsome.club.core.database.databaseModule
 import pl.handsome.club.feature.analysis.domain.analysisDomainModule
 import pl.handsome.club.feature.history.data.historyDataModule
 import pl.handsome.club.feature.history.ui.historyUiModule
+import pl.handsome.club.feature.product.ui.productUiModule
 import pl.handsome.club.ketoscanner.di.appModules
 
 
 @Suppress("unused")
-class KetoSApplication : Application() {
+class KetoSApplication : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate(){
         super.onCreate()
 
         startKoin {
             androidContext(this@KetoSApplication)
-            modules(appModules, analysisDomainModule, databaseModule, historyDataModule, historyUiModule)
+            modules(appModules, analysisDomainModule, databaseModule, historyDataModule, historyUiModule, productUiModule)
         }
     }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader =
+        ImageLoader.Builder(context)
+            .components { add(OkHttpNetworkFetcherFactory(callFactory = { get<OkHttpClient>() })) }
+            .build()
 
 }

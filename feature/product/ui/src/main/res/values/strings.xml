@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="product_back">Back</string>
+    <string name="product_image">Product image</string>
+    <string name="product_image_preview">Image preview</string>
+    <string name="product_unnamed">Unnamed product</string>
+    <string name="product_add_to_favourites">Add to favourites</string>
+    <string name="product_remove_from_favourites">Remove from favourites</string>
+    <string name="product_added_to_favourites">Product has been added to favourites</string>
+    <string name="product_removed_from_favourites">Product has been removed from favourites</string>
+    <string name="product_retry">Try again</string>
+    <string name="product_rating_good">Good for your preferences</string>
+    <string name="product_rating_neutral">Neutral for your preferences</string>
+    <string name="product_rating_not_advised">Not advised for your preferences</string>
+    <string name="product_rating_insufficient_data">Lack of required information</string>
+    <string name="product_rating_good_details">&lt; %1$s g carbs per 100 g</string>
+    <string name="product_rating_neutral_details">&lt; %1$s g carbs per 100 g</string>
+    <string name="product_rating_not_advised_details">&gt; %1$s g carbs per 100 g</string>
+    <string name="product_maximum_portion">Maximum portion</string>
+    <string name="product_maximum_portion_details">%1$s g/ml (%2$s g carbs)</string>
+    <string name="product_macros">Macros</string>
+    <string name="product_per_serving">Per serving</string>
+    <string name="product_per_serving_with_value">per serving - %1$s g/ml</string>
+    <string name="product_per_100g">per 100 g/ml</string>
+    <string name="product_energy">Energy</string>
+    <string name="product_fats">Fats</string>
+    <string name="product_proteins">Proteins</string>
+    <string name="product_carbs">Carbs</string>
+    <string name="product_salt">Salt</string>
+    <string name="product_value_grams">%1$s g</string>
+    <string name="product_value_kcal">%1$s kcal</string>
+    <string name="product_value_missing">-</string>
+</resources>

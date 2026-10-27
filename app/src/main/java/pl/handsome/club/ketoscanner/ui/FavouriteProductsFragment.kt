@@ -11,12 +11,13 @@ import kotlinx.coroutines.FlowPreview
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
+import pl.handsome.club.core.common.AppError
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.FavoriteProductsFragmentBinding
 import pl.handsome.club.ketoscanner.ui.adapter.FavouriteProductsListAdapter
 import pl.handsome.club.ketoscanner.util.DebounceTextWatcher
-import pl.handsome.club.ketoscanner.util.logException
+import pl.handsome.club.ketoscanner.util.logAppError
 import pl.handsome.club.ketoscanner.util.logWarning
 import pl.handsome.club.ketoscanner.util.safeNavigateTo
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
@@ -80,20 +81,20 @@ class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) 
             is ProductAnalysisState.InProgress -> {
                 binding.progressBar.show()
             }
-            is ProductAnalysisState.Success -> navigateToAnalyzeResult()
-            is ProductAnalysisState.Error -> showError(productAnalysisState.throwable)
+            is ProductAnalysisState.Success -> navigateToAnalyzeResult(productAnalysisState.barcode)
+            is ProductAnalysisState.Error -> showError(productAnalysisState.error)
             else -> logWarning("Unhandled analysis state: $productAnalysisState")
         }
     }
 
-    private fun navigateToAnalyzeResult() {
+    private fun navigateToAnalyzeResult(barcode: String) {
         FavouriteProductsFragmentDirections
-            .toProductAnalysisResultFragment()
+            .toProductAnalysisResultFragment(barcode)
             .let(::safeNavigateTo)
     }
 
-    private fun showError(throwable: Throwable) {
-        logException(throwable)
+    private fun showError(error: AppError) {
+        logAppError(error)
         Toast.makeText(requireContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show()
     }
 

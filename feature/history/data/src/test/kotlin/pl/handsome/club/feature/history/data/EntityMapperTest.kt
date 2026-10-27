@@ -4,7 +4,7 @@ import pl.handsome.club.core.database.history.MacronutrientAnalysisEmbedded
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
@@ -19,7 +19,7 @@ class EntityMapperTest {
         DietRate.entries.forEach { dietRate ->
             val analysis = analysis.copy(carbsRate = dietRate)
 
-            val mapped = ProductAnalysisResult(product, analysis).toEntity().toDomain()
+            val mapped = ProductAnalysis.Rated(product, analysis).toEntity().toDomain()
 
             assertEquals(analysis, mapped.macronutrientAnalysisResult)
         }
@@ -58,12 +58,20 @@ class EntityMapperTest {
 
     @Test
     fun `when analysis result is mapped to entity then product fields are kept`() {
-        val entity = ProductAnalysisResult(product, analysis).toEntity()
+        val entity = ProductAnalysis.Rated(product, analysis).toEntity()
 
         assertEquals(NAME, entity.productName)
         assertEquals(BARCODE, entity.productBarcode)
         assertEquals(BRAND, entity.productBrand)
         assertEquals(MacronutrientAnalysisEmbedded("GOOD", 10, 50.0, 20), entity.macronutrientAnalysisResult)
+    }
+
+    @Test
+    fun `when insufficient data analysis is mapped to entity then embedded analysis is null`() {
+        val entity = ProductAnalysis.InsufficientData(product).toEntity()
+
+        assertEquals(BARCODE, entity.productBarcode)
+        assertNull(entity.macronutrientAnalysisResult)
     }
 
     @Test

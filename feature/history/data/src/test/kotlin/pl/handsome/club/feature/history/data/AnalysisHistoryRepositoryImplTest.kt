@@ -5,7 +5,7 @@ import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
 import pl.handsome.club.core.testing.TestAppDispatchers
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import kotlin.coroutines.cancellation.CancellationException
@@ -94,7 +94,7 @@ class AnalysisHistoryRepositoryImplTest {
             updateTime = UPDATE_TIME
         }
 
-        val result = ProductAnalysisResult(
+        val result = ProductAnalysis.InsufficientData(
             product = Product(
                 name = "Peanut butter",
                 barcode = "5900000000001",
@@ -103,7 +103,6 @@ class AnalysisHistoryRepositoryImplTest {
                 imageUrl = null,
                 servingAmount = null,
             ),
-            macronutrientAnalysisResult = null,
         )
     }
 }

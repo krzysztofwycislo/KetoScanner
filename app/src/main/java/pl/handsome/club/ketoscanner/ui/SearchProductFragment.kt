@@ -21,7 +21,7 @@ import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.SearchProductFragmentBinding
 import pl.handsome.club.ketoscanner.util.getNotEmptyString
-import pl.handsome.club.ketoscanner.util.logException
+import pl.handsome.club.ketoscanner.util.logAppError
 import pl.handsome.club.ketoscanner.util.onKeyEnter
 import pl.handsome.club.ketoscanner.util.safeNavigateTo
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
@@ -161,9 +161,9 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
             null -> Unit
             is ProductAnalysisState.InProgress -> binding.progressBar.show()
             is ProductAnalysisState.ProductNotFound -> showMessageAndResumeScanning(R.string.product_not_found)
-            is ProductAnalysisState.Success -> navigateToAnalyzeResult()
+            is ProductAnalysisState.Success -> navigateToAnalyzeResult(productAnalysisState.barcode)
             is ProductAnalysisState.Error -> {
-                logException(productAnalysisState.throwable)
+                logAppError(productAnalysisState.error)
                 showMessageAndResumeScanning(R.string.something_went_wrong)
             }
         }
@@ -174,9 +174,9 @@ class SearchProductFragment : Fragment(R.layout.search_product_fragment) {
         Toast.makeText(requireContext(), messageId, Toast.LENGTH_LONG).show()
     }
 
-    private fun navigateToAnalyzeResult() {
+    private fun navigateToAnalyzeResult(barcode: String) {
         SearchProductFragmentDirections
-            .toProductAnalysisResultFragment()
+            .toProductAnalysisResultFragment(barcode)
             .let(::safeNavigateTo)
     }
 

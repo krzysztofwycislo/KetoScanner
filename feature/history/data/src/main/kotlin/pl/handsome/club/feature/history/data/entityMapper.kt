@@ -4,7 +4,7 @@ import pl.handsome.club.core.database.history.MacronutrientAnalysisEmbedded
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 
 internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistoryEntry =
@@ -20,12 +20,12 @@ internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistor
 internal fun List<ProductAnalysisHistoryEntryEntity>.toDomain(): List<ProductAnalysisHistoryEntry> =
     map(ProductAnalysisHistoryEntryEntity::toDomain)
 
-internal fun ProductAnalysisResult.toEntity(): ProductAnalysisHistoryEntryEntity =
+internal fun ProductAnalysis.toEntity(): ProductAnalysisHistoryEntryEntity =
     ProductAnalysisHistoryEntryEntity(
         productName = product.name,
         productBarcode = product.barcode,
         productBrand = product.brand,
-        macronutrientAnalysisResult = macronutrientAnalysisResult?.toEntity(),
+        macronutrientAnalysisResult = (this as? ProductAnalysis.Rated)?.macronutrients?.toEntity(),
     )
 
 private fun MacronutrientAnalysisEmbedded.toDomain(): MacronutrientAnalysisResult? {

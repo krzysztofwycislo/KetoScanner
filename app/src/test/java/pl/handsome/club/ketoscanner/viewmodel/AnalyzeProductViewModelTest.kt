@@ -11,17 +11,12 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.AppLogger
 import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.feature.analysis.domain.DietAnalysisEngine
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
-import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
-import pl.handsome.club.feature.product.api.model.ProductSearchState
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.product.api.ProductRepository
+import pl.handsome.club.feature.analysis.api.AnalyzeProduct
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.ketoscanner.rule.CoroutineTestRule
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
+import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
 
 
 @ExperimentalCoroutinesApi
@@ -40,73 +35,49 @@ class AnalyzeProductViewModelTest {
     private lateinit var observer: Observer<ProductAnalysisState>
 
     @Mock
-    private lateinit var productRepository: ProductRepository
-
-    @Mock
-    private lateinit var preferencesRepository: DietPreferencesRepository
-
-    @Mock
-    private lateinit var dietAnalysisEngine: DietAnalysisEngine
-
-    @Mock
-    private lateinit var analysisHistoryRepository: AnalysisHistoryRepository
-
-    @Mock
-    private lateinit var logger: AppLogger
+    private lateinit var analyzeProduct: AnalyzeProduct
 
 
     @Before
     fun init() {
-        viewModel = AnalyzeProductViewModel(
-            dietAnalysisEngine,
-            preferencesRepository,
-            productRepository,
-            analysisHistoryRepository,
-            logger
-        )
+        viewModel = AnalyzeProductViewModel(analyzeProduct)
         viewModel.getProductAnalysisState().observeForever(observer)
     }
 
     @Test
-    fun `when we want to search and analyze product then result should be saved in history and observed`() =
+    fun `when analysis succeeds then in progress and success with the requested barcode are observed`() =
         coroutinesTestRule.runTest {
-            val product = exampleProduct
-            val preferences = exampleDietPreferences
+            val analysis = ProductAnalysis.Rated(exampleProduct, exampleMacronutrientAnalysisResult)
+            `when`(analyzeProduct.invoke(REQUESTED_BARCODE)).thenReturn(Outcome.Success(analysis))
 
-            `when`(productRepository.searchProductByBarcode(product.barcode))
-                .thenReturn(ProductSearchState.Success(product))
-            `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
-
-            val resultToReturn = ProductAnalysisResult(product, exampleMacronutrientAnalysisResult)
-            `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
-            `when`(analysisHistoryRepository.save(resultToReturn)).thenReturn(Outcome.Success(Unit))
-
-            viewModel.searchAndAnalyzeProduct(product.barcode)
+            viewModel.searchAndAnalyzeProduct(REQUESTED_BARCODE)
 
             verify(observer).onChanged(ProductAnalysisState.InProgress)
-            verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
-            verify(analysisHistoryRepository, times(1)).save(resultToReturn)
-            verifyNoInteractions(logger)
+            verify(observer).onChanged(ProductAnalysisState.Success(REQUESTED_BARCODE, analysis))
         }
 
     @Test
-    fun `when saving to history fails then analysis is still successful and failure is logged`() =
+    fun `when product is not found then product not found is observed`() =
         coroutinesTestRule.runTest {
-            val product = exampleProduct
-            val preferences = exampleDietPreferences
+            `when`(analyzeProduct.invoke(REQUESTED_BARCODE)).thenReturn(Outcome.Failure(AppError.NotFound))
 
-            `when`(productRepository.searchProductByBarcode(product.barcode))
-                .thenReturn(ProductSearchState.Success(product))
-            `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
+            viewModel.searchAndAnalyzeProduct(REQUESTED_BARCODE)
 
-            val resultToReturn = ProductAnalysisResult(product, exampleMacronutrientAnalysisResult)
-            `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
-            `when`(analysisHistoryRepository.save(resultToReturn)).thenReturn(Outcome.Failure(AppError.Storage))
-
-            viewModel.searchAndAnalyzeProduct(product.barcode)
-
-            verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
-            verify(logger, times(1)).error(anyString(), anyString(), any())
+            verify(observer).onChanged(ProductAnalysisState.ProductNotFound)
         }
+
+    @Test
+    fun `when network fails then error with the network failure is observed`() =
+        coroutinesTestRule.runTest {
+            `when`(analyzeProduct.invoke(REQUESTED_BARCODE)).thenReturn(Outcome.Failure(AppError.Network))
+
+            viewModel.searchAndAnalyzeProduct(REQUESTED_BARCODE)
+
+            verify(observer).onChanged(ProductAnalysisState.Error(AppError.Network))
+        }
+
+    private companion object {
+        const val REQUESTED_BARCODE = "0004963406"
+    }
 
 }

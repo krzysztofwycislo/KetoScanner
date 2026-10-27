@@ -4,18 +4,20 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
+import mockwebserver3.SocketEffect
 import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.After
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
+import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.common.DefaultAppDispatchers
+import pl.handsome.club.core.common.Outcome
+import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.product.api.model.ProductSearchState
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
-import retrofit2.HttpException
 
 
 private const val TEST_USER_AGENT = "KetoScanner/test (contact)"
@@ -38,7 +40,8 @@ class OpenFoodFactsRepositoryTest {
                     createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, false),
                     createOpenFoodFactsMoshi()
                 )
-            )
+            ),
+            DefaultAppDispatchers
         )
     }
 
@@ -52,10 +55,8 @@ class OpenFoodFactsRepositoryTest {
     fun `found product is parsed into success`() {
         enqueue(200, fixture("product_found.json"))
 
-        val result = runBlocking { repository.searchProductByBarcode("04963406") }
+        val product = successValue(runBlocking { repository.getProduct("04963406") })
 
-        assertThat(result).isInstanceOf(ProductSearchState.Success::class.java)
-        val product = (result as ProductSearchState.Success).product
         assertThat(product.name).isEqualTo("Coke Original Taste")
         assertThat(product.barcode).isEqualTo("04963406")
         assertThat(product.brand).isEqualTo("Coke")
@@ -70,28 +71,26 @@ class OpenFoodFactsRepositoryTest {
     fun `http 404 is mapped to not found`() {
         enqueue(404, fixture("product_not_found.json"))
 
-        val result = runBlocking { repository.searchProductByBarcode("5900000000017") }
+        val result = runBlocking { repository.getProduct("5900000000017") }
 
-        assertThat(result).isEqualTo(ProductSearchState.NotFound)
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.NotFound))
     }
 
     @Test
     fun `invalid code response without product is mapped to not found`() {
         enqueue(200, fixture("invalid_code.json"))
 
-        val result = runBlocking { repository.searchProductByBarcode("asd") }
+        val result = runBlocking { repository.getProduct("asd") }
 
-        assertThat(result).isEqualTo(ProductSearchState.NotFound)
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.NotFound))
     }
 
     @Test
     fun `product without name nutriments and serving is parsed into success`() {
         enqueue(200, fixture("product_minimal.json"))
 
-        val result = runBlocking { repository.searchProductByBarcode("3017620422003") }
+        val product = successValue(runBlocking { repository.getProduct("3017620422003") })
 
-        assertThat(result).isInstanceOf(ProductSearchState.Success::class.java)
-        val product = (result as ProductSearchState.Success).product
         assertThat(product.name).isEmpty()
         assertThat(product.nutriments)
             .isEqualTo(ProductNutriments(null, null, null, null, null, null, null, null, null, null))
@@ -99,21 +98,71 @@ class OpenFoodFactsRepositoryTest {
     }
 
     @Test
-    fun `server error throws http exception`() {
+    fun `server error is mapped to http failure with its code`() {
         enqueue(500, "")
 
-        val exception = assertThrows(HttpException::class.java) {
-            runBlocking { repository.searchProductByBarcode("04963406") }
+        val result = runBlocking { repository.getProduct("04963406") }
+
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.Http(500)))
+    }
+
+    @Test
+    fun `malformed json is mapped to parsing failure`() {
+        enqueue(200, "not json")
+
+        val result = runBlocking { repository.getProduct("04963406") }
+
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.Parsing))
+    }
+
+    @Test
+    fun `json with a wrong field type is mapped to parsing failure`() {
+        enqueue(200, """{"status":"one","code":"04963406"}""")
+
+        val result = runBlocking { repository.getProduct("04963406") }
+
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.Parsing))
+    }
+
+    @Test
+    fun `disconnect is mapped to network failure`() {
+        repeat(3) {
+            server.enqueue(MockResponse.Builder().onRequestStart(SocketEffect.ShutdownConnection).build())
         }
 
-        assertThat(exception.code()).isEqualTo(500)
+        val result = runBlocking { repository.getProduct("04963406") }
+
+        assertThat(result).isEqualTo(Outcome.Failure(AppError.Network))
+    }
+
+    @Test
+    fun `found product is requested once for two calls with the same barcode`() {
+        enqueue(200, fixture("product_found.json"))
+
+        val first = runBlocking { repository.getProduct("04963406") }
+        val second = runBlocking { repository.getProduct("04963406") }
+
+        assertThat(second).isEqualTo(first)
+        assertThat(server.requestCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `not found product is requested again on the second call`() {
+        enqueue(404, fixture("product_not_found.json"))
+        enqueue(404, fixture("product_not_found.json"))
+
+        runBlocking { repository.getProduct("5900000000017") }
+        val second = runBlocking { repository.getProduct("5900000000017") }
+
+        assertThat(second).isEqualTo(Outcome.Failure(AppError.NotFound))
+        assertThat(server.requestCount).isEqualTo(2)
     }
 
     @Test
     fun `request uses v2 path fields filter and user agent`() {
         enqueue(200, fixture("product_found.json"))
 
-        runBlocking { repository.searchProductByBarcode("04963406") }
+        runBlocking { repository.getProduct("04963406") }
 
         val request = server.takeRequest()
         assertThat(request.url.encodedPath).isEqualTo("/api/v2/product/04963406")
@@ -133,6 +182,11 @@ class OpenFoodFactsRepositoryTest {
         assertThat(withoutLogging.interceptors.filterIsInstance<HttpLoggingInterceptor>()).isEmpty()
     }
 
+
+    private fun successValue(outcome: Outcome<Product>): Product {
+        assertThat(outcome).isInstanceOf(Outcome.Success::class.java)
+        return (outcome as Outcome.Success).value
+    }
 
     private fun enqueue(code: Int, body: String) {
         server.enqueue(MockResponse.Builder().code(code).body(body).build())

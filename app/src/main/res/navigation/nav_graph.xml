@@ -29,20 +29,15 @@
         android:id="@+id/result"
         android:name="pl.handsome.club.ketoscanner.ui.ProductAnalysisResultFragment"
         android:label="ProductAnalysisResultFragment">
-        <action
-            android:id="@+id/to_productDetailsFragment"
-            app:destination="@id/productDetails" />
+        <argument
+            android:name="barcode"
+            app:argType="string" />
     </fragment>
 
     <fragment
         android:id="@+id/macronutrientPreferences"
         android:name="pl.handsome.club.ketoscanner.ui.MacronutrientPreferencesFragment"
         android:label="MacronutrientPreferencesFragment" />
-
-    <fragment
-        android:id="@+id/productDetails"
-        android:name="pl.handsome.club.ketoscanner.ui.ProductDetailsFragment"
-        android:label="ProductDetailsFragment" />
 
     <fragment
         android:id="@+id/search"

@@ -2,10 +2,9 @@ package pl.handsome.club.openfoodapi
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.product.api.model.ProductSearchState
 import pl.handsome.club.openfoodapi.data.ApiProduct
 import pl.handsome.club.openfoodapi.data.GetProductResponse
 
@@ -13,26 +12,21 @@ import pl.handsome.club.openfoodapi.data.GetProductResponse
 class DataConvertersTest {
 
     @Test
-    fun `convert success GetProductResponse with product into search product entity test`() {
+    fun `convert success GetProductResponse with product into product test`() {
         val response = getProductResponseWithProduct()
         val apiProduct = response.apiProduct!!
 
-        val searchProduct = parseGetProductResponse(response)
+        val product = parseGetProductResponse(response)!!
 
-        assertTrue(searchProduct is ProductSearchState.Success)
-
-        val product = (searchProduct as ProductSearchState.Success).product
         assertEquals(apiProduct.productName, product.name)
         assertEquals(response.barcode, product.barcode)
     }
 
     @Test
-    fun `convert GetProductResponse without product into search product entity test`() {
+    fun `convert GetProductResponse without product into null test`() {
         val response = getProductResponseWithoutProduct()
 
-        val searchProduct = parseGetProductResponse(response)
-
-        assertTrue(searchProduct is ProductSearchState.NotFound)
+        assertNull(parseGetProductResponse(response))
     }
 
     @Test
@@ -52,7 +46,7 @@ class DataConvertersTest {
     }
 
     @Test
-    fun `convert product without name and nutriments into success with empty name and null nutriments`() {
+    fun `convert product without name and nutriments into product with empty name and null nutriments`() {
         val response = GetProductResponse(
             1,
             "barcode",
@@ -65,11 +59,10 @@ class DataConvertersTest {
             )
         )
 
-        val searchProduct = parseGetProductResponse(response)
+        val product = parseGetProductResponse(response)
 
-        assertThat(searchProduct).isInstanceOf(ProductSearchState.Success::class.java)
-        val product = (searchProduct as ProductSearchState.Success).product
-        assertThat(product.name).isEmpty()
+        assertThat(product).isNotNull()
+        assertThat(product!!.name).isEmpty()
         assertThat(product.nutriments).isEqualTo(ProductNutriments(null, null, null, null, null, null, null, null, null, null))
     }
 
