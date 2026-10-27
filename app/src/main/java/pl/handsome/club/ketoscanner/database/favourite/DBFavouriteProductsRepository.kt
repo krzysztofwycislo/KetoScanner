@@ -9,7 +9,9 @@ import kotlinx.coroutines.withContext
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
-import pl.handsome.club.ketoscanner.database.AppDatabase
+import pl.handsome.club.core.database.AppDatabase
+import pl.handsome.club.core.database.favourite.FavouriteProductDao
+import pl.handsome.club.core.database.favourite.FavouriteProductEntity
 
 
 class DBFavouriteProductsRepository(

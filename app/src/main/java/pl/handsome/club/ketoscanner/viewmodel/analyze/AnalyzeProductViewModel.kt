@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.common.AppLogger
+import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.feature.analysis.domain.DietAnalysisEngine
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
 import pl.handsome.club.feature.product.api.model.Product
@@ -19,7 +22,8 @@ class AnalyzeProductViewModel(
     private val dietAnalysisEngine: DietAnalysisEngine,
     private val preferencesRepository: DietPreferencesRepository,
     private val productRepository: ProductRepository,
-    private val analysisHistoryRepository: AnalysisHistoryRepository
+    private val analysisHistoryRepository: AnalysisHistoryRepository,
+    private val logger: AppLogger
 ) : ViewModel() {
 
     private val productAnalysisState = MutableLiveData<ProductAnalysisState>()
@@ -52,14 +56,20 @@ class AnalyzeProductViewModel(
     }
 
     private suspend fun onSearchResultSuccess(product: Product): ProductAnalysisState {
-        return analyzeProduct(product)
-            .also { analysisHistoryRepository.save(it) }
-            .let { ProductAnalysisState.Success(it) }
+        val result = analyzeProduct(product)
+        analysisHistoryRepository.save(result).onFailure { error ->
+            logger.error(TAG, "Saving history entry failed: $error", (error as? AppError.Unknown)?.cause)
+        }
+        return ProductAnalysisState.Success(result)
     }
 
     private suspend fun analyzeProduct(product: Product): ProductAnalysisResult {
         val preferences = preferencesRepository.getDietPreferences()
         return dietAnalysisEngine.analyze(preferences, product)
+    }
+
+    private companion object {
+        const val TAG = "AnalyzeProductViewModel"
     }
 
 }

@@ -1,5 +1,6 @@
 package pl.handsome.club.ketoscanner.database.favourite
 
+import pl.handsome.club.core.database.favourite.FavouriteProductEntity
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.product.api.model.Product
 

@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.navigation.safeargs)
-    alias(libs.plugins.androidx.room)
     id("ketoscanner.app-version")
+    id("ketoscanner.compose")
 }
 
 android {
@@ -36,10 +35,6 @@ android {
     }
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
 dependencies {
     implementation(project(":feature:product:api"))
     implementation(project(":feature:preferences:api"))
@@ -50,6 +45,10 @@ dependencies {
     implementation(project(":barcodescanner"))
     implementation(project(":openfoodapi"))
     implementation(project(":core:common"))
+    implementation(project(":core:database"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":feature:history:data"))
+    implementation(project(":feature:history:ui"))
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)
@@ -72,11 +71,6 @@ dependencies {
 
     // image loading
     implementation(libs.glide)
-
-    // room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     // di
     implementation(platform(libs.koin.bom))

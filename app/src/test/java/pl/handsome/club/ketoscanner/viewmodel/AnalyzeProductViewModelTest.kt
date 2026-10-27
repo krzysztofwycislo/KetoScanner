@@ -10,6 +10,9 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.common.AppLogger
+import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.feature.analysis.domain.DietAnalysisEngine
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysisResult
 import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
@@ -48,6 +51,9 @@ class AnalyzeProductViewModelTest {
     @Mock
     private lateinit var analysisHistoryRepository: AnalysisHistoryRepository
 
+    @Mock
+    private lateinit var logger: AppLogger
+
 
     @Before
     fun init() {
@@ -55,7 +61,8 @@ class AnalyzeProductViewModelTest {
             dietAnalysisEngine,
             preferencesRepository,
             productRepository,
-            analysisHistoryRepository
+            analysisHistoryRepository,
+            logger
         )
         viewModel.getProductAnalysisState().observeForever(observer)
     }
@@ -72,12 +79,34 @@ class AnalyzeProductViewModelTest {
 
             val resultToReturn = ProductAnalysisResult(product, exampleMacronutrientAnalysisResult)
             `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
+            `when`(analysisHistoryRepository.save(resultToReturn)).thenReturn(Outcome.Success(Unit))
 
             viewModel.searchAndAnalyzeProduct(product.barcode)
 
             verify(observer).onChanged(ProductAnalysisState.InProgress)
             verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
             verify(analysisHistoryRepository, times(1)).save(resultToReturn)
+            verifyNoInteractions(logger)
+        }
+
+    @Test
+    fun `when saving to history fails then analysis is still successful and failure is logged`() =
+        coroutinesTestRule.runTest {
+            val product = exampleProduct
+            val preferences = exampleDietPreferences
+
+            `when`(productRepository.searchProductByBarcode(product.barcode))
+                .thenReturn(ProductSearchState.Success(product))
+            `when`(preferencesRepository.getDietPreferences()).thenReturn(preferences)
+
+            val resultToReturn = ProductAnalysisResult(product, exampleMacronutrientAnalysisResult)
+            `when`(dietAnalysisEngine.analyze(preferences, product)).thenReturn(resultToReturn)
+            `when`(analysisHistoryRepository.save(resultToReturn)).thenReturn(Outcome.Failure(AppError.Storage))
+
+            viewModel.searchAndAnalyzeProduct(product.barcode)
+
+            verify(observer).onChanged(ProductAnalysisState.Success(resultToReturn))
+            verify(logger, times(1)).error(anyString(), anyString(), any())
         }
 
 }

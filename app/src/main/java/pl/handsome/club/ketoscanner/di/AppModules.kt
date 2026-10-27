@@ -2,21 +2,22 @@ package pl.handsome.club.ketoscanner.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import pl.handsome.club.core.common.AppDispatchers
+import pl.handsome.club.core.common.AppLogger
 import pl.handsome.club.core.common.DefaultAppDispatchers
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.product.api.ProductRepository
-import pl.handsome.club.ketoscanner.database.AppDatabase
 import pl.handsome.club.ketoscanner.database.favourite.DBFavouriteProductsRepository
-import pl.handsome.club.ketoscanner.database.history.DBAnalysisHistoryRepository
 import pl.handsome.club.ketoscanner.preferences.DataStoreDietPreferencesRepository
 import pl.handsome.club.ketoscanner.preferences.createDietPreferencesDataStore
-import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalysisHistoryViewModel
+import pl.handsome.club.ketoscanner.util.AndroidAppLogger
 import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.add.AddFavouriteProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
@@ -37,8 +38,11 @@ val appModules = module {
         // coroutines
         single<AppDispatchers> { DefaultAppDispatchers },
 
-        // database
-        single { AppDatabase.provide(androidContext()) },
+        // logging
+        single<AppLogger> { AndroidAppLogger },
+
+        // events
+        single { AppEvents(CoroutineScope(SupervisorJob())) },
 
         // network
         single { createOpenFoodFactsMoshi() },
@@ -54,15 +58,13 @@ val appModules = module {
         // repository
         single<ProductRepository> { OpenFoodFactsRepository(get()) },
         single<DietPreferencesRepository> { DataStoreDietPreferencesRepository(get()) },
-        single<AnalysisHistoryRepository> { DBAnalysisHistoryRepository(get()) },
         single<FavouriteProductsRepository> { DBFavouriteProductsRepository(get()) },
 
         // preferences
         single<DataStore<Preferences>> { createDietPreferencesDataStore(androidContext()) },
 
         // view model
-        viewModel { AnalyzeProductViewModel(get(), get(), get(), get()) },
-        viewModel { AnalysisHistoryViewModel(get()) },
+        viewModel { AnalyzeProductViewModel(get(), get(), get(), get(), get()) },
         viewModel { AddFavouriteProductViewModel(get()) },
         viewModel { FavouriteProductsListViewModel(get()) },
         viewModel { DietPreferencesViewModel(get()) }

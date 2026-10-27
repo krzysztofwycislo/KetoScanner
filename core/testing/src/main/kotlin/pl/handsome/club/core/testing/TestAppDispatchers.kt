@@ -6,15 +6,6 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import pl.handsome.club.core.common.AppDispatchers
 
-/**
- * [AppDispatchers] for tests: [io] and [default] are the same [StandardTestDispatcher].
- * Pass the `runTest` scheduler so virtual time is shared with the test:
- * ```
- * runTest {
- *     val dispatchers = TestAppDispatchers(testScheduler)
- * }
- * ```
- */
 class TestAppDispatchers(scheduler: TestCoroutineScheduler? = null) : AppDispatchers {
     val dispatcher: TestDispatcher = StandardTestDispatcher(scheduler)
     override val io: CoroutineDispatcher get() = dispatcher

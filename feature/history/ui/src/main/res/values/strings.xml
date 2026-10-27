@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="history_title">History</string>
+    <plurals name="history_last_searches">
+        <item quantity="one">last search</item>
+        <item quantity="other">last %1$s searches</item>
+    </plurals>
+    <string name="history_empty">No products analysed yet</string>
+    <string name="history_retry">Try again</string>
+    <string name="history_unnamed_product">Unnamed product</string>
+    <string name="history_rating_good">Good for your preferences</string>
+    <string name="history_rating_neutral">Neutral for your preferences</string>
+    <string name="history_rating_not_advised">Not advised for your preferences</string>
+    <string name="history_rating_unknown">Lack of required information</string>
+</resources>

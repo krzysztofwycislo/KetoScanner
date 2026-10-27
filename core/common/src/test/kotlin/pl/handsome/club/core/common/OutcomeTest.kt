@@ -42,6 +42,61 @@ class OutcomeTest {
     }
 
     @Test
+    fun `when onSuccess on Success then action gets the value and receiver is returned`() {
+        val outcome: Outcome<Int> = Outcome.Success(2)
+        val received = mutableListOf<Int>()
+
+        val returned = outcome.onSuccess { received += it }
+
+        assertEquals(listOf(2), received)
+        assertSame(outcome, returned)
+    }
+
+    @Test
+    fun `when onSuccess on Failure then action is not called and receiver is returned`() {
+        val outcome: Outcome<Int> = Outcome.Failure(AppError.Network)
+        var called = false
+
+        val returned = outcome.onSuccess { called = true }
+
+        assertEquals(false, called)
+        assertSame(outcome, returned)
+    }
+
+    @Test
+    fun `when onFailure on Failure then action gets the error and receiver is returned`() {
+        val outcome: Outcome<Int> = Outcome.Failure(AppError.Storage)
+        val received = mutableListOf<AppError>()
+
+        val returned = outcome.onFailure { received += it }
+
+        assertEquals(listOf<AppError>(AppError.Storage), received)
+        assertSame(outcome, returned)
+    }
+
+    @Test
+    fun `when onFailure on Success then action is not called and receiver is returned`() {
+        val outcome: Outcome<Int> = Outcome.Success(2)
+        var called = false
+
+        val returned = outcome.onFailure { called = true }
+
+        assertEquals(false, called)
+        assertSame(outcome, returned)
+    }
+
+    @Test
+    fun `when onSuccess and onFailure are chained then only the matching branch runs`() {
+        val calls = mutableListOf<String>()
+
+        Outcome.Failure(AppError.Parsing)
+            .onSuccess { calls += "success" }
+            .onFailure { calls += "failure" }
+
+        assertEquals(listOf("failure"), calls)
+    }
+
+    @Test
     fun `when getOrNull on Success then value is returned`() {
         assertEquals("x", Outcome.Success("x").getOrNull())
     }

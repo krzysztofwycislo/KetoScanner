@@ -1,5 +1,6 @@
 package pl.handsome.club.core.designsystem.text
 
+import android.content.Context
 import android.content.res.Resources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,9 @@ class UiTextResolver internal constructor(
         is UiArg.Numeric -> arg.format(locale)
     }
 }
+
+fun uiTextResolver(context: Context): UiTextResolver =
+    UiTextResolver(context.resources, context.resources.configuration.locales[0])
 
 @Composable
 fun rememberUiTextResolver(): UiTextResolver {
