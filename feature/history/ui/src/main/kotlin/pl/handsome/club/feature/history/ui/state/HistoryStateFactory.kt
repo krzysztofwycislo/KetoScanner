@@ -17,6 +17,7 @@ internal class HistoryStateFactory(private val resources: HistoryResources) {
     fun createFor(prototype: Prototype): HistoryState = HistoryState(
         subtitle = prototype.subtitle(),
         content = prototype.content(),
+        isMenuOpen = prototype.isMenuOpen,
     )
 
     private fun Prototype.subtitle(): UiText? {

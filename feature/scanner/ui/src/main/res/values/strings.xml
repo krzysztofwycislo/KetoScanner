@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_enter_barcode">Enter barcode</string>
+    <string name="scan_product_not_found">Product not found</string>
+    <string name="scan_camera_permission_rationale">KetoScanner needs the camera to scan product barcodes. You can still type a barcode below.</string>
+    <string name="scan_camera_permission_denied">Camera access is turned off. Enable it in Settings to scan barcodes, or type a barcode below.</string>
+    <string name="scan_camera_permission_allow">Allow camera</string>
+    <string name="scan_camera_permission_open_settings">Open settings</string>
+</resources>

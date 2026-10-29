@@ -42,7 +42,6 @@ dependencies {
     implementation(project(":feature:history:api"))
     implementation(project(":feature:favourites:api"))
     implementation(project(":feature:analysis:domain"))
-    implementation(project(":barcodescanner"))
     implementation(project(":openfoodapi"))
     implementation(project(":core:common"))
     implementation(project(":core:database"))
@@ -51,6 +50,7 @@ dependencies {
     implementation(project(":feature:product:data"))
     implementation(project(":feature:history:ui"))
     implementation(project(":feature:product:ui"))
+    implementation(project(":feature:scanner:ui"))
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)

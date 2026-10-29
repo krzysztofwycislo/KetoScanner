@@ -9,6 +9,7 @@ internal data class HistoryStatePrototype(
     val entries: List<ProductAnalysisHistoryEntry>? = null,
     val isLoading: Boolean = false,
     val loadError: AppError? = null,
+    val isMenuOpen: Boolean = false,
 ) {
 
     companion object {

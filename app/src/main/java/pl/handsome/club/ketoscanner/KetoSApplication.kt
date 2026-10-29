@@ -15,6 +15,7 @@ import pl.handsome.club.feature.history.data.historyDataModule
 import pl.handsome.club.feature.history.ui.historyUiModule
 import pl.handsome.club.feature.product.data.productDataModule
 import pl.handsome.club.feature.product.ui.productUiModule
+import pl.handsome.club.feature.scanner.ui.scannerUiModule
 import pl.handsome.club.ketoscanner.di.appModules
 
 
@@ -26,7 +27,7 @@ class KetoSApplication : Application(), SingletonImageLoader.Factory {
 
         startKoin {
             androidContext(this@KetoSApplication)
-            modules(appModules, analysisDomainModule, databaseModule, historyDataModule, historyUiModule, productDataModule, productUiModule)
+            modules(appModules, analysisDomainModule, databaseModule, historyDataModule, historyUiModule, productDataModule, productUiModule, scannerUiModule)
         }
     }
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -89,13 +90,20 @@ internal class ProductViewModel(
 
     private fun observeProduct() {
         viewModelScope.launch {
-            analyses(onFailure = ::onObserveFailed).collect(::showAnalysis)
+            analyzeProduct(statePrototype.value.barcode)
+                .retryWhen { error, _ ->
+                    if (error is CancellationException) return@retryWhen false
+                    onObserveFailed()
+                    retryClicks.first()
+                    true
+                }
+                .collect(::showAnalysis)
         }
     }
 
     private fun saveToHistory() {
         viewModelScope.launch {
-            val analysis = analyses().first()
+            val analysis = firstShownAnalysis()
             applicationScope.launch {
                 history.save(analysis).onFailure { error -> log("Saving history entry failed", error) }
             }
@@ -104,7 +112,7 @@ internal class ProductViewModel(
 
     private fun loadFavouriteStatus() {
         viewModelScope.launch {
-            val analysis = analyses().first()
+            val analysis = firstShownAnalysis()
             favourites.findByBarcode(analysis.product.barcode)
                 .onSuccess { favourite -> statePrototype.update { it.copy(isFavourite = favourite != null) } }
                 .onFailure { error -> log("Loading favourite status failed", error) }
@@ -124,13 +132,8 @@ internal class ProductViewModel(
         refresh()
     }
 
-    private fun analyses(onFailure: () -> Unit = {}): Flow<ProductAnalysis> =
-        analyzeProduct(statePrototype.value.barcode).retryWhen { error, _ ->
-            if (error is CancellationException) return@retryWhen false
-            onFailure()
-            retryClicks.first()
-            true
-        }
+    private suspend fun firstShownAnalysis(): ProductAnalysis =
+        statePrototype.mapNotNull { it.analysis }.first()
 
     private fun showAnalysis(analysis: ProductAnalysis) {
         statePrototype.update { it.copy(analysis = analysis, loadError = null) }

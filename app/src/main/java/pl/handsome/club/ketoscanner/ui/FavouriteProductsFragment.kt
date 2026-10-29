@@ -2,25 +2,18 @@ package pl.handsome.club.ketoscanner.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import pl.handsome.club.ketoscanner.viewmodel.analyze.ProductAnalysisState
-import pl.handsome.club.core.common.AppError
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.ketoscanner.R
 import pl.handsome.club.ketoscanner.databinding.FavoriteProductsFragmentBinding
 import pl.handsome.club.ketoscanner.ui.adapter.FavouriteProductsListAdapter
 import pl.handsome.club.ketoscanner.util.DebounceTextWatcher
-import pl.handsome.club.ketoscanner.util.logAppError
-import pl.handsome.club.ketoscanner.util.logWarning
 import pl.handsome.club.ketoscanner.util.safeNavigateTo
-import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
 
 
@@ -29,7 +22,6 @@ import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsLi
 class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) {
 
     private val favouriteProductsListViewModel: FavouriteProductsListViewModel by viewModel()
-    private val analyzeProductViewModel: AnalyzeProductViewModel by activityViewModel()
 
     private val backgroundScope = CoroutineScope(Dispatchers.Default)
 
@@ -64,38 +56,9 @@ class FavouriteProductsFragment : Fragment(R.layout.favorite_products_fragment) 
     }
 
     private fun onProductClicked(favouriteProduct: FavouriteProduct) {
-        val barcode = favouriteProduct.productBarcode
-
-        with(analyzeProductViewModel) {
-            searchAndAnalyzeProduct(barcode)
-            getProductAnalysisState().observe(viewLifecycleOwner, ::onProductSearchStateChanged)
-        }
-    }
-
-    private fun onProductSearchStateChanged(productAnalysisState: ProductAnalysisState?) {
-        if (productAnalysisState !is ProductAnalysisState.InProgress) {
-            binding.progressBar.hide()
-        }
-
-        when (productAnalysisState) {
-            is ProductAnalysisState.InProgress -> {
-                binding.progressBar.show()
-            }
-            is ProductAnalysisState.Success -> navigateToAnalyzeResult(productAnalysisState.barcode)
-            is ProductAnalysisState.Error -> showError(productAnalysisState.error)
-            else -> logWarning("Unhandled analysis state: $productAnalysisState")
-        }
-    }
-
-    private fun navigateToAnalyzeResult(barcode: String) {
         FavouriteProductsFragmentDirections
-            .toProductAnalysisResultFragment(barcode)
+            .toProductAnalysisResultFragment(favouriteProduct.productBarcode)
             .let(::safeNavigateTo)
-    }
-
-    private fun showError(error: AppError) {
-        logAppError(error)
-        Toast.makeText(requireContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {

@@ -13,8 +13,10 @@ import pl.handsome.club.feature.history.ui.state.HistoryItemState
 import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
 
@@ -126,6 +128,12 @@ class HistoryStateFactoryTest {
         assertNull(factory.createFor(Prototype(entries = emptyList())).subtitle)
         assertNull(factory.createFor(Prototype(entries = null, loadError = AppError.Storage)).subtitle)
         assertNull(factory.createFor(Prototype(entries = listOf(entry(1)), loadError = AppError.Storage)).subtitle)
+    }
+
+    @Test
+    fun `when menu open flag is set or not then it is passed through`() {
+        assertTrue(factory.createFor(Prototype(isMenuOpen = true)).isMenuOpen)
+        assertFalse(factory.createFor(Prototype(isMenuOpen = false)).isMenuOpen)
     }
 
     private fun singleItem(entry: ProductAnalysisHistoryEntry): HistoryItemState =

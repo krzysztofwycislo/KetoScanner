@@ -3,12 +3,9 @@
 
     <!--   LAYOUT   -->
     <dimen name="small_100">8dp</dimen>
-    <dimen name="small_150">12dp</dimen>
 
     <dimen name="normal_100">16dp</dimen>
     <dimen name="normal_125">20dp</dimen>
-
-    <dimen name="large_100">32dp</dimen>
 
 
     <!--  TEXT   -->
@@ -19,7 +16,6 @@
     <dimen name="text_regular_125">20sp</dimen>
 
     <dimen name="text_large_100">32sp</dimen>
-    <dimen name="text_large_125">40sp</dimen>
     <dimen name="text_large_150">48sp</dimen>
 
 </resources>

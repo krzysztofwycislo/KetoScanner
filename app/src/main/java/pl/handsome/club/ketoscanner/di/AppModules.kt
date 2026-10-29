@@ -21,7 +21,6 @@ import pl.handsome.club.ketoscanner.database.favourite.DBFavouriteProductsReposi
 import pl.handsome.club.ketoscanner.preferences.DataStoreDietPreferencesRepository
 import pl.handsome.club.ketoscanner.preferences.createDietPreferencesDataStore
 import pl.handsome.club.ketoscanner.util.AndroidAppLogger
-import pl.handsome.club.ketoscanner.viewmodel.analyze.AnalyzeProductViewModel
 import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
 import pl.handsome.club.ketoscanner.viewmodel.preferences.DietPreferencesViewModel
 import pl.handsome.club.ketoscanner.BuildConfig
@@ -73,7 +72,6 @@ val appModules = module {
         single<DataStore<Preferences>> { createDietPreferencesDataStore(androidContext()) },
 
         // view model
-        viewModel { AnalyzeProductViewModel(get(), get()) },
         viewModel { FavouriteProductsListViewModel(get()) },
         viewModel { DietPreferencesViewModel(get()) }
     )

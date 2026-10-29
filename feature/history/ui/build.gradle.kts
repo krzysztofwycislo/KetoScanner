@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":core:common"))
 
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     implementation(platform(libs.koin.bom))

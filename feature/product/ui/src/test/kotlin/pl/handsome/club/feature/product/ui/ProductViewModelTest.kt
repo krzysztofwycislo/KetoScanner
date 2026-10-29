@@ -256,6 +256,32 @@ class ProductViewModelTest {
         }
 
     @Test
+    fun `when created then the analysis is subscribed once and history and favourites run once`() = runTest {
+        val viewModel = createViewModel()
+
+        showProduct(viewModel)
+        assertEquals(listOf(BARCODE), analyzeProduct.requestedBarcodes)
+        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+        assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+    }
+
+    @Test
+    fun `when observing fails and retry is clicked then history and favourites run once from the recovered observation`() =
+        runTest {
+            analyzeProduct.failure = IllegalStateException("disk")
+            val viewModel = createViewModel()
+            assertEquals(1, analyzeProduct.requestedBarcodes.size)
+
+            analyzeProduct.failure = null
+            viewModel.onAction(ProductAction.OnRetryClicked)
+
+            showProduct(viewModel)
+            assertEquals(2, analyzeProduct.requestedBarcodes.size)
+            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+            assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+        }
+
+    @Test
     fun `when observing fails after a product is shown then the product stays and it is reported`() = runTest {
         val viewModel = createViewModel()
         collectMessages()

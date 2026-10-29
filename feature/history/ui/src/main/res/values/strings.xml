@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="history_welcome">Welcome</string>
+    <string name="history_menu">Menu</string>
+    <string name="history_menu_diet_preferences">Diet preferences</string>
+    <string name="history_menu_about">About</string>
     <string name="history_title">History</string>
     <plurals name="history_last_searches">
         <item quantity="one">last search</item>
