@@ -530,7 +530,8 @@ class ProductViewModelTest {
             return pendingUpdate?.await() ?: updateResult
         }
 
-        override suspend fun search(name: String): Flow<List<FavouriteProduct>> = flowOf(emptyList())
+        override fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>> =
+            flowOf(Outcome.Success(emptyList()))
 
         override suspend fun findByBarcode(barcode: String): Outcome<FavouriteProduct?> {
             foundBarcodes += barcode

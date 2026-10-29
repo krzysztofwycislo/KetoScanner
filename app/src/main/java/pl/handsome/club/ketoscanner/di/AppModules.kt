@@ -1,11 +1,7 @@
 package pl.handsome.club.ketoscanner.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import pl.handsome.club.core.common.APPLICATION_SCOPE
@@ -15,14 +11,7 @@ import pl.handsome.club.core.common.DefaultAppDispatchers
 import pl.handsome.club.core.common.ErrorReporter
 import pl.handsome.club.core.common.LoggingErrorReporter
 import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
-import pl.handsome.club.ketoscanner.database.favourite.DBFavouriteProductsRepository
-import pl.handsome.club.ketoscanner.preferences.DataStoreDietPreferencesRepository
-import pl.handsome.club.ketoscanner.preferences.createDietPreferencesDataStore
 import pl.handsome.club.ketoscanner.util.AndroidAppLogger
-import pl.handsome.club.ketoscanner.viewmodel.favourite.list.FavouriteProductsListViewModel
-import pl.handsome.club.ketoscanner.viewmodel.preferences.DietPreferencesViewModel
 import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.openfoodapi.OpenFoodFactsProductSource
 import pl.handsome.club.openfoodapi.ProductNetworkSource
@@ -65,14 +54,5 @@ val appModules = module {
 
         // repository
         single<ProductNetworkSource> { OpenFoodFactsProductSource(get(), get()) },
-        single<DietPreferencesRepository> { DataStoreDietPreferencesRepository(get()) },
-        single<FavouriteProductsRepository> { DBFavouriteProductsRepository(get(), get()) },
-
-        // preferences
-        single<DataStore<Preferences>> { createDietPreferencesDataStore(androidContext()) },
-
-        // view model
-        viewModel { FavouriteProductsListViewModel(get()) },
-        viewModel { DietPreferencesViewModel(get()) }
     )
 }

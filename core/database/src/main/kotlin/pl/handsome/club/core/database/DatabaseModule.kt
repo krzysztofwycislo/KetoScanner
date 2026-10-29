@@ -7,4 +7,5 @@ val databaseModule = module {
     single { AppDatabase.provide(androidContext()) }
     single { get<AppDatabase>().productAnalysisHistoryDao() }
     single { get<AppDatabase>().productDao() }
+    single { get<AppDatabase>().favouriteProductsDao() }
 }

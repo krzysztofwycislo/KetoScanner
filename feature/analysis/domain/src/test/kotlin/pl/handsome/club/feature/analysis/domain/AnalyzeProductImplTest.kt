@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -28,7 +29,7 @@ class AnalyzeProductImplTest {
     @Test
     fun `when product has carbs then it is rated using the current preferences`() = runTest {
         products.products = listOf(productWithCarbs)
-        preferences.current = DietPreferences(maxDailyCarbsAmount = 15)
+        preferences.current = Outcome.Success(DietPreferences(maxDailyCarbsAmount = 15))
 
         val analysis = analyzeProduct(BARCODE).first()
 
@@ -37,6 +38,17 @@ class AnalyzeProductImplTest {
         assertEquals(15, rated.macronutrients.dailyCarbConsumption)
         assertEquals(DietRate.NOT_ADVISED, rated.macronutrients.carbsRate)
         assertEquals(listOf(BARCODE), products.requestedBarcodes)
+    }
+
+    @Test
+    fun `when reading preferences fails then the product is rated using the default preferences`() = runTest {
+        products.products = listOf(productWithCarbs)
+        preferences.current = Outcome.Failure(AppError.Storage)
+
+        val analysis = analyzeProduct(BARCODE).first()
+
+        val rated = assertIs<ProductAnalysis.Rated>(analysis)
+        assertEquals(DietPreferences.Default.maxDailyCarbsAmount, rated.macronutrients.dailyCarbConsumption)
     }
 
     @Test
@@ -88,14 +100,15 @@ class AnalyzeProductImplTest {
 
     private class FakePreferencesRepository : DietPreferencesRepository {
 
-        var current: DietPreferences = exampleDietPreferences
+        var current: Outcome<DietPreferences> = Outcome.Success(exampleDietPreferences)
 
-        override fun observeDietPreferences(): Flow<DietPreferences> = flowOf(current)
+        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flowOf(current)
 
-        override suspend fun getDietPreferences(): DietPreferences = current
+        override suspend fun getDietPreferences(): Outcome<DietPreferences> = current
 
-        override suspend fun setMaxDailyCarbsAmount(amount: Int) {
-            current = DietPreferences(amount)
+        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
+            current = Outcome.Success(DietPreferences(amount))
+            return Outcome.Success(Unit)
         }
     }
 

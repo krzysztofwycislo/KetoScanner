@@ -20,6 +20,6 @@ interface FavouriteProductDao {
     suspend fun delete(favouriteProduct: FavouriteProductEntity)
 
     @Query("SELECT * FROM ${FavouriteProductEntity.TABLE_NAME} WHERE productBarcode = :barcode LIMIT 1")
-    fun findByBarcode(barcode: String): FavouriteProductEntity?
+    suspend fun findByBarcode(barcode: String): FavouriteProductEntity?
 
 }

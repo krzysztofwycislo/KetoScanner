@@ -37,10 +37,8 @@ android {
 
 dependencies {
     implementation(project(":feature:product:api"))
-    implementation(project(":feature:preferences:api"))
     implementation(project(":feature:analysis:api"))
     implementation(project(":feature:history:api"))
-    implementation(project(":feature:favourites:api"))
     implementation(project(":feature:analysis:domain"))
     implementation(project(":openfoodapi"))
     implementation(project(":core:common"))
@@ -51,6 +49,12 @@ dependencies {
     implementation(project(":feature:history:ui"))
     implementation(project(":feature:product:ui"))
     implementation(project(":feature:scanner:ui"))
+    implementation(project(":feature:favourites:data"))
+    implementation(project(":feature:favourites:ui"))
+    implementation(project(":feature:preferences:data"))
+    implementation(project(":feature:preferences:ui"))
+    implementation(project(":feature:about:ui"))
+    implementation(project(":core:datastore"))
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)
@@ -61,10 +65,6 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.material)
 
     // navigation
@@ -72,21 +72,12 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
 
     // image loading
-    implementation(libs.glide)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
     // di
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
-
-    // test
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.androidx.arch.core.testing)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlin.test.junit)
 
     // maintenance
     debugImplementation(libs.leakcanary.android)

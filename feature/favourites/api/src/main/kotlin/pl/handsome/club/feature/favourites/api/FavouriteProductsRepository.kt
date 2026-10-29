@@ -10,7 +10,7 @@ interface FavouriteProductsRepository {
 
     suspend fun addToFavourites(product: Product): Outcome<Unit>
 
-    suspend fun search(name: String = ""): Flow<List<FavouriteProduct>>
+    fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>>
 
     suspend fun findByBarcode(barcode: String): Outcome<FavouriteProduct?>
 

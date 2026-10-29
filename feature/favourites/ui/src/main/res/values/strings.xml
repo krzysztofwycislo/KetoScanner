@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="favourites_title">Favourite products</string>
+    <string name="favourites_search_hint">Search by name</string>
+    <string name="favourites_empty">No favourite products yet</string>
+    <string name="favourites_no_results">No favourites match \"%1$s\"</string>
+    <string name="favourites_unnamed_product">Unnamed product</string>
+    <string name="favourites_retry">Try again</string>
+</resources>

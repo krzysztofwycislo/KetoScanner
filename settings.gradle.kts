@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "KetoScanner"
-include(":app", ":openfoodapi", ":barcodescanner", ":core:common", ":core:model", ":core:testing", ":core:designsystem", ":core:database")
+include(":app", ":openfoodapi", ":barcodescanner", ":core:common", ":core:model", ":core:testing", ":core:designsystem", ":core:database", ":core:datastore")
 include(
     ":feature:product:api",
     ":feature:product:data",
@@ -28,5 +28,10 @@ include(
     ":feature:product:ui",
     ":feature:scanner:ui",
     ":feature:favourites:api",
+    ":feature:favourites:data",
+    ":feature:favourites:ui",
+    ":feature:preferences:data",
+    ":feature:preferences:ui",
+    ":feature:about:ui",
     ":feature:analysis:domain",
 )
