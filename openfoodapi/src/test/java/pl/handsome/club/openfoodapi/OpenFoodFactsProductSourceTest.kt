@@ -68,6 +68,10 @@ class OpenFoodFactsProductSourceTest {
         assertThat(product.nutriments.carbohydratesPer100g).isWithin(1e-4).of(10.9859)
         assertThat(product.nutriments.carbohydratesPerServing).isEqualTo(39.0)
         assertThat(product.nutriments.saltPerServing).isEqualTo(0.0317)
+        assertThat(product.nutriments.sugarsPer100g).isEqualTo(10.6)
+        assertThat(product.nutriments.sugarsPerServing).isEqualTo(37.6)
+        assertThat(product.nutriments.fibrePer100g).isEqualTo(0.0)
+        assertThat(product.nutriments.fibrePerServing).isEqualTo(0.0)
     }
 
     @Test

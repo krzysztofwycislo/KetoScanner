@@ -1,6 +1,5 @@
 package pl.handsome.club.core.database.history
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
@@ -13,7 +12,7 @@ data class ProductAnalysisHistoryEntryEntity(
     val productName: String,
     val productBarcode: String,
     val productBrand: String,
-    @Embedded val macronutrientAnalysisResult: MacronutrientAnalysisEmbedded?
+    val dietRate: String?
 ) {
 
     @PrimaryKey(autoGenerate = true)

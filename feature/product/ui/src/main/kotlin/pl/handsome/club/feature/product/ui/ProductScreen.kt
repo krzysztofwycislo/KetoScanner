@@ -231,7 +231,7 @@ private fun Verdict(state: VerdictState) {
                 VerdictRow(
                     icon = { Ui.RatingIcon(rating = state.rating, contentDescription = state.summary) },
                     title = state.summary.resolve(),
-                    details = state.details.resolve(),
+                    details = state.reasons.map { it.resolve() },
                     color = state.rating.color(),
                 )
                 VerdictRow(
@@ -242,7 +242,7 @@ private fun Verdict(state: VerdictState) {
                         )
                     },
                     title = stringResource(R.string.product_maximum_portion),
-                    details = state.portion.resolve(),
+                    details = listOf(state.portion.resolve()),
                     color = state.rating.color(),
                 )
             }
@@ -250,7 +250,7 @@ private fun Verdict(state: VerdictState) {
             is VerdictState.InsufficientData -> VerdictRow(
                 icon = { Ui.RatingIcon(rating = Rating.Unknown, contentDescription = state.summary) },
                 title = state.summary.resolve(),
-                details = null,
+                details = emptyList(),
                 color = Rating.Unknown.color(),
             )
         }
@@ -261,14 +261,14 @@ private fun Verdict(state: VerdictState) {
 private fun VerdictRow(
     icon: @Composable () -> Unit,
     title: String,
-    details: String?,
+    details: List<String>,
     color: Color,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         icon()
         Column(modifier = Modifier.padding(start = AppTheme.spacing.s)) {
             Text(text = title, style = AppTheme.typography.body, color = color)
-            details?.let {
+            details.forEach {
                 Text(text = it, style = AppTheme.typography.body, color = AppTheme.colors.text.default)
             }
         }
@@ -361,9 +361,12 @@ private fun FavouriteButtonState.Companion.example(isFavourite: Boolean) = Favou
 )
 
 private fun VerdictState.Companion.exampleRated() = VerdictState.Rated(
-    rating = Rating.Positive,
-    summary = UiText.Res(R.string.product_rating_good),
-    details = UiText.Res(R.string.product_rating_good_details, UiArg.Numeric.Count(13)),
+    rating = Rating.Neutral,
+    summary = UiText.Res(R.string.product_rating_neutral, UiArg.Nested(UiText.Res(R.string.product_diet_mode_keto))),
+    reasons = persistentListOf(
+        UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(0.19)),
+        UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(7.0)),
+    ),
     portion = UiText.Res(
         R.string.product_maximum_portion_details,
         UiArg.Numeric.WholeNumber(266.6),
@@ -390,6 +393,8 @@ private fun NutrientTableState.Companion.example() = NutrientTableState(
         NutrientRowState.example(R.string.product_fats, 7.5, 50.0),
         NutrientRowState.example(R.string.product_proteins, 3.8, 25.0),
         NutrientRowState.example(R.string.product_carbs, 2.0, 13.0),
+        NutrientRowState.example(R.string.product_sugars, 1.1, 7.0),
+        NutrientRowState.example(R.string.product_fibre, null, 11.0),
         NutrientRowState.example(R.string.product_salt, null, 1.1),
     ),
 )

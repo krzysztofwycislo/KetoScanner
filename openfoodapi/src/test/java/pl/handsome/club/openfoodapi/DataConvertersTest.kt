@@ -43,6 +43,10 @@ class DataConvertersTest {
         assertThat(nutriments.proteinsPerServing).isEqualTo(10.0)
         assertThat(nutriments.saltPer100g).isEqualTo(3.0)
         assertThat(nutriments.saltPerServing).isEqualTo(1.5)
+        assertThat(nutriments.sugarsPer100g).isEqualTo(10.0)
+        assertThat(nutriments.sugarsPerServing).isEqualTo(5.0)
+        assertThat(nutriments.fibrePer100g).isEqualTo(6.0)
+        assertThat(nutriments.fibrePerServing).isEqualTo(3.0)
     }
 
     @Test

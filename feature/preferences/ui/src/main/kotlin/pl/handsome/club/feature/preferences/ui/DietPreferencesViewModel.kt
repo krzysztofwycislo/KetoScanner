@@ -24,9 +24,11 @@ import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
+import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnDietModeSelected
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
@@ -63,6 +65,7 @@ internal class DietPreferencesViewModel(
 
     fun onAction(action: DietPreferencesAction) {
         when (action) {
+            is OnDietModeSelected -> selectDietMode(action.mode)
             is OnInputChanged -> setInput(action.text)
             OnSaveClicked -> save()
             OnRetryClicked -> retry()
@@ -77,7 +80,7 @@ internal class DietPreferencesViewModel(
                 .flatMapLatest { preferences.observeDietPreferences() }
                 .collect { outcome ->
                     outcome
-                        .onSuccess { dietPreferences -> showPreferences(dietPreferences.maxDailyCarbsAmount) }
+                        .onSuccess(::showPreferences)
                         .onFailure { error ->
                             errorReporter.report(TAG, "Loading diet preferences failed", error)
                             statePrototype.update { it.copy(loadError = error) }
@@ -86,9 +89,25 @@ internal class DietPreferencesViewModel(
         }
     }
 
-    private fun showPreferences(amount: Int) {
+    private fun showPreferences(dietPreferences: DietPreferences) {
+        val amount = dietPreferences.maxDailyCarbsAmount
         statePrototype.update {
-            it.copy(savedAmount = amount, input = it.input ?: amount.toString(), loadError = null)
+            it.copy(
+                savedAmount = amount,
+                savedMode = dietPreferences.dietMode,
+                input = it.input ?: amount.toString(),
+                loadError = null,
+            )
+        }
+    }
+
+    private fun selectDietMode(mode: DietMode) {
+        applicationScope.launch {
+            preferences.setDietMode(mode)
+                .onFailure { error ->
+                    errorReporter.report(TAG, "Saving diet mode failed", error)
+                    appEvents send ShowMessage(resources.saveFailed(error))
+                }
         }
     }
 

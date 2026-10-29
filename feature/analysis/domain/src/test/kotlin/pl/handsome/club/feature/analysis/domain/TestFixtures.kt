@@ -17,35 +17,41 @@ internal fun createProduct(name: String, productNutriments: ProductNutriments) =
 internal fun createProduct(productNutriments: ProductNutriments) =
     createProduct(PRODUCT_NAME, productNutriments)
 
+internal fun createProduct(name: String, productNutriments: ProductNutriments, servingAmount: String?) =
+    Product(name, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, productNutriments, PRODUCT_URL, servingAmount)
+
+internal fun macroNutriments(
+    fatsPer100g: Double?,
+    proteinsPer100g: Double?,
+    carbohydratesPer100g: Double?,
+    sugarsPer100g: Double? = null,
+    fibrePer100g: Double? = null,
+) = ProductNutriments(
+    energyPerServing = null,
+    energyPer100g = null,
+    fatsPerServing = null,
+    fatsPer100g = fatsPer100g,
+    proteinsPerServing = null,
+    proteinsPer100g = proteinsPer100g,
+    carbohydratesPerServing = null,
+    carbohydratesPer100g = carbohydratesPer100g,
+    saltPerServing = null,
+    saltPer100g = null,
+    sugarsPer100g = sugarsPer100g,
+    fibrePer100g = fibrePer100g,
+)
+
+internal fun profile(
+    fat: Double,
+    protein: Double,
+    carbs: Double,
+    sugars: Double? = null,
+    servingGrams: Double? = null,
+) = NutritionProfile(carbs = carbs, fat = fat, protein = protein, sugars = sugars, servingGrams = servingGrams)
+
 
 internal val exampleNutrients = ProductNutriments(250.0, 500.0, 20.0, 40.0, 10.0, 20.0, 5.0, 10.0, 1.0, 2.0)
 
 internal val exampleDietPreferences = DietPreferences(
     40
 )
-
-internal fun createProductNutriments(
-    servingAmount: Int,
-    energyPer100g: Double,
-    fatsPer100g: Double,
-    proteinsPer100g: Double,
-    carbohydratesPer100g: Double,
-    saltPer100g: Double
-): ProductNutriments {
-    return ProductNutriments(
-        calculateServing(servingAmount, energyPer100g),
-        energyPer100g,
-        calculateServing(servingAmount, fatsPer100g),
-        fatsPer100g,
-        calculateServing(servingAmount, proteinsPer100g),
-        proteinsPer100g,
-        calculateServing(servingAmount, carbohydratesPer100g),
-        carbohydratesPer100g,
-        calculateServing(servingAmount, saltPer100g),
-        saltPer100g,
-    )
-}
-
-private fun calculateServing(servingAmount: Int, energyPer100g: Double) : Double {
-    return servingAmount * energyPer100g / 100
-}

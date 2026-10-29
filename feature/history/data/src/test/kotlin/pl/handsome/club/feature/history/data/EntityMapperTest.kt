@@ -1,10 +1,10 @@
 package pl.handsome.club.feature.history.data
 
-import pl.handsome.club.core.database.history.MacronutrientAnalysisEmbedded
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
@@ -15,29 +15,26 @@ import kotlin.time.Instant
 class EntityMapperTest {
 
     @Test
-    fun `when each diet rate goes through entity and back then analysis is unchanged`() {
+    fun `when each diet rate goes through entity and back then the rate is unchanged`() {
         DietRate.entries.forEach { dietRate ->
-            val analysis = analysis.copy(carbsRate = dietRate)
+            val mapped = ProductAnalysis.Rated(product, analysis.copy(rate = dietRate)).toEntity().toDomain()
 
-            val mapped = ProductAnalysis.Rated(product, analysis).toEntity().toDomain()
-
-            assertEquals(analysis, mapped.macronutrientAnalysisResult)
+            assertEquals(dietRate, mapped.dietRate)
         }
     }
 
     @Test
-    fun `when embedded analysis is null then domain analysis is null`() {
+    fun `when stored rate is null then domain rate is null`() {
         val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null)
 
-        assertNull(entity.toDomain().macronutrientAnalysisResult)
+        assertNull(entity.toDomain().dietRate)
     }
 
     @Test
-    fun `when carbs rate name is unknown then domain analysis is null`() {
-        val embedded = MacronutrientAnalysisEmbedded("VERY_GOOD", 10, 50.0, 20)
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, embedded)
+    fun `when stored rate name is unknown then domain rate is null`() {
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, "VERY_GOOD")
 
-        assertNull(entity.toDomain().macronutrientAnalysisResult)
+        assertNull(entity.toDomain().dietRate)
     }
 
     @Test
@@ -57,21 +54,21 @@ class EntityMapperTest {
     }
 
     @Test
-    fun `when analysis result is mapped to entity then product fields are kept`() {
+    fun `when analysis result is mapped to entity then product fields and rate name are kept`() {
         val entity = ProductAnalysis.Rated(product, analysis).toEntity()
 
         assertEquals(NAME, entity.productName)
         assertEquals(BARCODE, entity.productBarcode)
         assertEquals(BRAND, entity.productBrand)
-        assertEquals(MacronutrientAnalysisEmbedded("GOOD", 10, 50.0, 20), entity.macronutrientAnalysisResult)
+        assertEquals("GOOD", entity.dietRate)
     }
 
     @Test
-    fun `when insufficient data analysis is mapped to entity then embedded analysis is null`() {
+    fun `when insufficient data analysis is mapped to entity then rate is null`() {
         val entity = ProductAnalysis.InsufficientData(product).toEntity()
 
         assertEquals(BARCODE, entity.productBarcode)
-        assertNull(entity.macronutrientAnalysisResult)
+        assertNull(entity.dietRate)
     }
 
     @Test
@@ -88,7 +85,7 @@ class EntityMapperTest {
         const val BRAND = "Nuts & Co"
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
-        val analysis = MacronutrientAnalysisResult(DietRate.GOOD, 10, 50.0, 20)
+        val analysis = MacronutrientAnalysisResult(DietMode.KETO, DietRate.GOOD, emptyList(), 5.0, 800.0, 40)
 
         val product = Product(
             name = NAME,

@@ -28,6 +28,7 @@ import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
@@ -591,7 +592,7 @@ class ProductViewModelTest {
 
         val analysis = ProductAnalysis.Rated(
             product = product,
-            macronutrients = MacronutrientAnalysisResult(DietRate.NOT_ADVISED, 40, 69.6, 40),
+            macronutrients = MacronutrientAnalysisResult(DietMode.KETO, DietRate.NOT_ADVISED, emptyList(), 57.5, 69.6, 40),
         )
 
         val favouriteProduct = FavouriteProduct(

@@ -7,4 +7,9 @@
     <string name="preferences_save">Save</string>
     <string name="preferences_saved">Preferences saved</string>
     <string name="preferences_retry">Try again</string>
+    <string name="preferences_diet_mode_title">Diet mode</string>
+    <string name="preferences_diet_mode_keto">Keto</string>
+    <string name="preferences_diet_mode_keto_description">Very low carb. Products with plenty of fat and protein for their carbs rate best.</string>
+    <string name="preferences_diet_mode_low_carb">Low-carb</string>
+    <string name="preferences_diet_mode_low_carb_description">Few carbs and little sugar, without requiring much fat.</string>
 </resources>

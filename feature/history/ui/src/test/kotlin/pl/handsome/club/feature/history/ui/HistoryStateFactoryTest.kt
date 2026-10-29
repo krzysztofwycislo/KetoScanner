@@ -6,7 +6,6 @@ import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.history.ui.state.HistoryContentState
 import pl.handsome.club.feature.history.ui.state.HistoryItemState
@@ -153,7 +152,7 @@ class HistoryStateFactoryTest {
             productBarcode = "barcode-$id",
             productBrand = brand,
             updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
-            macronutrientAnalysisResult = dietRate?.let { MacronutrientAnalysisResult(it, 10, 50.0, 20) },
+            dietRate = dietRate,
         )
     }
 }

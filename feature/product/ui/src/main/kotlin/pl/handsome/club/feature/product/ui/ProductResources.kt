@@ -5,6 +5,8 @@ import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
+import pl.handsome.club.feature.analysis.api.model.RatingReason
+import pl.handsome.club.feature.preferences.api.model.DietMode
 
 internal class ProductResources {
 
@@ -17,29 +19,47 @@ internal class ProductResources {
 
     fun imagePreviewDescription(): UiText = UiText.Res(R.string.product_image_preview)
 
-    fun ratingSummary(dietRate: DietRate): UiText = when (dietRate) {
-        DietRate.GOOD -> UiText.Res(R.string.product_rating_good)
-        DietRate.NEUTRAL -> UiText.Res(R.string.product_rating_neutral)
-        DietRate.NOT_ADVISED -> UiText.Res(R.string.product_rating_not_advised)
+    fun ratingSummary(dietRate: DietRate, mode: DietMode): UiText {
+        val id = when (dietRate) {
+            DietRate.GOOD -> R.string.product_rating_good
+            DietRate.NEUTRAL -> R.string.product_rating_neutral
+            DietRate.NOT_ADVISED -> R.string.product_rating_not_advised
+        }
+        return UiText.Res(id, UiArg.Nested(dietModeName(mode)))
     }
 
-    fun ratingDetails(dietRate: DietRate, maxRateCarbAmount: Int): UiText {
-        val id = when (dietRate) {
-            DietRate.GOOD -> R.string.product_rating_good_details
-            DietRate.NEUTRAL -> R.string.product_rating_neutral_details
-            DietRate.NOT_ADVISED -> R.string.product_rating_not_advised_details
-        }
-        return UiText.Res(id, UiArg.Numeric.Count(maxRateCarbAmount.toLong()))
+    fun reason(reason: RatingReason): UiText = when (reason) {
+        is RatingReason.HighCarbs ->
+            UiText.Res(R.string.product_reason_high_carbs, UiArg.Numeric.Grams(reason.gramsPer100g))
+        is RatingReason.HighCarbEnergyShare ->
+            UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(reason.share))
+        is RatingReason.LowFatAndProteinToCarbRatio ->
+            UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Grams(reason.ratio))
+        is RatingReason.HighSugars ->
+            UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(reason.gramsPer100g))
+        is RatingReason.HighCarbsPerServing -> UiText.Res(
+            R.string.product_reason_high_carbs_per_serving,
+            UiArg.Numeric.Grams(reason.carbsGrams),
+            UiArg.Numeric.Grams(reason.servingGrams),
+        )
     }
+
+    fun carbsPer100g(grams: Double): UiText = UiText.Res(R.string.product_carbs_per_100g, UiArg.Numeric.Grams(grams))
 
     fun insufficientData(): UiText = UiText.Res(R.string.product_rating_insufficient_data)
 
-    fun portion(maxProductPortion: Double, dailyCarbs: Int): UiText =
-        UiText.Res(
+    fun portion(maxProductPortion: Double?, dailyCarbs: Int): UiText =
+        if (maxProductPortion == null) UiText.Res(R.string.product_maximum_portion_unlimited)
+        else UiText.Res(
             R.string.product_maximum_portion_details,
             UiArg.Numeric.WholeNumber(maxProductPortion),
             UiArg.Numeric.Count(dailyCarbs.toLong()),
         )
+
+    private fun dietModeName(mode: DietMode): UiText = when (mode) {
+        DietMode.KETO -> UiText.Res(R.string.product_diet_mode_keto)
+        DietMode.LOW_CARB -> UiText.Res(R.string.product_diet_mode_low_carb)
+    }
 
     fun perServingHeader(servingAmount: String?): UiText =
         if (servingAmount.isNullOrBlank()) UiText.Res(R.string.product_per_serving)
@@ -52,6 +72,10 @@ internal class ProductResources {
     fun proteins(): UiText = UiText.Res(R.string.product_proteins)
 
     fun carbs(): UiText = UiText.Res(R.string.product_carbs)
+
+    fun sugars(): UiText = UiText.Res(R.string.product_sugars)
+
+    fun fibre(): UiText = UiText.Res(R.string.product_fibre)
 
     fun salt(): UiText = UiText.Res(R.string.product_salt)
 

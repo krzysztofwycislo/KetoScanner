@@ -12,6 +12,7 @@ import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.common.outcomeOf
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -21,10 +22,8 @@ internal class DietPreferencesRepositoryImpl(
 ) : DietPreferencesRepository {
 
     override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> =
-        persistence.observeMaxDailyCarbsAmount()
-            .map<Int?, Outcome<DietPreferences>> { amount ->
-                Outcome.Success(amount?.let(::DietPreferences) ?: DietPreferences.Default)
-            }
+        persistence.observe()
+            .map<StoredDietPreferences, Outcome<DietPreferences>> { stored -> Outcome.Success(stored.toDomain()) }
             .distinctUntilChanged()
             .catch { error ->
                 if (error is CancellationException) throw error
@@ -40,4 +39,16 @@ internal class DietPreferencesRepositoryImpl(
                 persistence.setMaxDailyCarbsAmount(amount)
             }
         }
+
+    override suspend fun setDietMode(mode: DietMode): Outcome<Unit> =
+        withContext(dispatchers.io) {
+            outcomeOf(mapError = { AppError.Storage }) {
+                persistence.setDietMode(mode.name)
+            }
+        }
+
+    private fun StoredDietPreferences.toDomain() = DietPreferences(
+        maxDailyCarbsAmount = maxDailyCarbsAmount ?: DietPreferences.Default.maxDailyCarbsAmount,
+        dietMode = DietMode.entries.firstOrNull { it.name == dietMode } ?: DietMode.KETO,
+    )
 }

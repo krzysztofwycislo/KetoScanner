@@ -229,7 +229,7 @@ class HistoryViewModelTest {
                 productBarcode = "barcode-$id",
                 productBrand = "Brand $id",
                 updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
-                macronutrientAnalysisResult = null,
+                dietRate = null,
             )
         }
     }

@@ -38,23 +38,30 @@ class DietPreferencesPersistenceImplTest {
     }
 
     @Test
-    fun `when store is empty then no amount is observed`() = runTest {
-        assertNull(persistence.observeMaxDailyCarbsAmount().first())
+    fun `when store is empty then neither amount nor mode is observed`() = runTest {
+        assertEquals(StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = null), persistence.observe().first())
+    }
+
+    @Test
+    fun `when mode is set then it is observed`() = runTest {
+        persistence.setDietMode("LOW_CARB")
+
+        assertEquals(StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = "LOW_CARB"), persistence.observe().first())
     }
 
     @Test
     fun `when amount is set then it is observed`() = runTest {
         persistence.setMaxDailyCarbsAmount(25)
 
-        assertEquals(25, persistence.observeMaxDailyCarbsAmount().first())
+        assertEquals(25, persistence.observe().first().maxDailyCarbsAmount)
     }
 
     @Test
     fun `when amount is set after an empty read then the new amount is observed`() = runTest {
-        assertNull(persistence.observeMaxDailyCarbsAmount().first())
+        assertNull(persistence.observe().first().maxDailyCarbsAmount)
 
         persistence.setMaxDailyCarbsAmount(55)
 
-        assertEquals(55, persistence.observeMaxDailyCarbsAmount().first())
+        assertEquals(55, persistence.observe().first().maxDailyCarbsAmount)
     }
 }

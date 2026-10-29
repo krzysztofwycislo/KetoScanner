@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.product.ui.state
 
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -61,12 +62,15 @@ internal class ProductStateFactory(private val resources: ProductResources) {
     }
 
     private fun ProductAnalysis.verdict(): VerdictState = when (this) {
-        is ProductAnalysis.Rated -> VerdictState.Rated(
-            rating = macronutrients.carbsRate.toRating(),
-            summary = resources.ratingSummary(macronutrients.carbsRate),
-            details = resources.ratingDetails(macronutrients.carbsRate, macronutrients.maxRateCarbAmount),
-            portion = resources.portion(macronutrients.maxProductPortion, macronutrients.dailyCarbConsumption),
-        )
+        is ProductAnalysis.Rated -> with(macronutrients) {
+            VerdictState.Rated(
+                rating = rate.toRating(),
+                summary = resources.ratingSummary(rate, dietMode),
+                reasons = reasons.take(MAX_REASONS).map(resources::reason).toPersistentList()
+                    .ifEmpty { persistentListOf(resources.carbsPer100g(carbsPer100g)) },
+                portion = resources.portion(maxProductPortion, dailyCarbConsumption),
+            )
+        }
 
         is ProductAnalysis.InsufficientData -> VerdictState.InsufficientData(resources.insufficientData())
     }
@@ -87,6 +91,8 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                     resources.grams(carbohydratesPerServing),
                     resources.grams(carbohydratesPer100g),
                 ),
+                NutrientRowState(resources.sugars(), resources.grams(sugarsPerServing), resources.grams(sugarsPer100g)),
+                NutrientRowState(resources.fibre(), resources.grams(fibrePerServing), resources.grams(fibrePer100g)),
                 NutrientRowState(resources.salt(), resources.grams(saltPerServing), resources.grams(saltPer100g)),
             ),
         )
@@ -101,5 +107,6 @@ internal class ProductStateFactory(private val resources: ProductResources) {
     private companion object {
         const val COLLAPSED_NAME_LINES = 1
         const val EXPANDED_NAME_LINES = 10
+        const val MAX_REASONS = 2
     }
 }

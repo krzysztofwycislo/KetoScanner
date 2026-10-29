@@ -21,6 +21,7 @@ import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
@@ -149,6 +150,42 @@ class DietPreferencesViewModelTest {
     }
 
     @Test
+    fun `when a stored mode arrives then it is the selected option`() = runTest {
+        val viewModel = createViewModel()
+
+        preferences.emit(40, DietMode.LOW_CARB)
+
+        assertEquals(DietMode.LOW_CARB, form(viewModel).dietModes.single { it.isSelected }.mode)
+    }
+
+    @Test
+    fun `when a mode is selected then it is saved and no message is shown`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(40)
+
+        viewModel.onAction(DietPreferencesAction.OnDietModeSelected(DietMode.LOW_CARB))
+
+        assertEquals(listOf(DietMode.LOW_CARB), preferences.savedModes)
+        assertTrue(appEventsReceived.isEmpty())
+        assertTrue(errorReporter.reports.isEmpty())
+    }
+
+    @Test
+    fun `when saving a mode fails then failure is reported and failure message is shown`() = runTest {
+        preferences.saveResult = Outcome.Failure(AppError.Storage)
+        val viewModel = createViewModel()
+        preferences.emit(40)
+
+        viewModel.onAction(DietPreferencesAction.OnDietModeSelected(DietMode.LOW_CARB))
+
+        assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
+        assertEquals(
+            listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage))),
+            appEventsReceived,
+        )
+    }
+
+    @Test
     fun `when reading fails then error is shown and reported and retry recovers`() = runTest {
         preferences.readFailure = AppError.Storage
         val viewModel = createViewModel()
@@ -199,9 +236,10 @@ class DietPreferencesViewModelTest {
         var saveResult: Outcome<Unit> = Outcome.Success(Unit)
         var subscriptions = 0
         val saved = mutableListOf<Int>()
+        val savedModes = mutableListOf<DietMode>()
 
-        fun emit(amount: Int) {
-            values.tryEmit(Outcome.Success(DietPreferences(amount)))
+        fun emit(amount: Int, mode: DietMode = DietMode.KETO) {
+            values.tryEmit(Outcome.Success(DietPreferences(amount, mode)))
         }
 
         override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow {
@@ -215,6 +253,11 @@ class DietPreferencesViewModelTest {
 
         override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
             saved += amount
+            return saveResult
+        }
+
+        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> {
+            savedModes += mode
             return saveResult
         }
     }

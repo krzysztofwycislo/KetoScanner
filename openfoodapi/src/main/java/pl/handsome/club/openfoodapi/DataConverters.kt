@@ -35,6 +35,10 @@ fun parseProductNutrients(apiNutriments: ApiNutriments): ProductNutriments =
             carbohydratesPerServing = carbohydratesPerServing,
             carbohydratesPer100g = carbohydratesPer100g,
             saltPerServing = saltPerServing,
-            saltPer100g = saltPer100g
+            saltPer100g = saltPer100g,
+            sugarsPerServing = sugarsPerServing,
+            sugarsPer100g = sugarsPer100g,
+            fibrePerServing = fibrePerServing,
+            fibrePer100g = fibrePer100g,
         )
     }

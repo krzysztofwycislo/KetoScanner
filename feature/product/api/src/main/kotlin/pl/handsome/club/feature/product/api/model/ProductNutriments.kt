@@ -15,5 +15,11 @@ data class ProductNutriments(
     val carbohydratesPer100g: Double?,
 
     val saltPerServing: Double?,
-    val saltPer100g: Double?
+    val saltPer100g: Double?,
+
+    val sugarsPerServing: Double? = null,
+    val sugarsPer100g: Double? = null,
+
+    val fibrePerServing: Double? = null,
+    val fibrePer100g: Double? = null,
 )

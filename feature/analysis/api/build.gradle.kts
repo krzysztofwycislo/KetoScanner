@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     api(project(":feature:product:api"))
+    api(project(":feature:preferences:api"))
 }

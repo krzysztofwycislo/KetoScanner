@@ -39,5 +39,7 @@ fun testApiNutriments(): ApiNutriments = ApiNutriments(
     20.0,
     10.0,
     3.0,
-    1.5
+    1.5,
+    6.0,
+    3.0
 )

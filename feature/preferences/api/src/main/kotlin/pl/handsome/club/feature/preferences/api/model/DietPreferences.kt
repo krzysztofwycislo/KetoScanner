@@ -2,7 +2,8 @@ package pl.handsome.club.feature.preferences.api.model
 
 
 data class DietPreferences(
-    val maxDailyCarbsAmount: Int
+    val maxDailyCarbsAmount: Int,
+    val dietMode: DietMode = DietMode.KETO,
 ) {
 
     companion object {

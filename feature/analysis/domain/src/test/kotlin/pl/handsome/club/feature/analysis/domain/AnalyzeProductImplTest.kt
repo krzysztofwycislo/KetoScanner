@@ -12,6 +12,7 @@ import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.api.model.Product
@@ -36,7 +37,7 @@ class AnalyzeProductImplTest {
         val rated = assertIs<ProductAnalysis.Rated>(analysis)
         assertEquals(productWithCarbs, rated.product)
         assertEquals(15, rated.macronutrients.dailyCarbConsumption)
-        assertEquals(DietRate.NOT_ADVISED, rated.macronutrients.carbsRate)
+        assertEquals(DietRate.NOT_ADVISED, rated.macronutrients.rate)
         assertEquals(listOf(BARCODE), products.requestedBarcodes)
     }
 
@@ -49,6 +50,17 @@ class AnalyzeProductImplTest {
 
         val rated = assertIs<ProductAnalysis.Rated>(analysis)
         assertEquals(DietPreferences.Default.maxDailyCarbsAmount, rated.macronutrients.dailyCarbConsumption)
+        assertEquals(DietMode.KETO, rated.macronutrients.dietMode)
+    }
+
+    @Test
+    fun `when low carb mode is preferred then the result is a low carb result`() = runTest {
+        products.products = listOf(productWithCarbs)
+        preferences.current = Outcome.Success(DietPreferences(40, DietMode.LOW_CARB))
+
+        val analysis = analyzeProduct(BARCODE).first()
+
+        assertEquals(DietMode.LOW_CARB, assertIs<ProductAnalysis.Rated>(analysis).macronutrients.dietMode)
     }
 
     @Test
@@ -108,6 +120,11 @@ class AnalyzeProductImplTest {
 
         override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
             current = Outcome.Success(DietPreferences(amount))
+            return Outcome.Success(Unit)
+        }
+
+        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> {
+            current = Outcome.Success(DietPreferences(exampleDietPreferences.maxDailyCarbsAmount, mode))
             return Outcome.Success(Unit)
         }
     }

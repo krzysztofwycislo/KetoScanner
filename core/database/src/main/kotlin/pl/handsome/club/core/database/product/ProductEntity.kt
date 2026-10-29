@@ -23,6 +23,10 @@ data class ProductEntity(
     val carbohydratesPer100g: Double?,
     val saltPerServing: Double?,
     val saltPer100g: Double?,
+    val sugarsPerServing: Double?,
+    val sugarsPer100g: Double?,
+    val fibrePerServing: Double?,
+    val fibrePer100g: Double?,
     val fetchedAt: Instant,
 ) {
 

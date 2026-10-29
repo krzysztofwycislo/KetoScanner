@@ -40,17 +40,14 @@ internal class HistoryStateFactory(private val resources: HistoryResources) {
         }
     }
 
-    private fun ProductAnalysisHistoryEntry.toItemState(): HistoryItemState {
-        val dietRate = macronutrientAnalysisResult?.carbsRate
-        return HistoryItemState(
-            id = id,
-            barcode = productBarcode,
-            name = resources.productName(productName),
-            brand = resources.brand(productBrand),
-            rating = dietRate.toRating(),
-            ratingDescription = resources.rating(dietRate),
-        )
-    }
+    private fun ProductAnalysisHistoryEntry.toItemState(): HistoryItemState = HistoryItemState(
+        id = id,
+        barcode = productBarcode,
+        name = resources.productName(productName),
+        brand = resources.brand(productBrand),
+        rating = dietRate.toRating(),
+        ratingDescription = resources.rating(dietRate),
+    )
 
     private fun DietRate?.toRating(): Rating = when (this) {
         DietRate.GOOD -> Rating.Positive

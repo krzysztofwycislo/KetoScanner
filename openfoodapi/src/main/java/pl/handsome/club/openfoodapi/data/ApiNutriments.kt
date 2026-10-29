@@ -28,4 +28,7 @@ data class ApiNutriments(
 	@Json(name = "salt_100g") val saltPer100g: Double? = null,
 	@Json(name = "salt_serving") val saltPerServing: Double? = null,
 
+	@Json(name = "fiber_100g") val fibrePer100g: Double? = null,
+	@Json(name = "fiber_serving") val fibrePerServing: Double? = null,
+
 )

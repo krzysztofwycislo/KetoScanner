@@ -50,7 +50,7 @@ internal sealed interface VerdictState {
     data class Rated(
         val rating: Rating,
         val summary: UiText,
-        val details: UiText,
+        val reasons: PersistentList<UiText>,
         val portion: UiText,
     ) : VerdictState
 

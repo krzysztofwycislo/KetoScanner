@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.testing.TestAppDispatchers
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
@@ -28,6 +29,39 @@ class DietPreferencesRepositoryImplTest {
         val repository = DietPreferencesRepositoryImpl(FakePersistence(amounts = listOf(25)), TestAppDispatchers(testScheduler))
 
         assertEquals(Outcome.Success(DietPreferences(25)), repository.getDietPreferences())
+    }
+
+    @Test
+    fun `when no mode is stored then mode is keto`() = runTest {
+        val repository = DietPreferencesRepositoryImpl(
+            FakePersistence(stored = listOf(StoredDietPreferences(25, null))),
+            TestAppDispatchers(testScheduler),
+        )
+
+        assertEquals(Outcome.Success(DietPreferences(25, DietMode.KETO)), repository.getDietPreferences())
+    }
+
+    @Test
+    fun `when an unknown mode is stored then mode is keto`() = runTest {
+        val repository = DietPreferencesRepositoryImpl(
+            FakePersistence(stored = listOf(StoredDietPreferences(25, "PALEO"))),
+            TestAppDispatchers(testScheduler),
+        )
+
+        assertEquals(Outcome.Success(DietPreferences(25, DietMode.KETO)), repository.getDietPreferences())
+    }
+
+    @Test
+    fun `when low carb mode is stored then it is mapped to preferences`() = runTest {
+        val repository = DietPreferencesRepositoryImpl(
+            FakePersistence(stored = listOf(StoredDietPreferences(null, "LOW_CARB"))),
+            TestAppDispatchers(testScheduler),
+        )
+
+        assertEquals(
+            Outcome.Success(DietPreferences(DietPreferences.Default.maxDailyCarbsAmount, DietMode.LOW_CARB)),
+            repository.getDietPreferences(),
+        )
     }
 
     @Test
@@ -64,6 +98,15 @@ class DietPreferencesRepositoryImplTest {
     }
 
     @Test
+    fun `when mode is set then its name is passed to persistence and success is returned`() = runTest {
+        val persistence = FakePersistence()
+        val repository = DietPreferencesRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
+
+        assertEquals(Outcome.Success(Unit), repository.setDietMode(DietMode.LOW_CARB))
+        assertEquals(listOf("LOW_CARB"), persistence.setModes)
+    }
+
+    @Test
     fun `when setting throws then storage failure is returned`() = runTest {
         val repository = DietPreferencesRepositoryImpl(
             FakePersistence(failure = IllegalStateException("disk")),
@@ -71,6 +114,7 @@ class DietPreferencesRepositoryImplTest {
         )
 
         assertEquals(Outcome.Failure(AppError.Storage), repository.setMaxDailyCarbsAmount(55))
+        assertEquals(Outcome.Failure(AppError.Storage), repository.setDietMode(DietMode.KETO))
     }
 
     @Test
@@ -82,23 +126,31 @@ class DietPreferencesRepositoryImplTest {
 
         assertFailsWith<CancellationException> { repository.observeDietPreferences().toList() }
         assertFailsWith<CancellationException> { repository.setMaxDailyCarbsAmount(55) }
+        assertFailsWith<CancellationException> { repository.setDietMode(DietMode.KETO) }
     }
 
     private class FakePersistence(
-        private val amounts: List<Int?> = emptyList(),
+        amounts: List<Int?> = emptyList(),
+        private val stored: List<StoredDietPreferences> = amounts.map { StoredDietPreferences(it, null) },
         private val failure: Throwable? = null,
     ) : DietPreferencesPersistence {
 
         val setAmounts = mutableListOf<Int>()
+        val setModes = mutableListOf<String>()
 
-        override fun observeMaxDailyCarbsAmount(): Flow<Int?> {
-            val failure = failure ?: return flowOf(*amounts.toTypedArray())
+        override fun observe(): Flow<StoredDietPreferences> {
+            val failure = failure ?: return flowOf(*stored.toTypedArray())
             return flow { throw failure }
         }
 
         override suspend fun setMaxDailyCarbsAmount(amount: Int) {
             failure?.let { throw it }
             setAmounts += amount
+        }
+
+        override suspend fun setDietMode(name: String) {
+            failure?.let { throw it }
+            setModes += name
         }
     }
 }

@@ -3,16 +3,21 @@ package pl.handsome.club.feature.preferences.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -23,10 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.ContentCrossfade
@@ -39,8 +46,10 @@ import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
+import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnDietModeSelected
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
@@ -48,6 +57,7 @@ import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPr
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Error
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Form
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
+import pl.handsome.club.feature.preferences.ui.state.DietModeOptionState
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesState
 
 @Composable
@@ -102,6 +112,7 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
             .padding(AppTheme.spacing.m),
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
+        DietModeSection(state.dietModes, onAction)
         Text(
             text = state.summary.resolve(),
             style = AppTheme.typography.body,
@@ -146,6 +157,52 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
 }
 
 @Composable
+private fun DietModeSection(options: List<DietModeOptionState>, onAction: (DietPreferencesAction) -> Unit) {
+    Column(modifier = Modifier.selectableGroup()) {
+        Text(
+            text = stringResource(R.string.preferences_diet_mode_title),
+            style = AppTheme.typography.title,
+            color = AppTheme.colors.text.default,
+        )
+        options.forEach { option ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = option.isSelected,
+                        onClick = { onAction(OnDietModeSelected(option.mode)) },
+                        role = Role.RadioButton,
+                    )
+                    .padding(vertical = AppTheme.spacing.xs)
+                    .testTag("preferencesDietMode_${option.mode.name}"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = option.isSelected,
+                    onClick = null,
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = AppTheme.colors.accent,
+                        unselectedColor = AppTheme.colors.border.default,
+                    ),
+                )
+                Column(modifier = Modifier.padding(start = AppTheme.spacing.s)) {
+                    Text(
+                        text = option.label.resolve(),
+                        style = AppTheme.typography.body,
+                        color = AppTheme.colors.text.default,
+                    )
+                    Text(
+                        text = option.description.resolve(),
+                        style = AppTheme.typography.caption,
+                        color = AppTheme.colors.text.default,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun ErrorContent(state: Error, onAction: (DietPreferencesAction) -> Unit) {
     Column(
         modifier = Modifier.padding(AppTheme.spacing.m),
@@ -165,11 +222,30 @@ private fun ErrorContent(state: Error, onAction: (DietPreferencesAction) -> Unit
 
 private fun summaryExample() = UiText.Res(R.string.preferences_summary, UiArg.Numeric.Count(40))
 
+private fun dietModesExample() = persistentListOf(
+    DietModeOptionState(
+        mode = DietMode.KETO,
+        label = UiText.Res(R.string.preferences_diet_mode_keto),
+        description = UiText.Res(R.string.preferences_diet_mode_keto_description),
+        isSelected = true,
+    ),
+    DietModeOptionState(
+        mode = DietMode.LOW_CARB,
+        label = UiText.Res(R.string.preferences_diet_mode_low_carb),
+        description = UiText.Res(R.string.preferences_diet_mode_low_carb_description),
+        isSelected = false,
+    ),
+)
+
 @Preview(showBackground = true)
 @Composable
 private fun DietPreferencesFormPreview() {
     AppTheme {
-        ScreenContent(DietPreferencesState(Form(summary = summaryExample(), input = "40", inputError = null))) {}
+        ScreenContent(
+            DietPreferencesState(
+                Form(dietModes = dietModesExample(), summary = summaryExample(), input = "40", inputError = null)
+            )
+        ) {}
     }
 }
 
@@ -180,6 +256,7 @@ private fun DietPreferencesInvalidInputPreview() {
         ScreenContent(
             DietPreferencesState(
                 Form(
+                    dietModes = dietModesExample(),
                     summary = summaryExample(),
                     input = "0",
                     inputError = UiText.Res(R.string.preferences_input_error, UiArg.Numeric.Count(1), UiArg.Numeric.Count(999)),
