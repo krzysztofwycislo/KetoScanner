@@ -7,8 +7,12 @@ import androidx.compose.ui.unit.dp
 @Immutable
 data class AppBorders(
     val hairline: Dp,
+    val control: Dp,
+    val scanButtonRing: Dp,
 )
 
 val DefaultAppBorders = AppBorders(
     hairline = 1.dp,
+    control = 1.5.dp,
+    scanButtonRing = 5.dp,
 )

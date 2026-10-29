@@ -12,6 +12,7 @@ data class AppSpacing(
     val m: Dp,
     val l: Dp,
     val xl: Dp,
+    val xxl: Dp,
 )
 
 val DefaultAppSpacing = AppSpacing(
@@ -21,4 +22,5 @@ val DefaultAppSpacing = AppSpacing(
     m = 16.dp,
     l = 20.dp,
     xl = 32.dp,
+    xxl = 24.dp,
 )

@@ -10,6 +10,10 @@
     <string name="designsystem_preview_image">Sample product image</string>
     <string name="designsystem_preview_snackbar">Sample snackbar message</string>
     <string name="designsystem_preview_rating">Sample rating</string>
+    <string name="designsystem_preview_button">Sample button</string>
+    <string name="designsystem_preview_tab_home">Home</string>
+    <string name="designsystem_preview_tab_scan">Scan</string>
+    <string name="designsystem_preview_tab_favourites">Favourites</string>
     <plurals name="designsystem_preview_products">
         <item quantity="one">%1$s product</item>
         <item quantity="other">%1$s products</item>

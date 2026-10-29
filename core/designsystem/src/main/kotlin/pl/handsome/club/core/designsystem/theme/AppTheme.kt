@@ -19,6 +19,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import pl.handsome.club.core.designsystem.R
+import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.designsystem.text.resolve
 
 private val LocalAppColors = staticCompositionLocalOf { LightAppColors }
 private val LocalAppTypography = staticCompositionLocalOf { DefaultAppTypography }
@@ -69,22 +72,37 @@ fun AppTheme(content: @Composable () -> Unit) {
 }
 
 private fun AppColors.toMaterialColorScheme() = lightColorScheme(
-    primary = text.default,
+    primary = accent,
     onPrimary = text.inverse,
     secondary = accent,
+    onSecondary = text.inverse,
     background = background.default,
     onBackground = text.default,
-    surface = background.default,
+    surface = background.surface,
     onSurface = text.default,
-    error = result.negative,
-    outline = border.default,
+    surfaceVariant = background.subtle,
+    onSurfaceVariant = text.muted,
+    outline = border.strong,
+    outlineVariant = border.default,
+    error = verdict.negative.content,
 )
 
 private fun AppTypography.toMaterialTypography() = Typography(
-    bodyLarge = body,
-    titleLarge = title,
-    labelSmall = caption,
+    displayLarge = display,
     displayMedium = display,
+    displaySmall = display,
+    headlineLarge = headline,
+    headlineMedium = headline,
+    headlineSmall = headline,
+    titleLarge = title,
+    titleMedium = section,
+    titleSmall = bodyStrong,
+    bodyLarge = bodyLarge,
+    bodyMedium = body,
+    bodySmall = bodySmall,
+    labelLarge = button,
+    labelMedium = label,
+    labelSmall = caption,
 )
 
 @Preview(showBackground = true)
@@ -96,24 +114,55 @@ private fun AppThemePreview() {
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
         ) {
             val colors = AppTheme.colors
-            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
+            SwatchRow(
                 listOf(
                     colors.background.default,
+                    colors.background.surface,
+                    colors.background.subtle,
+                    colors.background.hero,
                     colors.background.scrim,
-                    colors.text.default,
                     colors.accent,
-                    colors.result.positive,
-                    colors.result.neutral,
-                    colors.result.negative,
                     colors.border.default,
+                    colors.border.strong,
                     colors.placeholder,
-                ).forEach { ColorSwatch(it) }
+                ),
+            )
+            SwatchRow(
+                listOf(
+                    colors.text.default,
+                    colors.text.muted,
+                    colors.text.subtle,
+                    colors.text.inverse,
+                    colors.text.accent,
+                    colors.text.highlight,
+                ),
+            )
+            with(colors.verdict) {
+                SwatchRow(
+                    listOf(
+                        positive.container,
+                        positive.content,
+                        neutral.container,
+                        neutral.content,
+                        negative.container,
+                        negative.content,
+                        unknown.container,
+                        unknown.content,
+                    ),
+                )
             }
-            Text("Caption", style = AppTheme.typography.caption)
-            Text("Body", style = AppTheme.typography.body)
-            Text("Title", style = AppTheme.typography.title)
-            Text("Display", style = AppTheme.typography.display)
+            val sample = UiText.Res(R.string.designsystem_preview_title).resolve()
+            with(AppTheme.typography) {
+                listOf(display, headline, title, section, bodyLarge, body, bodyStrong, bodySmall, button, label, caption)
+            }.forEach { Text(sample, style = it, color = colors.text.default) }
         }
+    }
+}
+
+@Composable
+private fun SwatchRow(colors: List<Color>) {
+    Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
+        colors.forEach { ColorSwatch(it) }
     }
 }
 

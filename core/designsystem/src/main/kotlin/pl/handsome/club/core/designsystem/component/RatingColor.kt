@@ -4,15 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.handsome.club.core.designsystem.theme.toneFor
 
 @Composable
 @ReadOnlyComposable
-fun Rating.color(): Color {
-    val colors = AppTheme.colors.result
-    return when (this) {
-        Rating.Positive -> colors.positive
-        Rating.Neutral -> colors.neutral
-        Rating.Negative -> colors.negative
-        Rating.Unknown -> colors.negative
-    }
-}
+fun Rating.color(): Color = AppTheme.colors.verdict.toneFor(this).content
+
+@Composable
+@ReadOnlyComposable
+fun Rating.containerColor(): Color = AppTheme.colors.verdict.toneFor(this).container

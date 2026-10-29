@@ -19,7 +19,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -74,7 +73,7 @@ internal fun KetoScannerApp(appEvents: AppEvents) {
         modifier = Modifier.semantics { testTagsAsResourceId = true },
         containerColor = AppTheme.colors.background.default,
         contentWindowInsets = WindowInsets(0),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState, Modifier.padding(bottom = AppTheme.sizes.scanButtonLift)) },
         bottomBar = { AppBottomBar(navController) },
     ) { innerPadding ->
         AppNavHost(
@@ -94,7 +93,7 @@ private fun AppBottomBar(navController: NavHostController) {
     LaunchedEffect(currentTab) { currentTab?.let { lastTab = it } }
     val selectedTab = currentTab ?: lastTab
     val items = TopLevelTab.entries
-        .map { BottomBarItem(stringResource(it.label), painterResource(it.icon)) }
+        .map { BottomBarItem(stringResource(it.label), it.icon, it.selectedIcon, it.isProminent) }
         .toImmutableList()
 
     Ui.BottomBar(

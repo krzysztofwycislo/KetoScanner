@@ -9,10 +9,22 @@ import androidx.compose.ui.unit.dp
 @Immutable
 data class AppShapes(
     val small: Shape,
+    val medium: Shape,
+    val control: Shape,
+    val card: Shape,
+    val large: Shape,
+    val extraLarge: Shape,
+    val pill: Shape,
     val circle: Shape,
 )
 
 val DefaultAppShapes = AppShapes(
     small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    control = RoundedCornerShape(14.dp),
+    card = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(22.dp),
+    extraLarge = RoundedCornerShape(26.dp),
+    pill = RoundedCornerShape(percent = 50),
     circle = CircleShape,
 )
