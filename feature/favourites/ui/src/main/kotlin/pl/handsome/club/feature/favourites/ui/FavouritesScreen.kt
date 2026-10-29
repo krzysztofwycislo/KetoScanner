@@ -5,15 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
@@ -63,7 +59,7 @@ import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.ShowI
 import pl.handsome.club.feature.favourites.ui.state.FavouritesState
 
 @Composable
-fun FavouritesScreen(onNavigation: (FavouritesNavigation) -> Unit) {
+internal fun FavouritesScreen(onNavigation: (FavouritesNavigation) -> Unit) {
     val viewModel: FavouritesViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -86,7 +82,7 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
     ) { innerPadding ->
         val centered = Modifier
             .padding(innerPadding)
-            .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
+            .imePadding()
             .fillMaxSize()
         Ui.ContentCrossfade(targetState = state.content) { content ->
             when (content) {
@@ -107,7 +103,7 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
                 is ShowItems -> LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
+                        .imePadding(),
                     contentPadding = innerPadding,
                 ) {
                     items(content.items, key = { it.barcode }) { item ->

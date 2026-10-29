@@ -1,6 +1,7 @@
 plugins {
     id("ketoscanner.android.library")
     id("ketoscanner.compose")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,6 +13,9 @@ dependencies {
     implementation(project(":core:common"))
 
     implementation(libs.androidx.lifecycle.viewmodel)
+
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.core)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose.viewmodel)

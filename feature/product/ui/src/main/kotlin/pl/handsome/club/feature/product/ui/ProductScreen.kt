@@ -70,7 +70,7 @@ import pl.handsome.club.feature.product.ui.state.ProductState
 import pl.handsome.club.feature.product.ui.state.VerdictState
 
 @Composable
-fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
+internal fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
     val viewModel: ProductViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()

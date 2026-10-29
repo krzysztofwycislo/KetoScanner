@@ -45,6 +45,7 @@ import pl.handsome.club.feature.product.ui.state.ProductStatePrototype as Protot
 import kotlin.coroutines.cancellation.CancellationException
 
 internal class ProductViewModel(
+    private val route: ProductRoute,
     private val savedStateHandle: SavedStateHandle,
     private val analyzeProduct: AnalyzeProduct,
     private val products: ProductRepository,
@@ -60,7 +61,7 @@ internal class ProductViewModel(
 
     private val statePrototype = MutableStateFlow(
         Prototype(
-            barcode = checkNotNull(savedStateHandle.get<String>(KEY_BARCODE)),
+            barcode = route.barcode,
             isImagePreviewOpen = savedStateHandle.get<Boolean>(KEY_IMAGE_PREVIEW_OPEN) ?: false,
             isNameExpanded = savedStateHandle.get<Boolean>(KEY_NAME_EXPANDED) ?: false,
         )
@@ -213,7 +214,6 @@ internal class ProductViewModel(
 
     private companion object {
         const val TAG = "ProductViewModel"
-        const val KEY_BARCODE = "barcode"
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
     }

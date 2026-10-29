@@ -1,5 +1,7 @@
 package pl.handsome.club.feature.product.ui
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
@@ -9,7 +11,10 @@ import pl.handsome.club.feature.product.ui.state.ProductStateFactory
 
 val productUiModule = module {
     viewModel {
-        ProductViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(named(APPLICATION_SCOPE)))
+        ProductViewModel(
+            get<SavedStateHandle>().toRoute<ProductRoute>(),
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(named(APPLICATION_SCOPE)),
+        )
     }
     factoryOf(::ProductStateFactory)
     factoryOf(::ProductResources)

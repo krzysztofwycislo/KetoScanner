@@ -3,14 +3,10 @@ package pl.handsome.club.feature.scanner.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -54,7 +50,7 @@ import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.ScanState
 
 @Composable
-fun ScanScreen(onNavigation: (ScanNavigation) -> Unit) {
+internal fun ScanScreen(onNavigation: (ScanNavigation) -> Unit) {
     val viewModel: ScanViewModel = koinViewModel()
     val permissionHandler = rememberCameraPermissionHandler { check ->
         viewModel.onAction(OnCameraPermissionResult(check))
@@ -97,7 +93,7 @@ private fun ScreenContent(state: ScanState, onAction: (ScanAction) -> Unit) {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(innerPadding)
-                    .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
+                    .imePadding(),
             )
         }
     }

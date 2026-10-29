@@ -83,6 +83,13 @@ class ProductViewModelTest {
     }
 
     @Test
+    fun `when created with a route then it analyses the route barcode`() = runTest {
+        createViewModel(route = ProductRoute(OTHER_BARCODE))
+
+        assertEquals(setOf(OTHER_BARCODE), analyzeProduct.requestedBarcodes.toSet())
+    }
+
+    @Test
     fun `when created and a product is emitted then product is shown history saved and favourite status loaded`() =
         runTest {
             favourites.findResult = Outcome.Success(favouriteProduct)
@@ -455,9 +462,13 @@ class ProductViewModelTest {
         assertEquals(10, showProduct(viewModel).header.nameMaxLines)
     }
 
-    private fun TestScope.createViewModel(handle: SavedStateHandle = handle()): ProductViewModel {
+    private fun TestScope.createViewModel(
+        handle: SavedStateHandle = handle(),
+        route: ProductRoute = ProductRoute(BARCODE),
+    ): ProductViewModel {
         val resources = ProductResources()
         return ProductViewModel(
+            route = route,
             savedStateHandle = handle,
             analyzeProduct = analyzeProduct,
             products = products,
@@ -564,6 +575,7 @@ class ProductViewModelTest {
 
     private companion object {
         const val BARCODE = "3017620422003"
+        const val OTHER_BARCODE = "5900000000001"
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
         const val CHANGED_IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/back.jpg"
@@ -590,6 +602,6 @@ class ProductViewModelTest {
             imageUrl = null,
         )
 
-        fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf("barcode" to BARCODE, *extra))
+        fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf(*extra))
     }
 }

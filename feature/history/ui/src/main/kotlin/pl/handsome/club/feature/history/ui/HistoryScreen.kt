@@ -60,7 +60,7 @@ import pl.handsome.club.feature.history.ui.state.HistoryItemState
 import pl.handsome.club.feature.history.ui.state.HistoryState
 
 @Composable
-fun HistoryScreen(onNavigation: (HistoryNavigation) -> Unit) {
+internal fun HistoryScreen(onNavigation: (HistoryNavigation) -> Unit) {
     val viewModel: HistoryViewModel = koinViewModel()
 
     LifecycleStartEffect(Unit) {

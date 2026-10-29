@@ -22,7 +22,7 @@ import pl.handsome.club.feature.about.ui.event.AboutAction.OnBackClicked
 import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation
 
 @Composable
-fun AboutScreen(onNavigation: (AboutNavigation) -> Unit) {
+internal fun AboutScreen(onNavigation: (AboutNavigation) -> Unit) {
     val viewModel: AboutViewModel = koinViewModel()
 
     ObserveEvents(viewModel.events) { event ->

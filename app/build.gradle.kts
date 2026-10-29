@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.navigation.safeargs)
     id("ketoscanner.app-version")
     id("ketoscanner.compose")
 }
@@ -30,7 +29,6 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
         buildConfig = true
     }
 }
@@ -61,15 +59,10 @@ dependencies {
 
     // androidx
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.material)
+    implementation(libs.androidx.activity.compose)
 
     // navigation
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
 
     // image loading
     implementation(libs.coil.compose)

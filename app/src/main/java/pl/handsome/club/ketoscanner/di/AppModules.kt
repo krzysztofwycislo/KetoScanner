@@ -2,7 +2,9 @@ package pl.handsome.club.ketoscanner.di
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import pl.handsome.club.core.common.APPLICATION_SCOPE
 import pl.handsome.club.core.common.AppDispatchers
@@ -28,34 +30,32 @@ private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo
 const val IMAGE_HTTP_CLIENT = "imageHttpClient"
 
 val appModules = module {
-    listOf(
-        // coroutines
-        single<AppDispatchers> { DefaultAppDispatchers },
-        single<CoroutineScope>(named(APPLICATION_SCOPE)) { CoroutineScope(SupervisorJob() + get<AppDispatchers>().default) },
+    // coroutines
+    single<AppDispatchers> { DefaultAppDispatchers }
+    single<CoroutineScope>(named(APPLICATION_SCOPE)) { CoroutineScope(SupervisorJob() + get<AppDispatchers>().default) }
 
-        // time
-        single<Clock> { Clock.System },
+    // time
+    single<Clock> { Clock.System }
 
-        // logging
-        single<AppLogger> { AndroidAppLogger },
-        single<ErrorReporter> { LoggingErrorReporter(get()) },
+    // logging
+    single<AppLogger> { AndroidAppLogger }
+    singleOf(::LoggingErrorReporter) bind ErrorReporter::class
 
-        // events
-        single { AppEvents(CoroutineScope(SupervisorJob())) },
+    // events
+    single { AppEvents(get(named(APPLICATION_SCOPE))) }
 
-        // network
-        single { createOpenFoodFactsMoshi() },
-        single {
-            createOpenFoodFactsOkHttpClient(
-                userAgent = "KetoScanner/${BuildConfig.VERSION_NAME} ($OPEN_FOOD_FACTS_CONTACT)",
-                enableBodyLogging = BuildConfig.DEBUG
-            )
-        },
-        single(named(IMAGE_HTTP_CLIENT)) { createOpenFoodFactsImageOkHttpClient(get()) },
-        single { createOpenFoodFactsRetrofit(OPEN_FOOD_FACTS_BASE_URL, get(), get()) },
-        single { createOpenFoodFactsApi(get()) },
+    // network
+    single { createOpenFoodFactsMoshi() }
+    single {
+        createOpenFoodFactsOkHttpClient(
+            userAgent = "KetoScanner/${BuildConfig.VERSION_NAME} ($OPEN_FOOD_FACTS_CONTACT)",
+            enableBodyLogging = BuildConfig.DEBUG
+        )
+    }
+    single(named(IMAGE_HTTP_CLIENT)) { createOpenFoodFactsImageOkHttpClient(get()) }
+    single { createOpenFoodFactsRetrofit(OPEN_FOOD_FACTS_BASE_URL, get(), get()) }
+    single { createOpenFoodFactsApi(get()) }
 
-        // repository
-        single<ProductNetworkSource> { OpenFoodFactsProductSource(get(), get()) },
-    )
+    // repository
+    singleOf(::OpenFoodFactsProductSource) bind ProductNetworkSource::class
 }

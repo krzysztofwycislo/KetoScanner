@@ -3,14 +3,10 @@ package pl.handsome.club.feature.preferences.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -55,7 +51,7 @@ import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesState
 
 @Composable
-fun DietPreferencesScreen(onNavigation: (DietPreferencesNavigation) -> Unit) {
+internal fun DietPreferencesScreen(onNavigation: (DietPreferencesNavigation) -> Unit) {
     val viewModel: DietPreferencesViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -91,7 +87,7 @@ private fun ScreenContent(state: DietPreferencesState, onAction: (DietPreference
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
+                        .imePadding(),
                 )
             }
         }
