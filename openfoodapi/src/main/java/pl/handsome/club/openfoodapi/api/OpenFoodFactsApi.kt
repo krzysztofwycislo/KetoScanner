@@ -6,10 +6,11 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 private const val PRODUCT_FIELDS = "product_name,brands,image_url,serving_quantity,nutriments"
+private const val PRODUCT_LANGUAGE = "pl"
 
 interface OpenFoodFactsApi {
 
-    @GET("api/v2/product/{barcode}?fields=$PRODUCT_FIELDS")
+    @GET("api/v2/product/{barcode}?fields=$PRODUCT_FIELDS&lc=$PRODUCT_LANGUAGE")
     suspend fun getProduct(@Path("barcode") barcode: String) : Response<GetProductResponse>
 
 }

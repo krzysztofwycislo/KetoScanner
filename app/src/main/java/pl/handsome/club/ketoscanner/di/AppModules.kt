@@ -17,6 +17,7 @@ import pl.handsome.club.openfoodapi.OpenFoodFactsProductSource
 import pl.handsome.club.openfoodapi.ProductNetworkSource
 import pl.handsome.club.openfoodapi.api.OPEN_FOOD_FACTS_BASE_URL
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageOkHttpClient
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
@@ -24,6 +25,7 @@ import kotlin.time.Clock
 
 
 private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo/KetoScanner"
+const val IMAGE_HTTP_CLIENT = "imageHttpClient"
 
 val appModules = module {
     listOf(
@@ -49,6 +51,7 @@ val appModules = module {
                 enableBodyLogging = BuildConfig.DEBUG
             )
         },
+        single(named(IMAGE_HTTP_CLIENT)) { createOpenFoodFactsImageOkHttpClient(get()) },
         single { createOpenFoodFactsRetrofit(OPEN_FOOD_FACTS_BASE_URL, get(), get()) },
         single { createOpenFoodFactsApi(get()) },
 

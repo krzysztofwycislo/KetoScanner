@@ -14,7 +14,10 @@ import pl.handsome.club.core.common.DefaultAppDispatchers
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.handsome.club.openfoodapi.api.OPEN_FOOD_FACTS_BASE_URL
+import pl.handsome.club.openfoodapi.api.UserAgentInterceptor
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageOkHttpClient
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
 import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
@@ -145,7 +148,35 @@ class OpenFoodFactsProductSourceTest {
         assertThat(request.url.encodedPath).isEqualTo("/api/v2/product/04963406")
         assertThat(request.url.queryParameter("fields"))
             .isEqualTo("product_name,brands,image_url,serving_quantity,nutriments")
+        assertThat(request.url.queryParameter("lc")).isEqualTo("pl")
         assertThat(request.headers["User-Agent"]).isEqualTo(TEST_USER_AGENT)
+    }
+
+    @Test
+    fun `base url points to the world host`() {
+        assertThat(OPEN_FOOD_FACTS_BASE_URL).isEqualTo("https://world.openfoodfacts.org/")
+    }
+
+    @Test
+    fun `api client has default timeouts`() {
+        val client = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = false)
+
+        assertThat(client.connectTimeoutMillis).isEqualTo(10_000)
+        assertThat(client.readTimeoutMillis).isEqualTo(20_000)
+        assertThat(client.callTimeoutMillis).isEqualTo(25_000)
+    }
+
+    @Test
+    fun `image client keeps user agent and connection pool without call timeout`() {
+        val apiClient = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = false)
+
+        val imageClient = createOpenFoodFactsImageOkHttpClient(apiClient)
+
+        assertThat(imageClient.callTimeoutMillis).isEqualTo(0)
+        assertThat(imageClient.readTimeoutMillis).isEqualTo(30_000)
+        assertThat(imageClient.connectTimeoutMillis).isEqualTo(10_000)
+        assertThat(imageClient.connectionPool).isSameInstanceAs(apiClient.connectionPool)
+        assertThat(imageClient.interceptors.filterIsInstance<UserAgentInterceptor>()).hasSize(1)
     }
 
     @Test
