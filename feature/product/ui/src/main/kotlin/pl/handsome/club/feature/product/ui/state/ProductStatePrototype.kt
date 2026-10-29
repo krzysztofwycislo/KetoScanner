@@ -8,7 +8,6 @@ import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 internal data class ProductStatePrototype(
     val barcode: String = "",
     val analysis: ProductAnalysis? = null,
-    val isLoading: Boolean = false,
     val loadError: AppError? = null,
     val isFavourite: Boolean? = null,
     val isFavouriteUpdating: Boolean = false,

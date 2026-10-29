@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:designsystem"))
     implementation(project(":feature:history:data"))
+    implementation(project(":feature:product:data"))
     implementation(project(":feature:history:ui"))
     implementation(project(":feature:product:ui"))
 

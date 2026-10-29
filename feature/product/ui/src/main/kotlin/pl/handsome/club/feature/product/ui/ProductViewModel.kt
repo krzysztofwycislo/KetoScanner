@@ -3,17 +3,23 @@ package pl.handsome.club.feature.product.ui
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.AppLogger
+import pl.handsome.club.core.common.ErrorReporter
 import pl.handsome.club.core.common.EventQueue
+import pl.handsome.club.core.common.isReportable
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
@@ -22,6 +28,7 @@ import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.ui.event.ProductAction
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnBackClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnFavouriteClicked
@@ -29,22 +36,25 @@ import pl.handsome.club.feature.product.ui.event.ProductAction.OnImageClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnNameClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnRetryClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnStart
 import pl.handsome.club.feature.product.ui.event.ProductEvent
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
 import pl.handsome.club.feature.product.ui.state.ProductState
 import pl.handsome.club.feature.product.ui.state.ProductStateFactory
 import pl.handsome.club.feature.product.ui.state.ProductStatePrototype as Prototype
+import kotlin.coroutines.cancellation.CancellationException
 
 internal class ProductViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val analyzeProduct: AnalyzeProduct,
+    private val products: ProductRepository,
     private val favourites: FavouriteProductsRepository,
     private val history: AnalysisHistoryRepository,
     private val appEvents: AppEvents,
     private val stateFactory: ProductStateFactory,
     private val resources: ProductResources,
     private val logger: AppLogger,
+    private val errorReporter: ErrorReporter,
+    private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     private val statePrototype = MutableStateFlow(
@@ -64,10 +74,11 @@ internal class ProductViewModel(
     private val screenEvents = EventQueue<ProductEvent>(viewModelScope)
     val events: Flow<ProductEvent> = screenEvents.events
 
+    private val retryClicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     fun onAction(action: ProductAction) {
         when (action) {
-            OnStart -> load()
-            OnRetryClicked -> load()
+            OnRetryClicked -> retry()
             OnBackClicked -> screenEvents send NavigateBack
             OnFavouriteClicked -> toggleFavourite()
             OnImageClicked -> openImagePreview()
@@ -76,33 +87,69 @@ internal class ProductViewModel(
         }
     }
 
-    private fun load() {
-        val prototype = statePrototype.value
-        if (prototype.isLoading || prototype.analysis != null) return
-        statePrototype.update { it.copy(isLoading = true, loadError = null) }
-
+    private fun observeProduct() {
         viewModelScope.launch {
-            analyzeProduct(prototype.barcode)
-                .onSuccess { analysis ->
-                    statePrototype.update { it.copy(analysis = analysis, isLoading = false) }
-                    saveToHistory(analysis)
-                    loadFavouriteStatus(analysis)
-                }
-                .onFailure { error ->
-                    log("Loading product failed", error)
-                    statePrototype.update { it.copy(loadError = error, isLoading = false) }
-                }
+            analyses(onFailure = ::onObserveFailed).collect(::showAnalysis)
         }
     }
 
-    private suspend fun saveToHistory(analysis: ProductAnalysis) {
-        history.save(analysis).onFailure { error -> log("Saving history entry failed", error) }
+    private fun saveToHistory() {
+        viewModelScope.launch {
+            val analysis = analyses().first()
+            applicationScope.launch {
+                history.save(analysis).onFailure { error -> log("Saving history entry failed", error) }
+            }
+        }
     }
 
-    private suspend fun loadFavouriteStatus(analysis: ProductAnalysis) {
-        favourites.findByBarcode(analysis.product.barcode)
-            .onSuccess { favourite -> statePrototype.update { it.copy(isFavourite = favourite != null) } }
-            .onFailure { error -> log("Loading favourite status failed", error) }
+    private fun loadFavouriteStatus() {
+        viewModelScope.launch {
+            val analysis = analyses().first()
+            favourites.findByBarcode(analysis.product.barcode)
+                .onSuccess { favourite -> statePrototype.update { it.copy(isFavourite = favourite != null) } }
+                .onFailure { error -> log("Loading favourite status failed", error) }
+        }
+    }
+
+    private fun refresh() {
+        viewModelScope.launch {
+            products.refreshProduct(statePrototype.value.barcode)
+                .onFailure(::onRefreshFailed)
+        }
+    }
+
+    private fun retry() {
+        statePrototype.update { it.copy(loadError = null) }
+        retryClicks.tryEmit(Unit)
+        refresh()
+    }
+
+    private fun analyses(onFailure: () -> Unit = {}): Flow<ProductAnalysis> =
+        analyzeProduct(statePrototype.value.barcode).retryWhen { error, _ ->
+            if (error is CancellationException) return@retryWhen false
+            onFailure()
+            retryClicks.first()
+            true
+        }
+
+    private fun showAnalysis(analysis: ProductAnalysis) {
+        statePrototype.update { it.copy(analysis = analysis, loadError = null) }
+    }
+
+    private fun onRefreshFailed(error: AppError) {
+        if (statePrototype.value.analysis == null) {
+            statePrototype.update { it.copy(loadError = error) }
+            reportOrLog("Loading product failed", error)
+        } else {
+            reportOrLog("Refreshing product failed", error)
+        }
+    }
+
+    private fun onObserveFailed() {
+        reportOrLog("Observing product failed", AppError.Storage)
+        if (statePrototype.value.analysis == null) {
+            statePrototype.update { it.copy(loadError = AppError.Storage) }
+        }
     }
 
     private fun toggleFavourite() {
@@ -147,6 +194,18 @@ internal class ProductViewModel(
 
     private fun log(message: String, error: AppError) {
         logger.error(TAG, "$message: $error", (error as? AppError.Unknown)?.cause)
+    }
+
+    private fun reportOrLog(message: String, error: AppError) {
+        if (error.isReportable) errorReporter.report(TAG, message, error)
+        else logger.warn(TAG, "$message: $error")
+    }
+
+    init {
+        observeProduct()
+        saveToHistory()
+        loadFavouriteStatus()
+        refresh()
     }
 
     private companion object {

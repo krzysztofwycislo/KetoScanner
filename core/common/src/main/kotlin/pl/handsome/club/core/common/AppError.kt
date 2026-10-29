@@ -14,3 +14,13 @@ sealed interface AppError {
 
     data class Unknown(val cause: Throwable) : AppError
 }
+
+val AppError.isReportable: Boolean
+    get() = when (this) {
+        AppError.Network -> false
+        AppError.NotFound -> false
+        is AppError.Http -> true
+        AppError.Parsing -> true
+        AppError.Storage -> true
+        is AppError.Unknown -> true
+    }

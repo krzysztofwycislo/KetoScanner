@@ -1,7 +1,7 @@
 package pl.handsome.club.feature.analysis.domain
 
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.common.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
@@ -13,6 +13,6 @@ internal class AnalyzeProductImpl(
     private val engine: DietAnalysisEngine,
 ) : AnalyzeProduct {
 
-    override suspend fun invoke(barcode: String): Outcome<ProductAnalysis> =
-        products.getProduct(barcode).map { engine.analyze(preferences.getDietPreferences(), it) }
+    override fun invoke(barcode: String): Flow<ProductAnalysis> =
+        products.observeProduct(barcode).map { engine.analyze(preferences.getDietPreferences(), it) }
 }

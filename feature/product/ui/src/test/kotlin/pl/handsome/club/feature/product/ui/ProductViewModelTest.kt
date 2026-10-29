@@ -1,10 +1,15 @@
 package pl.handsome.club.feature.product.ui
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -19,6 +24,7 @@ import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.testing.FakeAppLogger
+import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
@@ -27,6 +33,7 @@ import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.product.ui.event.ProductAction
@@ -48,9 +55,11 @@ import pl.handsome.club.core.designsystem.R as DesignR
 class ProductViewModelTest {
 
     private val analyzeProduct = FakeAnalyzeProduct()
+    private val products = FakeProductRepository()
     private val favourites = FakeFavourites()
     private val history = FakeHistory()
     private val logger = FakeAppLogger()
+    private val errorReporter = FakeErrorReporter()
     private val messages = mutableListOf<AppEvent>()
     private var testAppEvents: AppEvents? = null
 
@@ -66,89 +75,209 @@ class ProductViewModelTest {
 
     @Test
     fun `when created then content is loading`() = runTest {
+        analyzeProduct.clearProduct()
+        products.gate()
         val viewModel = createViewModel()
 
         assertEquals(ProductContentState.Loading, viewModel.state.value.content)
     }
 
     @Test
-    fun `when started and analysis succeeds then product is shown history saved and favourite status loaded`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct)
+    fun `when created and a product is emitted then product is shown history saved and favourite status loaded`() =
+        runTest {
+            favourites.findResult = Outcome.Success(favouriteProduct)
+            val viewModel = createViewModel()
+
+            val content = showProduct(viewModel)
+            assertEquals(setOf(BARCODE), analyzeProduct.requestedBarcodes.toSet())
+            assertEquals(listOf(BARCODE), products.refreshedBarcodes)
+            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+            assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+            assertEquals(true, content.favourite?.isFavourite)
+            assertTrue(logger.entries.isEmpty())
+        }
+
+    @Test
+    fun `when created then product is refreshed once and history and favourites run once without any action`() =
+        runTest {
+            val gate = products.gate()
+            val viewModel = createViewModel()
+
+            gate.complete(Unit)
+
+            assertEquals(1, products.refreshedBarcodes.size)
+            assertEquals(1, history.saved.size)
+            assertEquals(1, favourites.foundBarcodes.size)
+            showProduct(viewModel)
+    }
+
+    @Test
+    fun `when refresh fails with network before any product then error is shown and only a warning is logged`() =
+        runTest {
+            analyzeProduct.clearProduct()
+            products.result = Outcome.Failure(AppError.Network)
+            val viewModel = createViewModel()
+
+            assertEquals(
+                ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_network)),
+                viewModel.state.value.content,
+            )
+            assertEquals(1, logger.entries.size)
+            assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
+            assertTrue(errorReporter.reports.isEmpty())
+            assertTrue(history.saved.isEmpty())
+        }
+
+    @Test
+    fun `when refresh fails with parsing before any product then error is shown and reported once`() = runTest {
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Parsing)
         val viewModel = createViewModel()
 
-        viewModel.onAction(ProductAction.OnStart)
-
-        val content = showProduct(viewModel)
-        assertEquals(listOf(BARCODE), analyzeProduct.requestedBarcodes)
-        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
-        assertEquals(listOf(BARCODE), favourites.foundBarcodes)
-        assertEquals(true, content.favourite?.isFavourite)
+        assertIs<ProductContentState.Error>(viewModel.state.value.content)
+        assertEquals(AppError.Parsing, errorReporter.reports.single().error)
         assertTrue(logger.entries.isEmpty())
     }
 
     @Test
-    fun `when started again after success then product is not analyzed again`() = runTest {
-        val viewModel = createViewModel()
-
-        viewModel.onAction(ProductAction.OnStart)
-        viewModel.onAction(ProductAction.OnStart)
-
-        assertEquals(1, analyzeProduct.requestedBarcodes.size)
-        assertEquals(1, history.saved.size)
-    }
-
-    @Test
-    fun `when started while analysis is suspended then product is analyzed once`() = runTest {
-        val pending = CompletableDeferred<Outcome<ProductAnalysis>>()
-        analyzeProduct.pending = pending
-        val viewModel = createViewModel()
-
-        viewModel.onAction(ProductAction.OnStart)
-        viewModel.onAction(ProductAction.OnStart)
-        pending.complete(Outcome.Success(analysis))
-
-        assertEquals(1, analyzeProduct.requestedBarcodes.size)
-        showProduct(viewModel)
-    }
-
-    @Test
-    fun `when analysis fails then error is shown and logged once`() = runTest {
-        analyzeProduct.result = Outcome.Failure(AppError.Network)
-        val viewModel = createViewModel()
-
-        viewModel.onAction(ProductAction.OnStart)
-
-        assertEquals(
-            ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_network)),
-            viewModel.state.value.content,
-        )
-        assertEquals(1, logger.entries.size)
-        assertEquals(FakeAppLogger.Level.Error, logger.entries.single().level)
-        assertTrue(history.saved.isEmpty())
-    }
-
-    @Test
-    fun `when analysis fails with unknown error then cause is logged`() = runTest {
+    fun `when refresh fails with unknown error before any product then it is reported with its cause`() = runTest {
         val cause = IllegalStateException("boom")
-        analyzeProduct.result = Outcome.Failure(AppError.Unknown(cause))
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Unknown(cause))
         val viewModel = createViewModel()
 
-        viewModel.onAction(ProductAction.OnStart)
-
-        assertEquals(cause, logger.entries.single().cause)
+        assertEquals(AppError.Unknown(cause), errorReporter.reports.single().error)
+        assertTrue(logger.entries.isEmpty())
     }
 
     @Test
-    fun `when retry succeeds after an error then product is shown`() = runTest {
-        analyzeProduct.result = Outcome.Failure(AppError.Network)
+    fun `when retry is clicked after an error then it refreshes again and a following product is shown`() = runTest {
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Network)
         val viewModel = createViewModel()
-        viewModel.onAction(ProductAction.OnStart)
+        val observations = analyzeProduct.requestedBarcodes.size
 
-        analyzeProduct.result = Outcome.Success(analysis)
+        products.result = Outcome.Success(Unit)
         viewModel.onAction(ProductAction.OnRetryClicked)
+        analyzeProduct.updates.emit(analysis)
 
         showProduct(viewModel)
-        assertEquals(2, analyzeProduct.requestedBarcodes.size)
+        assertEquals(2, products.refreshedBarcodes.size)
+        assertEquals(observations, analyzeProduct.requestedBarcodes.size)
+    }
+
+    @Test
+    fun `when retry is clicked twice while the retry refresh is pending then each click asks for a refresh`() = runTest {
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Network)
+        val viewModel = createViewModel()
+
+        val gate = products.gate()
+        viewModel.onAction(ProductAction.OnRetryClicked)
+        viewModel.onAction(ProductAction.OnRetryClicked)
+        gate.complete(Unit)
+
+        assertEquals(3, products.refreshedBarcodes.size)
+    }
+
+    @Test
+    fun `when refresh fails with parsing while a product is shown then state stays without message and it is reported`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.Parsing)
+            val viewModel = createViewModel()
+            collectMessages()
+
+            showProduct(viewModel)
+            assertTrue(messages.isEmpty())
+            assertEquals(AppError.Parsing, errorReporter.reports.single().error)
+            assertEquals("Refreshing product failed", errorReporter.reports.single().message)
+            assertTrue(logger.entries.isEmpty())
+        }
+
+    @Test
+    fun `when refresh fails with network while a product is shown then state stays and only a warning is logged`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.Network)
+            val viewModel = createViewModel()
+            collectMessages()
+
+            showProduct(viewModel)
+            assertTrue(messages.isEmpty())
+            assertTrue(errorReporter.reports.isEmpty())
+            assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
+        }
+
+    @Test
+    fun `when a product is emitted after the refresh failed then it is shown and the error is cleared`() = runTest {
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Network)
+        val viewModel = createViewModel()
+        assertIs<ProductContentState.Error>(viewModel.state.value.content)
+
+        analyzeProduct.updates.emit(analysis)
+
+        showProduct(viewModel)
+        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+    }
+
+    @Test
+    fun `when a changed product is emitted later then it is shown and history and favourites run once`() = runTest {
+        val viewModel = createViewModel()
+
+        val changed = analysis.copy(product = product.copy(imageUrl = CHANGED_IMAGE_URL))
+        analyzeProduct.updates.emit(changed)
+
+        assertEquals(CHANGED_IMAGE_URL, showProduct(viewModel).header.imageUrl)
+        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+        assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+    }
+
+    @Test
+    fun `when observing fails before any product then storage error is shown reported and retry observes again`() =
+        runTest {
+            analyzeProduct.failure = IllegalStateException("disk")
+            val viewModel = createViewModel()
+
+            assertEquals(
+                ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_storage)),
+                viewModel.state.value.content,
+            )
+            assertEquals(AppError.Storage, errorReporter.reports.single().error)
+            assertTrue(history.saved.isEmpty())
+            val observations = analyzeProduct.requestedBarcodes.size
+
+            analyzeProduct.failure = null
+            viewModel.onAction(ProductAction.OnRetryClicked)
+
+            showProduct(viewModel)
+            assertTrue(analyzeProduct.requestedBarcodes.size > observations)
+            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
+            assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+        }
+
+    @Test
+    fun `when observing fails after a product is shown then the product stays and it is reported`() = runTest {
+        val viewModel = createViewModel()
+        collectMessages()
+
+        analyzeProduct.failure = IllegalStateException("disk")
+        analyzeProduct.updates.emit(analysis)
+
+        showProduct(viewModel)
+        assertTrue(messages.isEmpty())
+        assertEquals(AppError.Storage, errorReporter.reports.single().error)
+    }
+
+    @Test
+    fun `when the screen is closed while history is saving then the save still completes`() = runTest {
+        val pending = CompletableDeferred<Unit>()
+        history.pending = pending
+        val viewModel = createViewModel()
+
+        viewModel.viewModelScope.cancel()
+        pending.complete(Unit)
+
+        assertEquals(listOf<ProductAnalysis>(analysis), history.completed)
     }
 
     @Test
@@ -156,8 +285,6 @@ class ProductViewModelTest {
         history.result = Outcome.Failure(AppError.Storage)
         val viewModel = createViewModel()
         collectMessages()
-
-        viewModel.onAction(ProductAction.OnStart)
 
         showProduct(viewModel)
         assertEquals(1, logger.entries.size)
@@ -169,8 +296,6 @@ class ProductViewModelTest {
         favourites.findResult = Outcome.Failure(AppError.Storage)
         val viewModel = createViewModel()
 
-        viewModel.onAction(ProductAction.OnStart)
-
         assertNull(showProduct(viewModel).favourite)
         assertEquals(1, logger.entries.size)
     }
@@ -179,7 +304,6 @@ class ProductViewModelTest {
     fun `when favourite is clicked for a non favourite then product is added and message is sent`() = runTest {
         val viewModel = createViewModel()
         collectMessages()
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnFavouriteClicked)
 
@@ -196,7 +320,6 @@ class ProductViewModelTest {
         favourites.findResult = Outcome.Success(favouriteProduct)
         val viewModel = createViewModel()
         collectMessages()
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnFavouriteClicked)
 
@@ -215,7 +338,6 @@ class ProductViewModelTest {
             favourites.updateResult = Outcome.Failure(AppError.Storage)
             val viewModel = createViewModel()
             collectMessages()
-            viewModel.onAction(ProductAction.OnStart)
 
             viewModel.onAction(ProductAction.OnFavouriteClicked)
 
@@ -234,7 +356,6 @@ class ProductViewModelTest {
         val pending = CompletableDeferred<Outcome<Unit>>()
         favourites.pendingUpdate = pending
         val viewModel = createViewModel()
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnFavouriteClicked)
         assertFalse(assertNotNull(showProduct(viewModel).favourite).isEnabled)
@@ -258,7 +379,6 @@ class ProductViewModelTest {
     fun `when image is clicked and dismissed then preview state and handle follow`() = runTest {
         val handle = handle()
         val viewModel = createViewModel(handle)
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnImageClicked)
         assertNotNull(showProduct(viewModel).imagePreview)
@@ -271,10 +391,9 @@ class ProductViewModelTest {
 
     @Test
     fun `when image is clicked for a product without image then preview stays closed`() = runTest {
-        analyzeProduct.result = Outcome.Success(analysis.copy(product = product.copy(imageUrl = null)))
+        analyzeProduct.updates.emit(analysis.copy(product = product.copy(imageUrl = null)))
         val handle = handle()
         val viewModel = createViewModel(handle)
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnImageClicked)
 
@@ -286,8 +405,6 @@ class ProductViewModelTest {
     fun `when handle was restored with an open preview then preview is shown after load`() = runTest {
         val viewModel = createViewModel(handle(KEY_IMAGE_PREVIEW_OPEN to true))
 
-        viewModel.onAction(ProductAction.OnStart)
-
         assertNotNull(showProduct(viewModel).imagePreview)
     }
 
@@ -295,7 +412,6 @@ class ProductViewModelTest {
     fun `when name is clicked then it toggles and the handle is written`() = runTest {
         val handle = handle()
         val viewModel = createViewModel(handle)
-        viewModel.onAction(ProductAction.OnStart)
 
         viewModel.onAction(ProductAction.OnNameClicked)
         assertEquals(10, showProduct(viewModel).header.nameMaxLines)
@@ -310,8 +426,6 @@ class ProductViewModelTest {
     fun `when handle was restored with an expanded name then name is expanded after load`() = runTest {
         val viewModel = createViewModel(handle(KEY_NAME_EXPANDED to true))
 
-        viewModel.onAction(ProductAction.OnStart)
-
         assertEquals(10, showProduct(viewModel).header.nameMaxLines)
     }
 
@@ -320,12 +434,15 @@ class ProductViewModelTest {
         return ProductViewModel(
             savedStateHandle = handle,
             analyzeProduct = analyzeProduct,
+            products = products,
             favourites = favourites,
             history = history,
             appEvents = appEvents(),
             stateFactory = ProductStateFactory(resources),
             resources = resources,
             logger = logger,
+            errorReporter = errorReporter,
+            applicationScope = CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         )
     }
 
@@ -341,13 +458,35 @@ class ProductViewModelTest {
 
     private class FakeAnalyzeProduct : AnalyzeProduct {
 
-        var result: Outcome<ProductAnalysis> = Outcome.Success(analysis)
-        var pending: CompletableDeferred<Outcome<ProductAnalysis>>? = null
+        val updates = MutableSharedFlow<ProductAnalysis>(replay = 1).apply { tryEmit(analysis) }
+        var failure: Throwable? = null
         val requestedBarcodes = mutableListOf<String>()
 
-        override suspend fun invoke(barcode: String): Outcome<ProductAnalysis> {
+        fun clearProduct() = updates.resetReplayCache()
+
+        override fun invoke(barcode: String): Flow<ProductAnalysis> = flow {
             requestedBarcodes += barcode
-            return pending?.await() ?: result
+            updates.collect { analysis ->
+                failure?.let { throw it }
+                emit(analysis)
+            }
+        }
+    }
+
+    private class FakeProductRepository : ProductRepository {
+
+        var result: Outcome<Unit> = Outcome.Success(Unit)
+        val refreshedBarcodes = mutableListOf<String>()
+        private var gate: CompletableDeferred<Unit>? = null
+
+        fun gate(): CompletableDeferred<Unit> = CompletableDeferred<Unit>().also { gate = it }
+
+        override fun observeProduct(barcode: String): Flow<Product> = throw NotImplementedError()
+
+        override suspend fun refreshProduct(barcode: String): Outcome<Unit> {
+            refreshedBarcodes += barcode
+            gate?.await()
+            return result
         }
     }
 
@@ -381,10 +520,14 @@ class ProductViewModelTest {
     private class FakeHistory : AnalysisHistoryRepository {
 
         var result: Outcome<Unit> = Outcome.Success(Unit)
+        var pending: CompletableDeferred<Unit>? = null
         val saved = mutableListOf<ProductAnalysis>()
+        val completed = mutableListOf<ProductAnalysis>()
 
         override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> {
             saved += analysis
+            pending?.await()
+            completed += analysis
             return result
         }
 
@@ -396,6 +539,7 @@ class ProductViewModelTest {
         const val BARCODE = "3017620422003"
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
+        const val CHANGED_IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/back.jpg"
 
         val product = Product(
             name = "Nutella",

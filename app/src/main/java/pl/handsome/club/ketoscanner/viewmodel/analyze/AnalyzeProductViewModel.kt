@@ -5,13 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.fold
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
+import pl.handsome.club.feature.product.api.ProductRepository
 
 
 class AnalyzeProductViewModel(
+    private val products: ProductRepository,
     private val analyzeProduct: AnalyzeProduct
 ) : ViewModel() {
 
@@ -29,9 +32,9 @@ class AnalyzeProductViewModel(
         productAnalysisState.value = ProductAnalysisState.InProgress
 
         viewModelScope.launch(coroutineExceptionHandler) {
-            analyzeProduct(barcode)
+            products.refreshProduct(barcode)
                 .fold(
-                    onSuccess = { ProductAnalysisState.Success(barcode, it) },
+                    onSuccess = { ProductAnalysisState.Success(barcode, analyzeProduct(barcode).first()) },
                     onFailure = ::toFailureState
                 )
                 .let(productAnalysisState::postValue)

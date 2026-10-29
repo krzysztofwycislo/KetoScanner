@@ -9,14 +9,17 @@ import pl.handsome.club.core.database.favourite.FavouriteProductDao
 import pl.handsome.club.core.database.favourite.FavouriteProductEntity
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryDao
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
+import pl.handsome.club.core.database.product.ProductDao
+import pl.handsome.club.core.database.product.ProductEntity
 
 
 @Database(
     entities = [
         ProductAnalysisHistoryEntryEntity::class,
-        FavouriteProductEntity::class
+        FavouriteProductEntity::class,
+        ProductEntity::class
     ],
-    version = 3
+    version = 4
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -24,6 +27,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun productAnalysisHistoryDao(): ProductAnalysisHistoryDao
 
     abstract fun favouriteProductsDao(): FavouriteProductDao
+
+    abstract fun productDao(): ProductDao
 
 
     companion object {

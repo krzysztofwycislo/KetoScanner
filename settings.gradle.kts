@@ -19,6 +19,7 @@ rootProject.name = "KetoScanner"
 include(":app", ":openfoodapi", ":barcodescanner", ":core:common", ":core:model", ":core:testing", ":core:designsystem", ":core:database")
 include(
     ":feature:product:api",
+    ":feature:product:data",
     ":feature:preferences:api",
     ":feature:analysis:api",
     ":feature:history:api",

@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,7 +57,6 @@ import pl.handsome.club.feature.product.ui.event.ProductAction.OnImageClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnNameClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnRetryClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnStart
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
@@ -74,11 +72,6 @@ import pl.handsome.club.feature.product.ui.state.VerdictState
 @Composable
 fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
     val viewModel: ProductViewModel = koinViewModel()
-
-    LifecycleStartEffect(Unit) {
-        viewModel.onAction(OnStart)
-        onStopOrDispose {}
-    }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObserveEvents(viewModel.events) { event ->
