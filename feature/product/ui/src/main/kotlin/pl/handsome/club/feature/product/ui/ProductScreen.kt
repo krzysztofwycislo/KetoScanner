@@ -1,32 +1,34 @@
 package pl.handsome.club.feature.product.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,14 +37,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.designsystem.component.CircleIconButton
 import pl.handsome.club.core.designsystem.component.ContentCrossfade
-import pl.handsome.club.core.designsystem.component.PortionIcon
+import pl.handsome.club.core.designsystem.component.PrimaryButton
 import pl.handsome.club.core.designsystem.component.ProductImage
 import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.RatingIcon
 import pl.handsome.club.core.designsystem.component.Screen
+import pl.handsome.club.core.designsystem.component.SegmentedToggle
 import pl.handsome.club.core.designsystem.component.Ui
+import pl.handsome.club.core.designsystem.component.VerdictBanner
 import pl.handsome.club.core.designsystem.component.color
+import pl.handsome.club.core.designsystem.component.containerColor
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
@@ -56,10 +61,18 @@ import pl.handsome.club.feature.product.ui.event.ProductAction.OnFavouriteClicke
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImageClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnNameClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnPer100gClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnPerServingClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnRetryClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnWebPageUnavailable
+import pl.handsome.club.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
+import pl.handsome.club.feature.product.ui.state.GlanceState
+import pl.handsome.club.feature.product.ui.state.GlanceTileState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
+import pl.handsome.club.feature.product.ui.state.NutrientRowKind
 import pl.handsome.club.feature.product.ui.state.NutrientRowState
 import pl.handsome.club.feature.product.ui.state.NutrientTableState
 import pl.handsome.club.feature.product.ui.state.ProductContentState.Error
@@ -74,8 +87,16 @@ internal fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
     val viewModel: ProductViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val uriHandler = LocalUriHandler.current
     ObserveEvents(viewModel.events) { event ->
-        if (event is ProductNavigation) onNavigation(event)
+        when (event) {
+            is ProductNavigation -> onNavigation(event)
+            is OpenWebPage -> try {
+                uriHandler.openUri(event.url)
+            } catch (_: IllegalArgumentException) {
+                viewModel.onAction(OnWebPageUnavailable)
+            }
+        }
     }
 
     ScreenContent(state, viewModel::onAction)
@@ -84,53 +105,70 @@ internal fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
 @Composable
 private fun ScreenContent(state: ProductState, onAction: (ProductAction) -> Unit) {
     Ui.Screen { innerPadding ->
-        Box(
+        Ui.ContentCrossfade(
+            targetState = state.content,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-        ) {
-            Ui.ContentCrossfade(targetState = state.content, modifier = Modifier.fillMaxSize()) { content ->
-                when (content) {
-                    Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-
-                    is Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ErrorContent(content, onAction)
-                    }
-
-                    is ShowProduct -> ProductContent(content, onAction)
-                }
+        ) { content ->
+            when (content) {
+                Loading -> CenteredContent(onAction) { CircularProgressIndicator() }
+                is Error -> CenteredContent(onAction) { ErrorContent(content, onAction) }
+                is ShowProduct -> ProductContent(content, onAction)
             }
-            BackButton(onAction, Modifier.align(Alignment.TopStart))
         }
     }
 }
 
 @Composable
-private fun BackButton(onAction: (ProductAction) -> Unit, modifier: Modifier = Modifier) {
-    IconButton(
-        onClick = { onAction(OnBackClicked) },
-        modifier = modifier.padding(AppTheme.spacing.xs),
-        colors = IconButtonDefaults.iconButtonColors(
-            containerColor = AppTheme.colors.background.scrim,
-            contentColor = AppTheme.colors.text.inverse,
-        ),
+private fun CenteredContent(onAction: (ProductAction) -> Unit, content: @Composable () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Header(favourite = null, onAction = onAction, modifier = Modifier.padding(AppTheme.spacing.l))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun Header(
+    favourite: FavouriteButtonState?,
+    onAction: (ProductAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = AppIcons.Back,
-            contentDescription = stringResource(R.string.product_back),
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+        Ui.CircleIconButton(
+            icon = AppIcons.Back,
+            contentDescription = UiText.Res(R.string.product_back),
+            onClick = { onAction(OnBackClicked) },
         )
+        if (favourite != null) {
+            Ui.CircleIconButton(
+                icon = if (favourite.isFavourite) AppIcons.HeartFilled else AppIcons.Heart,
+                contentDescription = favourite.description,
+                onClick = { onAction(OnFavouriteClicked) },
+                enabled = favourite.isEnabled,
+                contentColor = if (favourite.isFavourite) AppTheme.colors.favourite else AppTheme.colors.text.default,
+            )
+        }
     }
 }
 
 @Composable
 private fun ErrorContent(state: Error, onAction: (ProductAction) -> Unit) {
     Column(
-        modifier = Modifier.padding(AppTheme.spacing.m),
+        modifier = Modifier.padding(AppTheme.spacing.l),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
         Text(
             text = state.message.resolve(),
@@ -138,9 +176,7 @@ private fun ErrorContent(state: Error, onAction: (ProductAction) -> Unit) {
             color = AppTheme.colors.text.default,
             textAlign = TextAlign.Center,
         )
-        TextButton(onClick = { onAction(OnRetryClicked) }) {
-            Text(text = stringResource(R.string.product_retry), style = AppTheme.typography.body)
-        }
+        Ui.PrimaryButton(text = stringResource(R.string.product_retry), onClick = { onAction(OnRetryClicked) })
     }
 }
 
@@ -149,183 +185,250 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(AppTheme.spacing.l),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
-        Ui.ProductImage(
-            url = state.header.imageUrl,
-            contentDescription = state.header.imageDescription,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(AppTheme.sizes.productImageHeight)
-                .clickable(enabled = state.header.isImageClickable) { onAction(OnImageClicked) },
-        )
-        Title(state.header, state.favourite, onAction)
-        Column(
-            modifier = Modifier.padding(AppTheme.spacing.m),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.l),
-        ) {
-            Verdict(state.verdict)
-            NutrientTable(state.nutrients)
-        }
+        Header(state.favourite, onAction)
+        ProductBlock(state.header, onAction)
+        Verdict(state.verdict, onAction)
+        Glance(state.glance, onAction)
+        NutrientTable(state.nutrients)
+        Footer(state.dataSource, onAction)
     }
     state.imagePreview?.let { ImagePreview(it, onAction) }
 }
 
 @Composable
-private fun Title(header: ProductHeaderState, favourite: FavouriteButtonState?, onAction: (ProductAction) -> Unit) {
+private fun ProductBlock(header: ProductHeaderState, onAction: (ProductAction) -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = AppTheme.spacing.m, end = AppTheme.spacing.m, top = AppTheme.spacing.s),
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Ui.ProductImage(
+            url = header.imageUrl,
+            contentDescription = header.imageDescription,
+            modifier = Modifier
+                .size(AppTheme.sizes.productPhoto)
+                .clip(AppTheme.shapes.large)
+                .background(AppTheme.colors.background.surface)
+                .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.large)
+                .clickable(enabled = header.isImageClickable) { onAction(OnImageClicked) },
+        )
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
         ) {
             Text(
-                text = header.brand.resolve(),
-                style = AppTheme.typography.caption,
-                color = AppTheme.colors.text.default,
-            )
-            Text(
                 text = header.name.resolve(),
-                style = AppTheme.typography.title,
+                style = AppTheme.typography.headline,
                 color = AppTheme.colors.text.default,
                 maxLines = header.nameMaxLines,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.clickable { onAction(OnNameClicked) },
             )
-        }
-        favourite?.let { FavouriteButton(it, onAction) }
-    }
-}
-
-@Composable
-private fun FavouriteButton(state: FavouriteButtonState, onAction: (ProductAction) -> Unit) {
-    IconButton(
-        onClick = { onAction(OnFavouriteClicked) },
-        enabled = state.isEnabled,
-        modifier = Modifier
-            .padding(start = AppTheme.spacing.xs)
-            .size(AppTheme.sizes.thumbnail),
-        colors = IconButtonDefaults.iconButtonColors(
-            containerColor = AppTheme.colors.text.default,
-            contentColor = AppTheme.colors.text.inverse,
-            disabledContainerColor = AppTheme.colors.text.default,
-        ),
-    ) {
-        Icon(
-            imageVector = if (state.isFavourite) AppIcons.Favourite else AppIcons.FavouriteBorder,
-            contentDescription = state.description.resolve(),
-            modifier = Modifier.size(AppTheme.sizes.iconM),
-        )
-    }
-}
-
-@Composable
-private fun Verdict(state: VerdictState) {
-    Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
-        when (state) {
-            is VerdictState.Rated -> {
-                VerdictRow(
-                    icon = { Ui.RatingIcon(rating = state.rating, contentDescription = state.summary) },
-                    title = state.summary.resolve(),
-                    details = state.reasons.map { it.resolve() },
-                    color = state.rating.color(),
-                )
-                VerdictRow(
-                    icon = {
-                        Ui.PortionIcon(
-                            rating = state.rating,
-                            contentDescription = UiText.Res(R.string.product_maximum_portion),
-                        )
-                    },
-                    title = stringResource(R.string.product_maximum_portion),
-                    details = listOf(state.portion.resolve()),
-                    color = state.rating.color(),
-                )
+            header.brand?.let {
+                Text(text = it.resolve(), style = AppTheme.typography.body, color = AppTheme.colors.text.muted)
             }
+        }
+    }
+}
 
-            is VerdictState.InsufficientData -> VerdictRow(
-                icon = { Ui.RatingIcon(rating = Rating.Unknown, contentDescription = state.summary) },
-                title = state.summary.resolve(),
-                details = emptyList(),
-                color = Rating.Unknown.color(),
+@Composable
+private fun Verdict(state: VerdictState, onAction: (ProductAction) -> Unit) {
+    when (state) {
+        is VerdictState.Rated -> Ui.VerdictBanner(
+            rating = state.rating,
+            title = state.summary,
+            details = state.reasons,
+        ) {
+            Text(text = state.portion.resolve(), style = AppTheme.typography.body)
+        }
+
+        is VerdictState.InsufficientData -> Ui.VerdictBanner(
+            rating = Rating.Unknown,
+            title = state.summary,
+            details = listOf(state.detail),
+        ) {
+            Text(text = state.advice.resolve(), style = AppTheme.typography.body)
+            Ui.PrimaryButton(
+                text = stringResource(R.string.product_add_to_open_food_facts),
+                onClick = { onAction(OnOpenFoodFactsClicked) },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
 @Composable
-private fun VerdictRow(
-    icon: @Composable () -> Unit,
-    title: String,
-    details: List<String>,
-    color: Color,
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        icon()
-        Column(modifier = Modifier.padding(start = AppTheme.spacing.s)) {
-            Text(text = title, style = AppTheme.typography.body, color = color)
-            details.forEach {
-                Text(text = it, style = AppTheme.typography.body, color = AppTheme.colors.text.default)
+private fun Glance(state: GlanceState, onAction: (ProductAction) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.product_at_a_glance),
+                style = AppTheme.typography.section,
+                color = AppTheme.colors.text.default,
+                modifier = Modifier.weight(1f),
+            )
+            Ui.SegmentedToggle(
+                options = listOf(stringResource(R.string.product_basis_100g), state.servingLabel.resolve()),
+                selectedIndex = if (state.isPerServingSelected) 1 else 0,
+                onSelect = { index -> onAction(if (index == 0) OnPer100gClicked else OnPerServingClicked) },
+            )
+        }
+        state.tiles.chunked(GLANCE_COLUMNS).forEach { rowTiles ->
+            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
+                rowTiles.forEach { GlanceTile(it, Modifier.weight(1f)) }
+                repeat(GLANCE_COLUMNS - rowTiles.size) { Spacer(Modifier.weight(1f)) }
             }
         }
+    }
+}
+
+@Composable
+private fun GlanceTile(state: GlanceTileState, modifier: Modifier = Modifier) {
+    val highlight = state.highlight
+    val tileModifier = if (highlight != null) {
+        modifier.background(highlight.containerColor(), AppTheme.shapes.card)
+    } else {
+        modifier
+            .background(AppTheme.colors.background.surface, AppTheme.shapes.card)
+            .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.card)
+    }
+    val contentColor = highlight?.color() ?: AppTheme.colors.text.default
+    Column(
+        modifier = tileModifier.padding(AppTheme.spacing.s),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
+    ) {
+        Text(
+            text = state.label.resolve(),
+            style = AppTheme.typography.caption,
+            color = highlight?.color() ?: AppTheme.colors.text.muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = state.value.resolve(),
+            style = AppTheme.typography.title,
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
 @Composable
 private fun NutrientTable(state: NutrientTableState) {
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.background.surface, AppTheme.shapes.large)
+            .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.large)
+            .padding(horizontal = AppTheme.spacing.m),
+    ) {
         NutrientRow(
-            label = stringResource(R.string.product_macros),
-            perServing = state.perServingHeader.resolve(),
-            per100g = stringResource(R.string.product_per_100g),
-            isHeader = true,
+            label = stringResource(R.string.product_nutrition),
+            per100g = stringResource(R.string.product_basis_100g),
+            perServing = state.servingHeader.resolve(),
+            style = AppTheme.typography.caption,
+            labelColor = AppTheme.colors.text.muted,
+            per100gColor = AppTheme.colors.text.muted,
         )
         state.rows.forEach { row ->
             HorizontalDivider(thickness = AppTheme.borders.hairline, color = AppTheme.colors.border.default)
             NutrientRow(
                 label = row.label.resolve(),
-                perServing = row.perServing.resolve(),
                 per100g = row.per100g.resolve(),
-                isHeader = false,
+                perServing = row.perServing.resolve(),
+                style = if (row.kind == NutrientRowKind.Emphasized) {
+                    AppTheme.typography.bodyStrong
+                } else {
+                    AppTheme.typography.body
+                },
+                labelColor = if (row.kind == NutrientRowKind.Indented) {
+                    AppTheme.colors.text.muted
+                } else {
+                    AppTheme.colors.text.default
+                },
+                per100gColor = AppTheme.colors.text.default,
+                labelModifier = if (row.kind == NutrientRowKind.Indented) {
+                    Modifier.padding(start = AppTheme.spacing.s)
+                } else {
+                    Modifier
+                },
             )
         }
     }
 }
 
 @Composable
-private fun NutrientRow(label: String, perServing: String, per100g: String, isHeader: Boolean) {
-    val style = if (isHeader) AppTheme.typography.title else AppTheme.typography.body
-    val valueStyle = if (isHeader) AppTheme.typography.caption else AppTheme.typography.body
+private fun NutrientRow(
+    label: String,
+    per100g: String,
+    perServing: String,
+    style: TextStyle,
+    labelColor: Color,
+    per100gColor: Color,
+    labelModifier: Modifier = Modifier,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = AppTheme.spacing.xs),
+            .padding(vertical = AppTheme.spacing.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
             style = style,
-            color = AppTheme.colors.text.default,
+            color = labelColor,
+            modifier = Modifier
+                .weight(2f)
+                .then(labelModifier),
+        )
+        Text(
+            text = per100g,
+            style = style,
+            color = per100gColor,
+            textAlign = TextAlign.End,
             modifier = Modifier.weight(1f),
         )
         Text(
             text = perServing,
-            style = valueStyle,
-            color = AppTheme.colors.text.default,
+            style = style,
+            color = AppTheme.colors.text.muted,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+@Composable
+private fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
-            text = per100g,
-            style = valueStyle,
-            color = AppTheme.colors.text.default,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f),
+            text = dataSource.resolve(),
+            style = AppTheme.typography.caption,
+            color = AppTheme.colors.text.muted,
+            textAlign = TextAlign.Center,
         )
+        Box(
+            modifier = Modifier
+                .defaultMinSize(minHeight = AppTheme.sizes.touchTarget)
+                .clip(AppTheme.shapes.small)
+                .clickable(role = Role.Button) { onAction(OnOpenFoodFactsClicked) }
+                .padding(horizontal = AppTheme.spacing.s),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(R.string.product_fix_on_open_food_facts),
+                style = AppTheme.typography.label,
+                color = AppTheme.colors.text.accent,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
@@ -342,6 +445,8 @@ private fun ImagePreview(state: ImagePreviewState, onAction: (ProductAction) -> 
         )
     }
 }
+
+private const val GLANCE_COLUMNS = 3
 
 private fun ProductHeaderState.Companion.example(name: String = "Peanut butter") = ProductHeaderState(
     imageUrl = null,
@@ -362,73 +467,121 @@ private fun FavouriteButtonState.Companion.example(isFavourite: Boolean) = Favou
 
 private fun VerdictState.Companion.exampleRated() = VerdictState.Rated(
     rating = Rating.Neutral,
-    summary = UiText.Res(R.string.product_rating_neutral, UiArg.Nested(UiText.Res(R.string.product_diet_mode_keto))),
+    summary = UiText.Res(R.string.product_verdict_neutral),
     reasons = persistentListOf(
         UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(0.19)),
         UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(7.0)),
     ),
     portion = UiText.Res(
-        R.string.product_maximum_portion_details,
+        R.string.product_advice_portion,
         UiArg.Numeric.WholeNumber(266.6),
         UiArg.Numeric.Count(40),
     ),
 )
 
-private fun NutrientRowState.Companion.example(label: Int, perServing: Double?, per100g: Double?) = NutrientRowState(
+private fun VerdictState.Companion.exampleInsufficientData() = VerdictState.InsufficientData(
+    summary = UiText.Res(R.string.product_verdict_insufficient_data),
+    detail = UiText.Res(R.string.product_verdict_insufficient_data_detail),
+    advice = UiText.Res(R.string.product_verdict_insufficient_data_advice),
+)
+
+private fun grams(value: Double?): UiText =
+    value?.let { UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(it)) }
+        ?: UiText.Res(R.string.product_value_missing)
+
+private fun kcal(value: Double): UiText = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
+
+private fun GlanceState.Companion.example(isPerServingSelected: Boolean, highlight: Rating) = GlanceState(
+    isPerServingSelected = isPerServingSelected,
+    servingLabel = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
+    tiles = persistentListOf(
+        GlanceTileState(UiText.Res(R.string.product_carbs), grams(if (isPerServingSelected) 2.0 else 13.0), highlight),
+        GlanceTileState(UiText.Res(R.string.product_sugars), grams(if (isPerServingSelected) 1.1 else 7.0), null),
+        GlanceTileState(UiText.Res(R.string.product_fibre), grams(if (isPerServingSelected) null else 11.0), null),
+        GlanceTileState(UiText.Res(R.string.product_proteins), grams(if (isPerServingSelected) 3.8 else 25.0), null),
+        GlanceTileState(UiText.Res(R.string.product_fats), grams(if (isPerServingSelected) 7.5 else 50.0), null),
+        GlanceTileState(UiText.Res(R.string.product_energy), kcal(if (isPerServingSelected) 88.0 else 588.0), null),
+    ),
+)
+
+private fun NutrientRowState.Companion.example(
+    label: Int,
+    perServing: Double?,
+    per100g: Double?,
+    kind: NutrientRowKind = NutrientRowKind.Regular,
+) = NutrientRowState(
     label = UiText.Res(label),
-    perServing = perServing?.let { UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(it)) }
-        ?: UiText.Res(R.string.product_value_missing),
-    per100g = per100g?.let { UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(it)) }
-        ?: UiText.Res(R.string.product_value_missing),
+    perServing = grams(perServing),
+    per100g = grams(per100g),
+    kind = kind,
 )
 
 private fun NutrientTableState.Companion.example() = NutrientTableState(
-    perServingHeader = UiText.Res(R.string.product_per_serving_with_value, UiArg.Text("15")),
+    servingHeader = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
     rows = persistentListOf(
         NutrientRowState(
             UiText.Res(R.string.product_energy),
-            UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(88.0)),
-            UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(588.0)),
+            kcal(88.0),
+            kcal(588.0),
+            NutrientRowKind.Regular,
         ),
         NutrientRowState.example(R.string.product_fats, 7.5, 50.0),
-        NutrientRowState.example(R.string.product_proteins, 3.8, 25.0),
-        NutrientRowState.example(R.string.product_carbs, 2.0, 13.0),
-        NutrientRowState.example(R.string.product_sugars, 1.1, 7.0),
+        NutrientRowState.example(R.string.product_carbs, 2.0, 13.0, NutrientRowKind.Emphasized),
+        NutrientRowState.example(R.string.product_sugars, 1.1, 7.0, NutrientRowKind.Indented),
         NutrientRowState.example(R.string.product_fibre, null, 11.0),
+        NutrientRowState.example(R.string.product_proteins, 3.8, 25.0),
         NutrientRowState.example(R.string.product_salt, null, 1.1),
     ),
 )
 
-@Preview(showBackground = true)
+private fun exampleShowProduct(
+    header: ProductHeaderState = ProductHeaderState.example(),
+    favourite: FavouriteButtonState? = FavouriteButtonState.example(isFavourite = false),
+    verdict: VerdictState = VerdictState.exampleRated(),
+    glance: GlanceState = GlanceState.example(isPerServingSelected = false, highlight = Rating.Neutral),
+) = ShowProduct(
+    header = header,
+    favourite = favourite,
+    verdict = verdict,
+    glance = glance,
+    nutrients = NutrientTableState.example(),
+    imagePreview = null,
+    dataSource = UiText.Res(R.string.product_data_source, UiArg.Text("3017620422003")),
+)
+
+@Preview(showBackground = true, heightDp = 1400)
 @Composable
 private fun ProductShowRatedPreview() {
     AppTheme {
+        ScreenContent(ProductState(exampleShowProduct())) {}
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1400)
+@Composable
+private fun ProductShowRatedPerServingPreview() {
+    AppTheme {
         ScreenContent(
             ProductState(
-                ShowProduct(
-                    header = ProductHeaderState.example(),
+                exampleShowProduct(
                     favourite = FavouriteButtonState.example(isFavourite = true),
-                    verdict = VerdictState.exampleRated(),
-                    nutrients = NutrientTableState.example(),
-                    imagePreview = null,
+                    glance = GlanceState.example(isPerServingSelected = true, highlight = Rating.Neutral),
                 )
             )
         ) {}
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 1400)
 @Composable
 private fun ProductShowInsufficientDataPreview() {
     AppTheme {
         ScreenContent(
             ProductState(
-                ShowProduct(
+                exampleShowProduct(
                     header = ProductHeaderState.example(name = "Mystery bar"),
-                    favourite = FavouriteButtonState.example(isFavourite = false),
-                    verdict = VerdictState.InsufficientData(UiText.Res(R.string.product_rating_insufficient_data)),
-                    nutrients = NutrientTableState.example(),
-                    imagePreview = null,
+                    verdict = VerdictState.exampleInsufficientData(),
+                    glance = GlanceState.example(isPerServingSelected = false, highlight = Rating.Unknown),
                 )
             )
         ) {}

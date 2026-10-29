@@ -28,8 +28,10 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 header = header(analysis.product),
                 favourite = favourite(),
                 verdict = analysis.verdict(),
+                glance = glance(analysis),
                 nutrients = analysis.product.nutrientTable(),
                 imagePreview = imagePreview(analysis.product),
+                dataSource = resources.dataSource(analysis.product.barcode),
             )
         }
     }
@@ -72,28 +74,103 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             )
         }
 
-        is ProductAnalysis.InsufficientData -> VerdictState.InsufficientData(resources.insufficientData())
+        is ProductAnalysis.InsufficientData -> VerdictState.InsufficientData(
+            summary = resources.insufficientData(),
+            detail = resources.insufficientDataDetail(),
+            advice = resources.insufficientDataAdvice(),
+        )
     }
 
     private fun Product.nutrientTable(): NutrientTableState = with(nutriments) {
         NutrientTableState(
-            perServingHeader = resources.perServingHeader(servingAmount),
+            servingHeader = resources.servingLabel(servingAmount),
             rows = persistentListOf(
-                NutrientRowState(resources.energy(), resources.kcal(energyPerServing), resources.kcal(energyPer100g)),
-                NutrientRowState(resources.fats(), resources.grams(fatsPerServing), resources.grams(fatsPer100g)),
                 NutrientRowState(
-                    resources.proteins(),
-                    resources.grams(proteinsPerServing),
-                    resources.grams(proteinsPer100g),
+                    resources.energy(),
+                    resources.kcal(energyPerServing),
+                    resources.kcal(energyPer100g),
+                    NutrientRowKind.Regular,
+                ),
+                NutrientRowState(
+                    resources.fats(),
+                    resources.grams(fatsPerServing),
+                    resources.grams(fatsPer100g),
+                    NutrientRowKind.Regular,
                 ),
                 NutrientRowState(
                     resources.carbs(),
                     resources.grams(carbohydratesPerServing),
                     resources.grams(carbohydratesPer100g),
+                    NutrientRowKind.Emphasized,
                 ),
-                NutrientRowState(resources.sugars(), resources.grams(sugarsPerServing), resources.grams(sugarsPer100g)),
-                NutrientRowState(resources.fibre(), resources.grams(fibrePerServing), resources.grams(fibrePer100g)),
-                NutrientRowState(resources.salt(), resources.grams(saltPerServing), resources.grams(saltPer100g)),
+                NutrientRowState(
+                    resources.sugars(),
+                    resources.grams(sugarsPerServing),
+                    resources.grams(sugarsPer100g),
+                    NutrientRowKind.Indented,
+                ),
+                NutrientRowState(
+                    resources.fibre(),
+                    resources.grams(fibrePerServing),
+                    resources.grams(fibrePer100g),
+                    NutrientRowKind.Regular,
+                ),
+                NutrientRowState(
+                    resources.proteins(),
+                    resources.grams(proteinsPerServing),
+                    resources.grams(proteinsPer100g),
+                    NutrientRowKind.Regular,
+                ),
+                NutrientRowState(
+                    resources.salt(),
+                    resources.grams(saltPerServing),
+                    resources.grams(saltPer100g),
+                    NutrientRowKind.Regular,
+                ),
+            ),
+        )
+    }
+
+    private fun Prototype.glance(analysis: ProductAnalysis): GlanceState = with(analysis.product.nutriments) {
+        val perServing = isPerServingSelected
+        val carbsHighlight = when (analysis) {
+            is ProductAnalysis.Rated -> analysis.macronutrients.rate.toRating()
+            is ProductAnalysis.InsufficientData -> Rating.Unknown
+        }
+        GlanceState(
+            isPerServingSelected = perServing,
+            servingLabel = resources.servingLabel(analysis.product.servingAmount),
+            tiles = persistentListOf(
+                GlanceTileState(
+                    resources.carbs(),
+                    resources.grams(if (perServing) carbohydratesPerServing else carbohydratesPer100g),
+                    carbsHighlight,
+                ),
+                GlanceTileState(
+                    resources.sugars(),
+                    resources.grams(if (perServing) sugarsPerServing else sugarsPer100g),
+                    null,
+                ),
+                GlanceTileState(
+                    resources.fibre(),
+                    resources.grams(if (perServing) fibrePerServing else fibrePer100g),
+                    null,
+                ),
+                GlanceTileState(
+                    resources.proteins(),
+                    resources.grams(if (perServing) proteinsPerServing else proteinsPer100g),
+                    null,
+                ),
+                GlanceTileState(
+                    resources.fats(),
+                    resources.grams(if (perServing) fatsPerServing else fatsPer100g),
+                    null,
+                ),
+                GlanceTileState(
+                    resources.energy(),
+                    resources.kcal(if (perServing) energyPerServing else energyPer100g),
+                    null,
+                ),
             ),
         )
     }

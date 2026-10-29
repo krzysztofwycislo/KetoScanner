@@ -38,6 +38,7 @@ import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.product.ui.event.ProductAction
+import pl.handsome.club.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
 import pl.handsome.club.feature.product.ui.state.ProductContentState
 import pl.handsome.club.feature.product.ui.state.ProductStateFactory
@@ -463,6 +464,46 @@ class ProductViewModelTest {
         assertEquals(10, showProduct(viewModel).header.nameMaxLines)
     }
 
+    @Test
+    fun `when basis is switched then glance selection and the handle follow`() = runTest {
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+
+        viewModel.onAction(ProductAction.OnPerServingClicked)
+        assertTrue(showProduct(viewModel).glance.isPerServingSelected)
+        assertEquals(true, handle.get<Boolean>(KEY_PER_SERVING_SELECTED))
+
+        viewModel.onAction(ProductAction.OnPer100gClicked)
+        assertFalse(showProduct(viewModel).glance.isPerServingSelected)
+        assertEquals(false, handle.get<Boolean>(KEY_PER_SERVING_SELECTED))
+    }
+
+    @Test
+    fun `when handle was restored with per serving selected then per serving is shown after load`() = runTest {
+        val viewModel = createViewModel(handle(KEY_PER_SERVING_SELECTED to true))
+
+        assertTrue(showProduct(viewModel).glance.isPerServingSelected)
+    }
+
+    @Test
+    fun `when open food facts is clicked then the product page is opened`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ProductAction.OnOpenFoodFactsClicked)
+
+        assertEquals(OpenWebPage("https://world.openfoodfacts.org/product/$BARCODE"), viewModel.events.first())
+    }
+
+    @Test
+    fun `when the web page is unavailable then a message is sent`() = runTest {
+        val viewModel = createViewModel()
+        collectMessages()
+
+        viewModel.onAction(ProductAction.OnWebPageUnavailable)
+
+        assertEquals(listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_link_unavailable))), messages)
+    }
+
     private fun TestScope.createViewModel(
         handle: SavedStateHandle = handle(),
         route: ProductRoute = ProductRoute(BARCODE),
@@ -579,6 +620,7 @@ class ProductViewModelTest {
         const val OTHER_BARCODE = "5900000000001"
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
+        const val KEY_PER_SERVING_SELECTED = "perServingSelected"
         const val CHANGED_IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/back.jpg"
 
         val product = Product(

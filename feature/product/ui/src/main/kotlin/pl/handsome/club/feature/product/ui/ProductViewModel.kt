@@ -36,8 +36,13 @@ import pl.handsome.club.feature.product.ui.event.ProductAction.OnFavouriteClicke
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImageClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnNameClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnPer100gClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnPerServingClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnRetryClicked
+import pl.handsome.club.feature.product.ui.event.ProductAction.OnWebPageUnavailable
 import pl.handsome.club.feature.product.ui.event.ProductEvent
+import pl.handsome.club.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
 import pl.handsome.club.feature.product.ui.state.ProductState
 import pl.handsome.club.feature.product.ui.state.ProductStateFactory
@@ -64,6 +69,7 @@ internal class ProductViewModel(
             barcode = route.barcode,
             isImagePreviewOpen = savedStateHandle.get<Boolean>(KEY_IMAGE_PREVIEW_OPEN) ?: false,
             isNameExpanded = savedStateHandle.get<Boolean>(KEY_NAME_EXPANDED) ?: false,
+            isPerServingSelected = savedStateHandle.get<Boolean>(KEY_PER_SERVING_SELECTED) ?: false,
         )
     )
 
@@ -86,6 +92,10 @@ internal class ProductViewModel(
             OnImageClicked -> openImagePreview()
             OnImagePreviewDismissed -> setImagePreviewOpen(false)
             OnNameClicked -> setNameExpanded(!statePrototype.value.isNameExpanded)
+            OnPer100gClicked -> setPerServingSelected(false)
+            OnPerServingClicked -> setPerServingSelected(true)
+            OnOpenFoodFactsClicked -> screenEvents send OpenWebPage(PRODUCT_PAGE_URL + statePrototype.value.barcode)
+            OnWebPageUnavailable -> appEvents send ShowMessage(resources.linkUnavailable())
         }
     }
 
@@ -196,6 +206,11 @@ internal class ProductViewModel(
         statePrototype.update { it.copy(isNameExpanded = isExpanded) }
     }
 
+    private fun setPerServingSelected(isSelected: Boolean) {
+        savedStateHandle[KEY_PER_SERVING_SELECTED] = isSelected
+        statePrototype.update { it.copy(isPerServingSelected = isSelected) }
+    }
+
     private fun log(message: String, error: AppError) {
         logger.error(TAG, "$message: $error", (error as? AppError.Unknown)?.cause)
     }
@@ -216,5 +231,7 @@ internal class ProductViewModel(
         const val TAG = "ProductViewModel"
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
+        const val KEY_PER_SERVING_SELECTED = "perServingSelected"
+        const val PRODUCT_PAGE_URL = "https://world.openfoodfacts.org/product/"
     }
 }

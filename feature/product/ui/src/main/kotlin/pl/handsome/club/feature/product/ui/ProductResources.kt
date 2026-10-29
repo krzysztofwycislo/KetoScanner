@@ -13,7 +13,7 @@ internal class ProductResources {
     fun productName(name: String): UiText =
         if (name.isBlank()) UiText.Res(R.string.product_unnamed) else UiText.Raw(name)
 
-    fun brand(brand: String): UiText = UiText.Raw(brand)
+    fun brand(brand: String): UiText? = if (brand.isBlank()) null else UiText.Raw(brand)
 
     fun imageDescription(): UiText = UiText.Res(R.string.product_image)
 
@@ -21,11 +21,17 @@ internal class ProductResources {
 
     fun ratingSummary(dietRate: DietRate, mode: DietMode): UiText {
         val id = when (dietRate) {
-            DietRate.GOOD -> R.string.product_rating_good
-            DietRate.NEUTRAL -> R.string.product_rating_neutral
-            DietRate.NOT_ADVISED -> R.string.product_rating_not_advised
+            DietRate.GOOD -> when (mode) {
+                DietMode.KETO -> R.string.product_verdict_good_keto
+                DietMode.LOW_CARB -> R.string.product_verdict_good_low_carb
+            }
+            DietRate.NEUTRAL -> R.string.product_verdict_neutral
+            DietRate.NOT_ADVISED -> when (mode) {
+                DietMode.KETO -> R.string.product_verdict_not_advised_keto
+                DietMode.LOW_CARB -> R.string.product_verdict_not_advised_low_carb
+            }
         }
-        return UiText.Res(id, UiArg.Nested(dietModeName(mode)))
+        return UiText.Res(id)
     }
 
     fun reason(reason: RatingReason): UiText = when (reason) {
@@ -46,24 +52,27 @@ internal class ProductResources {
 
     fun carbsPer100g(grams: Double): UiText = UiText.Res(R.string.product_carbs_per_100g, UiArg.Numeric.Grams(grams))
 
-    fun insufficientData(): UiText = UiText.Res(R.string.product_rating_insufficient_data)
+    fun insufficientData(): UiText = UiText.Res(R.string.product_verdict_insufficient_data)
+
+    fun insufficientDataDetail(): UiText = UiText.Res(R.string.product_verdict_insufficient_data_detail)
+
+    fun insufficientDataAdvice(): UiText = UiText.Res(R.string.product_verdict_insufficient_data_advice)
 
     fun portion(maxProductPortion: Double?, dailyCarbs: Int): UiText =
-        if (maxProductPortion == null) UiText.Res(R.string.product_maximum_portion_unlimited)
+        if (maxProductPortion == null) UiText.Res(R.string.product_advice_unlimited)
         else UiText.Res(
-            R.string.product_maximum_portion_details,
+            R.string.product_advice_portion,
             UiArg.Numeric.WholeNumber(maxProductPortion),
             UiArg.Numeric.Count(dailyCarbs.toLong()),
         )
 
-    private fun dietModeName(mode: DietMode): UiText = when (mode) {
-        DietMode.KETO -> UiText.Res(R.string.product_diet_mode_keto)
-        DietMode.LOW_CARB -> UiText.Res(R.string.product_diet_mode_low_carb)
-    }
+    fun servingLabel(servingAmount: String?): UiText =
+        if (servingAmount.isNullOrBlank()) UiText.Res(R.string.product_basis_serving)
+        else UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text(servingAmount))
 
-    fun perServingHeader(servingAmount: String?): UiText =
-        if (servingAmount.isNullOrBlank()) UiText.Res(R.string.product_per_serving)
-        else UiText.Res(R.string.product_per_serving_with_value, UiArg.Text(servingAmount))
+    fun dataSource(barcode: String): UiText = UiText.Res(R.string.product_data_source, UiArg.Text(barcode))
+
+    fun linkUnavailable(): UiText = UiText.Res(R.string.product_link_unavailable)
 
     fun energy(): UiText = UiText.Res(R.string.product_energy)
 

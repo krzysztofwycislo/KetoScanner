@@ -1,7 +1,5 @@
 package pl.handsome.club.core.designsystem.component
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -54,9 +52,7 @@ private fun ProductImageWithUrlPreview() {
         Ui.ProductImage(
             url = "https://images.openfoodfacts.org/images/products/sample.jpg",
             contentDescription = UiText.Res(R.string.designsystem_preview_image),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(AppTheme.sizes.productImageHeight),
+            modifier = Modifier.size(AppTheme.sizes.productPhoto),
         )
     }
 }

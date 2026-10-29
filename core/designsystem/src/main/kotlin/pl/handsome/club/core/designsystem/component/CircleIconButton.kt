@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
@@ -24,6 +25,7 @@ fun Ui.CircleIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    contentColor: Color = AppTheme.colors.text.default,
 ) {
     Surface(
         onClick = onClick,
@@ -31,7 +33,7 @@ fun Ui.CircleIconButton(
         enabled = enabled,
         shape = AppTheme.shapes.circle,
         color = AppTheme.colors.background.surface,
-        contentColor = AppTheme.colors.text.default,
+        contentColor = contentColor,
         border = BorderStroke(AppTheme.borders.hairline, AppTheme.colors.border.default),
     ) {
         Box(contentAlignment = Alignment.Center) {

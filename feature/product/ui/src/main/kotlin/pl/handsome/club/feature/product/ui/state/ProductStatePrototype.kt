@@ -13,6 +13,7 @@ internal data class ProductStatePrototype(
     val isFavouriteUpdating: Boolean = false,
     val isImagePreviewOpen: Boolean = false,
     val isNameExpanded: Boolean = false,
+    val isPerServingSelected: Boolean = false,
 ) {
 
     companion object {

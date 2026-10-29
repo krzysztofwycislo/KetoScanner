@@ -61,7 +61,7 @@ fun Ui.VerdictPill(
     }
 }
 
-private fun Rating.markIcon() = when (this) {
+internal fun Rating.markIcon() = when (this) {
     Rating.Positive -> AppIcons.Check
     Rating.Neutral -> AppIcons.Minus
     Rating.Negative -> AppIcons.Cross

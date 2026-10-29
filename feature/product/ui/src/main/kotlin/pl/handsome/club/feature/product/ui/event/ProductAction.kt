@@ -7,4 +7,8 @@ internal sealed interface ProductAction {
     data object OnImageClicked : ProductAction
     data object OnImagePreviewDismissed : ProductAction
     data object OnNameClicked : ProductAction
+    data object OnPer100gClicked : ProductAction
+    data object OnPerServingClicked : ProductAction
+    data object OnOpenFoodFactsClicked : ProductAction
+    data object OnWebPageUnavailable : ProductAction
 }

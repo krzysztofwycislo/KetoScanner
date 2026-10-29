@@ -18,8 +18,10 @@ internal sealed interface ProductContentState {
         val header: ProductHeaderState,
         val favourite: FavouriteButtonState?,
         val verdict: VerdictState,
+        val glance: GlanceState,
         val nutrients: NutrientTableState,
         val imagePreview: ImagePreviewState?,
+        val dataSource: UiText,
     ) : ProductContentState
 }
 
@@ -28,7 +30,7 @@ internal data class ProductHeaderState(
     val imageUrl: String?,
     val imageDescription: UiText,
     val isImageClickable: Boolean,
-    val brand: UiText,
+    val brand: UiText?,
     val name: UiText,
     val nameMaxLines: Int,
 ) {
@@ -54,14 +56,36 @@ internal sealed interface VerdictState {
         val portion: UiText,
     ) : VerdictState
 
-    data class InsufficientData(val summary: UiText) : VerdictState
+    data class InsufficientData(
+        val summary: UiText,
+        val detail: UiText,
+        val advice: UiText,
+    ) : VerdictState
 
     companion object
 }
 
 @Immutable
+internal data class GlanceState(
+    val isPerServingSelected: Boolean,
+    val servingLabel: UiText,
+    val tiles: PersistentList<GlanceTileState>,
+) {
+    companion object
+}
+
+@Immutable
+internal data class GlanceTileState(
+    val label: UiText,
+    val value: UiText,
+    val highlight: Rating?,
+) {
+    companion object
+}
+
+@Immutable
 internal data class NutrientTableState(
-    val perServingHeader: UiText,
+    val servingHeader: UiText,
     val rows: PersistentList<NutrientRowState>,
 ) {
     companion object
@@ -72,9 +96,12 @@ internal data class NutrientRowState(
     val label: UiText,
     val perServing: UiText,
     val per100g: UiText,
+    val kind: NutrientRowKind,
 ) {
     companion object
 }
+
+internal enum class NutrientRowKind { Regular, Emphasized, Indented }
 
 @Immutable
 internal data class ImagePreviewState(

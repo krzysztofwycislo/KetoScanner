@@ -13,6 +13,7 @@ import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
+import pl.handsome.club.feature.product.ui.state.NutrientRowKind
 import pl.handsome.club.feature.product.ui.state.NutrientRowState
 import pl.handsome.club.feature.product.ui.state.ProductContentState
 import pl.handsome.club.feature.product.ui.state.ProductStateFactory
@@ -64,31 +65,34 @@ class ProductStateFactoryTest {
 
     @Test
     fun `when analysis is rated then verdict has rating summary with mode and portion`() {
-        val expected = mapOf(
-            DietRate.GOOD to (Rating.Positive to R.string.product_rating_good),
-            DietRate.NEUTRAL to (Rating.Neutral to R.string.product_rating_neutral),
-            DietRate.NOT_ADVISED to (Rating.Negative to R.string.product_rating_not_advised),
+        val ratings = mapOf(
+            DietRate.GOOD to Rating.Positive,
+            DietRate.NEUTRAL to Rating.Neutral,
+            DietRate.NOT_ADVISED to Rating.Negative,
         )
-        val modes = mapOf(
-            DietMode.KETO to R.string.product_diet_mode_keto,
-            DietMode.LOW_CARB to R.string.product_diet_mode_low_carb,
+        val summaries = mapOf(
+            (DietRate.GOOD to DietMode.KETO) to R.string.product_verdict_good_keto,
+            (DietRate.GOOD to DietMode.LOW_CARB) to R.string.product_verdict_good_low_carb,
+            (DietRate.NEUTRAL to DietMode.KETO) to R.string.product_verdict_neutral,
+            (DietRate.NEUTRAL to DietMode.LOW_CARB) to R.string.product_verdict_neutral,
+            (DietRate.NOT_ADVISED to DietMode.KETO) to R.string.product_verdict_not_advised_keto,
+            (DietRate.NOT_ADVISED to DietMode.LOW_CARB) to R.string.product_verdict_not_advised_low_carb,
         )
 
-        expected.forEach { (dietRate, texts) ->
-            modes.forEach { (mode, modeName) ->
-                val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(dietRate, mode = mode))).verdict)
+        summaries.forEach { (key, summary) ->
+            val (dietRate, mode) = key
+            val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(dietRate, mode = mode))).verdict)
 
-                assertEquals(texts.first, verdict.rating)
-                assertEquals(UiText.Res(texts.second, UiArg.Nested(UiText.Res(modeName))), verdict.summary)
-                assertEquals(
-                    UiText.Res(
-                        R.string.product_maximum_portion_details,
-                        UiArg.Numeric.WholeNumber(MAX_PORTION),
-                        UiArg.Numeric.Count(DAILY_CARBS.toLong()),
-                    ),
-                    verdict.portion,
-                )
-            }
+            assertEquals(ratings.getValue(dietRate), verdict.rating)
+            assertEquals(UiText.Res(summary), verdict.summary)
+            assertEquals(
+                UiText.Res(
+                    R.string.product_advice_portion,
+                    UiArg.Numeric.WholeNumber(MAX_PORTION),
+                    UiArg.Numeric.Count(DAILY_CARBS.toLong()),
+                ),
+                verdict.portion,
+            )
         }
     }
 
@@ -140,7 +144,7 @@ class ProductStateFactoryTest {
     fun `when max portion is null then the unlimited text is shown`() {
         val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(DietRate.GOOD, maxPortion = null))).verdict)
 
-        assertEquals(UiText.Res(R.string.product_maximum_portion_unlimited), verdict.portion)
+        assertEquals(UiText.Res(R.string.product_advice_unlimited), verdict.portion)
     }
 
     @Test
@@ -148,9 +152,20 @@ class ProductStateFactoryTest {
         val content = show(Prototype(analysis = ProductAnalysis.InsufficientData(product())))
 
         assertEquals(
-            VerdictState.InsufficientData(UiText.Res(R.string.product_rating_insufficient_data)),
+            VerdictState.InsufficientData(
+                summary = UiText.Res(R.string.product_verdict_insufficient_data),
+                detail = UiText.Res(R.string.product_verdict_insufficient_data_detail),
+                advice = UiText.Res(R.string.product_verdict_insufficient_data_advice),
+            ),
             content.verdict,
         )
+    }
+
+    @Test
+    fun `when brand is blank then brand is null`() {
+        val header = show(Prototype(analysis = rated(DietRate.GOOD, product(brand = " ")))).header
+
+        assertNull(header.brand)
     }
 
     @Test
@@ -231,11 +246,20 @@ class ProductStateFactoryTest {
         val blankServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = " "))))
 
         assertEquals(
-            UiText.Res(R.string.product_per_serving_with_value, UiArg.Text("15")),
-            withServing.nutrients.perServingHeader,
+            UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
+            withServing.nutrients.servingHeader,
         )
-        assertEquals(UiText.Res(R.string.product_per_serving), withoutServing.nutrients.perServingHeader)
-        assertEquals(UiText.Res(R.string.product_per_serving), blankServing.nutrients.perServingHeader)
+        assertEquals(UiText.Res(R.string.product_basis_serving), withoutServing.nutrients.servingHeader)
+        assertEquals(UiText.Res(R.string.product_basis_serving), blankServing.nutrients.servingHeader)
+    }
+
+    @Test
+    fun `when serving amount is set or missing then glance serving label matches the serving header`() {
+        val withServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "15"))))
+        val withoutServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = null))))
+
+        assertEquals(withServing.nutrients.servingHeader, withServing.glance.servingLabel)
+        assertEquals(withoutServing.nutrients.servingHeader, withoutServing.glance.servingLabel)
     }
 
     @Test
@@ -244,16 +268,74 @@ class ProductStateFactoryTest {
 
         assertEquals(
             listOf(
-                NutrientRowState(UiText.Res(R.string.product_energy), kcal(88.0), kcal(588.0)),
-                NutrientRowState(UiText.Res(R.string.product_fats), grams(7.5), grams(50.0)),
-                NutrientRowState(UiText.Res(R.string.product_proteins), grams(3.8), grams(25.0)),
-                NutrientRowState(UiText.Res(R.string.product_carbs), grams(2.0), grams(13.0)),
-                NutrientRowState(UiText.Res(R.string.product_sugars), grams(1.1), grams(7.0)),
-                NutrientRowState(UiText.Res(R.string.product_fibre), grams(1.7), grams(11.0)),
-                NutrientRowState(UiText.Res(R.string.product_salt), grams(0.2), grams(1.1)),
+                NutrientRowState(UiText.Res(R.string.product_energy), kcal(88.0), kcal(588.0), NutrientRowKind.Regular),
+                NutrientRowState(UiText.Res(R.string.product_fats), grams(7.5), grams(50.0), NutrientRowKind.Regular),
+                NutrientRowState(UiText.Res(R.string.product_carbs), grams(2.0), grams(13.0), NutrientRowKind.Emphasized),
+                NutrientRowState(UiText.Res(R.string.product_sugars), grams(1.1), grams(7.0), NutrientRowKind.Indented),
+                NutrientRowState(UiText.Res(R.string.product_fibre), grams(1.7), grams(11.0), NutrientRowKind.Regular),
+                NutrientRowState(UiText.Res(R.string.product_proteins), grams(3.8), grams(25.0), NutrientRowKind.Regular),
+                NutrientRowState(UiText.Res(R.string.product_salt), grams(0.2), grams(1.1), NutrientRowKind.Regular),
             ),
             rows,
         )
+    }
+
+    @Test
+    fun `when per 100 g is selected then glance tiles show per 100 g values in order`() {
+        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
+
+        assertFalse(glance.isPerServingSelected)
+        assertEquals(
+            listOf(
+                UiText.Res(R.string.product_carbs) to grams(13.0),
+                UiText.Res(R.string.product_sugars) to grams(7.0),
+                UiText.Res(R.string.product_fibre) to grams(11.0),
+                UiText.Res(R.string.product_proteins) to grams(25.0),
+                UiText.Res(R.string.product_fats) to grams(50.0),
+                UiText.Res(R.string.product_energy) to kcal(588.0),
+            ),
+            glance.tiles.map { it.label to it.value },
+        )
+    }
+
+    @Test
+    fun `when per serving is selected then glance tiles show per serving values in order`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)),
+                isPerServingSelected = true,
+            )
+        ).glance
+
+        assertTrue(glance.isPerServingSelected)
+        assertEquals(
+            listOf(
+                UiText.Res(R.string.product_carbs) to grams(2.0),
+                UiText.Res(R.string.product_sugars) to grams(1.1),
+                UiText.Res(R.string.product_fibre) to grams(1.7),
+                UiText.Res(R.string.product_proteins) to grams(3.8),
+                UiText.Res(R.string.product_fats) to grams(7.5),
+                UiText.Res(R.string.product_energy) to kcal(88.0),
+            ),
+            glance.tiles.map { it.label to it.value },
+        )
+    }
+
+    @Test
+    fun `when glance is shown then only the carbs tile is highlighted with the verdict rating`() {
+        val rated = show(Prototype(analysis = rated(DietRate.NOT_ADVISED))).glance
+        val insufficient = show(Prototype(analysis = ProductAnalysis.InsufficientData(product()))).glance
+
+        assertEquals(Rating.Negative, rated.tiles.first().highlight)
+        assertEquals(Rating.Unknown, insufficient.tiles.first().highlight)
+        (rated.tiles.drop(1) + insufficient.tiles.drop(1)).forEach { assertNull(it.highlight) }
+    }
+
+    @Test
+    fun `when product is shown then data source has the barcode`() {
+        val content = show(Prototype(analysis = rated(DietRate.GOOD)))
+
+        assertEquals(UiText.Res(R.string.product_data_source, UiArg.Text("3017620422003")), content.dataSource)
     }
 
     @Test
