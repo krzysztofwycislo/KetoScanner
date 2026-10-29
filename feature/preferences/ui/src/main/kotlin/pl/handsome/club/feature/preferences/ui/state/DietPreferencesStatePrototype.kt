@@ -10,6 +10,7 @@ internal data class DietPreferencesStatePrototype(
     val savedMode: DietMode? = null,
     val input: String? = null,
     val isInputInvalid: Boolean = false,
+    val isSaving: Boolean = false,
     val loadError: AppError? = null,
 ) {
 

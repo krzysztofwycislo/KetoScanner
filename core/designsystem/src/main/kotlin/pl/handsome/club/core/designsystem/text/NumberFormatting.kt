@@ -9,6 +9,7 @@ internal fun UiArg.Numeric.format(locale: Locale): String = when (this) {
     is UiArg.Numeric.Kcal -> numberFormat(locale, fractionDigits = 0).format(value)
     is UiArg.Numeric.Count -> numberFormat(locale, fractionDigits = 0).format(value)
     is UiArg.Numeric.WholeNumber -> numberFormat(locale, fractionDigits = 0).format(value)
+    is UiArg.Numeric.Ratio -> numberFormat(locale, fractionDigits = 1).format(value)
     is UiArg.Numeric.Percent -> NumberFormat.getPercentInstance(locale).withFractionDigits(0).format(fraction)
 }
 

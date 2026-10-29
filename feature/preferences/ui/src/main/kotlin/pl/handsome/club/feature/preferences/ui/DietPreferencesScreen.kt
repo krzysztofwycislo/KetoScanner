@@ -147,6 +147,7 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
         )
         Button(
             onClick = { onAction(OnSaveClicked) },
+            enabled = !state.isSaving,
             modifier = Modifier
                 .align(Alignment.End)
                 .testTag("preferencesSaveButton"),
@@ -243,7 +244,7 @@ private fun DietPreferencesFormPreview() {
     AppTheme {
         ScreenContent(
             DietPreferencesState(
-                Form(dietModes = dietModesExample(), summary = summaryExample(), input = "40", inputError = null)
+                Form(dietModes = dietModesExample(), summary = summaryExample(), input = "40", inputError = null, isSaving = false)
             )
         ) {}
     }
@@ -260,6 +261,7 @@ private fun DietPreferencesInvalidInputPreview() {
                     summary = summaryExample(),
                     input = "0",
                     inputError = UiText.Res(R.string.preferences_input_error, UiArg.Numeric.Count(1), UiArg.Numeric.Count(999)),
+                    isSaving = false,
                 )
             )
         ) {}

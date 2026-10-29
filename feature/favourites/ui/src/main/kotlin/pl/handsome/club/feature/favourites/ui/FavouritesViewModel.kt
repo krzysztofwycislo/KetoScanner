@@ -74,10 +74,12 @@ internal class FavouritesViewModel(
                 statePrototype.map { it.query.trim() }.distinctUntilChanged(),
                 retryClicks.onStart { emit(Unit) },
             ) { query, _ -> query }
-                .flatMapLatest(favourites::observeFavourites)
-                .collect { outcome ->
+                .flatMapLatest { query -> favourites.observeFavourites(query).map { query to it } }
+                .collect { (query, outcome) ->
                     outcome
-                        .onSuccess { list -> statePrototype.update { it.copy(favourites = list, loadError = null) } }
+                        .onSuccess { list ->
+                            statePrototype.update { it.copy(favourites = list, favouritesQuery = query, loadError = null) }
+                        }
                         .onFailure { error ->
                             errorReporter.report(TAG, "Loading favourites failed", error)
                             statePrototype.update { it.copy(loadError = error) }

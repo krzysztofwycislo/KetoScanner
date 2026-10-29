@@ -60,6 +60,7 @@ class DietPreferencesStateFactoryTest {
                 summary = UiText.Res(R.string.preferences_summary, UiArg.Numeric.Count(40)),
                 input = "25",
                 inputError = null,
+                isSaving = false,
             ),
             state.content,
         )
@@ -85,5 +86,12 @@ class DietPreferencesStateFactoryTest {
             UiText.Res(R.string.preferences_input_error, UiArg.Numeric.Count(1), UiArg.Numeric.Count(999)),
             form.inputError,
         )
+    }
+
+    @Test
+    fun `when saving is in progress then form shows it`() {
+        val state = factory.createFor(Prototype(savedAmount = 40, input = "40", isSaving = true))
+
+        assertEquals(true, (state.content as DietPreferencesContentState.Form).isSaving)
     }
 }

@@ -40,7 +40,24 @@ class FavouritesStateFactoryTest {
 
     @Test
     fun `when favourites are empty and query is set then content is no results with the trimmed query`() {
-        val state = factory.createFor(Prototype(query = "  cola ", favourites = emptyList()))
+        val state = factory.createFor(Prototype(query = "  cola ", favourites = emptyList(), favouritesQuery = "  cola "))
+
+        assertEquals(
+            FavouritesContentState.NoResults(UiText.Res(R.string.favourites_no_results, UiArg.Text("cola"))),
+            state.content,
+        )
+    }
+
+    @Test
+    fun `when query is typed but the empty list was loaded without a query then content is still empty`() {
+        val state = factory.createFor(Prototype(query = "cola", favourites = emptyList(), favouritesQuery = ""))
+
+        assertEquals(FavouritesContentState.Empty, state.content)
+    }
+
+    @Test
+    fun `when query is cleared but the empty list was loaded for a query then content is still no results for it`() {
+        val state = factory.createFor(Prototype(query = "", favourites = emptyList(), favouritesQuery = "cola"))
 
         assertEquals(
             FavouritesContentState.NoResults(UiText.Res(R.string.favourites_no_results, UiArg.Text("cola"))),

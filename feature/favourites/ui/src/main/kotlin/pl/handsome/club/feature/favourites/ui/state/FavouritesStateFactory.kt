@@ -23,8 +23,8 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
         return when {
             loadError != null -> Error(resources.loadError(loadError))
             favourites == null -> InitialLoad
-            favourites.isEmpty() && query.isBlank() -> Empty
-            favourites.isEmpty() -> NoResults(resources.noResults(query.trim()))
+            favourites.isEmpty() && favouritesQuery.isBlank() -> Empty
+            favourites.isEmpty() -> NoResults(resources.noResults(favouritesQuery.trim()))
             else -> ShowItems(favourites.map { it.toItemState() }.toPersistentList())
         }
     }

@@ -2,6 +2,7 @@ package pl.handsome.club.feature.favourites.ui
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -78,6 +79,16 @@ class FavouritesViewModelTest {
     }
 
     @Test
+    fun `when query changes and its list is not loaded yet then the empty message stays for the previous query`() = runTest {
+        val viewModel = createViewModel()
+        favourites.pendingQueries += "cola"
+
+        viewModel.onAction(FavouritesAction.OnQueryChanged("cola"))
+
+        assertEquals(FavouritesContentState.Empty, viewModel.state.value.content)
+    }
+
+    @Test
     fun `when query changes only by whitespace then favourites are not observed again`() = runTest {
         val viewModel = createViewModel()
 
@@ -143,9 +154,11 @@ class FavouritesViewModelTest {
 
         var result: Outcome<List<FavouriteProduct>> = Outcome.Success(emptyList())
         val queries = mutableListOf<String>()
+        val pendingQueries = mutableSetOf<String>()
 
         override fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>> = flow {
             queries += nameQuery
+            if (nameQuery in pendingQueries) awaitCancellation()
             emit(result)
         }
 

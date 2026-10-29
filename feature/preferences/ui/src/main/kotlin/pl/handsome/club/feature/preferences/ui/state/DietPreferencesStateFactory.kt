@@ -26,6 +26,7 @@ internal class DietPreferencesStateFactory(private val resources: DietPreference
                 summary = resources.summary(savedAmount),
                 input = input.orEmpty(),
                 inputError = if (isInputInvalid) resources.inputError() else null,
+                isSaving = isSaving,
             )
         }
     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.handsome.club.core.common.ErrorReporter
 import pl.handsome.club.core.common.EventQueue
+import pl.handsome.club.core.common.ProgressTracker
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
 import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
@@ -47,6 +49,8 @@ internal class DietPreferencesViewModel(
     private val errorReporter: ErrorReporter,
     private val applicationScope: CoroutineScope,
 ) : ViewModel() {
+
+    private val saving = ProgressTracker()
 
     private val statePrototype = MutableStateFlow(
         Prototype(input = savedStateHandle.get<String>(KEY_INPUT))
@@ -117,7 +121,16 @@ internal class DietPreferencesViewModel(
         statePrototype.update { it.copy(input = input) }
     }
 
+    private fun observeSaving() {
+        viewModelScope.launch {
+            saving.inProgress.collect { isSaving ->
+                statePrototype.update { it.copy(isSaving = isSaving) }
+            }
+        }
+    }
+
     private fun save() {
+        if (saving.inProgress.value) return
         val amount = statePrototype.value.input?.trim()?.toIntOrNull()
             ?.takeIf { it in DietPreferences.MAX_DAILY_CARBS_RANGE }
         if (amount == null) {
@@ -127,8 +140,8 @@ internal class DietPreferencesViewModel(
 
         statePrototype.update { it.copy(isInputInvalid = false) }
         appEvents send HideKeyboard
-        applicationScope.launch {
-            preferences.setMaxDailyCarbsAmount(amount)
+        applicationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            saving.reportWork { preferences.setMaxDailyCarbsAmount(amount) }
                 .onSuccess { appEvents send ShowMessage(resources.saved()) }
                 .onFailure { error ->
                     errorReporter.report(TAG, "Saving diet preferences failed", error)
@@ -149,6 +162,7 @@ internal class DietPreferencesViewModel(
 
     init {
         observePreferences()
+        observeSaving()
     }
 
     private companion object {

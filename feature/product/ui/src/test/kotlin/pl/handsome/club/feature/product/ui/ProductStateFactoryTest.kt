@@ -105,7 +105,7 @@ class ProductStateFactoryTest {
         assertEquals(
             listOf<UiText>(
                 UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(1.0)),
-                UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Grams(0.5)),
+                UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(0.5)),
             ),
             verdict.reasons,
         )

@@ -34,7 +34,7 @@ internal class ProductResources {
         is RatingReason.HighCarbEnergyShare ->
             UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(reason.share))
         is RatingReason.LowFatAndProteinToCarbRatio ->
-            UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Grams(reason.ratio))
+            UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(reason.ratio))
         is RatingReason.HighSugars ->
             UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(reason.gramsPer100g))
         is RatingReason.HighCarbsPerServing -> UiText.Res(

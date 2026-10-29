@@ -8,6 +8,7 @@ import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 internal data class FavouritesStatePrototype(
     val query: String = "",
     val favourites: List<FavouriteProduct>? = null,
+    val favouritesQuery: String = "",
     val loadError: AppError? = null,
 ) {
 

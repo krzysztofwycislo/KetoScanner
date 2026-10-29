@@ -19,6 +19,7 @@ internal sealed interface DietPreferencesContentState {
         val summary: UiText,
         val input: String,
         val inputError: UiText?,
+        val isSaving: Boolean,
     ) : DietPreferencesContentState
 }
 

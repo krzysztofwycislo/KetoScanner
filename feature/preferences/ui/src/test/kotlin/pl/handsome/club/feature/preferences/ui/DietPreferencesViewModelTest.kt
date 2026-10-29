@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.preferences.ui
 
 import androidx.lifecycle.SavedStateHandle
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +32,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -128,6 +130,29 @@ class DietPreferencesViewModelTest {
 
         assertEquals(listOf(55), preferences.saved)
         assertNull(form(viewModel).inputError)
+        assertEquals(
+            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
+            appEventsReceived,
+        )
+    }
+
+    @Test
+    fun `when save is tapped again while saving then it is ignored and saving is shown until it finishes`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        preferences.saveGate = gate
+        val viewModel = createViewModel()
+        preferences.emit(40)
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(listOf(40), preferences.saved)
+        assertTrue(form(viewModel).isSaving)
+
+        gate.complete(Unit)
+        testScheduler.runCurrent()
+
+        assertFalse(form(viewModel).isSaving)
         assertEquals(
             listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
             appEventsReceived,
@@ -234,6 +259,7 @@ class DietPreferencesViewModelTest {
         private val values = MutableSharedFlow<Outcome<DietPreferences>>(replay = 1)
         var readFailure: AppError? = null
         var saveResult: Outcome<Unit> = Outcome.Success(Unit)
+        var saveGate: CompletableDeferred<Unit>? = null
         var subscriptions = 0
         val saved = mutableListOf<Int>()
         val savedModes = mutableListOf<DietMode>()
@@ -253,6 +279,7 @@ class DietPreferencesViewModelTest {
 
         override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
             saved += amount
+            saveGate?.await()
             return saveResult
         }
 

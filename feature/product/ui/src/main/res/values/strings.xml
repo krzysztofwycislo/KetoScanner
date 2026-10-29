@@ -17,7 +17,7 @@
     <string name="product_diet_mode_low_carb">low-carb</string>
     <string name="product_reason_high_carbs">%1$s g carbs per 100 g</string>
     <string name="product_reason_carb_energy_share">%1$s of energy from carbs</string>
-    <string name="product_reason_low_fat_and_protein_to_carb_ratio">Few fats and proteins for its carbs: %1$s g per 1 g carbs</string>
+    <string name="product_reason_low_fat_and_protein_to_carb_ratio">Few fats and proteins for its carbs (ratio %1$s:1)</string>
     <string name="product_reason_high_sugars">%1$s g sugars per 100 g</string>
     <string name="product_reason_high_carbs_per_serving">%1$s g carbs in a %2$s g/ml serving</string>
     <string name="product_carbs_per_100g">%1$s g carbs per 100 g</string>
