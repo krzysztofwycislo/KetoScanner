@@ -11,7 +11,6 @@ android {
 dependencies {
     implementation(project(":feature:analysis:api"))
     implementation(project(":feature:favourites:api"))
-    implementation(project(":feature:history:api"))
     implementation(project(":feature:product:api"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:common"))

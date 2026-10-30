@@ -1,8 +1,11 @@
 package pl.handsome.club.feature.scanner.ui
 
 import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
+import pl.handsome.club.feature.analysis.api.model.DietRate
+import pl.handsome.club.feature.preferences.api.model.DietMode
 
 internal class ScanResources {
 
@@ -20,4 +23,30 @@ internal class ScanResources {
 
     fun searchFailed(error: AppError): UiText =
         if (error == AppError.NotFound) UiText.Res(R.string.scan_product_not_found) else error.toUiText()
+
+    fun productName(name: String): UiText =
+        if (name.isBlank()) UiText.Res(R.string.scan_found_unnamed) else UiText.Raw(name)
+
+    fun brand(brand: String): UiText? = if (brand.isBlank()) null else UiText.Raw(brand)
+
+    fun verdictTitle(rate: DietRate, mode: DietMode): UiText {
+        val id = when (rate) {
+            DietRate.GOOD -> when (mode) {
+                DietMode.KETO -> R.string.scan_verdict_good_keto
+                DietMode.LOW_CARB -> R.string.scan_verdict_good_low_carb
+            }
+            DietRate.NEUTRAL -> R.string.scan_verdict_neutral
+            DietRate.NOT_ADVISED -> when (mode) {
+                DietMode.KETO -> R.string.scan_verdict_not_advised_keto
+                DietMode.LOW_CARB -> R.string.scan_verdict_not_advised_low_carb
+            }
+        }
+        return UiText.Res(id)
+    }
+
+    fun insufficientData(): UiText = UiText.Res(R.string.scan_verdict_insufficient_data)
+
+    fun insufficientDataDetail(): UiText = UiText.Res(R.string.scan_found_insufficient_detail)
+
+    fun carbsPer100g(grams: Double): UiText = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(grams))
 }

@@ -12,4 +12,6 @@ internal sealed interface ScanAction {
     data object OnTorchClicked : ScanAction
     data object OnTypeItClicked : ScanAction
     data object OnTypeSheetDismissed : ScanAction
+    data object OnScanNextClicked : ScanAction
+    data object OnDetailsClicked : ScanAction
 }

@@ -17,4 +17,15 @@
     <string name="scan_camera_permission_denied">KetoScanner needs the camera to read barcodes. Turn it on in Settings, or type the barcode below.</string>
     <string name="scan_camera_permission_allow">Allow camera</string>
     <string name="scan_camera_permission_open_settings">Open settings</string>
+    <string name="scan_found_unnamed">Unnamed product</string>
+    <string name="scan_verdict_good_keto">Keto-friendly</string>
+    <string name="scan_verdict_good_low_carb">Low-carb friendly</string>
+    <string name="scan_verdict_neutral">In small amounts</string>
+    <string name="scan_verdict_not_advised_keto">Not keto-friendly</string>
+    <string name="scan_verdict_not_advised_low_carb">Not low-carb friendly</string>
+    <string name="scan_verdict_insufficient_data">Not enough data yet</string>
+    <string name="scan_found_insufficient_detail">Open Food Facts is missing carbs, fat or protein for it</string>
+    <string name="scan_found_carbs_per_100g">%1$s g carbs per 100 g</string>
+    <string name="scan_next">Scan next</string>
+    <string name="scan_details">Details</string>
 </resources>

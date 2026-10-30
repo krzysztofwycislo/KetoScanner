@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -50,14 +53,19 @@ import pl.handsome.club.core.designsystem.component.CameraHint
 import pl.handsome.club.core.designsystem.component.CameraIconButton
 import pl.handsome.club.core.designsystem.component.CameraPillButton
 import pl.handsome.club.core.designsystem.component.CircleIconButton
+import pl.handsome.club.core.designsystem.component.IconTile
 import pl.handsome.club.core.designsystem.component.PrimaryButton
+import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.component.ScanFrame
 import pl.handsome.club.core.designsystem.component.Screen
+import pl.handsome.club.core.designsystem.component.SecondaryButton
 import pl.handsome.club.core.designsystem.component.TextInput
 import pl.handsome.club.core.designsystem.component.TopBar
 import pl.handsome.club.core.designsystem.component.Ui
+import pl.handsome.club.core.designsystem.component.VerdictBanner
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
@@ -70,8 +78,10 @@ import pl.handsome.club.feature.scanner.ui.event.RequestCameraPermission
 import pl.handsome.club.feature.scanner.ui.event.ScanAction
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnCameraPermissionResult
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnDetailsClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnPermissionButtonClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnQueryChanged
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnScanNextClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnStart
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTorchClicked
@@ -79,6 +89,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.handsome.club.feature.scanner.ui.state.CameraState
+import pl.handsome.club.feature.scanner.ui.state.FoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanState
 import pl.handsome.club.feature.scanner.ui.state.Torch
 
@@ -158,6 +169,85 @@ private fun CameraContent(state: ScanState, camera: CameraState.Preview, onActio
                 )
             }
             TypeSheet(state, camera.isTypeSheetOpen, onAction)
+            FoundOverlay(state.found, onAction)
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.FoundOverlay(found: FoundCardState?, onAction: (ScanAction) -> Unit) {
+    BackHandler(enabled = found != null) { onAction(OnScanNextClicked) }
+    AnimatedVisibility(
+        visible = found != null,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.matchParentSize(),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.camera.dim)
+                .pointerInput(Unit) {},
+        )
+    }
+    var lastFound by remember { mutableStateOf(found) }
+    if (found != null) lastFound = found
+    AnimatedVisibility(
+        visible = found != null,
+        enter = slideInVertically { it },
+        exit = slideOutVertically { it },
+        modifier = Modifier.align(Alignment.BottomCenter),
+    ) {
+        lastFound?.let { FoundCard(it, onAction) }
+    }
+}
+
+@Composable
+private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.spacing.m)
+            .background(AppTheme.colors.background.surface, AppTheme.shapes.extraLarge)
+            .pointerInput(Unit) {}
+            .padding(AppTheme.spacing.l)
+            .testTag("scanFoundCard"),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Ui.IconTile(AppIcons.Bag)
+            Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
+                Text(
+                    text = found.name.resolve(),
+                    style = AppTheme.typography.section,
+                    color = AppTheme.colors.text.default,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                found.brand?.let {
+                    Text(
+                        text = it.resolve(),
+                        style = AppTheme.typography.body,
+                        color = AppTheme.colors.text.muted,
+                    )
+                }
+            }
+        }
+        Ui.VerdictBanner(rating = found.rating, title = found.title, details = listOf(found.detail))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+            Ui.SecondaryButton(
+                text = stringResource(R.string.scan_next),
+                onClick = { onAction(OnScanNextClicked) },
+                modifier = Modifier.weight(1f),
+            )
+            Ui.PrimaryButton(
+                text = stringResource(R.string.scan_details),
+                onClick = { onAction(OnDetailsClicked) },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
@@ -263,27 +353,30 @@ private fun TypeCard(state: ScanState, visible: Boolean, onAction: (ScanAction) 
 @Composable
 private fun PermissionContent(state: ScanState, camera: CameraState.PermissionPanel, onAction: (ScanAction) -> Unit) {
     Ui.Screen(topBar = { Ui.TopBar(stringResource(R.string.scan_title)) }) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .imePadding()
-                .padding(start = AppTheme.spacing.l, end = AppTheme.spacing.l, bottom = AppTheme.spacing.m),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.l),
-        ) {
-            PermissionCard(camera, onAction, Modifier.weight(1f))
-            PanelCard(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = AppTheme.spacing.m,
-                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .imePadding()
+                    .padding(start = AppTheme.spacing.l, end = AppTheme.spacing.l, bottom = AppTheme.spacing.m),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.l),
             ) {
-                Text(
-                    text = stringResource(R.string.scan_type_title),
-                    style = AppTheme.typography.body,
-                    color = AppTheme.colors.text.muted,
-                )
-                BarcodeEntry(query = state.query, showProgress = state.showProgress, onAction = onAction)
+                PermissionCard(camera, onAction, Modifier.weight(1f))
+                PanelCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = AppTheme.spacing.m,
+                    verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+                ) {
+                    Text(
+                        text = stringResource(R.string.scan_type_title),
+                        style = AppTheme.typography.body,
+                        color = AppTheme.colors.text.muted,
+                    )
+                    BarcodeEntry(query = state.query, showProgress = state.showProgress, onAction = onAction)
+                }
             }
+            FoundOverlay(state.found, onAction)
         }
     }
 }
@@ -388,10 +481,16 @@ private fun previewState(
     showProgress: Boolean = false,
     torch: Torch = Torch.Off,
     isTypeSheetOpen: Boolean = false,
+    found: FoundCardState? = null,
 ) = ScanState(
     query = query,
     showProgress = showProgress,
-    camera = CameraState.Preview(isPaused = showProgress || isTypeSheetOpen, torch = torch, isTypeSheetOpen = isTypeSheetOpen),
+    camera = CameraState.Preview(
+        isPaused = showProgress || isTypeSheetOpen || found != null,
+        torch = torch,
+        isTypeSheetOpen = isTypeSheetOpen,
+    ),
+    found = found,
 )
 
 @Preview
@@ -426,6 +525,38 @@ private fun ScanSearchingPreview() {
 
 @Preview
 @Composable
+private fun ScanFoundRatedPreview() {
+    PreviewContent(
+        previewState(
+            found = FoundCardState(
+                name = UiText.Raw("Nutella hazelnut spread with cocoa"),
+                brand = UiText.Raw("Ferrero"),
+                rating = Rating.Negative,
+                title = UiText.Res(R.string.scan_verdict_not_advised_keto),
+                detail = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(57.5)),
+            )
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun ScanFoundInsufficientDataPreview() {
+    PreviewContent(
+        previewState(
+            found = FoundCardState(
+                name = UiText.Res(R.string.scan_found_unnamed),
+                brand = null,
+                rating = Rating.Unknown,
+                title = UiText.Res(R.string.scan_verdict_insufficient_data),
+                detail = UiText.Res(R.string.scan_found_insufficient_detail),
+            )
+        )
+    )
+}
+
+@Preview
+@Composable
 private fun ScanRationalePreview() {
     PreviewContent(
         ScanState(
@@ -436,6 +567,7 @@ private fun ScanRationalePreview() {
                 message = UiText.Res(R.string.scan_camera_permission_rationale),
                 buttonLabel = UiText.Res(R.string.scan_camera_permission_allow),
             ),
+            found = null,
         )
     )
 }
@@ -452,6 +584,7 @@ private fun ScanDeniedPreview() {
                 message = UiText.Res(R.string.scan_camera_permission_denied),
                 buttonLabel = UiText.Res(R.string.scan_camera_permission_open_settings),
             ),
+            found = null,
         )
     )
 }
@@ -459,5 +592,5 @@ private fun ScanDeniedPreview() {
 @Preview
 @Composable
 private fun ScanHiddenPreview() {
-    PreviewContent(ScanState(query = "", showProgress = false, camera = CameraState.Hidden))
+    PreviewContent(ScanState(query = "", showProgress = false, camera = CameraState.Hidden, found = null))
 }

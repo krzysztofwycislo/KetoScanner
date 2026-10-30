@@ -3,7 +3,6 @@ package pl.handsome.club.feature.product.ui
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +27,6 @@ import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.ui.event.ProductAction
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnBackClicked
@@ -55,13 +53,11 @@ internal class ProductViewModel(
     private val analyzeProduct: AnalyzeProduct,
     private val products: ProductRepository,
     private val favourites: FavouriteProductsRepository,
-    private val history: AnalysisHistoryRepository,
     private val appEvents: AppEvents,
     private val stateFactory: ProductStateFactory,
     private val resources: ProductResources,
     private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
-    private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     private val statePrototype = MutableStateFlow(
@@ -109,15 +105,6 @@ internal class ProductViewModel(
                     true
                 }
                 .collect(::showAnalysis)
-        }
-    }
-
-    private fun saveToHistory() {
-        viewModelScope.launch {
-            val analysis = firstShownAnalysis()
-            applicationScope.launch {
-                history.save(analysis).onFailure { error -> log("Saving history entry failed", error) }
-            }
         }
     }
 
@@ -222,7 +209,6 @@ internal class ProductViewModel(
 
     init {
         observeProduct()
-        saveToHistory()
         loadFavouriteStatus()
         refresh()
     }

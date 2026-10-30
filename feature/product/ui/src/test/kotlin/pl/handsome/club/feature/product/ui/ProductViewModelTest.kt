@@ -1,10 +1,7 @@
 package pl.handsome.club.feature.product.ui
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,8 +29,6 @@ import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
@@ -59,7 +54,6 @@ class ProductViewModelTest {
     private val analyzeProduct = FakeAnalyzeProduct()
     private val products = FakeProductRepository()
     private val favourites = FakeFavourites()
-    private val history = FakeHistory()
     private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
     private val messages = mutableListOf<AppEvent>()
@@ -92,7 +86,7 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when created and a product is emitted then product is shown history saved and favourite status loaded`() =
+    fun `when created and a product is emitted then product is shown and favourite status loaded`() =
         runTest {
             favourites.findResult = Outcome.Success(favouriteProduct)
             val viewModel = createViewModel()
@@ -100,14 +94,13 @@ class ProductViewModelTest {
             val content = showProduct(viewModel)
             assertEquals(setOf(BARCODE), analyzeProduct.requestedBarcodes.toSet())
             assertEquals(listOf(BARCODE), products.refreshedBarcodes)
-            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
             assertEquals(listOf(BARCODE), favourites.foundBarcodes)
             assertEquals(true, content.favourite?.isFavourite)
             assertTrue(logger.entries.isEmpty())
         }
 
     @Test
-    fun `when created then product is refreshed once and history and favourites run once without any action`() =
+    fun `when created then product is refreshed once and favourites run once without any action`() =
         runTest {
             val gate = products.gate()
             val viewModel = createViewModel()
@@ -115,7 +108,6 @@ class ProductViewModelTest {
             gate.complete(Unit)
 
             assertEquals(1, products.refreshedBarcodes.size)
-            assertEquals(1, history.saved.size)
             assertEquals(1, favourites.foundBarcodes.size)
             showProduct(viewModel)
     }
@@ -134,7 +126,6 @@ class ProductViewModelTest {
             assertEquals(1, logger.entries.size)
             assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
             assertTrue(errorReporter.reports.isEmpty())
-            assertTrue(history.saved.isEmpty())
         }
 
     @Test
@@ -226,18 +217,16 @@ class ProductViewModelTest {
         analyzeProduct.updates.emit(analysis)
 
         showProduct(viewModel)
-        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
     }
 
     @Test
-    fun `when a changed product is emitted later then it is shown and history and favourites run once`() = runTest {
+    fun `when a changed product is emitted later then it is shown and favourites run once`() = runTest {
         val viewModel = createViewModel()
 
         val changed = analysis.copy(product = product.copy(imageUrl = CHANGED_IMAGE_URL))
         analyzeProduct.updates.emit(changed)
 
         assertEquals(CHANGED_IMAGE_URL, showProduct(viewModel).header.imageUrl)
-        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
         assertEquals(listOf(BARCODE), favourites.foundBarcodes)
     }
 
@@ -252,7 +241,6 @@ class ProductViewModelTest {
                 viewModel.state.value.content,
             )
             assertEquals(AppError.Storage, errorReporter.reports.single().error)
-            assertTrue(history.saved.isEmpty())
             val observations = analyzeProduct.requestedBarcodes.size
 
             analyzeProduct.failure = null
@@ -260,22 +248,20 @@ class ProductViewModelTest {
 
             showProduct(viewModel)
             assertTrue(analyzeProduct.requestedBarcodes.size > observations)
-            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
             assertEquals(listOf(BARCODE), favourites.foundBarcodes)
         }
 
     @Test
-    fun `when created then the analysis is subscribed once and history and favourites run once`() = runTest {
+    fun `when created then the analysis is subscribed once and favourites run once`() = runTest {
         val viewModel = createViewModel()
 
         showProduct(viewModel)
         assertEquals(listOf(BARCODE), analyzeProduct.requestedBarcodes)
-        assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
         assertEquals(listOf(BARCODE), favourites.foundBarcodes)
     }
 
     @Test
-    fun `when observing fails and retry is clicked then history and favourites run once from the recovered observation`() =
+    fun `when observing fails and retry is clicked then favourites run once from the recovered observation`() =
         runTest {
             analyzeProduct.failure = IllegalStateException("disk")
             val viewModel = createViewModel()
@@ -286,7 +272,6 @@ class ProductViewModelTest {
 
             showProduct(viewModel)
             assertEquals(2, analyzeProduct.requestedBarcodes.size)
-            assertEquals(listOf<ProductAnalysis>(analysis), history.saved)
             assertEquals(listOf(BARCODE), favourites.foundBarcodes)
         }
 
@@ -301,29 +286,6 @@ class ProductViewModelTest {
         showProduct(viewModel)
         assertTrue(messages.isEmpty())
         assertEquals(AppError.Storage, errorReporter.reports.single().error)
-    }
-
-    @Test
-    fun `when the screen is closed while history is saving then the save still completes`() = runTest {
-        val pending = CompletableDeferred<Unit>()
-        history.pending = pending
-        val viewModel = createViewModel()
-
-        viewModel.viewModelScope.cancel()
-        pending.complete(Unit)
-
-        assertEquals(listOf<ProductAnalysis>(analysis), history.completed)
-    }
-
-    @Test
-    fun `when history save fails then product is still shown and failure is only logged`() = runTest {
-        history.result = Outcome.Failure(AppError.Storage)
-        val viewModel = createViewModel()
-        collectMessages()
-
-        showProduct(viewModel)
-        assertEquals(1, logger.entries.size)
-        assertTrue(messages.isEmpty())
     }
 
     @Test
@@ -515,13 +477,11 @@ class ProductViewModelTest {
             analyzeProduct = analyzeProduct,
             products = products,
             favourites = favourites,
-            history = history,
             appEvents = appEvents(),
             stateFactory = ProductStateFactory(resources),
             resources = resources,
             logger = logger,
             errorReporter = errorReporter,
-            applicationScope = CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         )
     }
 
@@ -595,24 +555,6 @@ class ProductViewModelTest {
             removed += product
             return pendingUpdate?.await() ?: updateResult
         }
-    }
-
-    private class FakeHistory : AnalysisHistoryRepository {
-
-        var result: Outcome<Unit> = Outcome.Success(Unit)
-        var pending: CompletableDeferred<Unit>? = null
-        val saved = mutableListOf<ProductAnalysis>()
-        val completed = mutableListOf<ProductAnalysis>()
-
-        override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> {
-            saved += analysis
-            pending?.await()
-            completed += analysis
-            return result
-        }
-
-        override suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>> =
-            Outcome.Success(emptyList())
     }
 
     private companion object {
