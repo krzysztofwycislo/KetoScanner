@@ -7,6 +7,16 @@ import pl.handsome.club.barcodescanner.BarcodeCamera
 
 @SuppressLint("MissingPermission")
 @Composable
-internal fun CameraPreview(isPaused: Boolean, onBarcodeScanned: (String) -> Unit, modifier: Modifier = Modifier) {
-    BarcodeCamera(isPaused = isPaused, onBarcodeScanned = onBarcodeScanned, modifier = modifier)
+internal fun CameraPreview(
+    isPaused: Boolean,
+    torchEnabled: Boolean,
+    onBarcodeScanned: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BarcodeCamera(
+        isPaused = isPaused,
+        torchEnabled = torchEnabled,
+        onBarcodeScanned = onBarcodeScanned,
+        modifier = modifier,
+    )
 }

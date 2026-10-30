@@ -13,6 +13,7 @@ data class AppColors(
     val verdict: Verdict,
     val border: Border,
     val placeholder: Color,
+    val camera: Camera,
 ) {
 
     @Immutable
@@ -53,6 +54,15 @@ data class AppColors(
         val default: Color,
         val strong: Color,
     )
+
+    @Immutable
+    data class Camera(
+        val background: Color,
+        val control: Color,
+        val controlActive: Color,
+        val hint: Color,
+        val dim: Color,
+    )
 }
 
 internal fun AppColors.Verdict.toneFor(rating: Rating): AppColors.Tone = when (rating) {
@@ -91,4 +101,11 @@ val LightAppColors = AppColors(
         strong = Color(0xFFD5DAD3),
     ),
     placeholder = Color(0xFFEEF1EC),
+    camera = AppColors.Camera(
+        background = Color(0xFF1B2420),
+        control = Color(0x29FFFFFF),
+        controlActive = Color(0xFFFFE58A),
+        hint = Color(0xBF0E1411),
+        dim = Color(0x8C0E1411),
+    ),
 )

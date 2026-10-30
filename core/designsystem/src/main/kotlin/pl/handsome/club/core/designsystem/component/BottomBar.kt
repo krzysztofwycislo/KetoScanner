@@ -2,6 +2,8 @@ package pl.handsome.club.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +16,13 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -63,12 +68,22 @@ fun Ui.BottomBar(
     ) {
         items.forEachIndexed { index, item ->
             val selected = index == selectedIndex
-            val itemModifier = Modifier
-                .weight(1f)
-                .selectable(selected = selected, onClick = { onItemClick(index) }, role = Role.Tab)
             if (item.isProminent) {
-                ProminentItem(item, selected, AppTheme.sizes.scanButtonLift, itemModifier)
+                val interactionSource = remember { MutableInteractionSource() }
+                val itemModifier = Modifier
+                    .weight(1f)
+                    .selectable(
+                        selected = selected,
+                        interactionSource = interactionSource,
+                        indication = null,
+                        role = Role.Tab,
+                        onClick = { onItemClick(index) },
+                    )
+                ProminentItem(item, selected, AppTheme.sizes.scanButtonLift, interactionSource, itemModifier)
             } else {
+                val itemModifier = Modifier
+                    .weight(1f)
+                    .selectable(selected = selected, onClick = { onItemClick(index) }, role = Role.Tab)
                 RegularItem(item, selected, itemModifier)
             }
         }
@@ -100,7 +115,13 @@ private fun RegularItem(item: BottomBarItem, selected: Boolean, modifier: Modifi
 }
 
 @Composable
-private fun ProminentItem(item: BottomBarItem, selected: Boolean, lift: Dp, modifier: Modifier) {
+private fun ProminentItem(
+    item: BottomBarItem,
+    selected: Boolean,
+    lift: Dp,
+    interactionSource: MutableInteractionSource,
+    modifier: Modifier,
+) {
     Column(
         modifier = Modifier
             .layout { measurable, constraints ->
@@ -117,6 +138,8 @@ private fun ProminentItem(item: BottomBarItem, selected: Boolean, lift: Dp, modi
         Box(
             modifier = Modifier
                 .size(AppTheme.sizes.scanButton)
+                .clip(AppTheme.shapes.circle)
+                .indication(interactionSource, ripple())
                 .background(AppTheme.colors.accent, AppTheme.shapes.circle)
                 .border(AppTheme.borders.scanButtonRing, AppTheme.colors.background.default, AppTheme.shapes.circle),
             contentAlignment = Alignment.Center,

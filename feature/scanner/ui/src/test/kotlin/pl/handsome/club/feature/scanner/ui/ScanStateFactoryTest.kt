@@ -4,6 +4,7 @@ import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.feature.scanner.ui.state.CameraPermission
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
+import pl.handsome.club.feature.scanner.ui.state.Torch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -16,44 +17,65 @@ class ScanStateFactoryTest {
 
     @Test
     fun `when permission is unchecked or requesting then camera is hidden`() {
-        assertEquals(CameraState.Hidden, camera(CameraPermission.Unchecked))
-        assertEquals(CameraState.Hidden, camera(CameraPermission.Requesting))
+        assertEquals(CameraState.Hidden, camera(Prototype(cameraPermission = CameraPermission.Unchecked)))
+        assertEquals(CameraState.Hidden, camera(Prototype(cameraPermission = CameraPermission.Requesting)))
     }
 
     @Test
     fun `when permission is granted and nothing pauses then preview is not paused`() {
-        assertEquals(CameraState.Preview(isPaused = false), camera(CameraPermission.Granted))
+        assertEquals(preview(isPaused = false), camera(granted()))
     }
 
     @Test
     fun `when permission is granted and scan is paused then preview is paused`() {
-        assertEquals(CameraState.Preview(isPaused = true), camera(CameraPermission.Granted, isScanPaused = true))
+        assertEquals(preview(isPaused = true), camera(granted().copy(isScanPaused = true)))
     }
 
     @Test
     fun `when permission is granted and a search runs then preview is paused`() {
-        assertEquals(CameraState.Preview(isPaused = true), camera(CameraPermission.Granted, isSearching = true))
+        assertEquals(preview(isPaused = true), camera(granted().copy(isSearching = true)))
     }
 
     @Test
-    fun `when permission needs rationale then panel shows rationale and allow camera`() {
+    fun `when the type sheet is open then preview shows it and is paused`() {
         assertEquals(
-            CameraState.PermissionPanel(
-                message = UiText.Res(R.string.scan_camera_permission_rationale),
-                buttonLabel = UiText.Res(R.string.scan_camera_permission_allow),
-            ),
-            camera(CameraPermission.Rationale),
+            preview(isPaused = true, isTypeSheetOpen = true),
+            camera(granted().copy(isTypeSheetOpen = true)),
         )
     }
 
     @Test
-    fun `when permission is denied then panel shows denied message and open settings`() {
+    fun `when the device has no torch then torch is unavailable even if it was turned on`() {
+        assertEquals(preview(torch = Torch.Unavailable), camera(granted().copy(hasTorch = false, isTorchOn = true)))
+    }
+
+    @Test
+    fun `when the device has a torch then torch follows its on state`() {
+        assertEquals(preview(torch = Torch.Off), camera(granted().copy(hasTorch = true, isTorchOn = false)))
+        assertEquals(preview(torch = Torch.On), camera(granted().copy(hasTorch = true, isTorchOn = true)))
+    }
+
+    @Test
+    fun `when permission needs rationale then panel shows rationale title message and allow camera`() {
         assertEquals(
             CameraState.PermissionPanel(
+                title = UiText.Res(R.string.scan_camera_permission_rationale_title),
+                message = UiText.Res(R.string.scan_camera_permission_rationale),
+                buttonLabel = UiText.Res(R.string.scan_camera_permission_allow),
+            ),
+            camera(Prototype(cameraPermission = CameraPermission.Rationale)),
+        )
+    }
+
+    @Test
+    fun `when permission is denied then panel shows denied title message and open settings`() {
+        assertEquals(
+            CameraState.PermissionPanel(
+                title = UiText.Res(R.string.scan_camera_permission_denied_title),
                 message = UiText.Res(R.string.scan_camera_permission_denied),
                 buttonLabel = UiText.Res(R.string.scan_camera_permission_open_settings),
             ),
-            camera(CameraPermission.Denied),
+            camera(Prototype(cameraPermission = CameraPermission.Denied)),
         )
     }
 
@@ -68,11 +90,10 @@ class ScanStateFactoryTest {
         assertEquals(" 590 ", factory.createFor(Prototype(query = " 590 ")).query)
     }
 
-    private fun camera(
-        permission: CameraPermission,
-        isScanPaused: Boolean = false,
-        isSearching: Boolean = false,
-    ): CameraState = factory.createFor(
-        Prototype(cameraPermission = permission, isScanPaused = isScanPaused, isSearching = isSearching)
-    ).camera
+    private fun granted() = Prototype(cameraPermission = CameraPermission.Granted)
+
+    private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
+        CameraState.Preview(isPaused = isPaused, torch = torch, isTypeSheetOpen = isTypeSheetOpen)
+
+    private fun camera(prototype: Prototype): CameraState = factory.createFor(prototype).camera
 }

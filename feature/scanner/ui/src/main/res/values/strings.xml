@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="scan_enter_barcode">Enter barcode</string>
+    <string name="scan_title">Scan</string>
+    <string name="scan_type_it">Type it</string>
+    <string name="scan_aim_hint">Point at the barcode, hold still</string>
+    <string name="scan_torch_on">Turn torch on</string>
+    <string name="scan_torch_off">Turn torch off</string>
+    <string name="scan_type_title">Type the barcode</string>
+    <string name="scan_type_helper">For damaged or hard-to-read labels. The digits are under the bars.</string>
+    <string name="scan_barcode_placeholder">13 or 8 digits</string>
+    <string name="scan_look_up">Look up</string>
+    <string name="scan_close">Close</string>
     <string name="scan_product_not_found">Product not found</string>
-    <string name="scan_camera_permission_rationale">KetoScanner needs the camera to scan product barcodes. You can still type a barcode below.</string>
-    <string name="scan_camera_permission_denied">Camera access is turned off. Enable it in Settings to scan barcodes, or type a barcode below.</string>
+    <string name="scan_camera_permission_rationale_title">Scan with your camera</string>
+    <string name="scan_camera_permission_rationale">KetoScanner needs the camera to read barcodes. Allow it, or type the barcode below.</string>
+    <string name="scan_camera_permission_denied_title">Camera access is off</string>
+    <string name="scan_camera_permission_denied">KetoScanner needs the camera to read barcodes. Turn it on in Settings, or type the barcode below.</string>
     <string name="scan_camera_permission_allow">Allow camera</string>
     <string name="scan_camera_permission_open_settings">Open settings</string>
 </resources>

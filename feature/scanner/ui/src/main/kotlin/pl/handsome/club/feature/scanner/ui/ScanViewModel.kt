@@ -34,6 +34,9 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnPermissionButtonCl
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnQueryChanged
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnStart
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTorchClicked
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
 import pl.handsome.club.feature.scanner.ui.state.CameraPermission
@@ -63,6 +66,8 @@ internal class ScanViewModel(
                 ?.let(CameraPermission::valueOf)
                 ?.takeUnless { it == CameraPermission.Granted }
                 ?: CameraPermission.Unchecked,
+            isTorchOn = savedStateHandle.get<Boolean>(KEY_TORCH) ?: false,
+            isTypeSheetOpen = savedStateHandle.get<Boolean>(KEY_TYPE_SHEET_OPEN) ?: false,
         )
     )
 
@@ -77,12 +82,15 @@ internal class ScanViewModel(
 
     fun onAction(action: ScanAction) {
         when (action) {
-            is OnStart -> onStart(action.check)
+            is OnStart -> onStart(action.check, action.hasTorch)
             is OnCameraPermissionResult -> onCameraPermissionResult(action.check)
             OnPermissionButtonClicked -> onPermissionButtonClicked()
             is OnQueryChanged -> setQuery(action.query)
             OnSearchSubmitted -> search(statePrototype.value.query.trim())
-            is OnBarcodeScanned -> if (!statePrototype.value.isScanPaused) search(action.barcode)
+            is OnBarcodeScanned -> if (!statePrototype.value.isScanBlocked) search(action.barcode)
+            OnTorchClicked -> toggleTorch()
+            OnTypeItClicked -> setTypeSheetOpen(true)
+            OnTypeSheetDismissed -> setTypeSheetOpen(false)
         }
     }
 
@@ -94,8 +102,8 @@ internal class ScanViewModel(
         }
     }
 
-    private fun onStart(check: CameraPermissionCheck) {
-        statePrototype.update { it.copy(isScanPaused = progress.inProgress.value) }
+    private fun onStart(check: CameraPermissionCheck, hasTorch: Boolean) {
+        statePrototype.update { it.copy(isScanPaused = progress.inProgress.value, hasTorch = hasTorch) }
         val current = statePrototype.value.cameraPermission
         when {
             check.isGranted -> setCameraPermission(CameraPermission.Granted)
@@ -137,6 +145,17 @@ internal class ScanViewModel(
         statePrototype.update { it.copy(query = query) }
     }
 
+    private fun toggleTorch() {
+        val isTorchOn = !statePrototype.value.isTorchOn
+        savedStateHandle[KEY_TORCH] = isTorchOn
+        statePrototype.update { it.copy(isTorchOn = isTorchOn) }
+    }
+
+    private fun setTypeSheetOpen(isOpen: Boolean) {
+        savedStateHandle[KEY_TYPE_SHEET_OPEN] = isOpen
+        statePrototype.update { it.copy(isTypeSheetOpen = isOpen) }
+    }
+
     private fun search(barcode: String) {
         if (barcode.isBlank() || progress.inProgress.value) return
         statePrototype.update { it.copy(isScanPaused = true) }
@@ -144,7 +163,10 @@ internal class ScanViewModel(
 
         viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             progress.reportWork { products.refreshProduct(barcode) }
-                .onSuccess { screenEvents send NavigateToProduct(barcode) }
+                .onSuccess {
+                    setTypeSheetOpen(false)
+                    screenEvents send NavigateToProduct(barcode)
+                }
                 .onFailure { error -> onSearchFailed(error) }
         }
     }
@@ -169,6 +191,8 @@ internal class ScanViewModel(
         const val TAG = "ScanViewModel"
         const val KEY_QUERY = "query"
         const val KEY_CAMERA_PERMISSION = "cameraPermission"
+        const val KEY_TORCH = "torch"
+        const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
         val SCAN_RESUME_DELAY = 2.seconds
     }
 }

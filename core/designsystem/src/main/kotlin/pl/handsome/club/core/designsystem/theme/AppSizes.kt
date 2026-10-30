@@ -20,6 +20,10 @@ data class AppSizes(
     val scanButtonLift: Dp,
     val thumbnail: Dp,
     val productPhoto: Dp,
+    val scanFrameWidth: Dp,
+    val scanFrameHeight: Dp,
+    val aimLine: Dp,
+    val messageIcon: Dp,
 )
 
 val DefaultAppSizes = AppSizes(
@@ -37,4 +41,8 @@ val DefaultAppSizes = AppSizes(
     scanButtonLift = 26.dp,
     thumbnail = 70.dp,
     productPhoto = 92.dp,
+    scanFrameWidth = 320.dp,
+    scanFrameHeight = 200.dp,
+    aimLine = 3.dp,
+    messageIcon = 72.dp,
 )

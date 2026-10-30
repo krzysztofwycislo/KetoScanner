@@ -31,6 +31,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation.Naviga
 import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
+import pl.handsome.club.feature.scanner.ui.state.Torch
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -86,9 +87,9 @@ class ScanViewModelTest {
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle)
 
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         assertEquals("Granted", handle.get<String>(KEY_CAMERA_PERMISSION))
         assertTrue(screenEvents.isEmpty())
     }
@@ -97,7 +98,7 @@ class ScanViewModelTest {
     fun `when started with rationale then rationale panel is shown without a request`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.onAction(ScanAction.OnStart(RATIONALE))
+        viewModel.onAction(ScanAction.OnStart(RATIONALE, hasTorch = false))
 
         assertEquals(rationalePanel, viewModel.state.value.camera)
         assertTrue(screenEvents.isEmpty())
@@ -108,7 +109,7 @@ class ScanViewModelTest {
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle)
 
-        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED))
+        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED, hasTorch = false))
 
         assertEquals(listOf<ScanEvent>(RequestCameraPermission), screenEvents)
         assertEquals("Requesting", handle.get<String>(KEY_CAMERA_PERMISSION))
@@ -121,9 +122,9 @@ class ScanViewModelTest {
 
         assertEquals(CameraState.Hidden, viewModel.state.value.camera)
 
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         assertTrue(screenEvents.isEmpty())
     }
 
@@ -131,7 +132,7 @@ class ScanViewModelTest {
     fun `when restored after a permanent denial then denied panel is shown without a request`() = runTest {
         val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_CAMERA_PERMISSION to "Denied")))
 
-        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED))
+        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED, hasTorch = false))
 
         assertEquals(deniedPanel, viewModel.state.value.camera)
         assertTrue(screenEvents.isEmpty())
@@ -141,7 +142,7 @@ class ScanViewModelTest {
     fun `when restored while a request is in flight then it is not requested again`() = runTest {
         val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_CAMERA_PERMISSION to "Requesting")))
 
-        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED))
+        viewModel.onAction(ScanAction.OnStart(NOT_GRANTED, hasTorch = false))
 
         assertTrue(screenEvents.isEmpty())
         assertEquals(CameraState.Hidden, viewModel.state.value.camera)
@@ -153,7 +154,7 @@ class ScanViewModelTest {
         val viewModel = createViewModel(handle)
 
         viewModel.onAction(ScanAction.OnCameraPermissionResult(GRANTED))
-        assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         assertEquals("Granted", handle.get<String>(KEY_CAMERA_PERMISSION))
 
         viewModel.onAction(ScanAction.OnCameraPermissionResult(RATIONALE))
@@ -169,16 +170,16 @@ class ScanViewModelTest {
     fun `when denied and started again with permission granted in settings then preview is shown`() = runTest {
         val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_CAMERA_PERMISSION to "Denied")))
 
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         assertTrue(screenEvents.isEmpty())
     }
 
     @Test
     fun `when permission button is clicked in rationale then permission is requested`() = runTest {
         val viewModel = createViewModel()
-        viewModel.onAction(ScanAction.OnStart(RATIONALE))
+        viewModel.onAction(ScanAction.OnStart(RATIONALE, hasTorch = false))
 
         viewModel.onAction(ScanAction.OnPermissionButtonClicked)
 
@@ -199,7 +200,7 @@ class ScanViewModelTest {
     @Test
     fun `when a search is submitted then keyboard hides trimmed barcode is refreshed and product opens`() = runTest {
         val viewModel = createViewModel()
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
         viewModel.onAction(ScanAction.OnQueryChanged("  590  "))
         viewModel.onAction(ScanAction.OnSearchSubmitted)
@@ -207,11 +208,11 @@ class ScanViewModelTest {
         assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
         assertEquals(listOf("590"), products.refreshedBarcodes)
         assertEquals(listOf<ScanEvent>(NavigateToProduct("590")), screenEvents)
-        assertEquals(CameraState.Preview(isPaused = true), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = true), viewModel.state.value.camera)
 
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
     }
 
     @Test
@@ -230,7 +231,7 @@ class ScanViewModelTest {
     fun `when a search is pending then repeated submits and scans are ignored`() = runTest {
         val gate = products.gate()
         val viewModel = createViewModel(initialQuery = "590")
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
         viewModel.onAction(ScanAction.OnSearchSubmitted)
         assertTrue(viewModel.state.value.showProgress)
@@ -247,12 +248,12 @@ class ScanViewModelTest {
     fun `when a typed search is pending and the screen starts again then camera stays paused`() = runTest {
         val gate = products.gate()
         val viewModel = createViewModel(initialQuery = "590")
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
         viewModel.onAction(ScanAction.OnSearchSubmitted)
 
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        assertEquals(CameraState.Preview(isPaused = true), viewModel.state.value.camera)
+        assertEquals(preview(isPaused = true), viewModel.state.value.camera)
         gate.complete(Unit)
     }
 
@@ -261,7 +262,7 @@ class ScanViewModelTest {
         runTest {
             products.result = Outcome.Failure(AppError.NotFound)
             val viewModel = createViewModel()
-            viewModel.onAction(ScanAction.OnStart(GRANTED))
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
             viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
@@ -273,14 +274,14 @@ class ScanViewModelTest {
             assertTrue(errorReporter.reports.isEmpty())
             assertTrue(screenEvents.isEmpty())
             assertFalse(viewModel.state.value.showProgress)
-            assertEquals(CameraState.Preview(isPaused = true), viewModel.state.value.camera)
+            assertEquals(preview(isPaused = true), viewModel.state.value.camera)
 
             advanceTimeBy(1_999)
-            assertEquals(CameraState.Preview(isPaused = true), viewModel.state.value.camera)
+            assertEquals(preview(isPaused = true), viewModel.state.value.camera)
 
             advanceTimeBy(1)
             runCurrent()
-            assertEquals(CameraState.Preview(isPaused = false), viewModel.state.value.camera)
+            assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         }
 
     @Test
@@ -298,7 +299,7 @@ class ScanViewModelTest {
     @Test
     fun `when a barcode is scanned while scanning is paused then it is ignored`() = runTest {
         val viewModel = createViewModel()
-        viewModel.onAction(ScanAction.OnStart(GRANTED))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
         viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
@@ -307,9 +308,108 @@ class ScanViewModelTest {
         assertEquals(listOf<ScanEvent>(NavigateToProduct("590")), screenEvents)
     }
 
+    @Test
+    fun `when started with a torch then torch availability reaches the state`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = true))
+
+        assertEquals(preview(torch = Torch.Off), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when torch is clicked then it toggles and is saved`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = true))
+
+        viewModel.onAction(ScanAction.OnTorchClicked)
+        assertEquals(preview(torch = Torch.On), viewModel.state.value.camera)
+        assertEquals(true, handle.get<Boolean>(KEY_TORCH))
+
+        viewModel.onAction(ScanAction.OnTorchClicked)
+        assertEquals(preview(torch = Torch.Off), viewModel.state.value.camera)
+        assertEquals(false, handle.get<Boolean>(KEY_TORCH))
+    }
+
+    @Test
+    fun `when handle has torch and type sheet state then both are restored`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_TORCH to true, KEY_TYPE_SHEET_OPEN to true)))
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = true))
+
+        assertEquals(preview(isPaused = true, torch = Torch.On, isTypeSheetOpen = true), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when type it is clicked and the sheet is dismissed then it opens and closes and is saved`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+        assertEquals(preview(isPaused = true, isTypeSheetOpen = true), viewModel.state.value.camera)
+        assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+
+        viewModel.onAction(ScanAction.OnTypeSheetDismissed)
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(false, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+    }
+
+    @Test
+    fun `when a typed lookup succeeds then the sheet closes and is saved before product opens`() = runTest {
+        val handle = SavedStateHandle()
+        var sheetOpenAtNavigation: Boolean? = null
+        val viewModel = createViewModel(handle, initialQuery = "590") {
+            sheetOpenAtNavigation = handle.get<Boolean>(KEY_TYPE_SHEET_OPEN)
+        }
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+
+        viewModel.onAction(ScanAction.OnSearchSubmitted)
+
+        assertEquals(false, sheetOpenAtNavigation)
+        assertEquals(listOf<ScanEvent>(NavigateToProduct("590")), screenEvents)
+        assertEquals(false, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+        assertEquals(preview(isPaused = true), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when a typed lookup fails then the sheet stays open`() = runTest {
+        products.result = Outcome.Failure(AppError.NotFound)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle, initialQuery = "590")
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+
+        viewModel.onAction(ScanAction.OnSearchSubmitted)
+        advanceTimeBy(2_000)
+        runCurrent()
+
+        assertEquals(AppEvent.ShowMessage(UiText.Res(R.string.scan_product_not_found)), appEvents.last())
+        assertEquals(preview(isPaused = true, isTypeSheetOpen = true), viewModel.state.value.camera)
+        assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+    }
+
+    @Test
+    fun `when a barcode is scanned while the type sheet is open then it is ignored`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertTrue(products.refreshedBarcodes.isEmpty())
+        assertTrue(screenEvents.isEmpty())
+    }
+
+    private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
+        CameraState.Preview(isPaused = isPaused, torch = torch, isTypeSheetOpen = isTypeSheetOpen)
+
     private fun TestScope.createViewModel(
         handle: SavedStateHandle = SavedStateHandle(),
         initialQuery: String = "",
+        onScreenEvent: (ScanEvent) -> Unit = {},
     ): ScanViewModel {
         val events = AppEvents(backgroundScope)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { events.events.toList(appEvents) }
@@ -324,7 +424,12 @@ class ScanViewModelTest {
             errorReporter = errorReporter,
             initialQuery = initialQuery,
         )
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(screenEvents) }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.events.collect { event ->
+                onScreenEvent(event)
+                screenEvents += event
+            }
+        }
         return viewModel
     }
 
@@ -348,16 +453,20 @@ class ScanViewModelTest {
     private companion object {
         const val KEY_QUERY = "query"
         const val KEY_CAMERA_PERMISSION = "cameraPermission"
+        const val KEY_TORCH = "torch"
+        const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
 
         val GRANTED = CameraPermissionCheck(isGranted = true, shouldShowRationale = false)
         val RATIONALE = CameraPermissionCheck(isGranted = false, shouldShowRationale = true)
         val NOT_GRANTED = CameraPermissionCheck(isGranted = false, shouldShowRationale = false)
 
         val rationalePanel = CameraState.PermissionPanel(
+            title = UiText.Res(R.string.scan_camera_permission_rationale_title),
             message = UiText.Res(R.string.scan_camera_permission_rationale),
             buttonLabel = UiText.Res(R.string.scan_camera_permission_allow),
         )
         val deniedPanel = CameraState.PermissionPanel(
+            title = UiText.Res(R.string.scan_camera_permission_denied_title),
             message = UiText.Res(R.string.scan_camera_permission_denied),
             buttonLabel = UiText.Res(R.string.scan_camera_permission_open_settings),
         )

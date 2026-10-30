@@ -13,6 +13,8 @@ internal data class ScanState(
 @Immutable
 internal sealed interface CameraState {
     data object Hidden : CameraState
-    data class Preview(val isPaused: Boolean) : CameraState
-    data class PermissionPanel(val message: UiText, val buttonLabel: UiText) : CameraState
+    data class Preview(val isPaused: Boolean, val torch: Torch, val isTypeSheetOpen: Boolean) : CameraState
+    data class PermissionPanel(val title: UiText, val message: UiText, val buttonLabel: UiText) : CameraState
 }
+
+internal enum class Torch { Unavailable, Off, On }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.handsome.club.core.designsystem.R
@@ -30,6 +31,7 @@ fun Ui.Screen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     snackbarHostState: SnackbarHostState? = null,
+    containerColor: Color = AppTheme.colors.background.default,
     topBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -44,7 +46,7 @@ fun Ui.Screen(
             }
         },
         snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
-        containerColor = AppTheme.colors.background.default,
+        containerColor = containerColor,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         content = content,
     )

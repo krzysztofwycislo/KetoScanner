@@ -6,6 +6,7 @@ import android.util.Log
 import android.util.Size
 import androidx.annotation.RequiresPermission
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -17,6 +18,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -25,6 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -37,6 +41,7 @@ private val ANALYSIS_TARGET_SIZE = Size(1280, 720)
 @Composable
 fun BarcodeCamera(
     isPaused: Boolean,
+    torchEnabled: Boolean,
     onBarcodeScanned: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -50,6 +55,7 @@ fun BarcodeCamera(
     val controller = remember(context) { createController(context) }
     val currentIsPaused by rememberUpdatedState(isPaused)
     val currentOnBarcodeScanned by rememberUpdatedState(onBarcodeScanned)
+    val currentTorchEnabled by rememberUpdatedState(torchEnabled)
 
     DisposableEffect(controller, lifecycleOwner) {
         val scanner = BarcodeScanning.getClient(
@@ -69,11 +75,31 @@ fun BarcodeCamera(
         controller.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
         controller.bindToLifecycle(lifecycleOwner)
 
+        val torchObserver = Observer<CameraState> { cameraState ->
+            if (cameraState.type == CameraState.Type.OPEN) controller.enableTorch(currentTorchEnabled)
+        }
+        var observedCameraState: LiveData<CameraState>? = null
+        var disposed = false
+        controller.initializationFuture.addListener(
+            {
+                if (!disposed) {
+                    observedCameraState = controller.cameraInfo?.cameraState?.also { it.observeForever(torchObserver) }
+                }
+            },
+            ContextCompat.getMainExecutor(context),
+        )
+
         onDispose {
+            disposed = true
+            observedCameraState?.removeObserver(torchObserver)
             controller.clearImageAnalysisAnalyzer()
             controller.unbind()
             scanner.close()
         }
+    }
+
+    LaunchedEffect(controller, torchEnabled) {
+        controller.enableTorch(torchEnabled)
     }
 
     AndroidView(

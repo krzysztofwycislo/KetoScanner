@@ -6,6 +6,10 @@ import pl.handsome.club.core.designsystem.text.toUiText
 
 internal class ScanResources {
 
+    fun rationaleTitle(): UiText = UiText.Res(R.string.scan_camera_permission_rationale_title)
+
+    fun deniedTitle(): UiText = UiText.Res(R.string.scan_camera_permission_denied_title)
+
     fun permissionRationale(): UiText = UiText.Res(R.string.scan_camera_permission_rationale)
 
     fun allowCamera(): UiText = UiText.Res(R.string.scan_camera_permission_allow)
