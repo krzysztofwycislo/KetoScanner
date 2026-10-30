@@ -31,10 +31,10 @@ interface FavouriteProductDao {
     @Query(
         """
         UPDATE ${FavouriteProductEntity.TABLE_NAME}
-        SET dietRate = :dietRate, carbsPer100g = :carbsPer100g
+        SET dietRate = :dietRate, carbsPer100g = :carbsPer100g, category = :category
         WHERE productBarcode = :barcode
         """
     )
-    suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?)
+    suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?, category: String?)
 
 }

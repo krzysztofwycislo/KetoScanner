@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.history.data
 
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.analysis.api.model.carbsPer100g
@@ -16,6 +17,7 @@ internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistor
         updateTime = updateTime,
         dietRate = DietRate.entries.firstOrNull { it.name == dietRate },
         carbsPer100g = carbsPer100g,
+        category = ProductCategory.fromName(category),
     )
 
 internal fun List<ProductAnalysisHistoryEntryEntity>.toDomain(): List<ProductAnalysisHistoryEntry> =
@@ -28,4 +30,5 @@ internal fun ProductAnalysis.toEntity(): ProductAnalysisHistoryEntryEntity =
         productBrand = product.brand,
         dietRate = dietRate?.name,
         carbsPer100g = carbsPer100g,
+        category = product.category.name,
     )

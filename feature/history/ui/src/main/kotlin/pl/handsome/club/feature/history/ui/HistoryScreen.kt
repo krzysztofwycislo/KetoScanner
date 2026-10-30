@@ -39,6 +39,7 @@ import pl.handsome.club.core.designsystem.component.TopBar
 import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictPill
 import pl.handsome.club.core.designsystem.event.ObserveEvents
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
@@ -197,7 +198,7 @@ private fun Groups(groups: PersistentList<HistoryGroupState>, onAction: (History
                     subtitle = item.time,
                     onClick = { onAction(OnEntryClicked(item.barcode)) },
                     leading = {
-                        Ui.IconTile(AppIcons.Bag.imageVector)
+                        Ui.IconTile(item.icon.imageVector)
                     },
                     trailing = {
                         Ui.VerdictPill(
@@ -229,11 +230,18 @@ private fun ErrorContent(state: Error, onAction: (HistoryAction) -> Unit) {
     }
 }
 
-private fun HistoryItemState.Companion.example(id: Long, name: String, rating: Rating, carbs: Double?) =
+private fun HistoryItemState.Companion.example(
+    id: Long,
+    name: String,
+    icon: AppIcon,
+    rating: Rating,
+    carbs: Double?,
+) =
     HistoryItemState(
         id = id,
         barcode = "590000000000$id",
         name = UiText.Raw(name),
+        icon = icon,
         time = UiText.Raw("18:42"),
         rating = rating,
         carbs = if (carbs == null) UiText.Res(R.string.history_carbs_missing)
@@ -262,16 +270,16 @@ private fun HistoryShowGroupsPreview() {
             key = "today",
             title = UiText.Res(R.string.history_group_today),
             items = persistentListOf(
-                HistoryItemState.example(1, "Peanut butter", Rating.Positive, 14.0),
-                HistoryItemState.example(2, "Oat cookies", Rating.Neutral, 52.3),
+                HistoryItemState.example(1, "Peanut butter", AppIcons.Jar, Rating.Positive, 14.0),
+                HistoryItemState.example(2, "Oat cookies", AppIcons.Cookie, Rating.Neutral, 52.3),
             ),
         ),
         HistoryGroupState(
             key = "yesterday",
             title = UiText.Res(R.string.history_group_yesterday),
             items = persistentListOf(
-                HistoryItemState.example(3, "Cola", Rating.Negative, 10.6),
-                HistoryItemState.example(4, "Mystery bar", Rating.Unknown, null),
+                HistoryItemState.example(3, "Cola", AppIcons.Can, Rating.Negative, 10.6),
+                HistoryItemState.example(4, "Mystery bar", AppIcons.Bag, Rating.Unknown, null),
             ),
         ),
     )

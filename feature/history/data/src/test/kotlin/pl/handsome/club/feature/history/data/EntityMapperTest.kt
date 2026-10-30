@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.history.data
 
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -25,21 +26,21 @@ class EntityMapperTest {
 
     @Test
     fun `when stored rate is null then domain rate is null`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, null)
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, null, null)
 
         assertNull(entity.toDomain().dietRate)
     }
 
     @Test
     fun `when stored rate name is unknown then domain rate is null`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, "VERY_GOOD", null)
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, "VERY_GOOD", null, null)
 
         assertNull(entity.toDomain().dietRate)
     }
 
     @Test
     fun `when entity is mapped then id name barcode brand update time and carbs are kept`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, CARBS).apply {
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, CARBS, null).apply {
             id = ID
             updateTime = UPDATE_TIME
         }
@@ -96,9 +97,28 @@ class EntityMapperTest {
 
     @Test
     fun `when entity list is mapped then order is kept`() {
-        val entities = listOf("1", "2", "3").map { ProductAnalysisHistoryEntryEntity(NAME, it, BRAND, null, null) }
+        val entities = listOf("1", "2", "3").map {
+            ProductAnalysisHistoryEntryEntity(NAME, it, BRAND, null, null, null)
+        }
 
         assertEquals(listOf("1", "2", "3"), entities.toDomain().map { it.productBarcode })
+    }
+
+    @Test
+    fun `when analysis goes through entity and back then the product category is kept`() {
+        val entity = ProductAnalysis.Rated(product, analysis).toEntity()
+
+        assertEquals("CHEESE", entity.category)
+        assertEquals(ProductCategory.CHEESE, entity.toDomain().category)
+    }
+
+    @Test
+    fun `when stored category is unknown or null then domain category is other`() {
+        val unknown = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, null, "SOUPS")
+        val missing = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, null, null)
+
+        assertEquals(ProductCategory.OTHER, unknown.toDomain().category)
+        assertEquals(ProductCategory.OTHER, missing.toDomain().category)
     }
 
     private companion object {
@@ -118,6 +138,7 @@ class EntityMapperTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, null, null, null),
             imageUrl = null,
             servingAmount = null,
+            category = ProductCategory.CHEESE,
         )
 
         val productWithCarbs = product.copy(

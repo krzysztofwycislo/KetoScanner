@@ -55,7 +55,12 @@ internal class FavouriteProductsRepositoryImpl(
     override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> =
         withContext(dispatchers.io) {
             outcomeOf(mapError = { AppError.Storage }) {
-                persistence.updateRating(analysis.product.barcode, analysis.dietRate?.name, analysis.carbsPer100g)
+                persistence.updateRating(
+                    analysis.product.barcode,
+                    analysis.dietRate?.name,
+                    analysis.carbsPer100g,
+                    analysis.product.category.name
+                )
             }
         }
 }

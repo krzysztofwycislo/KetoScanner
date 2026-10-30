@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.favourites.data
 
 import pl.handsome.club.core.database.favourite.FavouriteProductEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.analysis.api.model.carbsPer100g
@@ -17,6 +18,7 @@ internal fun FavouriteProductEntity.toDomain(): FavouriteProduct =
         imageUrl = imageUrl,
         dietRate = DietRate.entries.firstOrNull { it.name == dietRate },
         carbsPer100g = carbsPer100g,
+        category = ProductCategory.fromName(category),
     )
 
 internal fun List<FavouriteProductEntity>.toDomain(): List<FavouriteProduct> =
@@ -36,4 +38,5 @@ internal fun Product.toFavouriteEntity(
         imageUrl = imageUrl,
         dietRate = dietRate?.name,
         carbsPer100g = carbsPer100g,
+        category = category.name,
     )

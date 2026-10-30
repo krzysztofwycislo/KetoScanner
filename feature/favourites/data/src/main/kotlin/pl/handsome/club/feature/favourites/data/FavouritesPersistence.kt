@@ -9,7 +9,7 @@ internal interface FavouritesPersistence {
     suspend fun insert(entity: FavouriteProductEntity)
     suspend fun delete(entity: FavouriteProductEntity)
     suspend fun findByBarcode(barcode: String): FavouriteProductEntity?
-    suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?)
+    suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?, category: String?)
 }
 
 internal class FavouritesPersistenceImpl(
@@ -25,6 +25,6 @@ internal class FavouritesPersistenceImpl(
 
     override suspend fun findByBarcode(barcode: String): FavouriteProductEntity? = dao.findByBarcode(barcode)
 
-    override suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?) =
-        dao.updateRating(barcode, dietRate, carbsPer100g)
+    override suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?, category: String?) =
+        dao.updateRating(barcode, dietRate, carbsPer100g, category)
 }

@@ -3,6 +3,7 @@ package pl.handsome.club.feature.product.ui.state
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.product.api.model.Product
@@ -40,6 +41,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         imageUrl = product.imageUrl,
         imageDescription = resources.imageDescription(),
         isImageClickable = product.imageUrl != null,
+        category = resources.categoryLabel(product.category)?.let { CategoryChipState(product.category.icon, it) },
         brand = resources.brand(product.brand),
         name = resources.productName(product.name),
         nameMaxLines = if (isNameExpanded) EXPANDED_NAME_LINES else COLLAPSED_NAME_LINES,

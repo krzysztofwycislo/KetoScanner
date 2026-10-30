@@ -3,9 +3,11 @@ package pl.handsome.club.feature.history.ui
 import kotlinx.datetime.TimeZone
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.history.ui.state.HistoryContentState
@@ -242,6 +244,13 @@ class HistoryStateFactoryTest {
         assertEquals("barcode-1", item.barcode)
     }
 
+    @Test
+    fun `when the entry has a category then the row icon follows it`() {
+        val items = groups(listOf(entry(1, category = ProductCategory.FISH), entry(2))).single().items
+
+        assertEquals(listOf(AppIcons.Fish, AppIcons.Bag), items.map { it.icon })
+    }
+
     private val resources = HistoryResources()
 
     private fun prototype(
@@ -272,6 +281,7 @@ class HistoryStateFactoryTest {
             brand: String = "Brand",
             rate: DietRate? = null,
             carbs: Double? = null,
+            category: ProductCategory = ProductCategory.OTHER,
         ) = ProductAnalysisHistoryEntry(
             id = id,
             productName = name,
@@ -280,6 +290,7 @@ class HistoryStateFactoryTest {
             updateTime = time,
             dietRate = rate,
             carbsPer100g = carbs,
+            category = category,
         )
     }
 }

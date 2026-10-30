@@ -7,6 +7,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
@@ -49,6 +50,7 @@ internal class HomeStateFactory(private val resources: HomeResources) {
         id = id,
         barcode = productBarcode,
         name = resources.productName(productName),
+        icon = category.icon,
         time = timeText(today, timeZone),
         rating = dietRate.toRating(),
         carbs = resources.carbs(carbsPer100g),

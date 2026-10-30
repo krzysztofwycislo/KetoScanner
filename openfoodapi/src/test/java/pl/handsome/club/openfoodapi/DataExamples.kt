@@ -22,7 +22,8 @@ private fun testApiProduct(): ApiProduct = ApiProduct(
     PRODUCT_NAME,
     PRODUCT_URL,
     PRODUCT_BRAND,
-    PRODUCT_SERVING
+    PRODUCT_SERVING,
+    listOf("en:dairies", "en:fermented-milk-products", "en:cheeses")
 )
 
 fun testApiNutriments(): ApiNutriments = ApiNutriments(

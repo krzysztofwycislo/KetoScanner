@@ -3,9 +3,11 @@ package pl.handsome.club.feature.home.ui
 import kotlinx.datetime.TimeZone
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.home.ui.state.HomeItemState
@@ -55,6 +57,12 @@ class HomeStateFactoryTest {
 
         assertEquals(listOf(3L, 1L, 2L), recent.items.map { it.id })
         assertEquals(listOf("barcode-3", "barcode-1", "barcode-2"), recent.items.map { it.barcode })
+    }
+
+    @Test
+    fun `when entry has a category then item icon follows it`() {
+        assertEquals(AppIcons.Cheese, item(entry(1, category = ProductCategory.CHEESE)).icon)
+        assertEquals(AppIcons.Bag, item(entry(2)).icon)
     }
 
     @Test
@@ -233,6 +241,7 @@ class HomeStateFactoryTest {
             time: Instant = NOW,
             rate: DietRate? = null,
             carbs: Double? = null,
+            category: ProductCategory = ProductCategory.OTHER,
         ) = ProductAnalysisHistoryEntry(
             id = id,
             productName = name,
@@ -241,6 +250,7 @@ class HomeStateFactoryTest {
             updateTime = time,
             dietRate = rate,
             carbsPer100g = carbs,
+            category = category,
         )
     }
 }

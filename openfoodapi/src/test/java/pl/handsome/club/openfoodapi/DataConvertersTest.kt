@@ -1,5 +1,6 @@
 package pl.handsome.club.openfoodapi
 
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.openfoodapi.data.ApiProduct
 import pl.handsome.club.openfoodapi.data.GetProductResponse
@@ -21,6 +22,7 @@ class DataConvertersTest {
 
         assertEquals(apiProduct.productName, product.name)
         assertEquals(response.barcode, product.barcode)
+        assertEquals(ProductCategory.CHEESE, product.category)
     }
 
     @Test
@@ -69,6 +71,7 @@ class DataConvertersTest {
         assertNotNull(product)
         assertTrue(product.name.isEmpty())
         assertEquals(ProductNutriments(null, null, null, null, null, null, null, null, null, null), product.nutriments)
+        assertEquals(ProductCategory.OTHER, product.category)
     }
 
 }

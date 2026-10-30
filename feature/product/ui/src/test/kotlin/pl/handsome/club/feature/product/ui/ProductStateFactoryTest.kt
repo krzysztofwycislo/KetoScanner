@@ -2,8 +2,10 @@ package pl.handsome.club.feature.product.ui
 
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -11,6 +13,7 @@ import pl.handsome.club.feature.analysis.api.model.RatingReason
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.handsome.club.feature.product.ui.state.CategoryChipState
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
 import pl.handsome.club.feature.product.ui.state.NutrientRowKind
@@ -188,6 +191,23 @@ class ProductStateFactoryTest {
         assertEquals(UiText.Raw("Nutella"), header.name)
         assertEquals(UiText.Raw("Ferrero"), header.brand)
         assertEquals(UiText.Res(R.string.product_image), header.imageDescription)
+    }
+
+    @Test
+    fun `when product has a known category then header has a chip with its icon and label`() {
+        val header = show(Prototype(analysis = rated(DietRate.GOOD, product(category = ProductCategory.WATER)))).header
+
+        assertEquals(
+            CategoryChipState(AppIcons.Bottle, UiText.Res(R.string.product_category_water)),
+            header.category,
+        )
+    }
+
+    @Test
+    fun `when product category is other then header has no chip`() {
+        val header = show(Prototype(analysis = rated(DietRate.GOOD, product(category = ProductCategory.OTHER)))).header
+
+        assertNull(header.category)
     }
 
     @Test
@@ -408,6 +428,7 @@ class ProductStateFactoryTest {
             imageUrl: String? = IMAGE_URL,
             servingAmount: String? = "15",
             nutriments: ProductNutriments = emptyNutriments,
+            category: ProductCategory = ProductCategory.OTHER,
         ) = Product(
             name = name,
             barcode = "3017620422003",
@@ -415,6 +436,7 @@ class ProductStateFactoryTest {
             nutriments = nutriments,
             imageUrl = imageUrl,
             servingAmount = servingAmount,
+            category = category,
         )
 
         fun rated(

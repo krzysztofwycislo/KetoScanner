@@ -3,6 +3,7 @@ package pl.handsome.club.feature.home.ui.state
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.text.UiText
 
 @Immutable
@@ -24,6 +25,7 @@ internal data class HomeItemState(
     val id: Long,
     val barcode: String,
     val name: UiText,
+    val icon: AppIcon,
     val time: UiText,
     val rating: Rating,
     val carbs: UiText,

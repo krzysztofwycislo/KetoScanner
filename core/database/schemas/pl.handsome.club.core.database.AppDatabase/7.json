@@ -1,0 +1,247 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 7,
+    "identityHash": "83999fdc62d20035f2f9f1ab607130e8",
+    "entities": [
+      {
+        "tableName": "product_analysis_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`productName` TEXT NOT NULL, `productBarcode` TEXT NOT NULL, `productBrand` TEXT NOT NULL, `dietRate` TEXT, `carbsPer100g` REAL, `category` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `updateTime` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBarcode",
+            "columnName": "productBarcode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBrand",
+            "columnName": "productBrand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dietRate",
+            "columnName": "dietRate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "carbsPer100g",
+            "columnName": "carbsPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "favourite_product",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`productBarcode` TEXT NOT NULL, `productName` TEXT NOT NULL, `productBrand` TEXT NOT NULL, `imageUrl` TEXT, `dietRate` TEXT, `carbsPer100g` REAL, `category` TEXT, `updateTime` INTEGER NOT NULL, PRIMARY KEY(`productBarcode`))",
+        "fields": [
+          {
+            "fieldPath": "productBarcode",
+            "columnName": "productBarcode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productBrand",
+            "columnName": "productBrand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dietRate",
+            "columnName": "dietRate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "carbsPer100g",
+            "columnName": "carbsPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "productBarcode"
+          ]
+        }
+      },
+      {
+        "tableName": "product",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`barcode` TEXT NOT NULL, `name` TEXT NOT NULL, `brand` TEXT NOT NULL, `imageUrl` TEXT, `servingAmount` TEXT, `category` TEXT, `energyPerServing` REAL, `energyPer100g` REAL, `fatsPerServing` REAL, `fatsPer100g` REAL, `proteinsPerServing` REAL, `proteinsPer100g` REAL, `carbohydratesPerServing` REAL, `carbohydratesPer100g` REAL, `saltPerServing` REAL, `saltPer100g` REAL, `sugarsPerServing` REAL, `sugarsPer100g` REAL, `fibrePerServing` REAL, `fibrePer100g` REAL, `fetchedAt` INTEGER NOT NULL, PRIMARY KEY(`barcode`))",
+        "fields": [
+          {
+            "fieldPath": "barcode",
+            "columnName": "barcode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "brand",
+            "columnName": "brand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "servingAmount",
+            "columnName": "servingAmount",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "energyPerServing",
+            "columnName": "energyPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "energyPer100g",
+            "columnName": "energyPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "fatsPerServing",
+            "columnName": "fatsPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "fatsPer100g",
+            "columnName": "fatsPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "proteinsPerServing",
+            "columnName": "proteinsPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "proteinsPer100g",
+            "columnName": "proteinsPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "carbohydratesPerServing",
+            "columnName": "carbohydratesPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "carbohydratesPer100g",
+            "columnName": "carbohydratesPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "saltPerServing",
+            "columnName": "saltPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "saltPer100g",
+            "columnName": "saltPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sugarsPerServing",
+            "columnName": "sugarsPerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sugarsPer100g",
+            "columnName": "sugarsPer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "fibrePerServing",
+            "columnName": "fibrePerServing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "fibrePer100g",
+            "columnName": "fibrePer100g",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "barcode"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '83999fdc62d20035f2f9f1ab607130e8')"
+    ]
+  }
+}

@@ -73,6 +73,7 @@ import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictBanner
 import pl.handsome.club.core.designsystem.component.cameraColor
 import pl.handsome.club.core.designsystem.event.ObserveEvents
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
@@ -250,7 +251,7 @@ private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifi
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = AppIcons.Bag.imageVector,
+            imageVector = item.icon.imageVector,
             contentDescription = null,
             tint = AppTheme.colors.text.inverse,
             modifier = Modifier.size(AppTheme.sizes.buttonIcon),
@@ -321,7 +322,7 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Ui.IconTile(AppIcons.Bag.imageVector)
+            Ui.IconTile(found.icon.imageVector)
             Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
                 Text(
                     text = found.name.resolve(),
@@ -608,9 +609,16 @@ private fun previewState(
     found = found,
 )
 
-private fun previewTripItem(name: String, rating: Rating, carbs: Double?, verdict: Int) = TripItemState(
+private fun previewTripItem(
+    name: String,
+    icon: AppIcon,
+    rating: Rating,
+    carbs: Double?,
+    verdict: Int,
+) = TripItemState(
     barcode = name,
     name = UiText.Raw(name),
+    icon = icon,
     rating = rating,
     carbs = if (carbs == null) {
         UiText.Res(R.string.scan_trip_carbs_missing)
@@ -632,9 +640,27 @@ private fun ScanTripPreview() {
     PreviewContent(
         previewState(
             trip = persistentListOf(
-                previewTripItem("Greek yogurt 10%", Rating.Positive, 3.6, R.string.scan_verdict_good_keto),
-                previewTripItem("Dark chocolate 85%", Rating.Neutral, 14.0, R.string.scan_verdict_neutral),
-                previewTripItem("Mineral water", Rating.Unknown, null, R.string.scan_verdict_insufficient_data),
+                previewTripItem(
+                    "Greek yogurt 10%",
+                    AppIcons.Cup,
+                    Rating.Positive,
+                    3.6,
+                    R.string.scan_verdict_good_keto,
+                ),
+                previewTripItem(
+                    "Dark chocolate 85%",
+                    AppIcons.Bar,
+                    Rating.Neutral,
+                    14.0,
+                    R.string.scan_verdict_neutral,
+                ),
+                previewTripItem(
+                    "Mineral water",
+                    AppIcons.Bottle,
+                    Rating.Unknown,
+                    null,
+                    R.string.scan_verdict_insufficient_data,
+                ),
             ),
         )
     )
@@ -648,6 +674,7 @@ private fun ScanTripSingleItemPreview() {
             trip = persistentListOf(
                 previewTripItem(
                     name = "Nutella hazelnut spread with cocoa",
+                    icon = AppIcons.Jar,
                     rating = Rating.Negative,
                     carbs = 57.5,
                     verdict = R.string.scan_verdict_not_advised_keto,
@@ -688,6 +715,7 @@ private fun ScanFoundRatedPreview() {
         previewState(
             found = FoundCardState(
                 name = UiText.Raw("Nutella hazelnut spread with cocoa"),
+                icon = AppIcons.Jar,
                 brand = UiText.Raw("Ferrero"),
                 rating = Rating.Negative,
                 title = UiText.Res(R.string.scan_verdict_not_advised_keto),
@@ -704,6 +732,7 @@ private fun ScanFoundInsufficientDataPreview() {
         previewState(
             found = FoundCardState(
                 name = UiText.Res(R.string.scan_found_unnamed),
+                icon = AppIcons.Bag,
                 brand = null,
                 rating = Rating.Unknown,
                 title = UiText.Res(R.string.scan_verdict_insufficient_data),

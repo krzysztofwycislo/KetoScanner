@@ -20,6 +20,7 @@ import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.FakeAppLogger
 import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
@@ -312,6 +313,14 @@ class ProductViewModelTest {
     @Test
     fun `when stored favourite has different carbs then it is updated with the shown analysis`() = runTest {
         favourites.findResult = Outcome.Success(favouriteProduct.copy(carbsPer100g = 12.0))
+        createViewModel()
+
+        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
+    }
+
+    @Test
+    fun `when stored favourite has a different category then it is updated with the shown analysis`() = runTest {
+        favourites.findResult = Outcome.Success(favouriteProduct.copy(category = ProductCategory.OTHER))
         createViewModel()
 
         assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
@@ -630,6 +639,7 @@ class ProductViewModelTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, 57.5, null, null),
             imageUrl = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front.jpg",
             servingAmount = "15",
+            category = ProductCategory.SPREADS,
         )
 
         val analysis = ProductAnalysis.Rated(
@@ -652,6 +662,7 @@ class ProductViewModelTest {
             imageUrl = null,
             dietRate = DietRate.NOT_ADVISED,
             carbsPer100g = 57.5,
+            category = ProductCategory.SPREADS,
         )
 
         fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf(*extra))

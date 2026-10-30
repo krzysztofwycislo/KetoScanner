@@ -3,6 +3,7 @@ package pl.handsome.club.feature.favourites.ui.state
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.text.UiText
 
 @Immutable
@@ -25,6 +26,7 @@ internal sealed interface FavouritesContentState {
 internal data class FavouriteItemState(
     val barcode: String,
     val name: UiText,
+    val icon: AppIcon,
     val brand: UiText?,
     val rating: Rating,
     val carbs: UiText,

@@ -39,6 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.CircleIconButton
 import pl.handsome.club.core.designsystem.component.ContentCrossfade
+import pl.handsome.club.core.designsystem.component.InfoChip
 import pl.handsome.club.core.designsystem.component.PrimaryButton
 import pl.handsome.club.core.designsystem.component.ProductImage
 import pl.handsome.club.core.designsystem.component.Rating
@@ -69,6 +70,7 @@ import pl.handsome.club.feature.product.ui.event.ProductAction.OnRetryClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnWebPageUnavailable
 import pl.handsome.club.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
+import pl.handsome.club.feature.product.ui.state.CategoryChipState
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.GlanceState
 import pl.handsome.club.feature.product.ui.state.GlanceTileState
@@ -226,6 +228,9 @@ private fun ProductBlock(header: ProductHeaderState, onAction: (ProductAction) -
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
         ) {
+            header.category?.let {
+                Ui.InfoChip(text = it.label.resolve(), icon = it.icon.imageVector)
+            }
             Text(
                 text = header.name.resolve(),
                 style = AppTheme.typography.headline,
@@ -463,6 +468,7 @@ private fun ProductHeaderState.Companion.example(name: String = "Peanut butter")
     imageUrl = null,
     imageDescription = UiText.Res(R.string.product_image),
     isImageClickable = false,
+    category = CategoryChipState(AppIcons.Jar, UiText.Res(R.string.product_category_spreads)),
     brand = UiText.Raw("Nuts & Co"),
     name = UiText.Raw(name),
     nameMaxLines = 1,

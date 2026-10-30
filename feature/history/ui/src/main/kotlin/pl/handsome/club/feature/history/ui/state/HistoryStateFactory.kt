@@ -8,6 +8,7 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
@@ -102,6 +103,7 @@ internal class HistoryStateFactory(private val resources: HistoryResources) {
             id = id,
             barcode = productBarcode,
             name = resources.productName(productName),
+            icon = category.icon,
             time = if (group == DayGroup.ThisWeek) resources.weekday(updateTime) else resources.time(updateTime),
             rating = dietRate.toRating(),
             carbs = resources.carbs(carbsPer100g),

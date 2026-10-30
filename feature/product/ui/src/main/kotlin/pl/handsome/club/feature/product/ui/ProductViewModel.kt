@@ -124,7 +124,9 @@ internal class ProductViewModel(
     }
 
     private fun FavouriteProduct.hasDifferentRatingThan(analysis: ProductAnalysis): Boolean =
-        dietRate != analysis.dietRate || carbsPer100g != analysis.carbsPer100g
+        dietRate != analysis.dietRate ||
+            carbsPer100g != analysis.carbsPer100g ||
+            category != analysis.product.category
 
     private suspend fun updateFavouriteRating(analysis: ProductAnalysis) {
         favourites.updateRating(analysis)

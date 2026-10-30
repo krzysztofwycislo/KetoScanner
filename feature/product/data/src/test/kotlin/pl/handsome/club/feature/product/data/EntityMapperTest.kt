@@ -1,5 +1,6 @@
 package pl.handsome.club.feature.product.data
 
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
@@ -22,6 +23,14 @@ class EntityMapperTest {
 
         assertEquals(emptyProduct, entity.toDomain())
         assertEquals(FETCHED_AT, entity.fetchedAt)
+    }
+
+    @Test
+    fun `when stored category is unknown or null then product category is other`() {
+        val entity = fullProduct.toEntity(FETCHED_AT)
+
+        assertEquals(ProductCategory.OTHER, entity.copy(category = "SOUPS").toDomain().category)
+        assertEquals(ProductCategory.OTHER, entity.copy(category = null).toDomain().category)
     }
 
     private companion object {
@@ -49,6 +58,7 @@ class EntityMapperTest {
             ),
             imageUrl = "https://images.openfoodfacts.org/front.jpg",
             servingAmount = "15",
+            category = ProductCategory.SPREADS,
         )
 
         val emptyProduct = Product(
@@ -58,6 +68,7 @@ class EntityMapperTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, null, null, null),
             imageUrl = null,
             servingAmount = null,
+            category = ProductCategory.OTHER,
         )
     }
 }

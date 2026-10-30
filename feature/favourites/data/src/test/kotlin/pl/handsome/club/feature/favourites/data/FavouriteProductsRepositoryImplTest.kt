@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.database.favourite.FavouriteProductEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.TestAppDispatchers
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
@@ -60,12 +61,12 @@ class FavouriteProductsRepositoryImplTest {
     }
 
     @Test
-    fun `when rating is updated then barcode rate name and carbs are passed and success is returned`() = runTest {
+    fun `when rating is updated then rate carbs and category are passed and success is returned`() = runTest {
         val persistence = FakePersistence()
         val repository = FavouriteProductsRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
 
         assertEquals(Outcome.Success(Unit), repository.updateRating(analysis))
-        assertEquals(listOf(UpdatedRating(BARCODE, "GOOD", CARBS)), persistence.updatedRatings)
+        assertEquals(listOf(UpdatedRating(BARCODE, "GOOD", CARBS, "SPREADS")), persistence.updatedRatings)
     }
 
     @Test
@@ -75,7 +76,7 @@ class FavouriteProductsRepositoryImplTest {
 
         repository.updateRating(ProductAnalysis.InsufficientData(product))
 
-        assertEquals(listOf(UpdatedRating(BARCODE, null, CARBS)), persistence.updatedRatings)
+        assertEquals(listOf(UpdatedRating(BARCODE, null, CARBS, "SPREADS")), persistence.updatedRatings)
     }
 
     @Test
@@ -125,7 +126,12 @@ class FavouriteProductsRepositoryImplTest {
         assertFailsWith<CancellationException> { repository.updateRating(analysis) }
     }
 
-    private data class UpdatedRating(val barcode: String, val dietRate: String?, val carbsPer100g: Double?)
+    private data class UpdatedRating(
+        val barcode: String,
+        val dietRate: String?,
+        val carbsPer100g: Double?,
+        val category: String?,
+    )
 
     private class FakePersistence(
         private val entities: List<FavouriteProductEntity> = emptyList(),
@@ -161,9 +167,14 @@ class FavouriteProductsRepositoryImplTest {
             return found
         }
 
-        override suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?) {
+        override suspend fun updateRating(
+            barcode: String,
+            dietRate: String?,
+            carbsPer100g: Double?,
+            category: String?,
+        ) {
             failure?.let { throw it }
-            updatedRatings += UpdatedRating(barcode, dietRate, carbsPer100g)
+            updatedRatings += UpdatedRating(barcode, dietRate, carbsPer100g, category)
         }
     }
 
@@ -175,7 +186,7 @@ class FavouriteProductsRepositoryImplTest {
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
         fun entity(barcode: String) =
-            FavouriteProductEntity(barcode, "Name $barcode", "Brand", null, null, null).apply {
+            FavouriteProductEntity(barcode, "Name $barcode", "Brand", null, null, null, null).apply {
                 updateTime = UPDATE_TIME
             }
 
@@ -186,6 +197,7 @@ class FavouriteProductsRepositoryImplTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, CARBS, null, null),
             imageUrl = "https://example.com/image.jpg",
             servingAmount = null,
+            category = ProductCategory.SPREADS,
         )
 
         val analysis = ProductAnalysis.Rated(

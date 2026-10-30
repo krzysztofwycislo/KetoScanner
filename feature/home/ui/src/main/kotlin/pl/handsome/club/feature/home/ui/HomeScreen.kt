@@ -43,6 +43,7 @@ import pl.handsome.club.core.designsystem.component.Screen
 import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictPill
 import pl.handsome.club.core.designsystem.event.ObserveEvents
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
@@ -236,7 +237,7 @@ private fun LazyListScope.recentContent(
                 subtitle = item.time,
                 onClick = { onAction(OnEntryClicked(item.barcode)) },
                 leading = {
-                    Ui.IconTile(AppIcons.Bag.imageVector)
+                    Ui.IconTile(item.icon.imageVector)
                 },
                 trailing = {
                     Ui.VerdictPill(
@@ -296,10 +297,17 @@ private const val KEY_HERO = "hero"
 private const val KEY_RECENT_TITLE = "recentTitle"
 private const val KEY_STATUS = "status"
 
-private fun HomeItemState.Companion.example(id: Long, name: String, rating: Rating, carbs: Double?) = HomeItemState(
+private fun HomeItemState.Companion.example(
+    id: Long,
+    name: String,
+    icon: AppIcon,
+    rating: Rating,
+    carbs: Double?,
+) = HomeItemState(
     id = id,
     barcode = "590000000000$id",
     name = UiText.Raw(name),
+    icon = icon,
     time = UiText.Res(R.string.home_time_yesterday),
     rating = rating,
     carbs = if (carbs == null) UiText.Res(R.string.home_carbs_missing)
@@ -317,10 +325,10 @@ private val previewProfile = UiText.Res(
 @Composable
 private fun HomeShowItemsPreview() {
     val items = persistentListOf(
-        HomeItemState.example(1, "Peanut butter", Rating.Positive, 14.0),
-        HomeItemState.example(2, "Oat cookies", Rating.Neutral, 52.3),
-        HomeItemState.example(3, "Cola", Rating.Negative, 10.6),
-        HomeItemState.example(4, "Mystery bar", Rating.Unknown, null),
+        HomeItemState.example(1, "Peanut butter", AppIcons.Jar, Rating.Positive, 14.0),
+        HomeItemState.example(2, "Oat cookies", AppIcons.Cookie, Rating.Neutral, 52.3),
+        HomeItemState.example(3, "Cola", AppIcons.Can, Rating.Negative, 10.6),
+        HomeItemState.example(4, "Mystery bar", AppIcons.Bag, Rating.Unknown, null),
     )
     AppTheme {
         ScreenContent(HomeState(previewProfile, ShowItems(items))) {}

@@ -19,6 +19,7 @@ import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -229,6 +230,7 @@ class FavouritesViewModelTest {
                 null,
                 dietRate,
                 null,
+                ProductCategory.OTHER,
             )
     }
 }

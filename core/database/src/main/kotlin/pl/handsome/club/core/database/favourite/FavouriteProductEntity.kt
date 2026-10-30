@@ -14,7 +14,8 @@ data class FavouriteProductEntity(
     val productBrand: String,
     val imageUrl: String?,
     val dietRate: String?,
-    val carbsPer100g: Double?
+    val carbsPer100g: Double?,
+    val category: String?
 ) {
 
     var updateTime: Instant = Clock.System.now()

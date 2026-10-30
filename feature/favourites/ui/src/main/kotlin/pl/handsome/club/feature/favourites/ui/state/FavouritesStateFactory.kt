@@ -2,6 +2,7 @@ package pl.handsome.club.feature.favourites.ui.state
 
 import kotlinx.collections.immutable.toPersistentList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.FavouritesResources
@@ -41,6 +42,7 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
     private fun FavouriteProduct.toItemState(mode: DietMode): FavouriteItemState = FavouriteItemState(
         barcode = productBarcode,
         name = resources.productName(productName),
+        icon = category.icon,
         brand = resources.brand(productBrand),
         rating = dietRate.toRating(),
         carbs = resources.carbs(carbsPer100g),

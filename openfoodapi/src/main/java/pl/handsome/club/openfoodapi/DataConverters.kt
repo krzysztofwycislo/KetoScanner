@@ -18,7 +18,8 @@ internal fun parseGetProductResponse(response: GetProductResponse): Product? {
             brand ?: "",
             productNutriments,
             frontImage,
-            servingQuantity
+            servingQuantity,
+            productCategoryOf(categoriesTags)
         )
     }
 }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.TestAppDispatchers
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.product.api.model.Product
@@ -99,7 +100,7 @@ class AnalysisHistoryRepositoryImplTest {
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
         fun entity(barcode: String) =
-            ProductAnalysisHistoryEntryEntity("Name $barcode", barcode, "Brand", null, null).apply {
+            ProductAnalysisHistoryEntryEntity("Name $barcode", barcode, "Brand", null, null, null).apply {
                 updateTime = UPDATE_TIME
             }
 
@@ -111,6 +112,7 @@ class AnalysisHistoryRepositoryImplTest {
                 nutriments = ProductNutriments(null, null, null, null, null, null, null, null, null, null),
                 imageUrl = null,
                 servingAmount = null,
+                category = ProductCategory.OTHER,
             ),
         )
     }

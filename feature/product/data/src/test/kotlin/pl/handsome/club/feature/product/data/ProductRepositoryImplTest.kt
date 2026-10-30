@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.database.product.ProductEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.FakeClock
 import pl.handsome.club.core.testing.TestAppDispatchers
 import pl.handsome.club.feature.product.api.model.Product
@@ -313,6 +314,7 @@ class ProductRepositoryImplTest {
             nutriments = ProductNutriments(80.0, 539.0, 4.6, 30.9, 0.9, 6.3, 8.6, 57.5, 0.02, 0.107),
             imageUrl = "https://images.openfoodfacts.org/front.jpg",
             servingAmount = "15",
+            category = ProductCategory.SPREADS,
         )
 
         val storedProduct = product.copy(name = "Nutella (old)")

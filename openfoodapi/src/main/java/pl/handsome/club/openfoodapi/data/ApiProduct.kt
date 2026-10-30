@@ -9,5 +9,6 @@ data class ApiProduct(
     @SerialName("product_name") val productName: String? = null,
     @SerialName("image_url") val frontImage: String? = null,
     @SerialName("brands") val brand: String? = null,
-    @SerialName("serving_quantity") val servingQuantity: String? = null
+    @SerialName("serving_quantity") val servingQuantity: String? = null,
+    @SerialName("categories_tags") val categoriesTags: List<String>? = null
 )

@@ -21,6 +21,7 @@ import kotlinx.io.IOException
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.DefaultAppDispatchers
 import pl.handsome.club.core.common.Outcome
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
@@ -67,6 +68,7 @@ class OpenFoodFactsProductSourceTest {
         assertEquals(37.6, product.nutriments.sugarsPerServing)
         assertEquals(0.0, product.nutriments.fibrePer100g)
         assertEquals(0.0, product.nutriments.fibrePerServing)
+        assertEquals(ProductCategory.DRINKS, product.category)
     }
 
     @Test
@@ -96,6 +98,7 @@ class OpenFoodFactsProductSourceTest {
         assertTrue(product.name.isEmpty())
         assertEquals(ProductNutriments(null, null, null, null, null, null, null, null, null, null), product.nutriments)
         assertNull(product.servingAmount)
+        assertEquals(ProductCategory.OTHER, product.category)
     }
 
     @Test
@@ -153,7 +156,10 @@ class OpenFoodFactsProductSourceTest {
         assertEquals(URLProtocol.HTTPS, request.url.protocol)
         assertEquals("world.openfoodfacts.org", request.url.host)
         assertEquals("/api/v2/product/04963406", request.url.encodedPath)
-        assertEquals("product_name,brands,image_url,serving_quantity,nutriments", request.url.parameters["fields"])
+        assertEquals(
+            "product_name,brands,image_url,serving_quantity,nutriments,categories_tags",
+            request.url.parameters["fields"]
+        )
         assertEquals("pl", request.url.parameters["lc"])
         assertEquals(TEST_USER_AGENT, request.headers[HttpHeaders.UserAgent])
     }

@@ -20,6 +20,7 @@ import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.FakeClock
 import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -282,6 +283,7 @@ class HistoryViewModelTest {
             updateTime = NOW,
             dietRate = null,
             carbsPer100g = null,
+            category = ProductCategory.OTHER,
         )
 
         val entries = listOf(entry(2), entry(1))

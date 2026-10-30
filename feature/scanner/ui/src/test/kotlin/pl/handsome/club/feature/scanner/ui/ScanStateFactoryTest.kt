@@ -2,8 +2,10 @@ package pl.handsome.club.feature.scanner.ui
 
 import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -135,6 +137,7 @@ class ScanStateFactoryTest {
             assertEquals(
                 FoundCardState(
                     name = UiText.Raw("Nutella"),
+                    icon = AppIcons.Jar,
                     brand = UiText.Raw("Ferrero"),
                     rating = ratingAndTitle.first,
                     title = UiText.Res(ratingAndTitle.second),
@@ -166,6 +169,7 @@ class ScanStateFactoryTest {
         assertEquals(
             FoundCardState(
                 name = UiText.Raw("Nutella"),
+                icon = AppIcons.Jar,
                 brand = UiText.Raw("Ferrero"),
                 rating = Rating.Unknown,
                 title = UiText.Res(R.string.scan_verdict_insufficient_data),
@@ -193,10 +197,10 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when trip entries are inside the window then each maps to an item`() {
+    fun `when trip entries are inside the window then each maps to an item with its category icon`() {
         val items = trip(
             withTrip(
-                entry(1, rate = DietRate.GOOD, carbs = 3.6),
+                entry(1, rate = DietRate.GOOD, carbs = 3.6, category = ProductCategory.CHEESE),
                 entry(2, name = " ", rate = DietRate.NEUTRAL, carbs = null),
                 entry(3, rate = null, carbs = 1.0),
             )
@@ -207,6 +211,7 @@ class ScanStateFactoryTest {
                 TripItemState(
                     barcode = "barcode-1",
                     name = UiText.Raw("Name 1"),
+                    icon = AppIcons.Cheese,
                     rating = Rating.Positive,
                     carbs = UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(3.6)),
                     description = UiText.Res(
@@ -218,6 +223,7 @@ class ScanStateFactoryTest {
                 TripItemState(
                     barcode = "barcode-2",
                     name = UiText.Res(R.string.scan_found_unnamed),
+                    icon = AppIcons.Bag,
                     rating = Rating.Neutral,
                     carbs = UiText.Res(R.string.scan_trip_carbs_missing),
                     description = UiText.Res(R.string.scan_verdict_neutral),
@@ -225,6 +231,7 @@ class ScanStateFactoryTest {
                 TripItemState(
                     barcode = "barcode-3",
                     name = UiText.Raw("Name 3"),
+                    icon = AppIcons.Bag,
                     rating = Rating.Unknown,
                     carbs = UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(1.0)),
                     description = UiText.Res(
@@ -343,6 +350,7 @@ class ScanStateFactoryTest {
         name: String = "Name $id",
         rate: DietRate? = DietRate.GOOD,
         carbs: Double? = 3.6,
+        category: ProductCategory = ProductCategory.OTHER,
     ) = ProductAnalysisHistoryEntry(
         id = id,
         productName = name,
@@ -351,6 +359,7 @@ class ScanStateFactoryTest {
         updateTime = NOW - age,
         dietRate = rate,
         carbsPer100g = carbs,
+        category = category,
     )
 
     private companion object {
@@ -364,6 +373,7 @@ class ScanStateFactoryTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, 57.5, null, null),
             imageUrl = null,
             servingAmount = null,
+            category = ProductCategory.SPREADS,
         )
     }
 }

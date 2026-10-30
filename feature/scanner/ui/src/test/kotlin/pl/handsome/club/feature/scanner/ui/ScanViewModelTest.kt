@@ -24,9 +24,11 @@ import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.event.AppEvents
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.core.testing.FakeAppLogger
 import pl.handsome.club.core.testing.FakeClock
 import pl.handsome.club.core.testing.FakeErrorReporter
@@ -578,6 +580,7 @@ class ScanViewModelTest {
             assertEquals(
                 FoundCardState(
                     name = UiText.Raw("Nutella"),
+                    icon = AppIcons.Bag,
                     brand = UiText.Raw("Ferrero"),
                     rating = Rating.Unknown,
                     title = UiText.Res(R.string.scan_verdict_insufficient_data),
@@ -720,6 +723,7 @@ class ScanViewModelTest {
         updateTime = updateTime,
         dietRate = DietRate.GOOD,
         carbsPer100g = null,
+        category = ProductCategory.OTHER,
     )
 
     private fun TestScope.createViewModel(
@@ -833,6 +837,7 @@ class ScanViewModelTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, 57.5, null, null),
             imageUrl = null,
             servingAmount = null,
+            category = ProductCategory.OTHER,
         )
         val ratedAnalysis = ProductAnalysis.Rated(
             product = product,
@@ -847,6 +852,7 @@ class ScanViewModelTest {
         )
         val ratedCard = FoundCardState(
             name = UiText.Raw("Nutella"),
+            icon = AppIcons.Bag,
             brand = UiText.Raw("Ferrero"),
             rating = Rating.Negative,
             title = UiText.Res(R.string.scan_verdict_not_advised_keto),

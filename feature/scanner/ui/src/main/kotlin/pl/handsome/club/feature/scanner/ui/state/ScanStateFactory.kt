@@ -4,6 +4,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
@@ -53,9 +54,11 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     private fun ProductAnalysis.toFoundCard(): FoundCardState {
         val name = resources.productName(product.name)
         val brand = resources.brand(product.brand)
+        val icon = product.category.icon
         return when (this) {
             is ProductAnalysis.Rated -> FoundCardState(
                 name = name,
+                icon = icon,
                 brand = brand,
                 rating = macronutrients.rate.toRating(),
                 title = resources.verdictTitle(macronutrients.rate, macronutrients.dietMode),
@@ -64,6 +67,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
 
             is ProductAnalysis.InsufficientData -> FoundCardState(
                 name = name,
+                icon = icon,
                 brand = brand,
                 rating = Rating.Unknown,
                 title = resources.insufficientData(),
@@ -86,6 +90,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     private fun ProductAnalysisHistoryEntry.toTripItem(mode: DietMode) = TripItemState(
         barcode = productBarcode,
         name = resources.productName(productName),
+        icon = category.icon,
         rating = dietRate.toRating(),
         carbs = resources.tripCarbs(carbsPer100g),
         description = resources.tripDescription(dietRate, mode, carbsPer100g),

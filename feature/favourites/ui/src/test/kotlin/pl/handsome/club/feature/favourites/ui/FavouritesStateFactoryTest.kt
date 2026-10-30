@@ -2,8 +2,10 @@ package pl.handsome.club.feature.favourites.ui
 
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
@@ -97,12 +99,12 @@ class FavouritesStateFactoryTest {
     }
 
     @Test
-    fun `when favourites exist then items keep order barcodes names brands and verdicts`() {
+    fun `when favourites exist then items keep order barcodes names icons brands and verdicts`() {
         val state = factory.createFor(
             Prototype(
                 favourites = listOf(
                     favourite("2"),
-                    favourite("1", dietRate = DietRate.GOOD, carbs = 3.5),
+                    favourite("1", dietRate = DietRate.GOOD, carbs = 3.5, category = ProductCategory.CHEESE),
                 ),
             ),
         )
@@ -113,6 +115,7 @@ class FavouritesStateFactoryTest {
                 FavouriteItemState(
                     barcode = "2",
                     name = UiText.Raw("Name 2"),
+                    icon = AppIcons.Bag,
                     brand = UiText.Raw("Brand 2"),
                     rating = Rating.Unknown,
                     carbs = UiText.Res(R.string.favourites_carbs_missing),
@@ -121,6 +124,7 @@ class FavouritesStateFactoryTest {
                 FavouriteItemState(
                     barcode = "1",
                     name = UiText.Raw("Name 1"),
+                    icon = AppIcons.Cheese,
                     brand = UiText.Raw("Brand 1"),
                     rating = Rating.Positive,
                     carbs = UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(3.5)),
@@ -234,6 +238,7 @@ class FavouritesStateFactoryTest {
             brand: String = "Brand $barcode",
             dietRate: DietRate? = null,
             carbs: Double? = null,
+            category: ProductCategory = ProductCategory.OTHER,
         ) = FavouriteProduct(
             barcode,
             name,
@@ -242,6 +247,7 @@ class FavouritesStateFactoryTest {
             null,
             dietRate,
             carbs,
+            category,
         )
     }
 }

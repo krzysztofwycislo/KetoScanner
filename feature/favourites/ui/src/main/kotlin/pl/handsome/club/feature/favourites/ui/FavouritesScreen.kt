@@ -35,6 +35,7 @@ import pl.handsome.club.core.designsystem.component.SearchField
 import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictPill
 import pl.handsome.club.core.designsystem.event.ObserveEvents
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
@@ -185,7 +186,7 @@ private fun Items(items: PersistentList<FavouriteItemState>, onAction: (Favourit
                 subtitle = item.brand,
                 onClick = { onAction(OnItemClicked(item.barcode)) },
                 leading = {
-                    Ui.IconTile(AppIcons.Bag.imageVector)
+                    Ui.IconTile(item.icon.imageVector)
                 },
                 trailing = {
                     Ui.VerdictPill(
@@ -221,12 +222,14 @@ private fun ErrorContent(state: Error, onAction: (FavouritesAction) -> Unit) {
 private fun FavouriteItemState.Companion.example(
     barcode: String,
     name: String,
+    icon: AppIcon,
     brand: String?,
     rating: Rating,
     carbs: Double?,
 ) = FavouriteItemState(
     barcode = barcode,
     name = UiText.Raw(name),
+    icon = icon,
     brand = brand?.let(UiText::Raw),
     rating = rating,
     carbs = if (carbs == null) UiText.Res(R.string.favourites_carbs_missing)
@@ -238,10 +241,10 @@ private fun FavouriteItemState.Companion.example(
 @Composable
 private fun FavouritesShowItemsPreview() {
     val items = persistentListOf(
-        FavouriteItemState.example("5900000000001", "Peanut butter", "Nuts & Co", Rating.Positive, 14.0),
-        FavouriteItemState.example("5900000000002", "Oat cookies", null, Rating.Neutral, 52.3),
-        FavouriteItemState.example("5900000000003", "Cola", "Fizz", Rating.Negative, 10.6),
-        FavouriteItemState.example("5900000000004", "Mystery bar", null, Rating.Unknown, null),
+        FavouriteItemState.example("5900000000001", "Peanut butter", AppIcons.Jar, "Nuts & Co", Rating.Positive, 14.0),
+        FavouriteItemState.example("5900000000002", "Oat cookies", AppIcons.Cookie, null, Rating.Neutral, 52.3),
+        FavouriteItemState.example("5900000000003", "Cola", AppIcons.Can, "Fizz", Rating.Negative, 10.6),
+        FavouriteItemState.example("5900000000004", "Mystery bar", AppIcons.Bag, null, Rating.Unknown, null),
     )
     AppTheme {
         ScreenContent(FavouritesState(query = "", showSearch = true, content = ShowItems(items))) {}

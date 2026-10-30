@@ -13,6 +13,7 @@ data class ProductEntity(
     val brand: String,
     val imageUrl: String?,
     val servingAmount: String?,
+    val category: String?,
     val energyPerServing: Double?,
     val energyPer100g: Double?,
     val fatsPerServing: Double?,

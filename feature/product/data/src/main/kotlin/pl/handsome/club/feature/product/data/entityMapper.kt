@@ -1,6 +1,7 @@
 package pl.handsome.club.feature.product.data
 
 import pl.handsome.club.core.database.product.ProductEntity
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import kotlin.time.Instant
@@ -28,6 +29,7 @@ internal fun ProductEntity.toDomain(): Product =
         ),
         imageUrl = imageUrl,
         servingAmount = servingAmount,
+        category = ProductCategory.fromName(category),
     )
 
 internal fun Product.toEntity(fetchedAt: Instant): ProductEntity =
@@ -37,6 +39,7 @@ internal fun Product.toEntity(fetchedAt: Instant): ProductEntity =
         brand = brand,
         imageUrl = imageUrl,
         servingAmount = servingAmount,
+        category = category.name,
         energyPerServing = nutriments.energyPerServing,
         energyPer100g = nutriments.energyPer100g,
         fatsPerServing = nutriments.fatsPerServing,

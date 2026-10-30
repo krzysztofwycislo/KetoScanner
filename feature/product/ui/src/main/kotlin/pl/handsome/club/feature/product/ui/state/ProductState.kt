@@ -3,6 +3,7 @@ package pl.handsome.club.feature.product.ui.state
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.text.UiText
 
 @Immutable
@@ -30,12 +31,19 @@ internal data class ProductHeaderState(
     val imageUrl: String?,
     val imageDescription: UiText,
     val isImageClickable: Boolean,
+    val category: CategoryChipState?,
     val brand: UiText?,
     val name: UiText,
     val nameMaxLines: Int,
 ) {
     companion object
 }
+
+@Immutable
+internal data class CategoryChipState(
+    val icon: AppIcon,
+    val label: UiText,
+)
 
 @Immutable
 internal data class FavouriteButtonState(

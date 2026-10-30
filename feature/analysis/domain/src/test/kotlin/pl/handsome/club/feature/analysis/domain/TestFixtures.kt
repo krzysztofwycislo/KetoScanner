@@ -1,5 +1,6 @@
 package pl.handsome.club.feature.analysis.domain
 
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
@@ -12,13 +13,29 @@ private const val PRODUCT_URL = "test url"
 private const val PRODUCT_SERVING = "50"
 
 internal fun createProduct(name: String, productNutriments: ProductNutriments) =
-    Product(name, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, productNutriments, PRODUCT_URL, PRODUCT_SERVING)
+    Product(
+        name,
+        PRODUCT_BARCODE,
+        PRODUCT_COMPANY_NAME,
+        productNutriments,
+        PRODUCT_URL,
+        PRODUCT_SERVING,
+        ProductCategory.OTHER
+    )
 
 internal fun createProduct(productNutriments: ProductNutriments) =
     createProduct(PRODUCT_NAME, productNutriments)
 
 internal fun createProduct(name: String, productNutriments: ProductNutriments, servingAmount: String?) =
-    Product(name, PRODUCT_BARCODE, PRODUCT_COMPANY_NAME, productNutriments, PRODUCT_URL, servingAmount)
+    Product(
+        name,
+        PRODUCT_BARCODE,
+        PRODUCT_COMPANY_NAME,
+        productNutriments,
+        PRODUCT_URL,
+        servingAmount,
+        ProductCategory.OTHER
+    )
 
 internal fun macroNutriments(
     fatsPer100g: Double?,
