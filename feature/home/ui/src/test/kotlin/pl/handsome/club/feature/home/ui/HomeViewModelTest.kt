@@ -3,9 +3,12 @@ package pl.handsome.club.feature.home.ui
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -36,6 +39,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
 class HomeViewModelTest {
@@ -118,6 +122,14 @@ class HomeViewModelTest {
 
         assertIs<HomeRecentState.ShowItems>(viewModel.state.value.recent)
         assertEquals(1, errorReporter.reports.size)
+        assertEquals(1, history.requestedAmounts.size)
+
+        advanceTimeBy(HomeViewModel.RETRY_DELAY + 1.milliseconds)
+
+        assertEquals(2, history.requestedAmounts.size)
+        history.emit(Outcome.Success(listOf(entry(9)) + entries))
+        val recent = assertIs<HomeRecentState.ShowItems>(viewModel.state.value.recent)
+        assertEquals(listOf(9L, 2L, 1L), recent.items.map { it.id })
     }
 
     @Test
@@ -197,12 +209,9 @@ class HomeViewModelTest {
 
         override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
 
-        override suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>> =
-            throw NotImplementedError()
-
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> {
+        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = flow {
             requestedAmounts += amount
-            return MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>().also { subscriptions += it }
+            emitAll(MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>().also { subscriptions += it })
         }
     }
 

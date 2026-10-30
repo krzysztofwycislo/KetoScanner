@@ -7,18 +7,23 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
@@ -29,6 +34,31 @@ fun Ui.TextInput(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = true,
+) {
+    InputField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = placeholder,
+        containerColor = AppTheme.colors.background.default,
+        leadingIcon = null,
+        modifier = modifier,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+    )
+}
+
+@Composable
+internal fun InputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    containerColor: Color,
+    leadingIcon: ImageVector?,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -48,22 +78,39 @@ fun Ui.TextInput(
         interactionSource = interactionSource,
         cursorBrush = SolidColor(AppTheme.colors.accent),
         decorationBox = { innerTextField ->
-            Box(
-                modifier = Modifier
-                    .heightIn(min = AppTheme.sizes.control)
-                    .background(AppTheme.colors.background.default, AppTheme.shapes.control)
-                    .border(
-                        width = AppTheme.borders.control,
-                        color = if (isFocused) AppTheme.colors.accent else AppTheme.colors.border.strong,
-                        shape = AppTheme.shapes.control,
-                    )
-                    .padding(horizontal = AppTheme.spacing.s),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                if (value.isEmpty()) {
-                    Text(text = placeholder, style = textStyle, color = AppTheme.colors.text.muted)
+            val containerModifier = Modifier
+                .heightIn(min = AppTheme.sizes.control)
+                .background(containerColor, AppTheme.shapes.control)
+                .border(
+                    width = AppTheme.borders.control,
+                    color = if (isFocused) AppTheme.colors.accent else AppTheme.colors.border.strong,
+                    shape = AppTheme.shapes.control,
+                )
+                .padding(horizontal = AppTheme.spacing.s)
+            val textBox: @Composable (Modifier) -> Unit = { boxModifier ->
+                Box(modifier = boxModifier, contentAlignment = Alignment.CenterStart) {
+                    if (value.isEmpty()) {
+                        Text(text = placeholder, style = textStyle, color = AppTheme.colors.text.muted)
+                    }
+                    innerTextField()
                 }
-                innerTextField()
+            }
+            if (leadingIcon == null) {
+                textBox(containerModifier)
+            } else {
+                Row(
+                    modifier = containerModifier,
+                    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = leadingIcon,
+                        contentDescription = null,
+                        tint = AppTheme.colors.text.muted,
+                        modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+                    )
+                    textBox(Modifier.weight(1f))
+                }
             }
         },
     )

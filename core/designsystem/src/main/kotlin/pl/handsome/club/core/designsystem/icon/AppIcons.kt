@@ -30,4 +30,5 @@ object AppIcons {
     val Logo = AppIcon(R.drawable.ic_logo)
     val Sliders = AppIcon(R.drawable.ic_sliders)
     val Info = AppIcon(R.drawable.ic_info)
+    val Search = AppIcon(R.drawable.ic_search)
 }

@@ -10,8 +10,6 @@ interface AnalysisHistoryRepository {
 
     suspend fun save(analysis: ProductAnalysis): Outcome<Unit>
 
-    suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>>
-
     fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>>
 
 }

@@ -15,30 +15,9 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 import kotlin.time.Instant
 
 class AnalysisHistoryRepositoryImplTest {
-
-    @Test
-    fun `when persistence returns entries then mapped entries are returned and amount is passed through`() = runTest {
-        val persistence = FakePersistence(entries = listOf(entity("1"), entity("2")))
-        val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
-
-        val outcome = repository.getLastUniqueEntries(AMOUNT)
-
-        val success = assertIs<Outcome.Success<*>>(outcome)
-        assertEquals(listOf(entity("1"), entity("2")).toDomain(), success.value)
-        assertEquals(listOf(AMOUNT), persistence.requestedAmounts)
-    }
-
-    @Test
-    fun `when persistence throws on read then storage failure is returned`() = runTest {
-        val persistence = FakePersistence(failure = IllegalStateException("disk"))
-        val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
-
-        assertEquals(Outcome.Failure(AppError.Storage), repository.getLastUniqueEntries(AMOUNT))
-    }
 
     @Test
     fun `when persistence throws on insert then save returns storage failure`() = runTest {
@@ -64,7 +43,6 @@ class AnalysisHistoryRepositoryImplTest {
         val persistence = FakePersistence(failure = CancellationException("cancelled"))
         val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
 
-        assertFailsWith<CancellationException> { repository.getLastUniqueEntries(AMOUNT) }
         assertFailsWith<CancellationException> { repository.save(result) }
     }
 
@@ -106,12 +84,6 @@ class AnalysisHistoryRepositoryImplTest {
         override suspend fun insert(entity: ProductAnalysisHistoryEntryEntity) {
             failure?.let { throw it }
             inserted += entity
-        }
-
-        override suspend fun lastUniqueEntries(amount: Int): List<ProductAnalysisHistoryEntryEntity> {
-            failure?.let { throw it }
-            requestedAmounts += amount
-            return entries
         }
 
         override fun observeLastUniqueEntries(amount: Int): Flow<List<ProductAnalysisHistoryEntryEntity>> = flow {

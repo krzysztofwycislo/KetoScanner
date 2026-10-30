@@ -1,19 +1,24 @@
 package pl.handsome.club.feature.history.ui
 
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.datetime.TimeZone
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.history.ui.state.HistoryContentState
-import pl.handsome.club.feature.history.ui.state.HistoryItemState
+import pl.handsome.club.feature.history.ui.state.HistoryFilter
+import pl.handsome.club.feature.history.ui.state.HistoryState
 import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
+import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
 
@@ -22,134 +27,259 @@ class HistoryStateFactoryTest {
     private val factory = HistoryStateFactory(HistoryResources())
 
     @Test
-    fun `when prototype is default then content is initial load`() {
-        assertEquals(HistoryContentState.InitialLoad, factory.createFor(Prototype.Default).content)
+    fun `when prototype is default then content is initial load without controls`() {
+        val state = factory.createFor(Prototype.Default)
+
+        assertEquals(HistoryContentState.InitialLoad, state.content)
+        assertFalse(state.showControls)
     }
 
     @Test
-    fun `when load error is set then content is error with load error message`() {
-        val state = factory.createFor(Prototype(entries = null, loadError = AppError.Storage))
+    fun `when entries are empty then content is empty without controls`() {
+        val state = factory.createFor(prototype(emptyList()))
+
+        assertEquals(HistoryContentState.Empty, state.content)
+        assertFalse(state.showControls)
+    }
+
+    @Test
+    fun `when load error is set then content is error without controls`() {
+        val state = factory.createFor(prototype(listOf(entry(1))).copy(loadError = AppError.Storage))
+
+        assertEquals(HistoryContentState.Error(AppError.Storage.toUiText()), state.content)
+        assertFalse(state.showControls)
+    }
+
+    @Test
+    fun `when entries are present then groups are shown with controls and the query is passed through`() {
+        val state = factory.createFor(prototype(listOf(entry(1))).copy(query = "na"))
+
+        assertIs<HistoryContentState.ShowGroups>(state.content)
+        assertTrue(state.showControls)
+        assertEquals("na", state.query)
+    }
+
+    @Test
+    fun `when entries span this week then today yesterday and this week groups come in order`() {
+        val today = Instant.parse("2026-10-15T08:15:00Z")
+        val yesterday = Instant.parse("2026-10-14T23:59:00Z")
+        val monday = Instant.parse("2026-10-12T10:00:00Z")
+
+        val groups = groups(listOf(entry(1, today), entry(2, yesterday), entry(3, monday)))
+
+        assertEquals(listOf("today", "yesterday", "week"), groups.map { it.key })
+        assertEquals(
+            listOf(resources.today(), resources.yesterday(), resources.thisWeek()),
+            groups.map { it.title },
+        )
+        assertEquals(UiText.Res(R.string.history_row_time, UiArg.Time(today)), groups[0].items.single().time)
+        assertEquals(UiText.Res(R.string.history_row_time, UiArg.Time(yesterday)), groups[1].items.single().time)
+        assertEquals(UiText.Res(R.string.history_row_time, UiArg.Weekday(monday)), groups[2].items.single().time)
+    }
+
+    @Test
+    fun `when entries are older than this week then each date gets its own group`() {
+        val sunday = Instant.parse("2026-10-11T20:00:00Z")
+        val sundayMorning = Instant.parse("2026-10-11T07:00:00Z")
+        val older = Instant.parse("2026-09-30T12:00:00Z")
+
+        val groups = groups(listOf(entry(1, sunday), entry(2, sundayMorning), entry(3, older)))
+
+        assertEquals(listOf("date-2026-10-11", "date-2026-09-30"), groups.map { it.key })
+        assertEquals(listOf(resources.dateGroup(sunday), resources.dateGroup(older)), groups.map { it.title })
+        assertEquals(listOf(1L, 2L), groups[0].items.map { it.id })
+        assertEquals(resources.time(sunday), groups[0].items[0].time)
+    }
+
+    @Test
+    fun `when now is a Monday then a Saturday entry goes to a date group`() {
+        val saturday = Instant.parse("2026-10-10T12:00:00Z")
+
+        val groups = groups(listOf(entry(1, saturday)), now = Instant.parse("2026-10-12T18:42:00Z"))
+
+        assertEquals(listOf("date-2026-10-10"), groups.map { it.key })
+    }
+
+    @Test
+    fun `when now is a Tuesday then a Sunday entry goes to a date group, not this week`() {
+        val sunday = Instant.parse("2026-10-11T12:00:00Z")
+
+        val groups = groups(listOf(entry(1, sunday)), now = Instant.parse("2026-10-13T18:42:00Z"))
+
+        assertEquals(listOf("date-2026-10-11"), groups.map { it.key })
+    }
+
+    @Test
+    fun `when the zone is Warsaw then an entry just after local midnight is grouped by the local date`() {
+        val justAfterMidnight = Instant.parse("2026-10-14T22:30:00Z")
+        val warsaw = TimeZone.of("Europe/Warsaw")
+
+        assertEquals(listOf("today"), groups(listOf(entry(1, justAfterMidnight)), timeZone = warsaw).map { it.key })
+        assertEquals(listOf("yesterday"), groups(listOf(entry(1, justAfterMidnight))).map { it.key })
+    }
+
+    @Test
+    fun `when a query is set then entries are matched by name case-insensitively and trimmed`() {
+        val entries = listOf(
+            entry(1, name = "Peanut Butter"),
+            entry(2, name = "Cola"),
+            entry(3, name = "Oat cookies", brand = "Butter Bakery"),
+        )
+
+        val state = factory.createFor(prototype(entries).copy(query = "  bUTTer "))
+
+        assertEquals(listOf(1L), ids(state))
+    }
+
+    @Test
+    fun `when a filter is chosen then only its rate is kept and unrated entries appear only under all`() {
+        val entries = listOf(
+            entry(1, rate = DietRate.GOOD),
+            entry(2, rate = DietRate.NEUTRAL),
+            entry(3, rate = DietRate.NOT_ADVISED),
+            entry(4, rate = null),
+        )
+
+        fun idsFor(filter: HistoryFilter) = ids(factory.createFor(prototype(entries).copy(filter = filter)))
+
+        assertEquals(listOf(1L, 2L, 3L, 4L), idsFor(HistoryFilter.ALL))
+        assertEquals(listOf(1L), idsFor(HistoryFilter.GOOD))
+        assertEquals(listOf(2L), idsFor(HistoryFilter.NEUTRAL))
+        assertEquals(listOf(3L), idsFor(HistoryFilter.NOT_ADVISED))
+    }
+
+    @Test
+    fun `when a query hides everything then content is no results with controls`() {
+        val state = factory.createFor(prototype(listOf(entry(1))).copy(query = "xyz"))
+
+        assertEquals(HistoryContentState.NoResults, state.content)
+        assertTrue(state.showControls)
+    }
+
+    @Test
+    fun `when a filter hides everything then content is no results with controls`() {
+        val state = factory.createFor(prototype(listOf(entry(1, rate = null))).copy(filter = HistoryFilter.GOOD))
+
+        assertEquals(HistoryContentState.NoResults, state.content)
+        assertTrue(state.showControls)
+    }
+
+    @Test
+    fun `when mode is keto then chip labels are keto labels`() {
+        val state = factory.createFor(prototype(listOf(entry(1)), DietPreferences(20, DietMode.KETO)))
 
         assertEquals(
-            HistoryContentState.Error(
-                UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_storage),
-            ),
-            state.content,
+            listOf(
+                R.string.history_filter_all,
+                R.string.history_filter_good_keto,
+                R.string.history_filter_neutral,
+                R.string.history_filter_not_advised_keto,
+            ).map { UiText.Res(it) },
+            state.filters.map { it.label },
         )
     }
 
     @Test
-    fun `when load error is network then content is error with network message`() {
-        val state = factory.createFor(Prototype(entries = null, loadError = AppError.Network))
+    fun `when mode is low carb then chip labels are low carb labels`() {
+        val state = factory.createFor(prototype(listOf(entry(1)), DietPreferences(80, DietMode.LOW_CARB)))
 
         assertEquals(
-            HistoryContentState.Error(
-                UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_network),
-            ),
-            state.content,
+            listOf(
+                R.string.history_filter_all,
+                R.string.history_filter_good_low_carb,
+                R.string.history_filter_neutral,
+                R.string.history_filter_not_advised_low_carb,
+            ).map { UiText.Res(it) },
+            state.filters.map { it.label },
         )
     }
 
     @Test
-    fun `when load error is set and entries exist then content is still error`() {
-        val state = factory.createFor(Prototype(entries = listOf(entry(1)), loadError = AppError.Storage))
+    fun `when preferences are missing then chip labels fall back to keto`() {
+        val state = factory.createFor(Prototype.Default)
 
-        assertIs<HistoryContentState.Error>(state.content)
+        assertEquals(UiText.Res(R.string.history_filter_good_keto), state.filters[1].label)
     }
 
     @Test
-    fun `when entries are empty then content is empty`() {
-        assertEquals(HistoryContentState.Empty, factory.createFor(Prototype(entries = emptyList())).content)
+    fun `when a filter is chosen then only its chip is selected`() {
+        val state = factory.createFor(prototype(listOf(entry(1))).copy(filter = HistoryFilter.NEUTRAL))
+
+        assertEquals(HistoryFilter.entries, state.filters.map { it.filter })
+        assertEquals(listOf(false, false, true, false), state.filters.map { it.selected })
     }
 
     @Test
-    fun `when entries exist then items keep order ids and barcodes`() {
-        val state = factory.createFor(Prototype(entries = listOf(entry(3), entry(1), entry(2))))
+    fun `when carbs are missing then the row shows no data and the verdict alone`() {
+        val item = groups(listOf(entry(1, rate = DietRate.GOOD, carbs = null))).single().items.single()
 
-        val items = assertIs<HistoryContentState.ShowItems>(state.content).items
-        assertEquals(listOf(3L, 1L, 2L), items.map { it.id })
-        assertEquals(listOf("barcode-3", "barcode-1", "barcode-2"), items.map { it.barcode })
+        assertEquals(UiText.Res(R.string.history_carbs_missing), item.carbs)
+        assertEquals(UiText.Res(R.string.history_verdict_good_keto), item.verdictDescription)
+        assertEquals(Rating.Positive, item.rating)
     }
 
     @Test
-    fun `when entry has name and brand then they are raw texts`() {
-        val item = singleItem(entry(1, name = "Peanut butter", brand = "Nuts & Co"))
+    fun `when carbs are present then the row shows grams and the verdict with carbs`() {
+        val item = groups(listOf(entry(1, rate = DietRate.NOT_ADVISED, carbs = 10.6))).single().items.single()
 
-        assertEquals(UiText.Raw("Peanut butter"), item.name)
-        assertEquals(UiText.Raw("Nuts & Co"), item.brand)
+        assertEquals(UiText.Res(R.string.history_carbs, UiArg.Numeric.Grams(10.6)), item.carbs)
+        assertEquals(
+            UiText.Res(
+                R.string.history_verdict_with_carbs,
+                UiArg.Nested(UiText.Res(R.string.history_verdict_not_advised_keto)),
+                UiArg.Nested(UiText.Res(R.string.history_carbs_per_100g, UiArg.Numeric.Grams(10.6))),
+            ),
+            item.verdictDescription,
+        )
+        assertEquals(Rating.Negative, item.rating)
     }
 
     @Test
-    fun `when entry name is blank then name is unnamed product`() {
-        val item = singleItem(entry(1, name = "  "))
+    fun `when the product has no name then the row shows the unnamed text`() {
+        val item = groups(listOf(entry(1, name = " "))).single().items.single()
 
         assertEquals(UiText.Res(R.string.history_unnamed_product), item.name)
+        assertEquals("barcode-1", item.barcode)
     }
 
-    @Test
-    fun `when diet rate is set or missing then rating and description match`() {
-        val expected = mapOf(
-            DietRate.GOOD to (Rating.Positive to R.string.history_rating_good),
-            DietRate.NEUTRAL to (Rating.Neutral to R.string.history_rating_neutral),
-            DietRate.NOT_ADVISED to (Rating.Negative to R.string.history_rating_not_advised),
-            null to (Rating.Unknown to R.string.history_rating_unknown),
-        )
+    private val resources = HistoryResources()
 
-        expected.forEach { (dietRate, ratingAndText) ->
-            val item = singleItem(entry(1, dietRate = dietRate))
+    private fun prototype(
+        entries: List<ProductAnalysisHistoryEntry>,
+        preferences: DietPreferences? = null,
+        now: Instant = NOW,
+        timeZone: TimeZone = TimeZone.UTC,
+    ) = Prototype(entries = entries, dietPreferences = preferences, now = now, timeZone = timeZone)
 
-            assertEquals(ratingAndText.first, item.rating)
-            assertEquals(UiText.Res(ratingAndText.second), item.ratingDescription)
-        }
-    }
+    private fun groups(
+        entries: List<ProductAnalysisHistoryEntry>,
+        now: Instant = NOW,
+        timeZone: TimeZone = TimeZone.UTC,
+    ) = assertIs<HistoryContentState.ShowGroups>(
+        factory.createFor(prototype(entries, now = now, timeZone = timeZone)).content
+    ).groups
 
-    @Test
-    fun `when items are shown then subtitle is last searches plural for the entry count`() {
-        val state = factory.createFor(Prototype(entries = listOf(entry(1), entry(2), entry(3))))
-
-        assertEquals(
-            UiText.Plural(R.plurals.history_last_searches, 3, persistentListOf(UiArg.Numeric.Count(3))),
-            state.subtitle,
-        )
-    }
-
-    @Test
-    fun `when a single item is shown then subtitle uses the count of one`() {
-        val state = factory.createFor(Prototype(entries = listOf(entry(1))))
-
-        assertEquals(
-            UiText.Plural(R.plurals.history_last_searches, 1, persistentListOf(UiArg.Numeric.Count(1))),
-            state.subtitle,
-        )
-    }
-
-    @Test
-    fun `when loading empty or failed then there is no subtitle`() {
-        assertNull(factory.createFor(Prototype.Default).subtitle)
-        assertNull(factory.createFor(Prototype(entries = emptyList())).subtitle)
-        assertNull(factory.createFor(Prototype(entries = null, loadError = AppError.Storage)).subtitle)
-        assertNull(factory.createFor(Prototype(entries = listOf(entry(1)), loadError = AppError.Storage)).subtitle)
-    }
-
-    private fun singleItem(entry: ProductAnalysisHistoryEntry): HistoryItemState =
-        assertIs<HistoryContentState.ShowItems>(factory.createFor(Prototype(entries = listOf(entry))).content)
-            .items
-            .single()
+    private fun ids(state: HistoryState) =
+        assertIs<HistoryContentState.ShowGroups>(state.content).groups.flatMap { group -> group.items.map { it.id } }
 
     private companion object {
+        val NOW = Instant.parse("2026-10-15T18:42:00Z")
+
         fun entry(
             id: Long,
+            time: Instant = NOW,
             name: String = "Name $id",
-            brand: String = "Brand $id",
-            dietRate: DietRate? = DietRate.GOOD,
+            brand: String = "Brand",
+            rate: DietRate? = null,
+            carbs: Double? = null,
         ) = ProductAnalysisHistoryEntry(
             id = id,
             productName = name,
             productBarcode = "barcode-$id",
             productBrand = brand,
-            updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
-            dietRate = dietRate,
-            carbsPer100g = null,
+            updateTime = time,
+            dietRate = rate,
+            carbsPer100g = carbs,
         )
     }
 }

@@ -23,6 +23,11 @@ class DateTimeFormattingTest {
         assertEquals("12 Oct 2026", UiArg.Date(INSTANT).format(Locale.UK, UTC))
     }
 
+    @Test
+    fun `when Weekday is formatted in UK locale then the short day name is returned`() {
+        assertEquals("Mon", UiArg.Weekday(INSTANT).format(Locale.UK, UTC))
+    }
+
     private companion object {
         val INSTANT = Instant.parse("2026-10-12T18:42:00Z")
         val UTC: TimeZone = TimeZone.getTimeZone("UTC")

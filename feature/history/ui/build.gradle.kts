@@ -10,10 +10,13 @@ android {
 
 dependencies {
     implementation(project(":feature:history:api"))
+    implementation(project(":feature:preferences:api"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:common"))
+    implementation(libs.kotlinx.datetime)
 
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     implementation(libs.androidx.navigation.compose)

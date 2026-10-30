@@ -1,17 +1,17 @@
 package pl.handsome.club.feature.history.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -19,19 +19,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.component.ContentCrossfade
+import pl.handsome.club.core.designsystem.component.FilterChip
+import pl.handsome.club.core.designsystem.component.IconTile
+import pl.handsome.club.core.designsystem.component.ListRowCard
 import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.RatingIcon
 import pl.handsome.club.core.designsystem.component.Screen
+import pl.handsome.club.core.designsystem.component.SearchField
 import pl.handsome.club.core.designsystem.component.TopBar
 import pl.handsome.club.core.designsystem.component.Ui
+import pl.handsome.club.core.designsystem.component.VerdictPill
 import pl.handsome.club.core.designsystem.event.ObserveEvents
+import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
@@ -40,14 +49,20 @@ import pl.handsome.club.core.designsystem.theme.AppTheme
 import pl.handsome.club.feature.history.ui.event.HistoryAction
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnBackClicked
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnEntryClicked
+import pl.handsome.club.feature.history.ui.event.HistoryAction.OnFilterClicked
+import pl.handsome.club.feature.history.ui.event.HistoryAction.OnQueryChanged
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnRetryClicked
+import pl.handsome.club.feature.history.ui.event.HistoryAction.OnSearchSubmitted
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnStart
 import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation
-import pl.handsome.club.feature.history.ui.state.HistoryContentState
 import pl.handsome.club.feature.history.ui.state.HistoryContentState.Empty
 import pl.handsome.club.feature.history.ui.state.HistoryContentState.Error
 import pl.handsome.club.feature.history.ui.state.HistoryContentState.InitialLoad
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.ShowItems
+import pl.handsome.club.feature.history.ui.state.HistoryContentState.NoResults
+import pl.handsome.club.feature.history.ui.state.HistoryContentState.ShowGroups
+import pl.handsome.club.feature.history.ui.state.HistoryFilter
+import pl.handsome.club.feature.history.ui.state.HistoryFilterState
+import pl.handsome.club.feature.history.ui.state.HistoryGroupState
 import pl.handsome.club.feature.history.ui.state.HistoryItemState
 import pl.handsome.club.feature.history.ui.state.HistoryState
 
@@ -72,43 +87,55 @@ internal fun HistoryScreen(onNavigation: (HistoryNavigation) -> Unit) {
 private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit) {
     Ui.Screen(
         topBar = {
-            TopBar(state, onAction)
+            Ui.TopBar(
+                title = stringResource(R.string.history_title),
+                onBackClick = { onAction(OnBackClicked) },
+            )
         },
     ) { innerPadding ->
-        val centered = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()
-        Ui.ContentCrossfade(targetState = state.content) { content ->
-            when (content) {
-                InitialLoad -> Box(
-                    centered,
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-
-                Empty -> Box(centered, contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.history_empty),
-                        style = AppTheme.typography.body,
-                        color = AppTheme.colors.text.default,
-                    )
-                }
-
-                is Error -> Box(centered, contentAlignment = Alignment.Center) {
-                    ErrorContent(
-                        content,
-                        onAction
-                    )
-                }
-
-                is ShowItems -> LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = innerPadding,
-                ) {
-                    items(content.items, key = { it.id }) { item ->
-                        HistoryRow(item, onAction)
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+        ) {
+            if (state.showControls) {
+                Controls(state.query, state.filters, onAction)
+            }
+            Ui.ContentCrossfade(
+                targetState = state.content,
+                modifier = Modifier.weight(1f),
+            ) { content ->
+                val centered = Modifier.fillMaxSize()
+                when (content) {
+                    InitialLoad -> Box(centered, contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
+
+                    Empty -> Box(centered, contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.history_empty),
+                            style = AppTheme.typography.body,
+                            color = AppTheme.colors.text.default,
+                        )
+                    }
+
+                    NoResults -> Box(
+                        centered.padding(horizontal = AppTheme.spacing.l),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.history_no_results),
+                            style = AppTheme.typography.body,
+                            color = AppTheme.colors.text.muted,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+
+                    is Error -> Box(centered, contentAlignment = Alignment.Center) {
+                        ErrorContent(content, onAction)
+                    }
+
+                    is ShowGroups -> Groups(content.groups, onAction)
                 }
             }
         }
@@ -116,19 +143,71 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
 }
 
 @Composable
-private fun TopBar(state: HistoryState, onAction: (HistoryAction) -> Unit) {
-    Column {
-        Ui.TopBar(
-            title = stringResource(R.string.history_title),
-            onBackClick = { onAction(OnBackClicked) },
+private fun Controls(
+    query: String,
+    filters: PersistentList<HistoryFilterState>,
+    onAction: (HistoryAction) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.spacing.l),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+    ) {
+        Ui.SearchField(
+            value = query,
+            onValueChange = { onAction(OnQueryChanged(it)) },
+            placeholder = stringResource(R.string.history_search_placeholder),
+            onSearch = { onAction(OnSearchSubmitted) },
         )
-        state.subtitle?.let { subtitle ->
-            Text(
-                text = subtitle.resolve(),
-                style = AppTheme.typography.body,
-                color = AppTheme.colors.text.default,
-                modifier = Modifier.padding(horizontal = AppTheme.spacing.m),
-            )
+        FlowRow(
+            modifier = Modifier.selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        ) {
+            filters.forEach { filter ->
+                Ui.FilterChip(
+                    text = filter.label.resolve(),
+                    selected = filter.selected,
+                    onClick = { onAction(OnFilterClicked(filter.filter)) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Groups(groups: PersistentList<HistoryGroupState>, onAction: (HistoryAction) -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(AppTheme.spacing.l),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+    ) {
+        groups.forEachIndexed { index, group ->
+            item(key = group.key) {
+                Text(
+                    text = group.title.resolve().uppercase(),
+                    style = AppTheme.typography.label,
+                    color = AppTheme.colors.text.muted,
+                    modifier = if (index == 0) Modifier else Modifier.padding(top = AppTheme.spacing.xs),
+                )
+            }
+            items(group.items, key = { it.id }) { item ->
+                Ui.ListRowCard(
+                    title = item.name,
+                    subtitle = item.time,
+                    onClick = { onAction(OnEntryClicked(item.barcode)) },
+                    leading = {
+                        Ui.IconTile(AppIcons.Bag.imageVector)
+                    },
+                    trailing = {
+                        Ui.VerdictPill(
+                            rating = item.rating,
+                            text = item.carbs,
+                            contentDescription = item.verdictDescription,
+                        )
+                    },
+                )
+            }
         }
     }
 }
@@ -150,77 +229,62 @@ private fun ErrorContent(state: Error, onAction: (HistoryAction) -> Unit) {
     }
 }
 
-@Composable
-private fun HistoryRow(state: HistoryItemState, onAction: (HistoryAction) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onAction(OnEntryClicked(state.barcode)) },
-    ) {
-        Row(
-            modifier = Modifier.padding(AppTheme.spacing.m),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
-            ) {
-                Text(
-                    text = state.brand.resolve(),
-                    style = AppTheme.typography.caption,
-                    color = AppTheme.colors.text.default,
-                )
-                Text(
-                    text = state.name.resolve(),
-                    style = AppTheme.typography.body,
-                    color = AppTheme.colors.text.default,
-                )
-            }
-            Ui.RatingIcon(
-                rating = state.rating,
-                contentDescription = state.ratingDescription,
-                modifier = Modifier.padding(start = AppTheme.spacing.xs),
-            )
-        }
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = AppTheme.spacing.m),
-            thickness = AppTheme.borders.hairline,
-            color = AppTheme.colors.border.default,
-        )
-    }
-}
+private fun HistoryItemState.Companion.example(id: Long, name: String, rating: Rating, carbs: Double?) =
+    HistoryItemState(
+        id = id,
+        barcode = "590000000000$id",
+        name = UiText.Raw(name),
+        time = UiText.Raw("18:42"),
+        rating = rating,
+        carbs = if (carbs == null) UiText.Res(R.string.history_carbs_missing)
+        else UiText.Res(R.string.history_carbs, UiArg.Numeric.Grams(carbs)),
+        verdictDescription = UiText.Res(R.string.history_verdict_good_keto),
+    )
 
-private fun HistoryItemState.Companion.example(
-    id: Long,
-    name: String,
-    brand: String,
-    rating: Rating,
-) = HistoryItemState(
-    id = id,
-    barcode = "590000000000$id",
-    name = UiText.Raw(name),
-    brand = UiText.Raw(brand),
-    rating = rating,
-    ratingDescription = UiText.Res(R.string.history_rating_good),
-)
-
+private val previewFilters = HistoryFilter.entries.map { filter ->
+    HistoryFilterState(
+        filter = filter,
+        label = when (filter) {
+            HistoryFilter.ALL -> UiText.Res(R.string.history_filter_all)
+            HistoryFilter.GOOD -> UiText.Res(R.string.history_filter_good_keto)
+            HistoryFilter.NEUTRAL -> UiText.Res(R.string.history_filter_neutral)
+            HistoryFilter.NOT_ADVISED -> UiText.Res(R.string.history_filter_not_advised_keto)
+        },
+        selected = filter == HistoryFilter.ALL,
+    )
+}.toPersistentList()
 
 @Preview(showBackground = true)
 @Composable
-private fun HistoryShowItemsPreview() {
-    val items = persistentListOf(
-        HistoryItemState.example(1, "Peanut butter", "Nuts & Co", Rating.Positive),
-        HistoryItemState.example(2, "Oat cookies", "Bakery", Rating.Neutral),
-        HistoryItemState.example(3, "Cola", "Drinks Inc", Rating.Negative),
-        HistoryItemState.example(4, "Mystery bar", "Unknown", Rating.Unknown),
+private fun HistoryShowGroupsPreview() {
+    val groups = persistentListOf(
+        HistoryGroupState(
+            key = "today",
+            title = UiText.Res(R.string.history_group_today),
+            items = persistentListOf(
+                HistoryItemState.example(1, "Peanut butter", Rating.Positive, 14.0),
+                HistoryItemState.example(2, "Oat cookies", Rating.Neutral, 52.3),
+            ),
+        ),
+        HistoryGroupState(
+            key = "yesterday",
+            title = UiText.Res(R.string.history_group_yesterday),
+            items = persistentListOf(
+                HistoryItemState.example(3, "Cola", Rating.Negative, 10.6),
+                HistoryItemState.example(4, "Mystery bar", Rating.Unknown, null),
+            ),
+        ),
     )
     AppTheme {
-        ScreenContent(
-            HistoryState(
-                UiText.Plural(R.plurals.history_last_searches, items.size, UiArg.Numeric.Count(items.size.toLong())),
-                ShowItems(items),
-            )
-        ) {}
+        ScreenContent(HistoryState("", true, previewFilters, ShowGroups(groups))) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HistoryNoResultsPreview() {
+    AppTheme {
+        ScreenContent(HistoryState("xyz", true, previewFilters, NoResults)) {}
     }
 }
 
@@ -228,7 +292,7 @@ private fun HistoryShowItemsPreview() {
 @Composable
 private fun HistoryInitialLoadPreview() {
     AppTheme {
-        ScreenContent(HistoryState(null, InitialLoad)) {}
+        ScreenContent(HistoryState("", false, previewFilters, InitialLoad)) {}
     }
 }
 
@@ -236,7 +300,7 @@ private fun HistoryInitialLoadPreview() {
 @Composable
 private fun HistoryEmptyPreview() {
     AppTheme {
-        ScreenContent(HistoryState(null, Empty)) {}
+        ScreenContent(HistoryState("", false, previewFilters, Empty)) {}
     }
 }
 
@@ -244,11 +308,6 @@ private fun HistoryEmptyPreview() {
 @Composable
 private fun HistoryErrorPreview() {
     AppTheme {
-        ScreenContent(
-            HistoryState(
-                null,
-                Error(AppError.Storage.toUiText()),
-            )
-        ) {}
+        ScreenContent(HistoryState("", false, previewFilters, Error(AppError.Storage.toUiText()))) {}
     }
 }

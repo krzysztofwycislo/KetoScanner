@@ -35,6 +35,7 @@ class UiTextResolver internal constructor(
         is UiArg.Nested -> resolve(arg.text)
         is UiArg.Time -> arg.format(locale, TimeZone.getDefault())
         is UiArg.Date -> arg.format(locale, TimeZone.getDefault())
+        is UiArg.Weekday -> arg.format(locale, TimeZone.getDefault())
         is UiArg.Numeric -> arg.format(locale)
     }
 }

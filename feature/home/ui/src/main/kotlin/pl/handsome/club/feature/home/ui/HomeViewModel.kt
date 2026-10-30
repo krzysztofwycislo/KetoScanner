@@ -2,23 +2,24 @@ package pl.handsome.club.feature.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
+import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.ErrorReporter
 import pl.handsome.club.core.common.EventQueue
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
+import pl.handsome.club.core.common.retryOnFailure
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.home.ui.event.HomeAction
 import pl.handsome.club.feature.home.ui.event.HomeAction.OnAboutClicked
@@ -38,6 +39,7 @@ import pl.handsome.club.feature.home.ui.state.HomeState
 import pl.handsome.club.feature.home.ui.state.HomeStateFactory
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
 import pl.handsome.club.feature.home.ui.state.HomeStatePrototype as Prototype
 
 internal class HomeViewModel(
@@ -74,21 +76,23 @@ internal class HomeViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeRecentScans() {
         viewModelScope.launch {
-            retryClicks.onStart { emit(Unit) }
-                .flatMapLatest { history.observeLastUniqueEntries(Prototype.RECENT_LIMIT) }
-                .collect { outcome ->
-                    outcome
-                        .onSuccess { entries ->
-                            statePrototype.update { it.copy(entries = entries, loadError = null) }
-                        }
-                        .onFailure { error ->
-                            errorReporter.report(TAG, "Loading recent scans failed", error)
-                            statePrototype.update { if (it.entries == null) it.copy(loadError = error) else it }
-                        }
+            history.observeLastUniqueEntries(Prototype.RECENT_LIMIT)
+                .retryOnFailure(::onRecentScansFailed)
+                .collect { entries ->
+                    statePrototype.update { it.copy(entries = entries, loadError = null) }
                 }
+        }
+    }
+
+    private suspend fun onRecentScansFailed(error: AppError) {
+        errorReporter.report(TAG, "Loading recent scans failed", error)
+        if (statePrototype.value.entries == null) {
+            statePrototype.update { it.copy(loadError = error) }
+            retryClicks.first()
+        } else {
+            delay(RETRY_DELAY)
         }
     }
 
@@ -114,7 +118,8 @@ internal class HomeViewModel(
         observePreferences()
     }
 
-    private companion object {
-        const val TAG = "HomeViewModel"
+    companion object {
+        private const val TAG = "HomeViewModel"
+        val RETRY_DELAY = 5.seconds
     }
 }

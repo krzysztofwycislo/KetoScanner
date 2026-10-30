@@ -26,13 +26,6 @@ internal class AnalysisHistoryRepositoryImpl(
             }
         }
 
-    override suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>> =
-        withContext(dispatchers.io) {
-            outcomeOf(mapError = { AppError.Storage }) {
-                persistence.lastUniqueEntries(amount).toDomain()
-            }
-        }
-
     override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> =
         persistence.observeLastUniqueEntries(amount)
             .map<_, Outcome<List<ProductAnalysisHistoryEntry>>> { entities -> Outcome.Success(entities.toDomain()) }

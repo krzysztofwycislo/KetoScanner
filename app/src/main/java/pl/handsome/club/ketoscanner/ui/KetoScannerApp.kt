@@ -87,8 +87,10 @@ internal fun KetoScannerApp() {
             AppBottomBar(
                 selectedTab = selectedTab,
                 onTabClick = { tab ->
+                    val reselected = tab == selectedTab
                     viewModel.onAction(OnTabClicked(tab))
-                    navController.navigateToTab(tab)
+                    if (reselected) navController.popBackStack(tab.route, inclusive = false)
+                    else navController.navigateToTab(tab)
                 },
             )
         },

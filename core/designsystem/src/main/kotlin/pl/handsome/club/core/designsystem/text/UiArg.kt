@@ -14,6 +14,8 @@ sealed interface UiArg {
 
     data class Date(val value: Instant) : UiArg
 
+    data class Weekday(val value: Instant) : UiArg
+
     sealed interface Numeric : UiArg {
 
         data class Grams(val value: Double) : Numeric
