@@ -2,6 +2,7 @@ package pl.handsome.club.ketoscanner.di
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.datetime.TimeZone
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -36,6 +37,7 @@ val appModules = module {
 
     // time
     single<Clock> { Clock.System }
+    factory<TimeZone> { TimeZone.currentSystemDefault() }
 
     // logging
     single<AppLogger> { AndroidAppLogger }

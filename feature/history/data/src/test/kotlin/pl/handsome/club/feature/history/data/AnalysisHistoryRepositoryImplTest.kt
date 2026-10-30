@@ -1,5 +1,8 @@
 package pl.handsome.club.feature.history.data
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
@@ -65,6 +68,33 @@ class AnalysisHistoryRepositoryImplTest {
         assertFailsWith<CancellationException> { repository.save(result) }
     }
 
+    @Test
+    fun `when persistence emits entries then observed flow maps them to success and passes the amount`() = runTest {
+        val persistence = FakePersistence(entries = listOf(entity("1"), entity("2")))
+        val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
+
+        val outcome = repository.observeLastUniqueEntries(AMOUNT).first()
+
+        assertEquals(Outcome.Success(listOf(entity("1"), entity("2")).toDomain()), outcome)
+        assertEquals(listOf(AMOUNT), persistence.requestedAmounts)
+    }
+
+    @Test
+    fun `when observed persistence throws then storage failure is emitted`() = runTest {
+        val persistence = FakePersistence(failure = IllegalStateException("disk"))
+        val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
+
+        assertEquals(Outcome.Failure(AppError.Storage), repository.observeLastUniqueEntries(AMOUNT).first())
+    }
+
+    @Test
+    fun `when observed persistence is cancelled then cancellation is rethrown`() = runTest {
+        val persistence = FakePersistence(failure = CancellationException("cancelled"))
+        val repository = AnalysisHistoryRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
+
+        assertFailsWith<CancellationException> { repository.observeLastUniqueEntries(AMOUNT).first() }
+    }
+
     private class FakePersistence(
         private val entries: List<ProductAnalysisHistoryEntryEntity> = emptyList(),
         private val failure: Throwable? = null,
@@ -82,6 +112,12 @@ class AnalysisHistoryRepositoryImplTest {
             failure?.let { throw it }
             requestedAmounts += amount
             return entries
+        }
+
+        override fun observeLastUniqueEntries(amount: Int): Flow<List<ProductAnalysisHistoryEntryEntity>> = flow {
+            failure?.let { throw it }
+            requestedAmounts += amount
+            emit(entries)
         }
     }
 

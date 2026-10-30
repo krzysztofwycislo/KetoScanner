@@ -9,7 +9,6 @@ import pl.handsome.club.core.designsystem.text.UiText
 internal data class HistoryState(
     val subtitle: UiText?,
     val content: HistoryContentState,
-    val isMenuOpen: Boolean,
 )
 
 @Immutable

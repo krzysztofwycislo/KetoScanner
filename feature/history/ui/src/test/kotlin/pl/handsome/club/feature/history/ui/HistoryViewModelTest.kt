@@ -1,8 +1,9 @@
 package pl.handsome.club.feature.history.ui
 
-import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -17,8 +18,7 @@ import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.history.ui.event.HistoryAction
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToAbout
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToDietPreferences
+import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
 import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
 import pl.handsome.club.feature.history.ui.state.HistoryContentState
 import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
@@ -26,9 +26,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class HistoryViewModelTest {
@@ -147,63 +145,16 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun `when menu is clicked then it opens and the handle is written`() = runTest {
-        val handle = SavedStateHandle()
-        val viewModel = createViewModel(handle)
+    fun `when back is clicked then navigate back is emitted`() = runTest {
+        val viewModel = createViewModel()
 
-        viewModel.onAction(HistoryAction.OnMenuClicked)
+        viewModel.onAction(HistoryAction.OnBackClicked)
 
-        assertTrue(viewModel.state.value.isMenuOpen)
-        assertEquals(true, handle.get<Boolean>(KEY_MENU_OPEN))
+        assertEquals(NavigateBack, viewModel.events.first())
     }
 
-    @Test
-    fun `when menu is dismissed then it closes and the handle is written`() = runTest {
-        val handle = SavedStateHandle()
-        val viewModel = createViewModel(handle)
-        viewModel.onAction(HistoryAction.OnMenuClicked)
-
-        viewModel.onAction(HistoryAction.OnMenuDismissed)
-
-        assertFalse(viewModel.state.value.isMenuOpen)
-        assertEquals(false, handle.get<Boolean>(KEY_MENU_OPEN))
-    }
-
-    @Test
-    fun `when handle was restored with an open menu then menu is open`() = runTest {
-        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_MENU_OPEN to true)))
-
-        assertTrue(viewModel.state.value.isMenuOpen)
-    }
-
-    @Test
-    fun `when diet preferences is clicked then menu closes and navigate to diet preferences is emitted`() = runTest {
-        val handle = SavedStateHandle()
-        val viewModel = createViewModel(handle)
-        viewModel.onAction(HistoryAction.OnMenuClicked)
-
-        viewModel.onAction(HistoryAction.OnDietPreferencesClicked)
-
-        assertFalse(viewModel.state.value.isMenuOpen)
-        assertEquals(false, handle.get<Boolean>(KEY_MENU_OPEN))
-        assertEquals(NavigateToDietPreferences, viewModel.events.first())
-    }
-
-    @Test
-    fun `when about is clicked then menu closes and navigate to about is emitted`() = runTest {
-        val handle = SavedStateHandle()
-        val viewModel = createViewModel(handle)
-        viewModel.onAction(HistoryAction.OnMenuClicked)
-
-        viewModel.onAction(HistoryAction.OnAboutClicked)
-
-        assertFalse(viewModel.state.value.isMenuOpen)
-        assertEquals(false, handle.get<Boolean>(KEY_MENU_OPEN))
-        assertEquals(NavigateToAbout, viewModel.events.first())
-    }
-
-    private fun createViewModel(handle: SavedStateHandle = SavedStateHandle()) =
-        HistoryViewModel(handle, repository, HistoryStateFactory(HistoryResources()), logger)
+    private fun createViewModel() =
+        HistoryViewModel(repository, HistoryStateFactory(HistoryResources()), logger)
 
     private class FakeRepository : AnalysisHistoryRepository {
 
@@ -217,10 +168,11 @@ class HistoryViewModelTest {
             requestedAmounts += amount
             return pending?.await() ?: result
         }
+
+        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = emptyFlow()
     }
 
     private companion object {
-        const val KEY_MENU_OPEN = "menuOpen"
 
         val entries = listOf(2L, 1L).map { id ->
             ProductAnalysisHistoryEntry(

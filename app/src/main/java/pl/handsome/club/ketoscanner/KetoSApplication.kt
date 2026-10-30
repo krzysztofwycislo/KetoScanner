@@ -18,6 +18,7 @@ import pl.handsome.club.feature.favourites.data.favouritesDataModule
 import pl.handsome.club.feature.favourites.ui.favouritesUiModule
 import pl.handsome.club.feature.history.data.historyDataModule
 import pl.handsome.club.feature.history.ui.historyUiModule
+import pl.handsome.club.feature.home.ui.homeUiModule
 import pl.handsome.club.feature.preferences.data.preferencesDataModule
 import pl.handsome.club.feature.preferences.ui.preferencesUiModule
 import pl.handsome.club.feature.product.data.productDataModule
@@ -42,6 +43,7 @@ class KetoSApplication : Application(), SingletonImageLoader.Factory {
                 dataStoreModule,
                 historyDataModule,
                 historyUiModule,
+                homeUiModule,
                 productDataModule,
                 productUiModule,
                 scannerUiModule,

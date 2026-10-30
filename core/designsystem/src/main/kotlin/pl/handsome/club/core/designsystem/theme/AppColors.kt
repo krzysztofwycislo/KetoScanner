@@ -33,6 +33,7 @@ data class AppColors(
         val inverse: Color,
         val accent: Color,
         val highlight: Color,
+        val onHero: Color,
     )
 
     @Immutable
@@ -87,6 +88,7 @@ val LightAppColors = AppColors(
         inverse = Color(0xFFFFFFFF),
         accent = Color(0xFF1E6B47),
         highlight = Color(0xFF6EE7A8),
+        onHero = Color(0xFFC9D3CD),
     ),
     accent = Color(0xFF1E6B47),
     favourite = Color(0xFFC2362B),

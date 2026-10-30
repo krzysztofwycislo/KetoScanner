@@ -24,6 +24,13 @@ data class AppSizes(
     val scanFrameHeight: Dp,
     val aimLine: Dp,
     val messageIcon: Dp,
+    val logoTile: Dp,
+    val logoIcon: Dp,
+    val chipIcon: Dp,
+    val buttonIcon: Dp,
+    val heroCard: Dp,
+    val heroIllustrationWidth: Dp,
+    val heroIllustrationHeight: Dp,
 )
 
 val DefaultAppSizes = AppSizes(
@@ -45,4 +52,11 @@ val DefaultAppSizes = AppSizes(
     scanFrameHeight = 200.dp,
     aimLine = 3.dp,
     messageIcon = 72.dp,
+    logoTile = 28.dp,
+    logoIcon = 16.dp,
+    chipIcon = 18.dp,
+    buttonIcon = 20.dp,
+    heroCard = 236.dp,
+    heroIllustrationWidth = 190.dp,
+    heroIllustrationHeight = 120.dp,
 )

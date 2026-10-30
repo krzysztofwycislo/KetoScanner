@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.history.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
@@ -19,32 +18,24 @@ import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.ui.event.HistoryAction
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnAboutClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnDietPreferencesClicked
+import pl.handsome.club.feature.history.ui.event.HistoryAction.OnBackClicked
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnEntryClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnMenuClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnMenuDismissed
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnRetryClicked
 import pl.handsome.club.feature.history.ui.event.HistoryAction.OnStart
 import pl.handsome.club.feature.history.ui.event.HistoryEvent
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToAbout
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToDietPreferences
+import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
 import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
 import pl.handsome.club.feature.history.ui.state.HistoryState
 import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
 import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
 
 internal class HistoryViewModel(
-    private val savedStateHandle: SavedStateHandle,
     private val repository: AnalysisHistoryRepository,
     private val stateFactory: HistoryStateFactory,
     private val logger: AppLogger,
 ) : ViewModel() {
 
-    private val statePrototype = MutableStateFlow(
-        Prototype(isMenuOpen = savedStateHandle.get<Boolean>(KEY_MENU_OPEN) ?: false)
-    )
+    private val statePrototype = MutableStateFlow(Prototype.Default)
 
     val state: StateFlow<HistoryState> = statePrototype.map(stateFactory::createFor).stateIn(
         scope = viewModelScope,
@@ -60,10 +51,7 @@ internal class HistoryViewModel(
             OnStart -> load()
             OnRetryClicked -> load()
             is OnEntryClicked -> screenEvents send NavigateToProduct(action.barcode)
-            OnMenuClicked -> setMenuOpen(true)
-            OnMenuDismissed -> setMenuOpen(false)
-            OnDietPreferencesClicked -> navigateFromMenu(NavigateToDietPreferences)
-            OnAboutClicked -> navigateFromMenu(NavigateToAbout)
+            OnBackClicked -> screenEvents send NavigateBack
         }
     }
 
@@ -99,18 +87,7 @@ internal class HistoryViewModel(
         logger.error(TAG, "Loading history failed: $error", (error as? AppError.Unknown)?.cause)
     }
 
-    private fun setMenuOpen(isOpen: Boolean) {
-        savedStateHandle[KEY_MENU_OPEN] = isOpen
-        statePrototype.update { it.copy(isMenuOpen = isOpen) }
-    }
-
-    private fun navigateFromMenu(navigation: HistoryNavigation) {
-        setMenuOpen(false)
-        screenEvents send navigation
-    }
-
     private companion object {
         const val TAG = "HistoryViewModel"
-        const val KEY_MENU_OPEN = "menuOpen"
     }
 }

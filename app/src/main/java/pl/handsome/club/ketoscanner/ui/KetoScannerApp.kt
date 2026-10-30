@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -38,6 +37,7 @@ import pl.handsome.club.core.designsystem.text.rememberUiTextResolver
 import pl.handsome.club.core.designsystem.theme.AppTheme
 import pl.handsome.club.ketoscanner.navigation.AppNavHost
 import pl.handsome.club.ketoscanner.navigation.TopLevelTab
+import pl.handsome.club.ketoscanner.navigation.navigateToTab
 import pl.handsome.club.ketoscanner.navigation.topLevelTab
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -101,11 +101,7 @@ private fun AppBottomBar(navController: NavHostController) {
         selectedIndex = selectedTab.ordinal,
         onItemClick = { index ->
             lastTab = TopLevelTab.entries[index]
-            navController.navigate(TopLevelTab.entries[index].route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
+            navController.navigateToTab(TopLevelTab.entries[index])
         },
     )
 }

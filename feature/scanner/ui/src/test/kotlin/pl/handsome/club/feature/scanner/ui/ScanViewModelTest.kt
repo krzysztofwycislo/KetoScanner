@@ -651,6 +651,9 @@ class ScanViewModelTest {
 
         override suspend fun getLastUniqueEntries(amount: Int): Outcome<List<ProductAnalysisHistoryEntry>> =
             throw NotImplementedError()
+
+        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> =
+            throw NotImplementedError()
     }
 
     private companion object {

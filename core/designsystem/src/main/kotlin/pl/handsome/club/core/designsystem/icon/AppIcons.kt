@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 private const val BACK = "M15 5l-7 7 7 7"
@@ -26,8 +25,10 @@ private const val KEYBOARD =
 private const val CAMERA_OFF =
     "M3 3l18 18M9.5 5h5l1.5 2h4a1 1 0 0 1 1 1v9.5M17 19H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h3M10 10.6a3 3 0 0 0 4 4"
 private const val BAG = "M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2"
-private const val MORE =
-    "M12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,10c-1.1,0 -2,0.9 -2,2s0.9,2 2,2 2,-0.9 2,-2 -0.9,-2 -2,-2zM12,16c-1.1,0 -2,0.9 -2,2s0.9,2 2,2 2,-0.9 2,-2 -0.9,-2 -2,-2z"
+private const val LOGO = "M5 5v14M9 5v14M13 5v14M16 5v14M19 5v14"
+private const val SLIDERS =
+    "M4 7h10M18 7h2M4 17h4M12 17h8M14 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0M8 17a2 2 0 1 0 4 0a2 2 0 1 0-4 0"
+private const val INFO = "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 8h.01"
 
 object AppIcons {
     val Back: ImageVector by lazy { strokeIcon("Back", BACK, strokeWidth = 2f) }
@@ -44,19 +45,10 @@ object AppIcons {
     val Keyboard: ImageVector by lazy { strokeIcon("Keyboard", KEYBOARD, strokeWidth = 2f) }
     val CameraOff: ImageVector by lazy { strokeIcon("CameraOff", CAMERA_OFF, strokeWidth = 2f) }
     val Bag: ImageVector by lazy { strokeIcon("Bag", BAG, strokeWidth = 1.8f) }
-    val More: ImageVector by lazy { icon("More", 32.dp, MORE) }
+    val Logo: ImageVector by lazy { strokeIcon("Logo", LOGO, strokeWidth = 2.4f) }
+    val Sliders: ImageVector by lazy { strokeIcon("Sliders", SLIDERS, strokeWidth = 2f) }
+    val Info: ImageVector by lazy { strokeIcon("Info", INFO, strokeWidth = 2f) }
 }
-
-private fun icon(name: String, size: Dp, pathData: String): ImageVector =
-    ImageVector.Builder(
-        name = name,
-        defaultWidth = size,
-        defaultHeight = size,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        addPath(pathData = addPathNodes(pathData), fill = SolidColor(Color.Black))
-    }.build()
 
 private fun strokeIcon(name: String, pathData: String, strokeWidth: Float, filled: Boolean = false): ImageVector =
     ImageVector.Builder(

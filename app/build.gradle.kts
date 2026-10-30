@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":feature:history:data"))
     implementation(project(":feature:product:data"))
     implementation(project(":feature:history:ui"))
+    implementation(project(":feature:home:ui"))
     implementation(project(":feature:product:ui"))
     implementation(project(":feature:scanner:ui"))
     implementation(project(":feature:favourites:data"))
@@ -56,6 +57,7 @@ dependencies {
 
     // kotlin
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.datetime)
 
     // androidx
     implementation(libs.androidx.core.ktx)

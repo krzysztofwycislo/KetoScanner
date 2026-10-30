@@ -1,6 +1,7 @@
 package pl.handsome.club.core.designsystem.text
 
 import androidx.compose.runtime.Immutable
+import kotlin.time.Instant
 
 @Immutable
 sealed interface UiArg {
@@ -8,6 +9,10 @@ sealed interface UiArg {
     data class Text(val value: String) : UiArg
 
     data class Nested(val text: UiText) : UiArg
+
+    data class Time(val value: Instant) : UiArg
+
+    data class Date(val value: Instant) : UiArg
 
     sealed interface Numeric : UiArg {
 

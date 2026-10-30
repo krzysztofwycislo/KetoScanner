@@ -20,6 +20,9 @@ import pl.handsome.club.feature.favourites.ui.favouritesDestination
 import pl.handsome.club.feature.history.ui.HistoryRoute
 import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation
 import pl.handsome.club.feature.history.ui.historyDestination
+import pl.handsome.club.feature.home.ui.HomeRoute
+import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation
+import pl.handsome.club.feature.home.ui.homeDestination
 import pl.handsome.club.feature.preferences.ui.DietPreferencesRoute
 import pl.handsome.club.feature.preferences.ui.dietPreferencesDestination
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation
@@ -33,13 +36,14 @@ import kotlin.reflect.KClass
 
 private const val TRANSITION_DURATION_MILLIS = 200
 
-private val pushedRoutes: List<KClass<*>> = listOf(ProductRoute::class, DietPreferencesRoute::class, AboutRoute::class)
+private val pushedRoutes: List<KClass<*>> =
+    listOf(ProductRoute::class, DietPreferencesRoute::class, AboutRoute::class, HistoryRoute::class)
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = HistoryRoute,
+        startDestination = HomeRoute,
         modifier = modifier,
         enterTransition = {
             if (targetState.isPushed()) slideIntoContainer(SlideDirection.Start, transitionSpec()) else fadeIn(transitionSpec())
@@ -54,12 +58,22 @@ internal fun AppNavHost(navController: NavHostController, modifier: Modifier = M
             if (initialState.isPushed()) slideOutOfContainer(SlideDirection.End, transitionSpec()) else fadeOut(transitionSpec())
         },
     ) {
+        homeDestination { navigation ->
+            navController.ifCurrent<HomeRoute> {
+                when (navigation) {
+                    is HomeNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
+                    HomeNavigation.NavigateToDietPreferences -> navigate(DietPreferencesRoute)
+                    HomeNavigation.NavigateToAbout -> navigate(AboutRoute)
+                    HomeNavigation.NavigateToHistory -> navigate(HistoryRoute)
+                    HomeNavigation.NavigateToScan -> navigateToTab(TopLevelTab.SCAN)
+                }
+            }
+        }
         historyDestination { navigation ->
             navController.ifCurrent<HistoryRoute> {
                 when (navigation) {
                     is HistoryNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
-                    HistoryNavigation.NavigateToDietPreferences -> navigate(DietPreferencesRoute)
-                    HistoryNavigation.NavigateToAbout -> navigate(AboutRoute)
+                    HistoryNavigation.NavigateBack -> navigateUp()
                 }
             }
         }

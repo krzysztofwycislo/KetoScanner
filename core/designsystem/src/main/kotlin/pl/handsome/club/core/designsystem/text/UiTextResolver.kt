@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.theme.AppTheme
 import java.util.Locale
+import java.util.TimeZone
 
 class UiTextResolver internal constructor(
     private val resources: Resources,
@@ -32,6 +33,8 @@ class UiTextResolver internal constructor(
     private fun formatArg(arg: UiArg): String = when (arg) {
         is UiArg.Text -> arg.value
         is UiArg.Nested -> resolve(arg.text)
+        is UiArg.Time -> arg.format(locale, TimeZone.getDefault())
+        is UiArg.Date -> arg.format(locale, TimeZone.getDefault())
         is UiArg.Numeric -> arg.format(locale)
     }
 }
