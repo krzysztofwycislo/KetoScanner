@@ -1,15 +1,17 @@
 package pl.handsome.club.openfoodapi
 
-import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.JsonEncodingException
+import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.plugins.ResponseException
+import io.ktor.serialization.ContentConvertException
+import kotlinx.io.IOException
+import kotlinx.serialization.SerializationException
 import pl.handsome.club.core.common.AppError
-import retrofit2.HttpException
-import java.io.IOException
 
 internal fun Throwable.toAppError(): AppError = when (this) {
-    is JsonDataException -> AppError.Parsing
-    is JsonEncodingException -> AppError.Parsing
+    is ContentConvertException -> AppError.Parsing
+    is SerializationException -> AppError.Parsing
+    is NoTransformationFoundException -> AppError.Parsing
     is IOException -> AppError.Network
-    is HttpException -> AppError.Http(code())
+    is ResponseException -> AppError.Http(response.status.value)
     else -> AppError.Unknown(this)
 }

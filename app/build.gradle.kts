@@ -71,7 +71,8 @@ dependencies {
 
     // image loading
     implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.network.ktor3)
+    implementation(libs.ktor.client.okhttp)
 
     // di
     implementation(platform(libs.koin.bom))

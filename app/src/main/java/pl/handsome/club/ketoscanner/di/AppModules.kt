@@ -1,11 +1,13 @@
 package pl.handsome.club.ketoscanner.di
 
 import coil3.ImageLoader
-import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.datetime.TimeZone
-import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -24,12 +26,9 @@ import pl.handsome.club.ketoscanner.BuildConfig
 import pl.handsome.club.ketoscanner.ui.AppViewModel
 import pl.handsome.club.openfoodapi.OpenFoodFactsProductSource
 import pl.handsome.club.openfoodapi.ProductNetworkSource
-import pl.handsome.club.openfoodapi.api.OPEN_FOOD_FACTS_BASE_URL
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageOkHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
+import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsHttpClient
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageHttpClient
 import kotlin.time.Clock
 
 
@@ -54,24 +53,31 @@ val appModules = module {
     single { AppEvents(get(named(APPLICATION_SCOPE))) }
 
     // network
-    single { createOpenFoodFactsMoshi() }
+    single<HttpClientEngine> { OkHttp.create() }
     single {
-        createOpenFoodFactsOkHttpClient(
+        createOpenFoodFactsHttpClient(
+            engine = get(),
             appName = OPEN_FOOD_FACTS_APP_NAME,
             appVersion = BuildConfig.VERSION_NAME,
             contact = OPEN_FOOD_FACTS_CONTACT,
             enableBodyLogging = BuildConfig.DEBUG,
         )
     }
-    single(named(IMAGE_HTTP_CLIENT)) { createOpenFoodFactsImageOkHttpClient(get()) }
-    single { createOpenFoodFactsRetrofit(OPEN_FOOD_FACTS_BASE_URL, get(), get()) }
-    single { createOpenFoodFactsApi(get()) }
+    single(named(IMAGE_HTTP_CLIENT)) {
+        createOpenFoodFactsImageHttpClient(
+            engine = get(),
+            appName = OPEN_FOOD_FACTS_APP_NAME,
+            appVersion = BuildConfig.VERSION_NAME,
+            contact = OPEN_FOOD_FACTS_CONTACT,
+        )
+    }
+    single { OpenFoodFactsApi(get()) }
 
     // image loading
     single {
         ImageLoader.Builder(androidContext())
             .components {
-                add(OkHttpNetworkFetcherFactory(callFactory = { get<OkHttpClient>(named(IMAGE_HTTP_CLIENT)) }))
+                add(KtorNetworkFetcherFactory(httpClient = { get<HttpClient>(named(IMAGE_HTTP_CLIENT)) }))
             }
             .build()
     }

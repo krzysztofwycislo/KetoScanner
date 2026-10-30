@@ -1,13 +1,13 @@
 package pl.handsome.club.openfoodapi.data
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class ApiProduct(
-    @Json(name = "nutriments") val nutriments: ApiNutriments?,
-    @Json(name = "product_name") val productName: String?,
-    @Json(name = "image_url") val frontImage: String?,
-    @Json(name = "brands") val brand: String?,
-    @Json(name = "serving_quantity") val servingQuantity: String?
+    @SerialName("nutriments") val nutriments: ApiNutriments? = null,
+    @SerialName("product_name") val productName: String? = null,
+    @SerialName("image_url") val frontImage: String? = null,
+    @SerialName("brands") val brand: String? = null,
+    @SerialName("serving_quantity") val servingQuantity: String? = null
 )

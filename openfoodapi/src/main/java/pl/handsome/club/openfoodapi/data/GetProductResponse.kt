@@ -1,12 +1,12 @@
 package pl.handsome.club.openfoodapi.data
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class GetProductResponse(
-    @Json(name = "status") val status: Int,
-    @Json(name = "code") val barcode: String,
-    @Json(name = "product") val apiProduct: ApiProduct?
+    @SerialName("status") val status: Int,
+    @SerialName("code") val barcode: String,
+    @SerialName("product") val apiProduct: ApiProduct? = null
 )

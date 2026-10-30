@@ -1,6 +1,6 @@
 plugins {
     id("ketoscanner.android.library")
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -11,16 +11,13 @@ dependencies {
     implementation(project(":feature:product:api"))
     implementation(project(":core:common"))
 
-    api(libs.retrofit)
-    implementation(libs.retrofit.converter.moshi)
-    api(libs.moshi)
-    ksp(libs.moshi.kotlin.codegen)
-    api(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
+    api(libs.ktor.client.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.kotlinx.serialization.json)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinx.coroutines.core)
-    testImplementation(libs.okhttp.mockwebserver3)
     testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.ktor.client.mock)
 }

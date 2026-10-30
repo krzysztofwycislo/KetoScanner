@@ -1,68 +1,76 @@
 package pl.handsome.club.openfoodapi.api
 
-import com.squareup.moshi.Moshi
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 
-const val OPEN_FOOD_FACTS_BASE_URL = "https://world.openfoodfacts.org/"
+internal const val OPEN_FOOD_FACTS_BASE_URL = "https://world.openfoodfacts.org/"
 
-fun createOpenFoodFactsMoshi(): Moshi = Moshi.Builder().build()
+internal val openFoodFactsJson = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
 
-fun createOpenFoodFactsOkHttpClient(
+fun createOpenFoodFactsHttpClient(
+    engine: HttpClientEngine,
     appName: String,
     appVersion: String,
     contact: String,
     enableBodyLogging: Boolean,
     connectTimeout: Duration = 10.seconds,
     readTimeout: Duration = 20.seconds,
-    callTimeout: Duration = 25.seconds,
-): OkHttpClient =
-    OkHttpClient.Builder()
-        .connectTimeout(connectTimeout)
-        .readTimeout(readTimeout)
-        .callTimeout(callTimeout)
-        .addInterceptor(UserAgentInterceptor(openFoodFactsUserAgent(appName, appVersion, contact)))
-        .apply {
-            if (enableBodyLogging) {
-                addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+    requestTimeout: Duration = 25.seconds,
+): HttpClient =
+    HttpClient(engine) {
+        install(HttpTimeout) {
+            connectTimeoutMillis = connectTimeout.inWholeMilliseconds
+            socketTimeoutMillis = readTimeout.inWholeMilliseconds
+            requestTimeoutMillis = requestTimeout.inWholeMilliseconds
+        }
+        install(UserAgent) {
+            agent = openFoodFactsUserAgent(appName, appVersion, contact)
+        }
+        install(ContentNegotiation) {
+            json(openFoodFactsJson)
+        }
+        if (enableBodyLogging) {
+            install(Logging) {
+                logger = Logger.ANDROID
+                level = LogLevel.BODY
             }
         }
-        .build()
+    }
+
+fun createOpenFoodFactsImageHttpClient(
+    engine: HttpClientEngine,
+    appName: String,
+    appVersion: String,
+    contact: String,
+    connectTimeout: Duration = 10.seconds,
+    readTimeout: Duration = 30.seconds,
+): HttpClient =
+    HttpClient(engine) {
+        install(HttpTimeout) {
+            connectTimeoutMillis = connectTimeout.inWholeMilliseconds
+            socketTimeoutMillis = readTimeout.inWholeMilliseconds
+            requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+        }
+        install(UserAgent) {
+            agent = openFoodFactsUserAgent(appName, appVersion, contact)
+        }
+    }
 
 internal fun openFoodFactsUserAgent(appName: String, appVersion: String, contact: String): String =
     "$appName/$appVersion ($contact)"
-
-fun createOpenFoodFactsImageOkHttpClient(apiClient: OkHttpClient, readTimeout: Duration = 30.seconds): OkHttpClient =
-    apiClient.newBuilder()
-        .readTimeout(readTimeout)
-        .callTimeout(Duration.ZERO)
-        .build()
-
-fun createOpenFoodFactsRetrofit(baseUrl: String, client: OkHttpClient, moshi: Moshi): Retrofit =
-    Retrofit.Builder()
-        .baseUrl(baseUrl)
-        .client(client)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .build()
-
-fun createOpenFoodFactsApi(retrofit: Retrofit): OpenFoodFactsApi =
-    retrofit.create(OpenFoodFactsApi::class.java)
-
-
-internal class UserAgentInterceptor(private val userAgent: String) : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request().newBuilder()
-            .header("User-Agent", userAgent)
-            .build()
-        return chain.proceed(request)
-    }
-
-}

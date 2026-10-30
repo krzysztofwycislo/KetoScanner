@@ -1,217 +1,222 @@
 package pl.handsome.club.openfoodapi
 
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
-import mockwebserver3.MockResponse
-import mockwebserver3.MockWebServer
-import mockwebserver3.SocketEffect
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeoutCapability
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.pluginOrNull
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.client.request.get
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
+import io.ktor.http.headersOf
+import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.DefaultAppDispatchers
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.openfoodapi.api.OPEN_FOOD_FACTS_BASE_URL
-import pl.handsome.club.openfoodapi.api.UserAgentInterceptor
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsApi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageOkHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsMoshi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsOkHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsRetrofit
+import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsHttpClient
+import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageHttpClient
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 
 private const val TEST_USER_AGENT = "KetoScanner/test (contact)"
 
 class OpenFoodFactsProductSourceTest {
 
-    private lateinit var server: MockWebServer
-    private lateinit var source: OpenFoodFactsProductSource
+    private val requests = mutableListOf<HttpRequestData>()
+    private var handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData = { respondJson("") }
 
-
-    @Before
-    fun setUp() {
-        server = MockWebServer()
-        server.start()
-
-        source = OpenFoodFactsProductSource(
-            createOpenFoodFactsApi(
-                createOpenFoodFactsRetrofit(
-                    server.url("/").toString(),
-                    apiClient(),
-                    createOpenFoodFactsMoshi()
-                )
-            ),
-            DefaultAppDispatchers
-        )
+    private val mockEngine = MockEngine { request ->
+        requests += request
+        handler(request)
     }
 
-    @After
-    fun tearDown() {
-        server.close()
-    }
+    private val source = OpenFoodFactsProductSource(OpenFoodFactsApi(apiClient()), DefaultAppDispatchers)
 
 
     @Test
-    fun `found product is parsed into success`() {
-        enqueue(200, fixture("product_found.json"))
+    fun `found product is parsed into success`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_found.json"))
 
-        val product = successValue(runBlocking { source.getProduct("04963406") })
+        val product = successValue(source.getProduct("04963406"))
 
-        assertThat(product.name).isEqualTo("Coke Original Taste")
-        assertThat(product.barcode).isEqualTo("04963406")
-        assertThat(product.brand).isEqualTo("Coke")
-        assertThat(product.servingAmount).isEqualTo("355")
-        assertThat(product.nutriments.energyPer100g).isWithin(1e-4).of(39.4366)
-        assertThat(product.nutriments.carbohydratesPer100g).isWithin(1e-4).of(10.9859)
-        assertThat(product.nutriments.carbohydratesPerServing).isEqualTo(39.0)
-        assertThat(product.nutriments.saltPerServing).isEqualTo(0.0317)
-        assertThat(product.nutriments.sugarsPer100g).isEqualTo(10.6)
-        assertThat(product.nutriments.sugarsPerServing).isEqualTo(37.6)
-        assertThat(product.nutriments.fibrePer100g).isEqualTo(0.0)
-        assertThat(product.nutriments.fibrePerServing).isEqualTo(0.0)
+        assertEquals("Coke Original Taste", product.name)
+        assertEquals("04963406", product.barcode)
+        assertEquals("Coke", product.brand)
+        assertEquals("355", product.servingAmount)
+        assertEquals(39.4366, assertNotNull(product.nutriments.energyPer100g), absoluteTolerance = 1e-4)
+        assertEquals(10.9859, assertNotNull(product.nutriments.carbohydratesPer100g), absoluteTolerance = 1e-4)
+        assertEquals(39.0, product.nutriments.carbohydratesPerServing)
+        assertEquals(0.0317, product.nutriments.saltPerServing)
+        assertEquals(10.6, product.nutriments.sugarsPer100g)
+        assertEquals(37.6, product.nutriments.sugarsPerServing)
+        assertEquals(0.0, product.nutriments.fibrePer100g)
+        assertEquals(0.0, product.nutriments.fibrePerServing)
     }
 
     @Test
-    fun `http 404 is mapped to not found`() {
-        enqueue(404, fixture("product_not_found.json"))
+    fun `http 404 is mapped to not found`() = runTest {
+        respondWith(HttpStatusCode.NotFound, fixture("product_not_found.json"))
 
-        val result = runBlocking { source.getProduct("5900000000017") }
+        val result = source.getProduct("5900000000017")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.NotFound))
+        assertEquals(Outcome.Failure(AppError.NotFound), result)
     }
 
     @Test
-    fun `invalid code response without product is mapped to not found`() {
-        enqueue(200, fixture("invalid_code.json"))
+    fun `invalid code response without product is mapped to not found`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("invalid_code.json"))
 
-        val result = runBlocking { source.getProduct("asd") }
+        val result = source.getProduct("asd")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.NotFound))
+        assertEquals(Outcome.Failure(AppError.NotFound), result)
     }
 
     @Test
-    fun `product without name nutriments and serving is parsed into success`() {
-        enqueue(200, fixture("product_minimal.json"))
+    fun `product without name nutriments and serving is parsed into success`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_minimal.json"))
 
-        val product = successValue(runBlocking { source.getProduct("3017620422003") })
+        val product = successValue(source.getProduct("3017620422003"))
 
-        assertThat(product.name).isEmpty()
-        assertThat(product.nutriments)
-            .isEqualTo(ProductNutriments(null, null, null, null, null, null, null, null, null, null))
-        assertThat(product.servingAmount).isNull()
+        assertTrue(product.name.isEmpty())
+        assertEquals(ProductNutriments(null, null, null, null, null, null, null, null, null, null), product.nutriments)
+        assertNull(product.servingAmount)
     }
 
     @Test
-    fun `server error is mapped to http failure with its code`() {
-        enqueue(500, "")
+    fun `server error is mapped to http failure with its code`() = runTest {
+        respondWith(HttpStatusCode.InternalServerError, "")
 
-        val result = runBlocking { source.getProduct("04963406") }
+        val result = source.getProduct("04963406")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.Http(500)))
+        assertEquals(Outcome.Failure(AppError.Http(500)), result)
     }
 
     @Test
-    fun `malformed json is mapped to parsing failure`() {
-        enqueue(200, "not json")
+    fun `malformed json is mapped to parsing failure`() = runTest {
+        respondWith(HttpStatusCode.OK, "not json")
 
-        val result = runBlocking { source.getProduct("04963406") }
+        val result = source.getProduct("04963406")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.Parsing))
+        assertEquals(Outcome.Failure(AppError.Parsing), result)
     }
 
     @Test
-    fun `json with a wrong field type is mapped to parsing failure`() {
-        enqueue(200, """{"status":"one","code":"04963406"}""")
+    fun `json with a wrong field type is mapped to parsing failure`() = runTest {
+        respondWith(HttpStatusCode.OK, """{"status":"one","code":"04963406"}""")
 
-        val result = runBlocking { source.getProduct("04963406") }
+        val result = source.getProduct("04963406")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.Parsing))
+        assertEquals(Outcome.Failure(AppError.Parsing), result)
     }
 
     @Test
-    fun `disconnect is mapped to network failure`() {
-        repeat(3) {
-            server.enqueue(MockResponse.Builder().onRequestStart(SocketEffect.ShutdownConnection).build())
+    fun `io failure is mapped to network failure`() = runTest {
+        handler = { throw IOException("connection reset") }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Network), result)
+    }
+
+    @Test
+    fun `request timeout is mapped to network failure`() = runTest {
+        handler = { request -> throw HttpRequestTimeoutException(request) }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Network), result)
+    }
+
+    @Test
+    fun `request uses world host v2 path fields filter and user agent`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_found.json"))
+
+        source.getProduct("04963406")
+
+        val request = requests.single()
+        assertEquals(URLProtocol.HTTPS, request.url.protocol)
+        assertEquals("world.openfoodfacts.org", request.url.host)
+        assertEquals("/api/v2/product/04963406", request.url.encodedPath)
+        assertEquals("product_name,brands,image_url,serving_quantity,nutriments", request.url.parameters["fields"])
+        assertEquals("pl", request.url.parameters["lc"])
+        assertEquals(TEST_USER_AGENT, request.headers[HttpHeaders.UserAgent])
+    }
+
+    @Test
+    fun `api client has default timeouts`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_found.json"))
+
+        source.getProduct("04963406")
+
+        val timeouts = assertNotNull(requests.single().getCapabilityOrNull(HttpTimeoutCapability))
+        assertEquals(10_000L, timeouts.connectTimeoutMillis)
+        assertEquals(20_000L, timeouts.socketTimeoutMillis)
+        assertEquals(25_000L, timeouts.requestTimeoutMillis)
+    }
+
+    @Test
+    fun `image client keeps user agent without request timeout`() = runTest {
+        val imageRequests = mutableListOf<HttpRequestData>()
+        val imageEngine = MockEngine { request ->
+            imageRequests += request
+            respond(ByteArray(0), HttpStatusCode.OK)
         }
+        val imageClient = createOpenFoodFactsImageHttpClient(imageEngine, "KetoScanner", "test", "contact")
 
-        val result = runBlocking { source.getProduct("04963406") }
+        imageClient.get("https://images.openfoodfacts.org/image.jpg")
 
-        assertThat(result).isEqualTo(Outcome.Failure(AppError.Network))
+        val request = imageRequests.single()
+        val timeouts = assertNotNull(request.getCapabilityOrNull(HttpTimeoutCapability))
+        assertEquals(10_000L, timeouts.connectTimeoutMillis)
+        assertEquals(30_000L, timeouts.socketTimeoutMillis)
+        assertEquals(HttpTimeoutConfig.INFINITE_TIMEOUT_MS, timeouts.requestTimeoutMillis)
+        assertEquals(TEST_USER_AGENT, request.headers[HttpHeaders.UserAgent])
     }
 
     @Test
-    fun `request uses v2 path fields filter and user agent`() {
-        enqueue(200, fixture("product_found.json"))
-
-        runBlocking { source.getProduct("04963406") }
-
-        val request = server.takeRequest()
-        assertThat(request.url.encodedPath).isEqualTo("/api/v2/product/04963406")
-        assertThat(request.url.queryParameter("fields"))
-            .isEqualTo("product_name,brands,image_url,serving_quantity,nutriments")
-        assertThat(request.url.queryParameter("lc")).isEqualTo("pl")
-        assertThat(request.headers["User-Agent"]).isEqualTo(TEST_USER_AGENT)
-    }
-
-    @Test
-    fun `base url points to the world host`() {
-        assertThat(OPEN_FOOD_FACTS_BASE_URL).isEqualTo("https://world.openfoodfacts.org/")
-    }
-
-    @Test
-    fun `api client has default timeouts`() {
-        val client = apiClient()
-
-        assertThat(client.connectTimeoutMillis).isEqualTo(10_000)
-        assertThat(client.readTimeoutMillis).isEqualTo(20_000)
-        assertThat(client.callTimeoutMillis).isEqualTo(25_000)
-    }
-
-    @Test
-    fun `image client keeps user agent and connection pool without call timeout`() {
-        val apiClient = apiClient()
-
-        val imageClient = createOpenFoodFactsImageOkHttpClient(apiClient)
-
-        assertThat(imageClient.callTimeoutMillis).isEqualTo(0)
-        assertThat(imageClient.readTimeoutMillis).isEqualTo(30_000)
-        assertThat(imageClient.connectTimeoutMillis).isEqualTo(10_000)
-        assertThat(imageClient.connectionPool).isSameInstanceAs(apiClient.connectionPool)
-        assertThat(imageClient.interceptors.filterIsInstance<UserAgentInterceptor>()).hasSize(1)
-    }
-
-    @Test
-    fun `body logging interceptor is added only when enabled`() {
-        val withLogging = apiClient(enableBodyLogging = true)
-        val withoutLogging = apiClient()
-
-        val loggingInterceptors = withLogging.interceptors.filterIsInstance<HttpLoggingInterceptor>()
-        assertThat(loggingInterceptors).hasSize(1)
-        assertThat(loggingInterceptors.single().level).isEqualTo(HttpLoggingInterceptor.Level.BODY)
-        assertThat(withoutLogging.interceptors.filterIsInstance<HttpLoggingInterceptor>()).isEmpty()
+    fun `body logging is installed only when enabled`() {
+        assertNotNull(apiClient(enableBodyLogging = true).pluginOrNull(Logging))
+        assertNull(apiClient().pluginOrNull(Logging))
     }
 
 
-    private fun apiClient(enableBodyLogging: Boolean = false): OkHttpClient =
-        createOpenFoodFactsOkHttpClient(
+    private fun apiClient(enableBodyLogging: Boolean = false): HttpClient =
+        createOpenFoodFactsHttpClient(
+            engine = mockEngine,
             appName = "KetoScanner",
             appVersion = "test",
             contact = "contact",
             enableBodyLogging = enableBodyLogging,
         )
 
-    private fun successValue(outcome: Outcome<Product>): Product {
-        assertThat(outcome).isInstanceOf(Outcome.Success::class.java)
-        return (outcome as Outcome.Success).value
+    private fun respondWith(status: HttpStatusCode, body: String) {
+        handler = { respondJson(body, status) }
     }
 
-    private fun enqueue(code: Int, body: String) {
-        server.enqueue(MockResponse.Builder().code(code).body(body).build())
-    }
+    private fun MockRequestHandleScope.respondJson(
+        body: String,
+        status: HttpStatusCode = HttpStatusCode.OK,
+    ): HttpResponseData =
+        respond(body, status, headersOf(HttpHeaders.ContentType, "application/json"))
+
+    private fun successValue(outcome: Outcome<Product>): Product =
+        assertIs<Outcome.Success<Product>>(outcome).value
 
     private fun fixture(name: String): String =
         javaClass.classLoader!!.getResource(name)!!.readText()
