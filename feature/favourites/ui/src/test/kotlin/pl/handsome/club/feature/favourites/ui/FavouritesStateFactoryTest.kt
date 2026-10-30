@@ -35,12 +35,17 @@ class FavouritesStateFactoryTest {
 
     @Test
     fun `when favourites are empty and query is blank then content is empty`() {
-        assertEquals(FavouritesContentState.Empty, factory.createFor(Prototype(query = "  ", favourites = emptyList())).content)
+        assertEquals(
+            FavouritesContentState.Empty,
+            factory.createFor(Prototype(query = "  ", favourites = emptyList())).content,
+        )
     }
 
     @Test
     fun `when favourites are empty and query is set then content is no results with the trimmed query`() {
-        val state = factory.createFor(Prototype(query = "  cola ", favourites = emptyList(), favouritesQuery = "  cola "))
+        val state = factory.createFor(
+            Prototype(query = "  cola ", favourites = emptyList(), favouritesQuery = "  cola "),
+        )
 
         assertEquals(
             FavouritesContentState.NoResults(UiText.Res(R.string.favourites_no_results, UiArg.Text("cola"))),
@@ -72,7 +77,9 @@ class FavouritesStateFactoryTest {
 
     @Test
     fun `when favourites exist then items keep order barcodes names brands and images`() {
-        val state = factory.createFor(Prototype(favourites = listOf(favourite("2"), favourite("1", imageUrl = IMAGE_URL))))
+        val state = factory.createFor(
+            Prototype(favourites = listOf(favourite("2"), favourite("1", imageUrl = IMAGE_URL))),
+        )
 
         val items = assertIs<FavouritesContentState.ShowItems>(state.content).items
         assertEquals(
@@ -111,6 +118,14 @@ class FavouritesStateFactoryTest {
             name: String = "Name $barcode",
             brand: String = "Brand $barcode",
             imageUrl: String? = null,
-        ) = FavouriteProduct(barcode, name, brand, Instant.fromEpochMilliseconds(1_700_000_000_000), imageUrl, null, null)
+        ) = FavouriteProduct(
+            barcode,
+            name,
+            brand,
+            Instant.fromEpochMilliseconds(1_700_000_000_000),
+            imageUrl,
+            null,
+            null,
+        )
     }
 }

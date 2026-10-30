@@ -38,7 +38,8 @@ import pl.handsome.club.core.designsystem.theme.AppTheme
 private const val SCAN_FRAME_WIDTH = 320f
 private const val SCAN_FRAME_HEIGHT = 200f
 private const val SCAN_FRAME =
-    "M3 40V16A13 13 0 0 1 16 3h24M280 3h24a13 13 0 0 1 13 13v24M317 160v24a13 13 0 0 1-13 13h-24M40 197H16A13 13 0 0 1 3 184v-24"
+    "M3 40V16A13 13 0 0 1 16 3h24M280 3h24a13 13 0 0 1 13 13v24" +
+        "M317 160v24a13 13 0 0 1-13 13h-24M40 197H16A13 13 0 0 1 3 184v-24"
 
 private val ScanFrameVector: ImageVector by lazy {
     ImageVector.Builder(

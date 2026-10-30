@@ -87,9 +87,13 @@ private fun ScreenContent(state: DietPreferencesState, onAction: (DietPreference
             .fillMaxSize()
         Ui.ContentCrossfade(targetState = state.content) { content ->
             when (content) {
-                InitialLoad -> Box(centered, contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                InitialLoad -> Box(centered, contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
 
-                is Error -> Box(centered, contentAlignment = Alignment.Center) { ErrorContent(content, onAction) }
+                is Error -> Box(centered, contentAlignment = Alignment.Center) {
+                    ErrorContent(content, onAction)
+                }
 
                 is Form -> FormContent(
                     state = content,
@@ -125,10 +129,14 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
                 .fillMaxWidth()
                 .testTag("preferencesMaxCarbsInput"),
             textStyle = AppTheme.typography.body,
-            label = { Text(text = stringResource(R.string.preferences_input_label), style = AppTheme.typography.caption) },
+            label = {
+                Text(text = stringResource(R.string.preferences_input_label), style = AppTheme.typography.caption)
+            },
             isError = state.inputError != null,
             supportingText = state.inputError?.let { error ->
-                { Text(text = error.resolve(), style = AppTheme.typography.caption) }
+                {
+                    Text(text = error.resolve(), style = AppTheme.typography.caption)
+                }
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
@@ -244,7 +252,13 @@ private fun DietPreferencesFormPreview() {
     AppTheme {
         ScreenContent(
             DietPreferencesState(
-                Form(dietModes = dietModesExample(), summary = summaryExample(), input = "40", inputError = null, isSaving = false)
+                Form(
+                    dietModes = dietModesExample(),
+                    summary = summaryExample(),
+                    input = "40",
+                    inputError = null,
+                    isSaving = false,
+                )
             )
         ) {}
     }
@@ -260,7 +274,11 @@ private fun DietPreferencesInvalidInputPreview() {
                     dietModes = dietModesExample(),
                     summary = summaryExample(),
                     input = "0",
-                    inputError = UiText.Res(R.string.preferences_input_error, UiArg.Numeric.Count(1), UiArg.Numeric.Count(999)),
+                    inputError = UiText.Res(
+                        R.string.preferences_input_error,
+                        UiArg.Numeric.Count(1),
+                        UiArg.Numeric.Count(999),
+                    ),
                     isSaving = false,
                 )
             )

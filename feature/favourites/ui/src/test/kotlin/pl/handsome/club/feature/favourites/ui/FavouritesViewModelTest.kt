@@ -80,14 +80,15 @@ class FavouritesViewModelTest {
     }
 
     @Test
-    fun `when query changes and its list is not loaded yet then the empty message stays for the previous query`() = runTest {
-        val viewModel = createViewModel()
-        favourites.pendingQueries += "cola"
+    fun `when query changes and its list is not loaded yet then the empty message stays for the previous query`() =
+        runTest {
+            val viewModel = createViewModel()
+            favourites.pendingQueries += "cola"
 
-        viewModel.onAction(FavouritesAction.OnQueryChanged("cola"))
+            viewModel.onAction(FavouritesAction.OnQueryChanged("cola"))
 
-        assertEquals(FavouritesContentState.Empty, viewModel.state.value.content)
-    }
+            assertEquals(FavouritesContentState.Empty, viewModel.state.value.content)
+        }
 
     @Test
     fun `when query changes only by whitespace then favourites are not observed again`() = runTest {
@@ -176,6 +177,14 @@ class FavouritesViewModelTest {
         const val KEY_QUERY = "query"
 
         fun favourite(barcode: String) =
-            FavouriteProduct(barcode, "Name $barcode", "Brand", Instant.fromEpochMilliseconds(1_700_000_000_000), null, null, null)
+            FavouriteProduct(
+                barcode,
+                "Name $barcode",
+                "Brand",
+                Instant.fromEpochMilliseconds(1_700_000_000_000),
+                null,
+                null,
+                null,
+            )
     }
 }

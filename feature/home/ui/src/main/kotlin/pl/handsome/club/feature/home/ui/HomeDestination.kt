@@ -9,5 +9,7 @@ import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation
 data object HomeRoute
 
 fun NavGraphBuilder.homeDestination(onNavigation: (HomeNavigation) -> Unit) {
-    composable<HomeRoute> { HomeScreen(onNavigation) }
+    composable<HomeRoute> {
+        HomeScreen(onNavigation)
+    }
 }

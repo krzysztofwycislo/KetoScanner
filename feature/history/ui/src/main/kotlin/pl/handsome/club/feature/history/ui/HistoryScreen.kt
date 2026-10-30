@@ -71,7 +71,9 @@ internal fun HistoryScreen(onNavigation: (HistoryNavigation) -> Unit) {
 @Composable
 private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit) {
     Ui.Screen(
-        topBar = { TopBar(state, onAction) },
+        topBar = {
+            TopBar(state, onAction)
+        },
     ) { innerPadding ->
         val centered = Modifier
             .padding(innerPadding)
@@ -81,7 +83,9 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
                 InitialLoad -> Box(
                     centered,
                     contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator() }
+                ) {
+                    CircularProgressIndicator()
+                }
 
                 Empty -> Box(centered, contentAlignment = Alignment.Center) {
                     Text(

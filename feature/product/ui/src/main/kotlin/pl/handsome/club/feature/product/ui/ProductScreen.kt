@@ -112,8 +112,12 @@ private fun ScreenContent(state: ProductState, onAction: (ProductAction) -> Unit
                 .fillMaxSize(),
         ) { content ->
             when (content) {
-                Loading -> CenteredContent(onAction) { CircularProgressIndicator() }
-                is Error -> CenteredContent(onAction) { ErrorContent(content, onAction) }
+                Loading -> CenteredContent(onAction) {
+                    CircularProgressIndicator()
+                }
+                is Error -> CenteredContent(onAction) {
+                    ErrorContent(content, onAction)
+                }
                 is ShowProduct -> ProductContent(content, onAction)
             }
         }
@@ -196,7 +200,9 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         NutrientTable(state.nutrients)
         Footer(state.dataSource, onAction)
     }
-    state.imagePreview?.let { ImagePreview(it, onAction) }
+    state.imagePreview?.let {
+        ImagePreview(it, onAction)
+    }
 }
 
 @Composable
@@ -278,8 +284,12 @@ private fun Glance(state: GlanceState, onAction: (ProductAction) -> Unit) {
         }
         state.tiles.chunked(GLANCE_COLUMNS).forEach { rowTiles ->
             Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
-                rowTiles.forEach { GlanceTile(it, Modifier.weight(1f)) }
-                repeat(GLANCE_COLUMNS - rowTiles.size) { Spacer(Modifier.weight(1f)) }
+                rowTiles.forEach {
+                    GlanceTile(it, Modifier.weight(1f))
+                }
+                repeat(GLANCE_COLUMNS - rowTiles.size) {
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }
     }

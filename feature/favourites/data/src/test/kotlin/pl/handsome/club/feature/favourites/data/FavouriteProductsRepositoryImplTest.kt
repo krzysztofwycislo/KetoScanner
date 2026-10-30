@@ -174,9 +174,10 @@ class FavouriteProductsRepositoryImplTest {
 
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
-        fun entity(barcode: String) = FavouriteProductEntity(barcode, "Name $barcode", "Brand", null, null, null).apply {
-            updateTime = UPDATE_TIME
-        }
+        fun entity(barcode: String) =
+            FavouriteProductEntity(barcode, "Name $barcode", "Brand", null, null, null).apply {
+                updateTime = UPDATE_TIME
+            }
 
         val product = Product(
             name = "Peanut butter",

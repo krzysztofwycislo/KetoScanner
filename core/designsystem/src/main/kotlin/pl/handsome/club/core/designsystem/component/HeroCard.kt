@@ -35,7 +35,8 @@ import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
 private const val HERO_FRAME =
-    "M2 26V12A10 10 0 0 1 12 2h14M164 2h14a10 10 0 0 1 10 10v14M188 94v14a10 10 0 0 1-10 10h-14M26 118H12A10 10 0 0 1 2 108V94"
+    "M2 26V12A10 10 0 0 1 12 2h14M164 2h14a10 10 0 0 1 10 10v14" +
+        "M188 94v14a10 10 0 0 1-10 10h-14M26 118H12A10 10 0 0 1 2 108V94"
 private const val HERO_BARS = "M40 30v60M54 30v60M64 30v60M82 30v60M92 30v60M108 30v60M122 30v60M134 30v60M150 30v60"
 private const val HERO_VIEWPORT_WIDTH = 190f
 private const val HERO_VIEWPORT_HEIGHT = 120f

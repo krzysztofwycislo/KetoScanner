@@ -46,16 +46,32 @@ internal fun AppNavHost(navController: NavHostController, modifier: Modifier = M
         startDestination = HomeRoute,
         modifier = modifier,
         enterTransition = {
-            if (targetState.isPushed()) slideIntoContainer(SlideDirection.Start, transitionSpec()) else fadeIn(transitionSpec())
+            if (targetState.isPushed()) {
+                slideIntoContainer(SlideDirection.Start, transitionSpec())
+            } else {
+                fadeIn(transitionSpec())
+            }
         },
         exitTransition = {
-            if (targetState.isPushed()) slideOutOfContainer(SlideDirection.Start, transitionSpec()) else fadeOut(transitionSpec())
+            if (targetState.isPushed()) {
+                slideOutOfContainer(SlideDirection.Start, transitionSpec())
+            } else {
+                fadeOut(transitionSpec())
+            }
         },
         popEnterTransition = {
-            if (initialState.isPushed()) slideIntoContainer(SlideDirection.End, transitionSpec()) else fadeIn(transitionSpec())
+            if (initialState.isPushed()) {
+                slideIntoContainer(SlideDirection.End, transitionSpec())
+            } else {
+                fadeIn(transitionSpec())
+            }
         },
         popExitTransition = {
-            if (initialState.isPushed()) slideOutOfContainer(SlideDirection.End, transitionSpec()) else fadeOut(transitionSpec())
+            if (initialState.isPushed()) {
+                slideOutOfContainer(SlideDirection.End, transitionSpec())
+            } else {
+                fadeOut(transitionSpec())
+            }
         },
     ) {
         homeDestination { navigation ->

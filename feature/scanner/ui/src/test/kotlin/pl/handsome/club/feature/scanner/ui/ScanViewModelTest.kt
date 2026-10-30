@@ -425,7 +425,7 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a scan succeeds then the card shows after the analysis with progress until then and history is saved once`() =
+    fun `when a scan succeeds then the card shows after analysis with progress until then and history is saved once`() =
         runTest {
             val handle = SavedStateHandle()
             val viewModel = createViewModel(handle)
@@ -596,7 +596,9 @@ class ScanViewModelTest {
             resources = resources,
             logger = logger,
             errorReporter = errorReporter,
-            applicationScope = CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
+            applicationScope = CoroutineScope(
+                backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler),
+            ),
             initialQuery = initialQuery,
         )
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -673,7 +675,14 @@ class ScanViewModelTest {
         )
         val ratedAnalysis = ProductAnalysis.Rated(
             product = product,
-            macronutrients = MacronutrientAnalysisResult(DietMode.KETO, DietRate.NOT_ADVISED, emptyList(), 57.5, 69.6, 40),
+            macronutrients = MacronutrientAnalysisResult(
+                DietMode.KETO,
+                DietRate.NOT_ADVISED,
+                emptyList(),
+                57.5,
+                69.6,
+                40,
+            ),
         )
         val ratedCard = FoundCardState(
             name = UiText.Raw("Nutella"),

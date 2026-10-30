@@ -74,7 +74,10 @@ class DietAnalysisEngineTest {
 
         assertEquals(30.0, createProduct("p", nutriments, " 30 ").toNutritionProfile()?.servingGrams)
         listOf(null, "", " ", "abc", "0", "-5").forEach { serving ->
-            assertNull(createProduct("p", nutriments, serving).toNutritionProfile()?.servingGrams, "serving \"$serving\"")
+            assertNull(
+                createProduct("p", nutriments, serving).toNutritionProfile()?.servingGrams,
+                "serving \"$serving\"",
+            )
         }
     }
 

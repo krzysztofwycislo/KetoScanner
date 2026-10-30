@@ -169,7 +169,8 @@ class HistoryViewModelTest {
             return pending?.await() ?: result
         }
 
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = emptyFlow()
+        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> =
+            emptyFlow()
     }
 
     private companion object {

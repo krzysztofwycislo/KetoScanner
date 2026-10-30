@@ -172,7 +172,11 @@ private fun BottomBarPreviewContent(selectedIndex: Int) {
             Ui.BottomBar(
                 items = persistentListOf(
                     BottomBarItem(stringResource(R.string.designsystem_preview_tab_home), AppIcons.Home),
-                    BottomBarItem(stringResource(R.string.designsystem_preview_tab_scan), AppIcons.Scan, isProminent = true),
+                    BottomBarItem(
+                        stringResource(R.string.designsystem_preview_tab_scan),
+                        AppIcons.Scan,
+                        isProminent = true,
+                    ),
                     BottomBarItem(
                         stringResource(R.string.designsystem_preview_tab_favourites),
                         AppIcons.Heart,

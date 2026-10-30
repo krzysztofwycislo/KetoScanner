@@ -167,21 +167,22 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when retry is clicked twice while the retry refresh is pending then each click asks for a refresh`() = runTest {
-        analyzeProduct.clearProduct()
-        products.result = Outcome.Failure(AppError.Network)
-        val viewModel = createViewModel()
+    fun `when retry is clicked twice while the retry refresh is pending then each click asks for a refresh`() =
+        runTest {
+            analyzeProduct.clearProduct()
+            products.result = Outcome.Failure(AppError.Network)
+            val viewModel = createViewModel()
 
-        val gate = products.gate()
-        viewModel.onAction(ProductAction.OnRetryClicked)
-        viewModel.onAction(ProductAction.OnRetryClicked)
-        gate.complete(Unit)
+            val gate = products.gate()
+            viewModel.onAction(ProductAction.OnRetryClicked)
+            viewModel.onAction(ProductAction.OnRetryClicked)
+            gate.complete(Unit)
 
-        assertEquals(3, products.refreshedBarcodes.size)
-    }
+            assertEquals(3, products.refreshedBarcodes.size)
+        }
 
     @Test
-    fun `when refresh fails with parsing while a product is shown then state stays without message and it is reported`() =
+    fun `when refresh fails with parsing while a product is shown then state stays without message and is reported`() =
         runTest {
             products.result = Outcome.Failure(AppError.Parsing)
             val viewModel = createViewModel()
@@ -633,7 +634,14 @@ class ProductViewModelTest {
 
         val analysis = ProductAnalysis.Rated(
             product = product,
-            macronutrients = MacronutrientAnalysisResult(DietMode.KETO, DietRate.NOT_ADVISED, emptyList(), 57.5, 69.6, 40),
+            macronutrients = MacronutrientAnalysisResult(
+                DietMode.KETO,
+                DietRate.NOT_ADVISED,
+                emptyList(),
+                57.5,
+                69.6,
+                40,
+            ),
         )
 
         val favouriteProduct = FavouriteProduct(

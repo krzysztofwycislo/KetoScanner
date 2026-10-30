@@ -104,7 +104,9 @@ class ProductStateFactoryTest {
             RatingReason.HighSugars(10.6, DietRate.NOT_ADVISED),
         )
 
-        val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(DietRate.NOT_ADVISED, reasons = reasons))).verdict)
+        val verdict = assertIs<VerdictState.Rated>(
+            show(Prototype(analysis = rated(DietRate.NOT_ADVISED, reasons = reasons))).verdict,
+        )
 
         assertEquals(
             listOf<UiText>(
@@ -128,7 +130,11 @@ class ProductStateFactoryTest {
             resources.reason(RatingReason.HighSugars(7.0, DietRate.NEUTRAL)),
         )
         assertEquals(
-            UiText.Res(R.string.product_reason_high_carbs_per_serving, UiArg.Numeric.Grams(34.98), UiArg.Numeric.Grams(330.0)),
+            UiText.Res(
+                R.string.product_reason_high_carbs_per_serving,
+                UiArg.Numeric.Grams(34.98),
+                UiArg.Numeric.Grams(330.0),
+            ),
             resources.reason(RatingReason.HighCarbsPerServing(330.0, 34.98, DietRate.NOT_ADVISED)),
         )
     }
@@ -137,12 +143,17 @@ class ProductStateFactoryTest {
     fun `when there are no reasons then the carbs per 100 g line is shown`() {
         val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(DietRate.GOOD))).verdict)
 
-        assertEquals(listOf<UiText>(UiText.Res(R.string.product_carbs_per_100g, UiArg.Numeric.Grams(CARBS))), verdict.reasons)
+        assertEquals(
+            listOf<UiText>(UiText.Res(R.string.product_carbs_per_100g, UiArg.Numeric.Grams(CARBS))),
+            verdict.reasons,
+        )
     }
 
     @Test
     fun `when max portion is null then the unlimited text is shown`() {
-        val verdict = assertIs<VerdictState.Rated>(show(Prototype(analysis = rated(DietRate.GOOD, maxPortion = null))).verdict)
+        val verdict = assertIs<VerdictState.Rated>(
+            show(Prototype(analysis = rated(DietRate.GOOD, maxPortion = null))).verdict,
+        )
 
         assertEquals(UiText.Res(R.string.product_advice_unlimited), verdict.portion)
     }
@@ -170,7 +181,9 @@ class ProductStateFactoryTest {
 
     @Test
     fun `when product has name and brand then they are raw texts`() {
-        val header = show(Prototype(analysis = rated(DietRate.GOOD, product(name = "Nutella", brand = "Ferrero")))).header
+        val header = show(
+            Prototype(analysis = rated(DietRate.GOOD, product(name = "Nutella", brand = "Ferrero"))),
+        ).header
 
         assertEquals(UiText.Raw("Nutella"), header.name)
         assertEquals(UiText.Raw("Ferrero"), header.brand)
@@ -270,10 +283,20 @@ class ProductStateFactoryTest {
             listOf(
                 NutrientRowState(UiText.Res(R.string.product_energy), kcal(88.0), kcal(588.0), NutrientRowKind.Regular),
                 NutrientRowState(UiText.Res(R.string.product_fats), grams(7.5), grams(50.0), NutrientRowKind.Regular),
-                NutrientRowState(UiText.Res(R.string.product_carbs), grams(2.0), grams(13.0), NutrientRowKind.Emphasized),
+                NutrientRowState(
+                    UiText.Res(R.string.product_carbs),
+                    grams(2.0),
+                    grams(13.0),
+                    NutrientRowKind.Emphasized,
+                ),
                 NutrientRowState(UiText.Res(R.string.product_sugars), grams(1.1), grams(7.0), NutrientRowKind.Indented),
                 NutrientRowState(UiText.Res(R.string.product_fibre), grams(1.7), grams(11.0), NutrientRowKind.Regular),
-                NutrientRowState(UiText.Res(R.string.product_proteins), grams(3.8), grams(25.0), NutrientRowKind.Regular),
+                NutrientRowState(
+                    UiText.Res(R.string.product_proteins),
+                    grams(3.8),
+                    grams(25.0),
+                    NutrientRowKind.Regular,
+                ),
                 NutrientRowState(UiText.Res(R.string.product_salt), grams(0.2), grams(1.1), NutrientRowKind.Regular),
             ),
             rows,
@@ -340,7 +363,9 @@ class ProductStateFactoryTest {
 
     @Test
     fun `when nutrient values are missing then rows show the missing value text`() {
-        val rows = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments)))).nutrients.rows
+        val rows = show(
+            Prototype(analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))),
+        ).nutrients.rows
 
         val missing = UiText.Res(R.string.product_value_missing)
         rows.forEach { row ->
@@ -360,7 +385,22 @@ class ProductStateFactoryTest {
         const val IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front.jpg"
 
         val emptyNutriments = ProductNutriments(null, null, null, null, null, null, null, null, null, null)
-        val fullNutriments = ProductNutriments(88.0, 588.0, 7.5, 50.0, 3.8, 25.0, 2.0, 13.0, 0.2, 1.1, 1.1, 7.0, 1.7, 11.0)
+        val fullNutriments = ProductNutriments(
+            88.0,
+            588.0,
+            7.5,
+            50.0,
+            3.8,
+            25.0,
+            2.0,
+            13.0,
+            0.2,
+            1.1,
+            1.1,
+            7.0,
+            1.7,
+            11.0,
+        )
 
         fun product(
             name: String = "Peanut butter",

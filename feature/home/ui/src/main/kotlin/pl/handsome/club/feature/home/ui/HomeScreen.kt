@@ -86,7 +86,9 @@ internal fun HomeScreen(onNavigation: (HomeNavigation) -> Unit) {
 @Composable
 private fun ScreenContent(state: HomeState, onAction: (HomeAction) -> Unit) {
     Ui.Screen(
-        topBar = { Header(state.profileLabel, onAction) },
+        topBar = {
+            Header(state.profileLabel, onAction)
+        },
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -219,16 +221,22 @@ private fun LazyListScope.recentContent(
             }
         }
 
-        Empty -> item(key = KEY_STATUS) { EmptyCard() }
+        Empty -> item(key = KEY_STATUS) {
+            EmptyCard()
+        }
 
-        is Error -> item(key = KEY_STATUS) { ErrorContent(recent, onAction) }
+        is Error -> item(key = KEY_STATUS) {
+            ErrorContent(recent, onAction)
+        }
 
         is ShowItems -> items(recent.items, key = { it.id }) { item ->
             Ui.ListRowCard(
                 title = item.name,
                 subtitle = item.time,
                 onClick = { onAction(OnEntryClicked(item.barcode)) },
-                leading = { Ui.IconTile(AppIcons.Bag) },
+                leading = {
+                    Ui.IconTile(AppIcons.Bag)
+                },
                 trailing = {
                     Ui.VerdictPill(
                         rating = item.rating,

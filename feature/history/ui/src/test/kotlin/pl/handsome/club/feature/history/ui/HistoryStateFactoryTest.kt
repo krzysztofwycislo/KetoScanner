@@ -31,7 +31,9 @@ class HistoryStateFactoryTest {
         val state = factory.createFor(Prototype(entries = null, loadError = AppError.Storage))
 
         assertEquals(
-            HistoryContentState.Error(UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_storage)),
+            HistoryContentState.Error(
+                UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_storage),
+            ),
             state.content,
         )
     }
@@ -41,7 +43,9 @@ class HistoryStateFactoryTest {
         val state = factory.createFor(Prototype(entries = null, loadError = AppError.Network))
 
         assertEquals(
-            HistoryContentState.Error(UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_network)),
+            HistoryContentState.Error(
+                UiText.Res(pl.handsome.club.core.designsystem.R.string.designsystem_error_network),
+            ),
             state.content,
         )
     }

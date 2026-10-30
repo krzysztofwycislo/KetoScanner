@@ -52,10 +52,16 @@ class LowCarbScorerTest {
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 100.0)))
         assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 101.0)))
         assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 200.0)))
-        assertEquals(NOT_ADVISED, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 201.0)))
+        assertEquals(
+            NOT_ADVISED,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 201.0)),
+        )
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = null)))
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 50.0), 20))
-        assertEquals(NOT_ADVISED, rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 101.0), 20))
+        assertEquals(
+            NOT_ADVISED,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(0.0, 50.0, 10.0, servingGrams = 101.0), 20),
+        )
     }
 
     @Test
@@ -65,7 +71,10 @@ class LowCarbScorerTest {
         assertEquals(emptyList(), reasons)
     }
 
-    private inline fun <reified T : RatingReason> rateOf(profile: NutritionProfile, dailyCarbs: Int = DAILY_CARBS): DietRate =
+    private inline fun <reified T : RatingReason> rateOf(
+        profile: NutritionProfile,
+        dailyCarbs: Int = DAILY_CARBS,
+    ): DietRate =
         LowCarbScorer.reasons(profile, dailyCarbs).filterIsInstance<T>().singleOrNull()?.rate ?: GOOD
 
     private companion object {

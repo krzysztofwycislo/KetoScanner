@@ -76,8 +76,12 @@ private fun ListRowCardPreview() {
             subtitle = UiText.Res(R.string.designsystem_preview_body),
             onClick = {},
             modifier = Modifier.padding(AppTheme.spacing.m),
-            leading = { Ui.IconTile(AppIcons.Scan) },
-            trailing = { Ui.VerdictPill(Rating.Positive, UiText.Res(R.string.designsystem_preview_rating)) },
+            leading = {
+                Ui.IconTile(AppIcons.Scan)
+            },
+            trailing = {
+                Ui.VerdictPill(Rating.Positive, UiText.Res(R.string.designsystem_preview_rating))
+            },
         )
     }
 }

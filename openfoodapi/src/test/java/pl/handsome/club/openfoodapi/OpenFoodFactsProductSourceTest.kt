@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.SocketEffect
+import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.After
 import org.junit.Before
@@ -40,7 +41,7 @@ class OpenFoodFactsProductSourceTest {
             createOpenFoodFactsApi(
                 createOpenFoodFactsRetrofit(
                     server.url("/").toString(),
-                    createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, false),
+                    apiClient(),
                     createOpenFoodFactsMoshi()
                 )
             ),
@@ -163,7 +164,7 @@ class OpenFoodFactsProductSourceTest {
 
     @Test
     fun `api client has default timeouts`() {
-        val client = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = false)
+        val client = apiClient()
 
         assertThat(client.connectTimeoutMillis).isEqualTo(10_000)
         assertThat(client.readTimeoutMillis).isEqualTo(20_000)
@@ -172,7 +173,7 @@ class OpenFoodFactsProductSourceTest {
 
     @Test
     fun `image client keeps user agent and connection pool without call timeout`() {
-        val apiClient = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = false)
+        val apiClient = apiClient()
 
         val imageClient = createOpenFoodFactsImageOkHttpClient(apiClient)
 
@@ -185,8 +186,8 @@ class OpenFoodFactsProductSourceTest {
 
     @Test
     fun `body logging interceptor is added only when enabled`() {
-        val withLogging = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = true)
-        val withoutLogging = createOpenFoodFactsOkHttpClient(TEST_USER_AGENT, enableBodyLogging = false)
+        val withLogging = apiClient(enableBodyLogging = true)
+        val withoutLogging = apiClient()
 
         val loggingInterceptors = withLogging.interceptors.filterIsInstance<HttpLoggingInterceptor>()
         assertThat(loggingInterceptors).hasSize(1)
@@ -194,6 +195,14 @@ class OpenFoodFactsProductSourceTest {
         assertThat(withoutLogging.interceptors.filterIsInstance<HttpLoggingInterceptor>()).isEmpty()
     }
 
+
+    private fun apiClient(enableBodyLogging: Boolean = false): OkHttpClient =
+        createOpenFoodFactsOkHttpClient(
+            appName = "KetoScanner",
+            appVersion = "test",
+            contact = "contact",
+            enableBodyLogging = enableBodyLogging,
+        )
 
     private fun successValue(outcome: Outcome<Product>): Product {
         assertThat(outcome).isInstanceOf(Outcome.Success::class.java)

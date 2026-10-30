@@ -9,5 +9,7 @@ import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
 data class ProductRoute(val barcode: String)
 
 fun NavGraphBuilder.productDestination(onNavigation: (ProductNavigation) -> Unit) {
-    composable<ProductRoute> { ProductScreen(onNavigation) }
+    composable<ProductRoute> {
+        ProductScreen(onNavigation)
+    }
 }

@@ -78,7 +78,9 @@ internal class FavouritesViewModel(
                 .collect { (query, outcome) ->
                     outcome
                         .onSuccess { list ->
-                            statePrototype.update { it.copy(favourites = list, favouritesQuery = query, loadError = null) }
+                            statePrototype.update {
+                                it.copy(favourites = list, favouritesQuery = query, loadError = null)
+                            }
                         }
                         .onFailure { error ->
                             errorReporter.report(TAG, "Loading favourites failed", error)

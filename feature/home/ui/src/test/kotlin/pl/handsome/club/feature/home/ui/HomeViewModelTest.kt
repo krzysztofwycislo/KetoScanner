@@ -168,7 +168,13 @@ class HomeViewModelTest {
         viewModel.onAction(HomeAction.OnEntryClicked("123"))
 
         assertEquals(
-            listOf(NavigateToDietPreferences, NavigateToAbout, NavigateToScan, NavigateToHistory, NavigateToProduct("123")),
+            listOf(
+                NavigateToDietPreferences,
+                NavigateToAbout,
+                NavigateToScan,
+                NavigateToHistory,
+                NavigateToProduct("123"),
+            ),
             viewModel.events.take(5).toList(),
         )
     }

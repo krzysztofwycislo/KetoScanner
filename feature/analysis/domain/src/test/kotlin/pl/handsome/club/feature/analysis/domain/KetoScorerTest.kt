@@ -71,19 +71,34 @@ class KetoScorerTest {
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 100.0)))
         assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 101.0)))
         assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 200.0)))
-        assertEquals(NOT_ADVISED, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 201.0)))
+        assertEquals(
+            NOT_ADVISED,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 201.0)),
+        )
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = null)))
     }
 
     @Test
     fun `a lower daily limit moves the carbs per serving thresholds`() {
         assertEquals(GOOD, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 50.0), 20))
-        assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 51.0), 20))
-        assertEquals(NEUTRAL, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 100.0), 20))
-        assertEquals(NOT_ADVISED, rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 101.0), 20))
+        assertEquals(
+            NEUTRAL,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 51.0), 20),
+        )
+        assertEquals(
+            NEUTRAL,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 100.0), 20),
+        )
+        assertEquals(
+            NOT_ADVISED,
+            rateOf<RatingReason.HighCarbsPerServing>(profile(50.0, 0.0, 10.0, servingGrams = 101.0), 20),
+        )
     }
 
-    private inline fun <reified T : RatingReason> rateOf(profile: NutritionProfile, dailyCarbs: Int = DAILY_CARBS): DietRate =
+    private inline fun <reified T : RatingReason> rateOf(
+        profile: NutritionProfile,
+        dailyCarbs: Int = DAILY_CARBS,
+    ): DietRate =
         KetoScorer.reasons(profile, dailyCarbs).filterIsInstance<T>().singleOrNull()?.rate ?: GOOD
 
     private companion object {

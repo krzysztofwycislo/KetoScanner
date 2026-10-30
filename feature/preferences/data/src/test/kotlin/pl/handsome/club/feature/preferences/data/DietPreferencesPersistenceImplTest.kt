@@ -18,7 +18,8 @@ import kotlin.test.assertNull
 class DietPreferencesPersistenceImplTest {
 
     private val job = Job()
-    private val directory: Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "dietPreferences-${Random.nextLong().toULong()}"
+    private val directory: Path =
+        FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "dietPreferences-${Random.nextLong().toULong()}"
 
     private lateinit var persistence: DietPreferencesPersistenceImpl
 
@@ -46,7 +47,10 @@ class DietPreferencesPersistenceImplTest {
     fun `when mode is set then it is observed`() = runTest {
         persistence.setDietMode("LOW_CARB")
 
-        assertEquals(StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = "LOW_CARB"), persistence.observe().first())
+        assertEquals(
+            StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = "LOW_CARB"),
+            persistence.observe().first(),
+        )
     }
 
     @Test

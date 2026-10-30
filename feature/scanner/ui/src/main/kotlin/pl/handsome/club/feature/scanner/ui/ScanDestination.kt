@@ -9,5 +9,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
 data object ScanRoute
 
 fun NavGraphBuilder.scanDestination(onNavigation: (ScanNavigation) -> Unit) {
-    composable<ScanRoute> { ScanScreen(onNavigation) }
+    composable<ScanRoute> {
+        ScanScreen(onNavigation)
+    }
 }

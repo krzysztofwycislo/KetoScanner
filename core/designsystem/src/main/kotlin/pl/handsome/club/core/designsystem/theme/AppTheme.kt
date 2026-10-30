@@ -153,8 +153,22 @@ private fun AppThemePreview() {
             }
             val sample = UiText.Res(R.string.designsystem_preview_title).resolve()
             with(AppTheme.typography) {
-                listOf(display, headline, title, section, bodyLarge, body, bodyStrong, bodySmall, button, label, caption)
-            }.forEach { Text(sample, style = it, color = colors.text.default) }
+                listOf(
+                    display,
+                    headline,
+                    title,
+                    section,
+                    bodyLarge,
+                    body,
+                    bodyStrong,
+                    bodySmall,
+                    button,
+                    label,
+                    caption,
+                )
+            }.forEach {
+                Text(sample, style = it, color = colors.text.default)
+            }
         }
     }
 }
@@ -162,7 +176,9 @@ private fun AppThemePreview() {
 @Composable
 private fun SwatchRow(colors: List<Color>) {
     Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
-        colors.forEach { ColorSwatch(it) }
+        colors.forEach {
+            ColorSwatch(it)
+        }
     }
 }
 

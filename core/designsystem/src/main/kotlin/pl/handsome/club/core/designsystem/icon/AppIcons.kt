@@ -11,9 +11,11 @@ import androidx.compose.ui.unit.dp
 private const val BACK = "M15 5l-7 7 7 7"
 private const val HOME = "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
 private const val SCAN =
-    "M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M14 8v8M17 8v8"
+    "M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" +
+        "M7 8v8M10 8v8M14 8v8M17 8v8"
 private const val HEART =
-    "M12 20s-7-4.4-9.3-8.6C1.2 8.6 2.9 5 6.4 5c2 0 3.2 1 4 2.2.4.6.8.6 1.2 0C12.4 6 13.6 5 15.6 5c3.5 0 5.2 3.6 3.7 6.4C19 15.6 12 20 12 20z"
+    "M12 20s-7-4.4-9.3-8.6C1.2 8.6 2.9 5 6.4 5c2 0 3.2 1 4 2.2.4.6.8.6 1.2 0" +
+        "C12.4 6 13.6 5 15.6 5c3.5 0 5.2 3.6 3.7 6.4C19 15.6 12 20 12 20z"
 private const val CHECK = "M5 12.5 10 17l9-10"
 private const val MINUS = "M6 12h12"
 private const val CROSS = "M7 7l10 10M17 7 7 17"
@@ -21,7 +23,8 @@ private const val QUESTION = "M9.2 9.2a2.8 2.8 0 1 1 3.9 2.6c-.7.3-1.1.9-1.1 1.6
 private const val CHEVRON_RIGHT = "M9 6l6 6-6 6"
 private const val TORCH = "M8 3h8l-1 6H9zM9 9h6v3.5L13.5 21h-3L9 12.5z"
 private const val KEYBOARD =
-    "M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"
+    "M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" +
+        "M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"
 private const val CAMERA_OFF =
     "M3 3l18 18M9.5 5h5l1.5 2h4a1 1 0 0 1 1 1v9.5M17 19H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h3M10 10.6a3 3 0 0 0 4 4"
 private const val BAG = "M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2"

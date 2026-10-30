@@ -247,7 +247,9 @@ class DietPreferencesViewModelTest {
             stateFactory = DietPreferencesStateFactory(resources),
             resources = resources,
             errorReporter = errorReporter,
-            applicationScope = CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
+            applicationScope = CoroutineScope(
+                backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler),
+            ),
         )
     }
 

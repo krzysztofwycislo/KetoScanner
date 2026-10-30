@@ -16,7 +16,9 @@ const val OPEN_FOOD_FACTS_BASE_URL = "https://world.openfoodfacts.org/"
 fun createOpenFoodFactsMoshi(): Moshi = Moshi.Builder().build()
 
 fun createOpenFoodFactsOkHttpClient(
-    userAgent: String,
+    appName: String,
+    appVersion: String,
+    contact: String,
     enableBodyLogging: Boolean,
     connectTimeout: Duration = 10.seconds,
     readTimeout: Duration = 20.seconds,
@@ -26,13 +28,16 @@ fun createOpenFoodFactsOkHttpClient(
         .connectTimeout(connectTimeout)
         .readTimeout(readTimeout)
         .callTimeout(callTimeout)
-        .addInterceptor(UserAgentInterceptor(userAgent))
+        .addInterceptor(UserAgentInterceptor(openFoodFactsUserAgent(appName, appVersion, contact)))
         .apply {
             if (enableBodyLogging) {
                 addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
             }
         }
         .build()
+
+internal fun openFoodFactsUserAgent(appName: String, appVersion: String, contact: String): String =
+    "$appName/$appVersion ($contact)"
 
 fun createOpenFoodFactsImageOkHttpClient(apiClient: OkHttpClient, readTimeout: Duration = 30.seconds): OkHttpClient =
     apiClient.newBuilder()

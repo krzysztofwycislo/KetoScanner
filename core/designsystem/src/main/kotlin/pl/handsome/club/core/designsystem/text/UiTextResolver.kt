@@ -71,7 +71,9 @@ private fun UiTextResolvePreview() {
                 UiText.Plural(R.plurals.designsystem_preview_products, 1, UiArg.Numeric.Count(1)),
                 UiText.Plural(R.plurals.designsystem_preview_products, 5, UiArg.Numeric.Count(5)),
                 UiText.Raw("Raw product name"),
-            ).forEach { Text(it.resolve(), style = AppTheme.typography.body) }
+            ).forEach {
+                Text(it.resolve(), style = AppTheme.typography.body)
+            }
         }
     }
 }

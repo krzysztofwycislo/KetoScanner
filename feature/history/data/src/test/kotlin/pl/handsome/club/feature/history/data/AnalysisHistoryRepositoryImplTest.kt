@@ -126,9 +126,10 @@ class AnalysisHistoryRepositoryImplTest {
 
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
-        fun entity(barcode: String) = ProductAnalysisHistoryEntryEntity("Name $barcode", barcode, "Brand", null, null).apply {
-            updateTime = UPDATE_TIME
-        }
+        fun entity(barcode: String) =
+            ProductAnalysisHistoryEntryEntity("Name $barcode", barcode, "Brand", null, null).apply {
+                updateTime = UPDATE_TIME
+            }
 
         val result = ProductAnalysis.InsufficientData(
             product = Product(

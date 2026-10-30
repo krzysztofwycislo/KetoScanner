@@ -62,6 +62,9 @@ dependencies {
     // androidx
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // navigation
     implementation(libs.androidx.navigation.compose)
@@ -73,7 +76,12 @@ dependencies {
     // di
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
 
     // maintenance
     debugImplementation(libs.leakcanary.android)
+
+    // test
+    testImplementation(project(":core:testing"))
+    testImplementation(libs.kotlin.test.junit)
 }

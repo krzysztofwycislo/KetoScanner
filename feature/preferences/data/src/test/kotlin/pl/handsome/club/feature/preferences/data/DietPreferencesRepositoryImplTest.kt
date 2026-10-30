@@ -19,14 +19,20 @@ class DietPreferencesRepositoryImplTest {
 
     @Test
     fun `when no amount is stored then default preferences are returned`() = runTest {
-        val repository = DietPreferencesRepositoryImpl(FakePersistence(amounts = listOf(null)), TestAppDispatchers(testScheduler))
+        val repository = DietPreferencesRepositoryImpl(
+            FakePersistence(amounts = listOf(null)),
+            TestAppDispatchers(testScheduler),
+        )
 
         assertEquals(Outcome.Success(DietPreferences.Default), repository.getDietPreferences())
     }
 
     @Test
     fun `when an amount is stored then it is mapped to preferences`() = runTest {
-        val repository = DietPreferencesRepositoryImpl(FakePersistence(amounts = listOf(25)), TestAppDispatchers(testScheduler))
+        val repository = DietPreferencesRepositoryImpl(
+            FakePersistence(amounts = listOf(25)),
+            TestAppDispatchers(testScheduler),
+        )
 
         assertEquals(Outcome.Success(DietPreferences(25)), repository.getDietPreferences())
     }

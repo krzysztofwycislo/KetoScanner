@@ -67,7 +67,8 @@ class DataConvertersTest {
 
         assertThat(product).isNotNull()
         assertThat(product!!.name).isEmpty()
-        assertThat(product.nutriments).isEqualTo(ProductNutriments(null, null, null, null, null, null, null, null, null, null))
+        assertThat(product.nutriments)
+            .isEqualTo(ProductNutriments(null, null, null, null, null, null, null, null, null, null))
     }
 
 }

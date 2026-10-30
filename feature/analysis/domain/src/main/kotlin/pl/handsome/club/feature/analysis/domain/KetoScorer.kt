@@ -27,7 +27,11 @@ internal object KetoScorer : DietScorer {
 
     private fun NutritionProfile.fatAndProteinToCarbRatioReason(): RatingReason? {
         if (!hasRelevantCarbs()) return null
-        return rateAtLeast(fatAndProteinToCarbRatio, FAT_AND_PROTEIN_TO_CARB_GOOD, FAT_AND_PROTEIN_TO_CARB_NEUTRAL).notGood()
+        return rateAtLeast(
+            fatAndProteinToCarbRatio,
+            FAT_AND_PROTEIN_TO_CARB_GOOD,
+            FAT_AND_PROTEIN_TO_CARB_NEUTRAL,
+        ).notGood()
             ?.let { RatingReason.LowFatAndProteinToCarbRatio(fatAndProteinToCarbRatio, it) }
     }
 }

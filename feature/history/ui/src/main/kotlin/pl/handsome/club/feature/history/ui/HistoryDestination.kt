@@ -9,5 +9,7 @@ import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation
 data object HistoryRoute
 
 fun NavGraphBuilder.historyDestination(onNavigation: (HistoryNavigation) -> Unit) {
-    composable<HistoryRoute> { HistoryScreen(onNavigation) }
+    composable<HistoryRoute> {
+        HistoryScreen(onNavigation)
+    }
 }

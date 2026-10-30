@@ -41,11 +41,19 @@ fun Ui.Screen(
             .padding(contentPadding)
             .consumeWindowInsets(contentPadding),
         topBar = {
-            Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
+            Box(
+                Modifier.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ),
+            ) {
                 topBar()
             }
         },
-        snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
+        snackbarHost = {
+            snackbarHostState?.let {
+                SnackbarHost(it)
+            }
+        },
         containerColor = containerColor,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         content = content,

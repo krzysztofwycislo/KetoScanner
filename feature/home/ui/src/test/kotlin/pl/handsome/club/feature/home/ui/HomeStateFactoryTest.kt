@@ -118,12 +118,18 @@ class HomeStateFactoryTest {
     fun `when mode is keto then verdict descriptions use keto wording`() {
         val keto = DietPreferences(40, DietMode.KETO)
 
-        assertEquals(UiText.Res(R.string.home_verdict_good_keto), item(entry(1, rate = DietRate.GOOD), keto).verdictDescription)
+        assertEquals(
+            UiText.Res(R.string.home_verdict_good_keto),
+            item(entry(1, rate = DietRate.GOOD), keto).verdictDescription,
+        )
         assertEquals(
             UiText.Res(R.string.home_verdict_not_advised_keto),
             item(entry(1, rate = DietRate.NOT_ADVISED), keto).verdictDescription,
         )
-        assertEquals(UiText.Res(R.string.home_verdict_neutral), item(entry(1, rate = DietRate.NEUTRAL), keto).verdictDescription)
+        assertEquals(
+            UiText.Res(R.string.home_verdict_neutral),
+            item(entry(1, rate = DietRate.NEUTRAL), keto).verdictDescription,
+        )
         assertEquals(UiText.Res(R.string.home_verdict_unknown), item(entry(1, rate = null), keto).verdictDescription)
     }
 
@@ -158,7 +164,10 @@ class HomeStateFactoryTest {
 
     @Test
     fun `when preferences are not loaded then verdict falls back to keto wording`() {
-        assertEquals(UiText.Res(R.string.home_verdict_good_keto), item(entry(1, rate = DietRate.GOOD), null).verdictDescription)
+        assertEquals(
+            UiText.Res(R.string.home_verdict_good_keto),
+            item(entry(1, rate = DietRate.GOOD), null).verdictDescription,
+        )
     }
 
     @Test
@@ -171,7 +180,11 @@ class HomeStateFactoryTest {
         val state = factory.createFor(Prototype(dietPreferences = DietPreferences(40, DietMode.KETO)))
 
         assertEquals(
-            UiText.Res(R.string.home_profile_label, UiArg.Nested(UiText.Res(R.string.home_mode_keto)), UiArg.Numeric.Count(40)),
+            UiText.Res(
+                R.string.home_profile_label,
+                UiArg.Nested(UiText.Res(R.string.home_mode_keto)),
+                UiArg.Numeric.Count(40),
+            ),
             state.profileLabel,
         )
     }
@@ -181,7 +194,11 @@ class HomeStateFactoryTest {
         val state = factory.createFor(Prototype(dietPreferences = DietPreferences(100, DietMode.LOW_CARB)))
 
         assertEquals(
-            UiText.Res(R.string.home_profile_label, UiArg.Nested(UiText.Res(R.string.home_mode_low_carb)), UiArg.Numeric.Count(100)),
+            UiText.Res(
+                R.string.home_profile_label,
+                UiArg.Nested(UiText.Res(R.string.home_mode_low_carb)),
+                UiArg.Numeric.Count(100),
+            ),
             state.profileLabel,
         )
     }
@@ -196,7 +213,9 @@ class HomeStateFactoryTest {
         Prototype(entries = entries, dietPreferences = preferences, now = NOW, timeZone = TimeZone.UTC)
 
     private fun item(entry: ProductAnalysisHistoryEntry, preferences: DietPreferences? = null): HomeItemState =
-        assertIs<HomeRecentState.ShowItems>(factory.createFor(prototype(listOf(entry), preferences)).recent).items.single()
+        assertIs<HomeRecentState.ShowItems>(factory.createFor(prototype(listOf(entry), preferences)).recent)
+            .items
+            .single()
 
     private companion object {
         val NOW = Instant.parse("2026-10-12T18:42:00Z")

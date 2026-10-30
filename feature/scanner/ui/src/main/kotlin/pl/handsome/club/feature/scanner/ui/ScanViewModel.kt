@@ -222,7 +222,9 @@ internal class ScanViewModel(
     }
 
     private suspend fun saveFoundAnalysisToHistory() {
-        val analysis = statePrototype.first { it.foundBarcode == null || it.foundAnalysis != null }.foundAnalysis ?: return
+        val analysis = statePrototype
+            .first { it.foundBarcode == null || it.foundAnalysis != null }
+            .foundAnalysis ?: return
         applicationScope.launch {
             history.save(analysis).onFailure { error ->
                 logger.error(TAG, "Saving history entry failed: $error", (error as? AppError.Unknown)?.cause)

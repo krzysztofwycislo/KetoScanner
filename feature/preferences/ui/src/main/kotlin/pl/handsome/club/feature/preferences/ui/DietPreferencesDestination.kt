@@ -9,5 +9,7 @@ import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPr
 data object DietPreferencesRoute
 
 fun NavGraphBuilder.dietPreferencesDestination(onNavigation: (DietPreferencesNavigation) -> Unit) {
-    composable<DietPreferencesRoute> { DietPreferencesScreen(onNavigation) }
+    composable<DietPreferencesRoute> {
+        DietPreferencesScreen(onNavigation)
+    }
 }

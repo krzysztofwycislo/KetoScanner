@@ -1,15 +1,8 @@
 package pl.handsome.club.ketoscanner
 
 import android.app.Application
-import coil3.ImageLoader
-import coil3.PlatformContext
-import coil3.SingletonImageLoader
-import coil3.network.okhttp.OkHttpNetworkFetcherFactory
-import okhttp3.OkHttpClient
-import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.koin.core.qualifier.named
 import pl.handsome.club.core.database.databaseModule
 import pl.handsome.club.core.datastore.dataStoreModule
 import pl.handsome.club.feature.about.ui.aboutUiModule
@@ -24,12 +17,11 @@ import pl.handsome.club.feature.preferences.ui.preferencesUiModule
 import pl.handsome.club.feature.product.data.productDataModule
 import pl.handsome.club.feature.product.ui.productUiModule
 import pl.handsome.club.feature.scanner.ui.scannerUiModule
-import pl.handsome.club.ketoscanner.di.IMAGE_HTTP_CLIENT
 import pl.handsome.club.ketoscanner.di.appModules
 
 
 @Suppress("unused")
-class KetoSApplication : Application(), SingletonImageLoader.Factory {
+class KetoSApplication : Application() {
 
     override fun onCreate(){
         super.onCreate()
@@ -55,10 +47,5 @@ class KetoSApplication : Application(), SingletonImageLoader.Factory {
             )
         }
     }
-
-    override fun newImageLoader(context: PlatformContext): ImageLoader =
-        ImageLoader.Builder(context)
-            .components { add(OkHttpNetworkFetcherFactory(callFactory = { get<OkHttpClient>(named(IMAGE_HTTP_CLIENT)) })) }
-            .build()
 
 }

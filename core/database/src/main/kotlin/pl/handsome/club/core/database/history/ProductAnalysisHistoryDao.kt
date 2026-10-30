@@ -9,7 +9,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProductAnalysisHistoryDao {
 
-    @Query("SELECT * FROM ${ProductAnalysisHistoryEntryEntity.TABLE_NAME} GROUP BY productBarcode  ORDER BY updateTime DESC LIMIT (:amount)")
+    @Query(
+        """
+        SELECT * FROM ${ProductAnalysisHistoryEntryEntity.TABLE_NAME}
+        GROUP BY productBarcode
+        ORDER BY updateTime DESC
+        LIMIT (:amount)
+        """
+    )
     suspend fun getLastUniqueEntries(amount: Int): List<ProductAnalysisHistoryEntryEntity>
 
     @Query(

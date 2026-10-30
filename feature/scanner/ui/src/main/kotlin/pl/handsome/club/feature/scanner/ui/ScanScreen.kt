@@ -198,7 +198,9 @@ private fun BoxScope.FoundOverlay(found: FoundCardState?, onAction: (ScanAction)
         exit = slideOutVertically { it },
         modifier = Modifier.align(Alignment.BottomCenter),
     ) {
-        lastFound?.let { FoundCard(it, onAction) }
+        lastFound?.let {
+            FoundCard(it, onAction)
+        }
     }
 }
 
@@ -266,7 +268,13 @@ private fun CameraHeader(torch: Torch, onAction: (ScanAction) -> Unit) {
         } else {
             Ui.CameraIconButton(
                 icon = AppIcons.Torch,
-                contentDescription = UiText.Res(if (torch == Torch.On) R.string.scan_torch_off else R.string.scan_torch_on),
+                contentDescription = UiText.Res(
+                    if (torch == Torch.On) {
+                        R.string.scan_torch_off
+                    } else {
+                        R.string.scan_torch_on
+                    },
+                ),
                 active = torch == Torch.On,
                 onClick = { onAction(OnTorchClicked) },
             )
@@ -352,7 +360,11 @@ private fun TypeCard(state: ScanState, visible: Boolean, onAction: (ScanAction) 
 
 @Composable
 private fun PermissionContent(state: ScanState, camera: CameraState.PermissionPanel, onAction: (ScanAction) -> Unit) {
-    Ui.Screen(topBar = { Ui.TopBar(stringResource(R.string.scan_title)) }) { innerPadding ->
+    Ui.Screen(
+        topBar = {
+            Ui.TopBar(stringResource(R.string.scan_title))
+        },
+    ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier

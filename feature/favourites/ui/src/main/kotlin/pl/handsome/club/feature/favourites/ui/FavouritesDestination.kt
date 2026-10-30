@@ -9,5 +9,7 @@ import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNa
 data object FavouritesRoute
 
 fun NavGraphBuilder.favouritesDestination(onNavigation: (FavouritesNavigation) -> Unit) {
-    composable<FavouritesRoute> { FavouritesScreen(onNavigation) }
+    composable<FavouritesRoute> {
+        FavouritesScreen(onNavigation)
+    }
 }

@@ -83,7 +83,10 @@ private fun VerdictBannerPreview() {
                     title = UiText.Res(R.string.designsystem_preview_rating),
                     details = listOf(UiText.Res(R.string.designsystem_preview_share, UiArg.Numeric.Percent(0.19))),
                 ) {
-                    Text(text = UiText.Res(R.string.designsystem_preview_body).resolve(), style = AppTheme.typography.body)
+                    Text(
+                        text = UiText.Res(R.string.designsystem_preview_body).resolve(),
+                        style = AppTheme.typography.body,
+                    )
                 }
             }
         }

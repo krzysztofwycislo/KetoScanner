@@ -86,7 +86,9 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
             .fillMaxSize()
         Ui.ContentCrossfade(targetState = state.content) { content ->
             when (content) {
-                InitialLoad -> Box(centered, contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                InitialLoad -> Box(centered, contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
 
                 Empty -> Box(centered, contentAlignment = Alignment.Center) {
                     Message(UiText.Res(R.string.favourites_empty))
@@ -125,7 +127,9 @@ private fun SearchInput(query: String, onAction: (FavouritesAction) -> Unit) {
             .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.xs)
             .testTag("favouritesSearchInput"),
         textStyle = AppTheme.typography.body,
-        placeholder = { Text(text = stringResource(R.string.favourites_search_hint), style = AppTheme.typography.body) },
+        placeholder = {
+            Text(text = stringResource(R.string.favourites_search_hint), style = AppTheme.typography.body)
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onAction(OnSearchSubmitted) }),

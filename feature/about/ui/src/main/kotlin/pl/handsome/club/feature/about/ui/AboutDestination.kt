@@ -9,5 +9,7 @@ import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation
 data object AboutRoute
 
 fun NavGraphBuilder.aboutDestination(onNavigation: (AboutNavigation) -> Unit) {
-    composable<AboutRoute> { AboutScreen(onNavigation) }
+    composable<AboutRoute> {
+        AboutScreen(onNavigation)
+    }
 }
