@@ -176,28 +176,35 @@ class HomeStateFactoryTest {
     }
 
     @Test
-    fun `when preferences are keto 40 then profile label shows keto and 40`() {
+    fun `when preferences are keto 20 then profile label is the strict keto preset`() {
+        val state = factory.createFor(Prototype(dietPreferences = DietPreferences(20, DietMode.KETO)))
+
+        assertEquals(UiText.Res(R.string.home_preset_strict_keto), state.profileLabel)
+    }
+
+    @Test
+    fun `when preferences are keto 40 then profile label is the keto preset`() {
         val state = factory.createFor(Prototype(dietPreferences = DietPreferences(40, DietMode.KETO)))
+
+        assertEquals(UiText.Res(R.string.home_preset_keto), state.profileLabel)
+    }
+
+    @Test
+    fun `when preferences are low carb 100 then profile label is the low carb preset`() {
+        val state = factory.createFor(Prototype(dietPreferences = DietPreferences(100, DietMode.LOW_CARB)))
+
+        assertEquals(UiText.Res(R.string.home_preset_low_carb), state.profileLabel)
+    }
+
+    @Test
+    fun `when preferences match no preset then profile label shows mode and limit`() {
+        val state = factory.createFor(Prototype(dietPreferences = DietPreferences(35, DietMode.KETO)))
 
         assertEquals(
             UiText.Res(
                 R.string.home_profile_label,
                 UiArg.Nested(UiText.Res(R.string.home_mode_keto)),
-                UiArg.Numeric.Count(40),
-            ),
-            state.profileLabel,
-        )
-    }
-
-    @Test
-    fun `when preferences are low carb 100 then profile label shows low carb and 100`() {
-        val state = factory.createFor(Prototype(dietPreferences = DietPreferences(100, DietMode.LOW_CARB)))
-
-        assertEquals(
-            UiText.Res(
-                R.string.home_profile_label,
-                UiArg.Nested(UiText.Res(R.string.home_mode_low_carb)),
-                UiArg.Numeric.Count(100),
+                UiArg.Numeric.Count(35),
             ),
             state.profileLabel,
         )

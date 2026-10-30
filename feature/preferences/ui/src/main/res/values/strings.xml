@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="preferences_title">Diet preferences</string>
-    <string name="preferences_input_label">Carbohydrates amount</string>
-    <string name="preferences_summary">Max daily carbohydrates consumption: %1$s g</string>
+    <string name="preferences_title">Diet profile</string>
+    <string name="preferences_intro">How strict should we be when you shop? This sets the line for every product you scan.</string>
     <string name="preferences_input_error">Enter a number from %1$s to %2$s</string>
+    <string name="preferences_input_placeholder">Daily carbs in grams</string>
     <string name="preferences_save">Save</string>
-    <string name="preferences_saved">Preferences saved</string>
+    <string name="preferences_saved">Profile saved</string>
     <string name="preferences_retry">Try again</string>
-    <string name="preferences_diet_mode_title">Diet mode</string>
     <string name="preferences_diet_mode_keto">Keto</string>
-    <string name="preferences_diet_mode_keto_description">Very low carb. Products with plenty of fat and protein for their carbs rate best.</string>
     <string name="preferences_diet_mode_low_carb">Low-carb</string>
-    <string name="preferences_diet_mode_low_carb_description">Few carbs and little sugar, without requiring much fat.</string>
+    <string name="preferences_preset_strict_keto">Strict keto</string>
+    <string name="preferences_preset_strict_keto_note">Under about 20 g carbs a day</string>
+    <string name="preferences_preset_keto">Keto</string>
+    <string name="preferences_preset_keto_note">Around 30–50 g carbs a day</string>
+    <string name="preferences_preset_low_carb">Low carb</string>
+    <string name="preferences_preset_low_carb_note">Up to about 100 g carbs a day</string>
+    <string name="preferences_preset_custom">Custom</string>
+    <string name="preferences_preset_custom_note">Your own daily limit and diet</string>
+    <string name="preferences_grams">%1$s g</string>
+    <string name="preferences_rating_title">How products are rated</string>
+    <string name="preferences_rating_subtitle">By carbs per 100 g, for a %1$s g daily limit.</string>
+    <string name="preferences_rating_good_keto">Keto-friendly</string>
+    <string name="preferences_rating_good_low_carb">Low-carb friendly</string>
+    <string name="preferences_rating_neutral">In small amounts</string>
+    <string name="preferences_rating_not_advised_keto">Not keto-friendly</string>
+    <string name="preferences_rating_not_advised_low_carb">Not low-carb friendly</string>
+    <string name="preferences_rating_up_to">up to %1$s g</string>
+    <string name="preferences_rating_over">over %1$s g</string>
+    <string name="preferences_rating_footnote_keto">Sugars, carbs per serving, the carb share of energy and the fat and protein balance can lower a rating too.</string>
+    <string name="preferences_rating_footnote_low_carb">Sugars, carbs per serving and the carb share of energy can lower a rating too.</string>
 </resources>

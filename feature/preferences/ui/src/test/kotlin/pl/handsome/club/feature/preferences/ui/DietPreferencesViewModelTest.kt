@@ -21,13 +21,17 @@ import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.testing.FakeErrorReporter
+import pl.handsome.club.feature.analysis.api.DietRatingLimits
+import pl.handsome.club.feature.analysis.api.model.CarbLimits
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
+import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -63,64 +67,144 @@ class DietPreferencesViewModelTest {
     }
 
     @Test
-    fun `when the first value arrives then input is prefilled with it`() = runTest {
+    fun `when the first value matches a preset then that option is selected`() = runTest {
         val viewModel = createViewModel()
 
-        preferences.emit(40)
+        preferences.emit(20)
 
-        assertEquals("40", form(viewModel).input)
+        assertEquals(DietProfileOption.STRICT_KETO, selectedOption(viewModel))
+        assertNull(form(viewModel).custom)
     }
 
     @Test
-    fun `when an input was restored then it wins over the stored value`() = runTest {
-        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_INPUT to "25")))
+    fun `when the first value matches no preset then custom is selected with input and mode prefilled`() =
+        runTest {
+            val viewModel = createViewModel()
+
+            preferences.emit(35, DietMode.LOW_CARB)
+
+            assertEquals(DietProfileOption.CUSTOM, selectedOption(viewModel))
+            val custom = assertNotNull(form(viewModel).custom)
+            assertEquals("35", custom.input)
+            assertEquals(DietMode.LOW_CARB, custom.modes.single { it.isSelected }.mode)
+        }
+
+    @Test
+    fun `when option input and custom mode were restored then they win over the stored value`() = runTest {
+        val handle = SavedStateHandle(
+            mapOf(KEY_OPTION to "CUSTOM", KEY_INPUT to "25", KEY_CUSTOM_MODE to "LOW_CARB"),
+        )
+        val viewModel = createViewModel(handle)
 
         preferences.emit(40)
 
-        assertEquals("25", form(viewModel).input)
+        assertEquals(DietProfileOption.CUSTOM, selectedOption(viewModel))
+        val custom = assertNotNull(form(viewModel).custom)
+        assertEquals("25", custom.input)
+        assertEquals(DietMode.LOW_CARB, custom.modes.single { it.isSelected }.mode)
     }
 
     @Test
-    fun `when a later value arrives then summary changes and input is kept`() = runTest {
+    fun `when a later value arrives then the form selection is kept`() = runTest {
         val viewModel = createViewModel()
         preferences.emit(40)
 
-        preferences.emit(55)
+        preferences.emit(100, DietMode.LOW_CARB)
 
-        val form = form(viewModel)
-        assertEquals("40", form.input)
-        assertEquals(DietPreferencesResources().summary(55), form.summary)
+        assertEquals(DietProfileOption.KETO, selectedOption(viewModel))
+    }
+
+    @Test
+    fun `when an option is selected then it is written to the saved state and nothing is saved`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        preferences.emit(40)
+
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.LOW_CARB))
+
+        assertEquals(DietProfileOption.LOW_CARB, selectedOption(viewModel))
+        assertEquals("LOW_CARB", handle.get<String>(KEY_OPTION))
+        assertTrue(preferences.saved.isEmpty())
+        assertTrue(appEventsReceived.isEmpty())
+    }
+
+    @Test
+    fun `when a custom mode is selected then it is written to the saved state and nothing is saved`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        preferences.emit(35)
+
+        viewModel.onAction(DietPreferencesAction.OnCustomModeSelected(DietMode.LOW_CARB))
+
+        assertEquals(DietMode.LOW_CARB, assertNotNull(form(viewModel).custom).modes.single { it.isSelected }.mode)
+        assertEquals("LOW_CARB", handle.get<String>(KEY_CUSTOM_MODE))
+        assertTrue(preferences.saved.isEmpty())
+        assertTrue(appEventsReceived.isEmpty())
     }
 
     @Test
     fun `when input changes then non digits are dropped it is capped at three characters and saved`() = runTest {
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle)
-        preferences.emit(40)
+        preferences.emit(35)
 
         viewModel.onAction(DietPreferencesAction.OnInputChanged("1a2-3 4"))
 
-        assertEquals("123", form(viewModel).input)
+        assertEquals("123", assertNotNull(form(viewModel).custom).input)
         assertEquals("123", handle.get<String>(KEY_INPUT))
-    }
-
-    @Test
-    fun `when input is empty zero or above the range then save marks it invalid and does not save`() = runTest {
-        listOf("", "0", "1000").forEach { input ->
-            val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_INPUT to input)))
-            preferences.emit(40)
-
-            viewModel.onAction(DietPreferencesAction.OnSaveClicked)
-
-            assertNotNull(form(viewModel).inputError, "input \"$input\"")
-        }
         assertTrue(preferences.saved.isEmpty())
-        assertTrue(appEventsReceived.isEmpty())
     }
 
     @Test
-    fun `when input is valid then it is saved keyboard is hidden and saved message is shown`() = runTest {
+    fun `when save is clicked with strict keto then it is saved and the screen closes with a message`() = runTest {
         val viewModel = createViewModel()
+        val screenEvents = collectScreenEvents(viewModel)
+        preferences.emit(40)
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.STRICT_KETO))
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(listOf(DietPreferences(20, DietMode.KETO)), preferences.saved)
+        assertEquals(
+            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
+            appEventsReceived,
+        )
+        assertEquals(listOf<DietPreferencesEvent>(NavigateBack), screenEvents)
+    }
+
+    @Test
+    fun `when save is clicked with custom low carb 80 then that profile is saved`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(40)
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.CUSTOM))
+        viewModel.onAction(DietPreferencesAction.OnCustomModeSelected(DietMode.LOW_CARB))
+        viewModel.onAction(DietPreferencesAction.OnInputChanged("80"))
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(listOf(DietPreferences(80, DietMode.LOW_CARB)), preferences.saved)
+    }
+
+    @Test
+    fun `when custom input is empty zero or above the range then save marks it invalid and does not save`() =
+        runTest {
+            listOf("", "0", "1000").forEach { input ->
+                val viewModel = createViewModel(
+                    SavedStateHandle(mapOf(KEY_OPTION to "CUSTOM", KEY_INPUT to input)),
+                )
+                preferences.emit(40)
+
+                viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+                assertNotNull(assertNotNull(form(viewModel).custom).inputError, "input \"$input\"")
+            }
+            assertTrue(preferences.saved.isEmpty())
+            assertTrue(appEventsReceived.isEmpty())
+        }
+
+    @Test
+    fun `when a valid custom value is saved after an invalid one then the error is cleared`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_OPTION to "CUSTOM")))
         preferences.emit(40)
         viewModel.onAction(DietPreferencesAction.OnInputChanged("0"))
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
@@ -128,12 +212,8 @@ class DietPreferencesViewModelTest {
         viewModel.onAction(DietPreferencesAction.OnInputChanged("55"))
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
 
-        assertEquals(listOf(55), preferences.saved)
-        assertNull(form(viewModel).inputError)
-        assertEquals(
-            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
-            appEventsReceived,
-        )
+        assertEquals(listOf(DietPreferences(55, DietMode.KETO)), preferences.saved)
+        assertNull(assertNotNull(form(viewModel).custom).inputError)
     }
 
     @Test
@@ -146,7 +226,7 @@ class DietPreferencesViewModelTest {
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
 
-        assertEquals(listOf(40), preferences.saved)
+        assertEquals(listOf(DietPreferences(40, DietMode.KETO)), preferences.saved)
         assertTrue(form(viewModel).isSaving)
 
         gate.complete(Unit)
@@ -160,9 +240,10 @@ class DietPreferencesViewModelTest {
     }
 
     @Test
-    fun `when saving fails then failure is reported and failure message is shown`() = runTest {
+    fun `when saving fails then failure is reported the message is shown and the screen stays`() = runTest {
         preferences.saveResult = Outcome.Failure(AppError.Storage)
         val viewModel = createViewModel()
+        val screenEvents = collectScreenEvents(viewModel)
         preferences.emit(40)
 
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
@@ -172,42 +253,7 @@ class DietPreferencesViewModelTest {
             listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage))),
             appEventsReceived,
         )
-    }
-
-    @Test
-    fun `when a stored mode arrives then it is the selected option`() = runTest {
-        val viewModel = createViewModel()
-
-        preferences.emit(40, DietMode.LOW_CARB)
-
-        assertEquals(DietMode.LOW_CARB, form(viewModel).dietModes.single { it.isSelected }.mode)
-    }
-
-    @Test
-    fun `when a mode is selected then it is saved and no message is shown`() = runTest {
-        val viewModel = createViewModel()
-        preferences.emit(40)
-
-        viewModel.onAction(DietPreferencesAction.OnDietModeSelected(DietMode.LOW_CARB))
-
-        assertEquals(listOf(DietMode.LOW_CARB), preferences.savedModes)
-        assertTrue(appEventsReceived.isEmpty())
-        assertTrue(errorReporter.reports.isEmpty())
-    }
-
-    @Test
-    fun `when saving a mode fails then failure is reported and failure message is shown`() = runTest {
-        preferences.saveResult = Outcome.Failure(AppError.Storage)
-        val viewModel = createViewModel()
-        preferences.emit(40)
-
-        viewModel.onAction(DietPreferencesAction.OnDietModeSelected(DietMode.LOW_CARB))
-
-        assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
-        assertEquals(
-            listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage))),
-            appEventsReceived,
-        )
+        assertTrue(screenEvents.isEmpty())
     }
 
     @Test
@@ -222,7 +268,7 @@ class DietPreferencesViewModelTest {
         preferences.emit(40)
         viewModel.onAction(DietPreferencesAction.OnRetryClicked)
 
-        assertEquals("40", form(viewModel).input)
+        assertEquals(DietProfileOption.KETO, selectedOption(viewModel))
         assertEquals(2, preferences.subscriptions)
     }
 
@@ -244,7 +290,7 @@ class DietPreferencesViewModelTest {
             savedStateHandle = handle,
             preferences = preferences,
             appEvents = appEvents,
-            stateFactory = DietPreferencesStateFactory(resources),
+            stateFactory = DietPreferencesStateFactory(resources, FakeRatingLimits()),
             resources = resources,
             errorReporter = errorReporter,
             applicationScope = CoroutineScope(
@@ -253,8 +299,22 @@ class DietPreferencesViewModelTest {
         )
     }
 
+    private fun TestScope.collectScreenEvents(viewModel: DietPreferencesViewModel): List<DietPreferencesEvent> {
+        val received = mutableListOf<DietPreferencesEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(received) }
+        return received
+    }
+
     private fun form(viewModel: DietPreferencesViewModel): DietPreferencesContentState.Form =
         assertIs<DietPreferencesContentState.Form>(viewModel.state.value.content)
+
+    private fun selectedOption(viewModel: DietPreferencesViewModel): DietProfileOption =
+        form(viewModel).options.single { it.isSelected }.option
+
+    private class FakeRatingLimits : DietRatingLimits {
+        override fun carbsPer100g(preferences: DietPreferences): CarbLimits =
+            CarbLimits(preferences.maxDailyCarbsAmount / 3.0, preferences.maxDailyCarbsAmount / 2.0)
+    }
 
     private class FakePreferences : DietPreferencesRepository {
 
@@ -263,8 +323,7 @@ class DietPreferencesViewModelTest {
         var saveResult: Outcome<Unit> = Outcome.Success(Unit)
         var saveGate: CompletableDeferred<Unit>? = null
         var subscriptions = 0
-        val saved = mutableListOf<Int>()
-        val savedModes = mutableListOf<DietMode>()
+        val saved = mutableListOf<DietPreferences>()
 
         fun emit(amount: Int, mode: DietMode = DietMode.KETO) {
             values.tryEmit(Outcome.Success(DietPreferences(amount, mode)))
@@ -279,19 +338,16 @@ class DietPreferencesViewModelTest {
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 
-        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
-            saved += amount
+        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> {
+            saved += preferences
             saveGate?.await()
-            return saveResult
-        }
-
-        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> {
-            savedModes += mode
             return saveResult
         }
     }
 
     private companion object {
+        const val KEY_OPTION = "option"
         const val KEY_INPUT = "input"
+        const val KEY_CUSTOM_MODE = "customMode"
     }
 }

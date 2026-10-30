@@ -33,17 +33,10 @@ internal class DietPreferencesRepositoryImpl(
 
     override suspend fun getDietPreferences(): Outcome<DietPreferences> = observeDietPreferences().first()
 
-    override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> =
+    override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
         withContext(dispatchers.io) {
             outcomeOf(mapError = { AppError.Storage }) {
-                persistence.setMaxDailyCarbsAmount(amount)
-            }
-        }
-
-    override suspend fun setDietMode(mode: DietMode): Outcome<Unit> =
-        withContext(dispatchers.io) {
-            outcomeOf(mapError = { AppError.Storage }) {
-                persistence.setDietMode(mode.name)
+                persistence.save(preferences.maxDailyCarbsAmount, preferences.dietMode.name)
             }
         }
 

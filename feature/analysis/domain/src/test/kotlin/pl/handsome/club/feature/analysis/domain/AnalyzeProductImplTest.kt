@@ -118,13 +118,8 @@ class AnalyzeProductImplTest {
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = current
 
-        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> {
-            current = Outcome.Success(DietPreferences(amount))
-            return Outcome.Success(Unit)
-        }
-
-        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> {
-            current = Outcome.Success(DietPreferences(exampleDietPreferences.maxDailyCarbsAmount, mode))
+        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> {
+            current = Outcome.Success(preferences)
             return Outcome.Success(Unit)
         }
     }

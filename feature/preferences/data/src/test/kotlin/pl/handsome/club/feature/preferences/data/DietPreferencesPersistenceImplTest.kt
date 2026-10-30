@@ -13,7 +13,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class DietPreferencesPersistenceImplTest {
 
@@ -44,28 +43,14 @@ class DietPreferencesPersistenceImplTest {
     }
 
     @Test
-    fun `when mode is set then it is observed`() = runTest {
-        persistence.setDietMode("LOW_CARB")
+    fun `when preferences are saved then amount and mode are observed together`() = runTest {
+        assertEquals(StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = null), persistence.observe().first())
+
+        persistence.save(maxDailyCarbsAmount = 100, dietMode = "LOW_CARB")
 
         assertEquals(
-            StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = "LOW_CARB"),
+            StoredDietPreferences(maxDailyCarbsAmount = 100, dietMode = "LOW_CARB"),
             persistence.observe().first(),
         )
-    }
-
-    @Test
-    fun `when amount is set then it is observed`() = runTest {
-        persistence.setMaxDailyCarbsAmount(25)
-
-        assertEquals(25, persistence.observe().first().maxDailyCarbsAmount)
-    }
-
-    @Test
-    fun `when amount is set after an empty read then the new amount is observed`() = runTest {
-        assertNull(persistence.observe().first().maxDailyCarbsAmount)
-
-        persistence.setMaxDailyCarbsAmount(55)
-
-        assertEquals(55, persistence.observe().first().maxDailyCarbsAmount)
     }
 }

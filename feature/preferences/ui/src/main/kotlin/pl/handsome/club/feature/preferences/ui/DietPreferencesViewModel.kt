@@ -30,14 +30,16 @@ import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnDietModeSelected
+import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
+import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent
 import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesState
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
 import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
 
 internal class DietPreferencesViewModel(
@@ -53,7 +55,13 @@ internal class DietPreferencesViewModel(
     private val saving = ProgressTracker()
 
     private val statePrototype = MutableStateFlow(
-        Prototype(input = savedStateHandle.get<String>(KEY_INPUT))
+        Prototype(
+            option = savedStateHandle.get<String>(KEY_OPTION)
+                ?.let { name -> DietProfileOption.entries.firstOrNull { it.name == name } },
+            input = savedStateHandle.get<String>(KEY_INPUT),
+            customMode = savedStateHandle.get<String>(KEY_CUSTOM_MODE)
+                ?.let { name -> DietMode.entries.firstOrNull { it.name == name } },
+        )
     )
 
     val state: StateFlow<DietPreferencesState> = statePrototype.map(stateFactory::createFor).stateIn(
@@ -69,7 +77,8 @@ internal class DietPreferencesViewModel(
 
     fun onAction(action: DietPreferencesAction) {
         when (action) {
-            is OnDietModeSelected -> selectDietMode(action.mode)
+            is OnOptionSelected -> selectOption(action.option)
+            is OnCustomModeSelected -> selectCustomMode(action.mode)
             is OnInputChanged -> setInput(action.text)
             OnSaveClicked -> save()
             OnRetryClicked -> retry()
@@ -94,25 +103,25 @@ internal class DietPreferencesViewModel(
     }
 
     private fun showPreferences(dietPreferences: DietPreferences) {
-        val amount = dietPreferences.maxDailyCarbsAmount
         statePrototype.update {
             it.copy(
-                savedAmount = amount,
-                savedMode = dietPreferences.dietMode,
-                input = it.input ?: amount.toString(),
+                savedPreferences = dietPreferences,
+                option = it.option ?: DietProfileOption.of(dietPreferences),
+                input = it.input ?: dietPreferences.maxDailyCarbsAmount.toString(),
+                customMode = it.customMode ?: dietPreferences.dietMode,
                 loadError = null,
             )
         }
     }
 
-    private fun selectDietMode(mode: DietMode) {
-        applicationScope.launch {
-            preferences.setDietMode(mode)
-                .onFailure { error ->
-                    errorReporter.report(TAG, "Saving diet mode failed", error)
-                    appEvents send ShowMessage(resources.saveFailed(error))
-                }
-        }
+    private fun selectOption(option: DietProfileOption) {
+        savedStateHandle[KEY_OPTION] = option.name
+        statePrototype.update { it.copy(option = option, isInputInvalid = false) }
+    }
+
+    private fun selectCustomMode(mode: DietMode) {
+        savedStateHandle[KEY_CUSTOM_MODE] = mode.name
+        statePrototype.update { it.copy(customMode = mode, isInputInvalid = false) }
     }
 
     private fun setInput(text: String) {
@@ -130,10 +139,10 @@ internal class DietPreferencesViewModel(
     }
 
     private fun save() {
-        if (saving.inProgress.value) return
-        val amount = statePrototype.value.input?.trim()?.toIntOrNull()
-            ?.takeIf { it in DietPreferences.MAX_DAILY_CARBS_RANGE }
-        if (amount == null) {
+        val prototype = statePrototype.value
+        if (saving.inProgress.value || prototype.savedPreferences == null) return
+        val chosen = prototype.chosenPreferences()
+        if (chosen == null) {
             statePrototype.update { it.copy(isInputInvalid = true) }
             return
         }
@@ -141,8 +150,11 @@ internal class DietPreferencesViewModel(
         statePrototype.update { it.copy(isInputInvalid = false) }
         appEvents send HideKeyboard
         applicationScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            saving.reportWork { preferences.setMaxDailyCarbsAmount(amount) }
-                .onSuccess { appEvents send ShowMessage(resources.saved()) }
+            saving.reportWork { preferences.setDietPreferences(chosen) }
+                .onSuccess {
+                    appEvents send ShowMessage(resources.saved())
+                    screenEvents send NavigateBack
+                }
                 .onFailure { error ->
                     errorReporter.report(TAG, "Saving diet preferences failed", error)
                     appEvents send ShowMessage(resources.saveFailed(error))
@@ -167,7 +179,9 @@ internal class DietPreferencesViewModel(
 
     private companion object {
         const val TAG = "DietPreferencesViewModel"
+        const val KEY_OPTION = "option"
         const val KEY_INPUT = "input"
+        const val KEY_CUSTOM_MODE = "customMode"
         const val MAX_INPUT_LENGTH = 3
     }
 }

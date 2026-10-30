@@ -4,7 +4,6 @@ import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.analysis.api.model.RatingReason
-import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.model.Product
 
@@ -28,11 +27,6 @@ internal class DietAnalysisEngine {
                 dailyCarbConsumption = dailyCarbs,
             ),
         )
-    }
-
-    private fun scorerFor(mode: DietMode): DietScorer = when (mode) {
-        DietMode.KETO -> KetoScorer
-        DietMode.LOW_CARB -> LowCarbScorer
     }
 
 }

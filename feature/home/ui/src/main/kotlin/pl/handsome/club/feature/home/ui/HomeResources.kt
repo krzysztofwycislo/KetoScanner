@@ -7,17 +7,24 @@ import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.handsome.club.feature.preferences.api.model.DietPreset
 import kotlin.time.Instant
 
 internal class HomeResources {
 
-    fun profileLabel(preferences: DietPreferences?): UiText =
-        if (preferences == null) UiText.Res(R.string.home_profile_default)
-        else UiText.Res(
-            R.string.home_profile_label,
-            UiArg.Nested(modeLabel(preferences.dietMode)),
-            UiArg.Numeric.Count(preferences.maxDailyCarbsAmount.toLong()),
-        )
+    fun profileLabel(preferences: DietPreferences?): UiText {
+        if (preferences == null) return UiText.Res(R.string.home_profile_default)
+        return when (DietPreset.of(preferences)) {
+            DietPreset.STRICT_KETO -> UiText.Res(R.string.home_preset_strict_keto)
+            DietPreset.KETO -> UiText.Res(R.string.home_preset_keto)
+            DietPreset.LOW_CARB -> UiText.Res(R.string.home_preset_low_carb)
+            null -> UiText.Res(
+                R.string.home_profile_label,
+                UiArg.Nested(modeLabel(preferences.dietMode)),
+                UiArg.Numeric.Count(preferences.maxDailyCarbsAmount.toLong()),
+            )
+        }
+    }
 
     fun productName(name: String): UiText =
         if (name.isBlank()) UiText.Res(R.string.home_unnamed_product) else UiText.Raw(name)

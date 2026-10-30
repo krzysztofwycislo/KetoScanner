@@ -814,9 +814,8 @@ class ScanViewModelTest {
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 
-        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> = throw NotImplementedError()
-
-        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> = throw NotImplementedError()
+        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
+            throw NotImplementedError()
     }
 
     private companion object {

@@ -13,8 +13,7 @@ internal data class StoredDietPreferences(val maxDailyCarbsAmount: Int?, val die
 
 internal interface DietPreferencesPersistence {
     fun observe(): Flow<StoredDietPreferences>
-    suspend fun setMaxDailyCarbsAmount(amount: Int)
-    suspend fun setDietMode(name: String)
+    suspend fun save(maxDailyCarbsAmount: Int, dietMode: String)
 }
 
 internal class DietPreferencesPersistenceImpl(
@@ -25,12 +24,11 @@ internal class DietPreferencesPersistenceImpl(
         StoredDietPreferences(maxDailyCarbsAmount = it[MAX_CARBS_AMOUNT], dietMode = it[DIET_MODE])
     }
 
-    override suspend fun setMaxDailyCarbsAmount(amount: Int) {
-        dataStore.edit { it[MAX_CARBS_AMOUNT] = amount }
-    }
-
-    override suspend fun setDietMode(name: String) {
-        dataStore.edit { it[DIET_MODE] = name }
+    override suspend fun save(maxDailyCarbsAmount: Int, dietMode: String) {
+        dataStore.edit {
+            it[MAX_CARBS_AMOUNT] = maxDailyCarbsAmount
+            it[DIET_MODE] = dietMode
+        }
     }
 
     private companion object {

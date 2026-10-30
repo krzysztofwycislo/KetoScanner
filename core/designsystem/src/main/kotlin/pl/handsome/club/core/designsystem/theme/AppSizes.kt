@@ -31,6 +31,9 @@ data class AppSizes(
     val heroCard: Dp,
     val heroIllustrationWidth: Dp,
     val heroIllustrationHeight: Dp,
+    val radioCardMinHeight: Dp,
+    val radioDot: Dp,
+    val radioDotInner: Dp,
 )
 
 val DefaultAppSizes = AppSizes(
@@ -59,4 +62,7 @@ val DefaultAppSizes = AppSizes(
     heroCard = 236.dp,
     heroIllustrationWidth = 190.dp,
     heroIllustrationHeight = 120.dp,
+    radioCardMinHeight = 72.dp,
+    radioDot = 22.dp,
+    radioDotInner = 10.dp,
 )

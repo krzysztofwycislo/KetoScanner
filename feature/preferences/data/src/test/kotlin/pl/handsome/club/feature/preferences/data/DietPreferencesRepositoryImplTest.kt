@@ -95,22 +95,17 @@ class DietPreferencesRepositoryImplTest {
     }
 
     @Test
-    fun `when amount is set then it is passed to persistence and success is returned`() = runTest {
-        val persistence = FakePersistence()
-        val repository = DietPreferencesRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
+    fun `when preferences are set then amount and mode name are saved in one call and success is returned`() =
+        runTest {
+            val persistence = FakePersistence()
+            val repository = DietPreferencesRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
 
-        assertEquals(Outcome.Success(Unit), repository.setMaxDailyCarbsAmount(55))
-        assertEquals(listOf(55), persistence.setAmounts)
-    }
-
-    @Test
-    fun `when mode is set then its name is passed to persistence and success is returned`() = runTest {
-        val persistence = FakePersistence()
-        val repository = DietPreferencesRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
-
-        assertEquals(Outcome.Success(Unit), repository.setDietMode(DietMode.LOW_CARB))
-        assertEquals(listOf("LOW_CARB"), persistence.setModes)
-    }
+            assertEquals(
+                Outcome.Success(Unit),
+                repository.setDietPreferences(DietPreferences(100, DietMode.LOW_CARB)),
+            )
+            assertEquals(listOf(100 to "LOW_CARB"), persistence.saved)
+        }
 
     @Test
     fun `when setting throws then storage failure is returned`() = runTest {
@@ -119,8 +114,7 @@ class DietPreferencesRepositoryImplTest {
             TestAppDispatchers(testScheduler),
         )
 
-        assertEquals(Outcome.Failure(AppError.Storage), repository.setMaxDailyCarbsAmount(55))
-        assertEquals(Outcome.Failure(AppError.Storage), repository.setDietMode(DietMode.KETO))
+        assertEquals(Outcome.Failure(AppError.Storage), repository.setDietPreferences(DietPreferences(55)))
     }
 
     @Test
@@ -131,8 +125,7 @@ class DietPreferencesRepositoryImplTest {
         )
 
         assertFailsWith<CancellationException> { repository.observeDietPreferences().toList() }
-        assertFailsWith<CancellationException> { repository.setMaxDailyCarbsAmount(55) }
-        assertFailsWith<CancellationException> { repository.setDietMode(DietMode.KETO) }
+        assertFailsWith<CancellationException> { repository.setDietPreferences(DietPreferences(55)) }
     }
 
     private class FakePersistence(
@@ -141,22 +134,16 @@ class DietPreferencesRepositoryImplTest {
         private val failure: Throwable? = null,
     ) : DietPreferencesPersistence {
 
-        val setAmounts = mutableListOf<Int>()
-        val setModes = mutableListOf<String>()
+        val saved = mutableListOf<Pair<Int, String>>()
 
         override fun observe(): Flow<StoredDietPreferences> {
             val failure = failure ?: return flowOf(*stored.toTypedArray())
             return flow { throw failure }
         }
 
-        override suspend fun setMaxDailyCarbsAmount(amount: Int) {
+        override suspend fun save(maxDailyCarbsAmount: Int, dietMode: String) {
             failure?.let { throw it }
-            setAmounts += amount
-        }
-
-        override suspend fun setDietMode(name: String) {
-            failure?.let { throw it }
-            setModes += name
+            saved += maxDailyCarbsAmount to dietMode
         }
     }
 }
