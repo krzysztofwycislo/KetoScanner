@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
 @Composable
@@ -34,6 +35,6 @@ fun Ui.IconTile(icon: ImageVector, modifier: Modifier = Modifier) {
 @Composable
 private fun IconTilePreview() {
     AppTheme {
-        Ui.IconTile(AppIcons.Scan, Modifier.padding(AppTheme.spacing.m))
+        Ui.IconTile(AppIcons.Scan.imageVector, Modifier.padding(AppTheme.spacing.m))
     }
 }

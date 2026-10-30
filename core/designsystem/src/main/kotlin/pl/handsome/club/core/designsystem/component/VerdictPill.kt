@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
@@ -46,7 +47,7 @@ fun Ui.VerdictPill(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = rating.markIcon(),
+            imageVector = rating.markIcon().imageVector,
             contentDescription = null,
             tint = color,
             modifier = Modifier.size(AppTheme.sizes.iconXs),

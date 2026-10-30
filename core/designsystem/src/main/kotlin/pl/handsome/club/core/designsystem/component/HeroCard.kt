@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
 private const val HERO_FRAME =
@@ -164,7 +165,7 @@ private fun HeroCardPreview() {
             title = stringResource(R.string.designsystem_preview_title),
             body = stringResource(R.string.designsystem_preview_body),
             actionText = stringResource(R.string.designsystem_preview_button),
-            actionIcon = AppIcons.Scan,
+            actionIcon = AppIcons.Scan.imageVector,
             onClick = {},
             modifier = Modifier.padding(AppTheme.spacing.m),
         )

@@ -44,6 +44,7 @@ import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictPill
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
@@ -103,7 +104,7 @@ private fun ScreenContent(state: HomeState, onAction: (HomeAction) -> Unit) {
                     title = stringResource(R.string.home_hero_title),
                     body = stringResource(R.string.home_hero_body),
                     actionText = stringResource(R.string.home_hero_action),
-                    actionIcon = AppIcons.Scan,
+                    actionIcon = AppIcons.Scan.imageVector,
                     onClick = { onAction(OnStartScanningClicked) },
                     modifier = Modifier.padding(bottom = AppTheme.spacing.s),
                 )
@@ -136,7 +137,7 @@ private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    imageVector = AppIcons.Logo,
+                    imageVector = AppIcons.Logo.imageVector,
                     contentDescription = null,
                     tint = AppTheme.colors.text.inverse,
                     modifier = Modifier.size(AppTheme.sizes.logoIcon),
@@ -154,13 +155,13 @@ private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Ui.CircleIconButton(
-                icon = AppIcons.Info,
+                icon = AppIcons.Info.imageVector,
                 contentDescription = UiText.Res(R.string.home_about),
                 onClick = { onAction(OnAboutClicked) },
             )
             Ui.Chip(
                 text = profileLabel.resolve(),
-                icon = AppIcons.Sliders,
+                icon = AppIcons.Sliders.imageVector,
                 onClick = { onAction(OnProfileClicked) },
             )
         }
@@ -195,7 +196,7 @@ private fun RecentTitle(showSeeAll: Boolean, onAction: (HomeAction) -> Unit) {
                     color = AppTheme.colors.text.accent,
                 )
                 Icon(
-                    imageVector = AppIcons.ChevronRight,
+                    imageVector = AppIcons.ChevronRight.imageVector,
                     contentDescription = null,
                     tint = AppTheme.colors.text.accent,
                     modifier = Modifier.size(AppTheme.sizes.chipIcon),
@@ -235,7 +236,7 @@ private fun LazyListScope.recentContent(
                 subtitle = item.time,
                 onClick = { onAction(OnEntryClicked(item.barcode)) },
                 leading = {
-                    Ui.IconTile(AppIcons.Bag)
+                    Ui.IconTile(AppIcons.Bag.imageVector)
                 },
                 trailing = {
                     Ui.VerdictPill(

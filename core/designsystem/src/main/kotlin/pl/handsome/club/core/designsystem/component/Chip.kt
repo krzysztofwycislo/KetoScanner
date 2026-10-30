@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
 @Composable
@@ -61,7 +62,7 @@ private fun ChipPreview() {
     AppTheme {
         Ui.Chip(
             text = stringResource(R.string.designsystem_preview_title),
-            icon = AppIcons.Sliders,
+            icon = AppIcons.Sliders.imageVector,
             onClick = {},
             modifier = Modifier.padding(AppTheme.spacing.m),
         )

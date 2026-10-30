@@ -50,6 +50,7 @@ import pl.handsome.club.core.designsystem.component.color
 import pl.handsome.club.core.designsystem.component.containerColor
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
@@ -151,13 +152,13 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Ui.CircleIconButton(
-            icon = AppIcons.Back,
+            icon = AppIcons.Back.imageVector,
             contentDescription = UiText.Res(R.string.product_back),
             onClick = { onAction(OnBackClicked) },
         )
         if (favourite != null) {
             Ui.CircleIconButton(
-                icon = if (favourite.isFavourite) AppIcons.HeartFilled else AppIcons.Heart,
+                icon = (if (favourite.isFavourite) AppIcons.HeartFilled else AppIcons.Heart).imageVector,
                 contentDescription = favourite.description,
                 onClick = { onAction(OnFavouriteClicked) },
                 enabled = favourite.isEnabled,

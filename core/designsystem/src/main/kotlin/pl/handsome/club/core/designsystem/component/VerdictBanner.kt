@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
@@ -51,7 +52,7 @@ fun Ui.VerdictBanner(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = rating.markIcon(),
+                        imageVector = rating.markIcon().imageVector,
                         contentDescription = null,
                         tint = AppTheme.colors.text.inverse,
                         modifier = Modifier.size(AppTheme.sizes.iconS),

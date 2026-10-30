@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.RatingIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
@@ -23,7 +24,7 @@ fun Ui.RatingIcon(rating: Rating, contentDescription: UiText, modifier: Modifier
         Rating.Unknown -> RatingIcons.Question
     }
     Icon(
-        imageVector = icon,
+        imageVector = icon.imageVector,
         contentDescription = contentDescription.resolve(),
         modifier = modifier.size(AppTheme.sizes.iconS),
         tint = rating.color(),

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
@@ -51,7 +52,7 @@ fun Ui.CircleIconButton(
 private fun CircleIconButtonPreview() {
     AppTheme {
         Ui.CircleIconButton(
-            icon = AppIcons.Back,
+            icon = AppIcons.Back.imageVector,
             contentDescription = UiText.Res(R.string.designsystem_back),
             onClick = {},
             modifier = Modifier.padding(AppTheme.spacing.m),

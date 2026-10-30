@@ -65,6 +65,7 @@ import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictBanner
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
@@ -220,7 +221,7 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Ui.IconTile(AppIcons.Bag)
+            Ui.IconTile(AppIcons.Bag.imageVector)
             Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
                 Text(
                     text = found.name.resolve(),
@@ -267,7 +268,7 @@ private fun CameraHeader(torch: Torch, onAction: (ScanAction) -> Unit) {
             Spacer(Modifier)
         } else {
             Ui.CameraIconButton(
-                icon = AppIcons.Torch,
+                icon = AppIcons.Torch.imageVector,
                 contentDescription = UiText.Res(
                     if (torch == Torch.On) {
                         R.string.scan_torch_off
@@ -281,7 +282,7 @@ private fun CameraHeader(torch: Torch, onAction: (ScanAction) -> Unit) {
         }
         Ui.CameraPillButton(
             text = stringResource(R.string.scan_type_it),
-            icon = AppIcons.Keyboard,
+            icon = AppIcons.Keyboard.imageVector,
             onClick = { onAction(OnTypeItClicked) },
         )
     }
@@ -339,7 +340,7 @@ private fun TypeCard(state: ScanState, visible: Boolean, onAction: (ScanAction) 
                 color = AppTheme.colors.text.default,
             )
             Ui.CircleIconButton(
-                icon = AppIcons.Cross,
+                icon = AppIcons.Cross.imageVector,
                 contentDescription = UiText.Res(R.string.scan_close),
                 onClick = { onAction(OnTypeSheetDismissed) },
             )
@@ -410,7 +411,7 @@ private fun PermissionCard(camera: CameraState.PermissionPanel, onAction: (ScanA
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = AppIcons.CameraOff,
+                imageVector = AppIcons.CameraOff.imageVector,
                 contentDescription = null,
                 tint = AppTheme.colors.text.muted,
                 modifier = Modifier.size(AppTheme.sizes.iconM),

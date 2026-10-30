@@ -1,11 +1,11 @@
 package pl.handsome.club.ketoscanner.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.feature.favourites.ui.FavouritesRoute
 import pl.handsome.club.feature.home.ui.HomeRoute
@@ -15,8 +15,8 @@ import pl.handsome.club.ketoscanner.R
 internal enum class TopLevelTab(
     val route: Any,
     @StringRes val label: Int,
-    val icon: ImageVector,
-    val selectedIcon: ImageVector = icon,
+    val icon: AppIcon,
+    val selectedIcon: AppIcon = icon,
     val isProminent: Boolean = false,
 ) {
     HOME(HomeRoute, R.string.bottom_navigation_home, AppIcons.Home),

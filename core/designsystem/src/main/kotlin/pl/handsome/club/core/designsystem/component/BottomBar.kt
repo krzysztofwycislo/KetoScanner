@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -35,14 +34,16 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.R
+import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.theme.AppTheme
 
 @Immutable
 data class BottomBarItem(
     val label: String,
-    val icon: ImageVector,
-    val selectedIcon: ImageVector = icon,
+    val icon: AppIcon,
+    val selectedIcon: AppIcon = icon,
     val isProminent: Boolean = false,
 )
 
@@ -99,7 +100,7 @@ private fun RegularItem(item: BottomBarItem, selected: Boolean, modifier: Modifi
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
     ) {
         Icon(
-            imageVector = if (selected) item.selectedIcon else item.icon,
+            imageVector = (if (selected) item.selectedIcon else item.icon).imageVector,
             contentDescription = null,
             tint = color,
             modifier = Modifier.size(AppTheme.sizes.iconS),
@@ -145,7 +146,7 @@ private fun ProminentItem(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = if (selected) item.selectedIcon else item.icon,
+                imageVector = (if (selected) item.selectedIcon else item.icon).imageVector,
                 contentDescription = null,
                 tint = AppTheme.colors.text.inverse,
                 modifier = Modifier.size(AppTheme.sizes.iconL),

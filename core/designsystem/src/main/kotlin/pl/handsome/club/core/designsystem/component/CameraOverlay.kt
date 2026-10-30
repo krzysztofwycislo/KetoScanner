@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
@@ -178,8 +179,8 @@ private fun CameraIconButtonPreview() {
     CameraPreviewBox {
         Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
             val description = UiText.Res(R.string.designsystem_preview_button)
-            Ui.CameraIconButton(AppIcons.Torch, description, active = false, onClick = {})
-            Ui.CameraIconButton(AppIcons.Torch, description, active = true, onClick = {})
+            Ui.CameraIconButton(AppIcons.Torch.imageVector, description, active = false, onClick = {})
+            Ui.CameraIconButton(AppIcons.Torch.imageVector, description, active = true, onClick = {})
         }
     }
 }
@@ -190,7 +191,7 @@ private fun CameraPillButtonAndHintPreview() {
     CameraPreviewBox {
         Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
             val text = stringResource(R.string.designsystem_preview_button)
-            Ui.CameraPillButton(text = text, icon = AppIcons.Keyboard, onClick = {})
+            Ui.CameraPillButton(text = text, icon = AppIcons.Keyboard.imageVector, onClick = {})
             Ui.CameraHint(text = text)
         }
     }
