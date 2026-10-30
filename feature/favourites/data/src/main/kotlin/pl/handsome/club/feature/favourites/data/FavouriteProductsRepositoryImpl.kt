@@ -9,6 +9,9 @@ import pl.handsome.club.core.common.AppDispatchers
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.common.outcomeOf
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.analysis.api.model.carbsPer100g
+import pl.handsome.club.feature.analysis.api.model.dietRate
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.product.api.model.Product
@@ -19,10 +22,10 @@ internal class FavouriteProductsRepositoryImpl(
     private val dispatchers: AppDispatchers,
 ) : FavouriteProductsRepository {
 
-    override suspend fun addToFavourites(product: Product): Outcome<Unit> =
+    override suspend fun addToFavourites(analysis: ProductAnalysis): Outcome<Unit> =
         withContext(dispatchers.io) {
             outcomeOf(mapError = { AppError.Storage }) {
-                persistence.insert(product.toFavouriteEntity())
+                persistence.insert(analysis.toFavouriteEntity())
             }
         }
 
@@ -46,6 +49,13 @@ internal class FavouriteProductsRepositoryImpl(
         withContext(dispatchers.io) {
             outcomeOf(mapError = { AppError.Storage }) {
                 persistence.delete(product.toFavouriteEntity())
+            }
+        }
+
+    override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> =
+        withContext(dispatchers.io) {
+            outcomeOf(mapError = { AppError.Storage }) {
+                persistence.updateRating(analysis.product.barcode, analysis.dietRate?.name, analysis.carbsPer100g)
             }
         }
 }

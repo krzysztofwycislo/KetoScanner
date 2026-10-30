@@ -26,7 +26,10 @@ import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.analysis.api.model.carbsPer100g
+import pl.handsome.club.feature.analysis.api.model.dietRate
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
+import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.ui.event.ProductAction
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnBackClicked
@@ -112,9 +115,20 @@ internal class ProductViewModel(
         viewModelScope.launch {
             val analysis = firstShownAnalysis()
             favourites.findByBarcode(analysis.product.barcode)
-                .onSuccess { favourite -> statePrototype.update { it.copy(isFavourite = favourite != null) } }
+                .onSuccess { favourite ->
+                    statePrototype.update { it.copy(isFavourite = favourite != null) }
+                    if (favourite != null && favourite.hasDifferentRatingThan(analysis)) updateFavouriteRating(analysis)
+                }
                 .onFailure { error -> log("Loading favourite status failed", error) }
         }
+    }
+
+    private fun FavouriteProduct.hasDifferentRatingThan(analysis: ProductAnalysis): Boolean =
+        dietRate != analysis.dietRate || carbsPer100g != analysis.carbsPer100g
+
+    private suspend fun updateFavouriteRating(analysis: ProductAnalysis) {
+        favourites.updateRating(analysis)
+            .onFailure { error -> log("Updating favourite rating failed", error) }
     }
 
     private fun refresh() {
@@ -156,13 +170,13 @@ internal class ProductViewModel(
     private fun toggleFavourite() {
         val prototype = statePrototype.value
         val isFavourite = prototype.isFavourite ?: return
-        val product = prototype.analysis?.product ?: return
+        val analysis = prototype.analysis ?: return
         if (prototype.isFavouriteUpdating) return
         statePrototype.update { it.copy(isFavouriteUpdating = true) }
 
         viewModelScope.launch {
-            val outcome = if (isFavourite) favourites.removeFromFavourites(product)
-            else favourites.addToFavourites(product)
+            val outcome = if (isFavourite) favourites.removeFromFavourites(analysis.product)
+            else favourites.addToFavourites(analysis)
 
             outcome
                 .onSuccess {

@@ -18,6 +18,7 @@ import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.testing.FakeErrorReporter
+import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
@@ -162,17 +163,19 @@ class FavouritesViewModelTest {
             emit(result)
         }
 
-        override suspend fun addToFavourites(product: Product): Outcome<Unit> = Outcome.Success(Unit)
+        override suspend fun addToFavourites(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
 
         override suspend fun findByBarcode(barcode: String): Outcome<FavouriteProduct?> = Outcome.Success(null)
 
         override suspend fun removeFromFavourites(product: Product): Outcome<Unit> = Outcome.Success(Unit)
+
+        override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
     }
 
     private companion object {
         const val KEY_QUERY = "query"
 
         fun favourite(barcode: String) =
-            FavouriteProduct(barcode, "Name $barcode", "Brand", Instant.fromEpochMilliseconds(1_700_000_000_000), null)
+            FavouriteProduct(barcode, "Name $barcode", "Brand", Instant.fromEpochMilliseconds(1_700_000_000_000), null, null, null)
     }
 }

@@ -153,6 +153,7 @@ class HistoryStateFactoryTest {
             productBrand = brand,
             updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
             dietRate = dietRate,
+            carbsPer100g = null,
         )
     }
 }

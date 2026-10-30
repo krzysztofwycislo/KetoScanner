@@ -25,21 +25,21 @@ class EntityMapperTest {
 
     @Test
     fun `when stored rate is null then domain rate is null`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null)
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, null)
 
         assertNull(entity.toDomain().dietRate)
     }
 
     @Test
     fun `when stored rate name is unknown then domain rate is null`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, "VERY_GOOD")
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, "VERY_GOOD", null)
 
         assertNull(entity.toDomain().dietRate)
     }
 
     @Test
-    fun `when entity is mapped then id name barcode brand and update time are kept`() {
-        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null).apply {
+    fun `when entity is mapped then id name barcode brand update time and carbs are kept`() {
+        val entity = ProductAnalysisHistoryEntryEntity(NAME, BARCODE, BRAND, null, CARBS).apply {
             id = ID
             updateTime = UPDATE_TIME
         }
@@ -51,6 +51,7 @@ class EntityMapperTest {
         assertEquals(BARCODE, entry.productBarcode)
         assertEquals(BRAND, entry.productBrand)
         assertEquals(UPDATE_TIME, entry.updateTime)
+        assertEquals(CARBS, entry.carbsPer100g)
     }
 
     @Test
@@ -64,6 +65,13 @@ class EntityMapperTest {
     }
 
     @Test
+    fun `when rated analysis is mapped to entity then carbs per 100 g are kept`() {
+        val entity = ProductAnalysis.Rated(productWithCarbs, analysis).toEntity()
+
+        assertEquals(CARBS, entity.carbsPer100g)
+    }
+
+    @Test
     fun `when insufficient data analysis is mapped to entity then rate is null`() {
         val entity = ProductAnalysis.InsufficientData(product).toEntity()
 
@@ -72,8 +80,23 @@ class EntityMapperTest {
     }
 
     @Test
+    fun `when insufficient data analysis has carbs then entity keeps the carbs and a null rate`() {
+        val entity = ProductAnalysis.InsufficientData(productWithCarbs).toEntity()
+
+        assertEquals(CARBS, entity.carbsPer100g)
+        assertNull(entity.dietRate)
+    }
+
+    @Test
+    fun `when product has no carbs then entity carbs are null`() {
+        val entity = ProductAnalysis.Rated(product, analysis).toEntity()
+
+        assertNull(entity.carbsPer100g)
+    }
+
+    @Test
     fun `when entity list is mapped then order is kept`() {
-        val entities = listOf("1", "2", "3").map { ProductAnalysisHistoryEntryEntity(NAME, it, BRAND, null) }
+        val entities = listOf("1", "2", "3").map { ProductAnalysisHistoryEntryEntity(NAME, it, BRAND, null, null) }
 
         assertEquals(listOf("1", "2", "3"), entities.toDomain().map { it.productBarcode })
     }
@@ -83,6 +106,7 @@ class EntityMapperTest {
         const val NAME = "Peanut butter"
         const val BARCODE = "5900000000001"
         const val BRAND = "Nuts & Co"
+        const val CARBS = 12.5
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
         val analysis = MacronutrientAnalysisResult(DietMode.KETO, DietRate.GOOD, emptyList(), 5.0, 800.0, 40)
@@ -94,6 +118,10 @@ class EntityMapperTest {
             nutriments = ProductNutriments(null, null, null, null, null, null, null, null, null, null),
             imageUrl = null,
             servingAmount = null,
+        )
+
+        val productWithCarbs = product.copy(
+            nutriments = product.nutriments.copy(carbohydratesPer100g = CARBS),
         )
     }
 }

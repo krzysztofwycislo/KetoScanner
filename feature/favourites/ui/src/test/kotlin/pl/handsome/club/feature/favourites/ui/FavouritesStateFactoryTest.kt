@@ -111,6 +111,6 @@ class FavouritesStateFactoryTest {
             name: String = "Name $barcode",
             brand: String = "Brand $barcode",
             imageUrl: String? = null,
-        ) = FavouriteProduct(barcode, name, brand, Instant.fromEpochMilliseconds(1_700_000_000_000), imageUrl)
+        ) = FavouriteProduct(barcode, name, brand, Instant.fromEpochMilliseconds(1_700_000_000_000), imageUrl, null, null)
     }
 }

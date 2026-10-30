@@ -12,7 +12,8 @@ data class ProductAnalysisHistoryEntryEntity(
     val productName: String,
     val productBarcode: String,
     val productBrand: String,
-    val dietRate: String?
+    val dietRate: String?,
+    val carbsPer100g: Double?
 ) {
 
     @PrimaryKey(autoGenerate = true)

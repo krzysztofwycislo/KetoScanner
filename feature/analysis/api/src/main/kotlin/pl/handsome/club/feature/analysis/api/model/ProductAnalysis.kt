@@ -13,3 +13,9 @@ sealed interface ProductAnalysis {
 
     data class InsufficientData(override val product: Product) : ProductAnalysis
 }
+
+val ProductAnalysis.dietRate: DietRate?
+    get() = (this as? ProductAnalysis.Rated)?.macronutrients?.rate
+
+val ProductAnalysis.carbsPer100g: Double?
+    get() = product.nutriments.carbohydratesPer100g

@@ -230,6 +230,7 @@ class HistoryViewModelTest {
                 productBrand = "Brand $id",
                 updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
                 dietRate = null,
+                carbsPer100g = null,
             )
         }
     }

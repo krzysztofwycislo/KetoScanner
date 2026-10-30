@@ -298,13 +298,63 @@ class ProductViewModelTest {
     }
 
     @Test
+    fun `when stored favourite has a different rating then it is updated once with the shown analysis`() = runTest {
+        favourites.findResult = Outcome.Success(favouriteProduct.copy(dietRate = DietRate.GOOD))
+        val viewModel = createViewModel()
+
+        analyzeProduct.updates.emit(analysis.copy(product = product.copy(name = "Nutella B-ready")))
+
+        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
+        assertEquals(true, showProduct(viewModel).favourite?.isFavourite)
+    }
+
+    @Test
+    fun `when stored favourite has different carbs then it is updated with the shown analysis`() = runTest {
+        favourites.findResult = Outcome.Success(favouriteProduct.copy(carbsPer100g = 12.0))
+        createViewModel()
+
+        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
+    }
+
+    @Test
+    fun `when stored favourite has the same rating and carbs then it is not updated`() = runTest {
+        favourites.findResult = Outcome.Success(favouriteProduct)
+        val viewModel = createViewModel()
+
+        showProduct(viewModel)
+        assertTrue(favourites.updatedRatings.isEmpty())
+    }
+
+    @Test
+    fun `when product is not a favourite then no rating is updated`() = runTest {
+        val viewModel = createViewModel()
+
+        showProduct(viewModel)
+        assertTrue(favourites.updatedRatings.isEmpty())
+    }
+
+    @Test
+    fun `when favourite rating update fails then it is logged and the product stays a favourite with no message`() =
+        runTest {
+            favourites.findResult = Outcome.Success(favouriteProduct.copy(dietRate = DietRate.GOOD))
+            favourites.updateRatingResult = Outcome.Failure(AppError.Storage)
+            collectMessages()
+            val viewModel = createViewModel()
+
+            assertEquals(true, showProduct(viewModel).favourite?.isFavourite)
+            assertEquals(1, favourites.updatedRatings.size)
+            assertEquals(1, logger.entries.size)
+            assertTrue(messages.isEmpty())
+        }
+
+    @Test
     fun `when favourite is clicked for a non favourite then product is added and message is sent`() = runTest {
         val viewModel = createViewModel()
         collectMessages()
 
         viewModel.onAction(ProductAction.OnFavouriteClicked)
 
-        assertEquals(listOf(product), favourites.added)
+        assertEquals(listOf<ProductAnalysis>(analysis), favourites.added)
         assertTrue(favourites.removed.isEmpty())
         val button = assertNotNull(showProduct(viewModel).favourite)
         assertTrue(button.isFavourite)
@@ -535,12 +585,19 @@ class ProductViewModelTest {
         var updateResult: Outcome<Unit> = Outcome.Success(Unit)
         var pendingUpdate: CompletableDeferred<Outcome<Unit>>? = null
         val foundBarcodes = mutableListOf<String>()
-        val added = mutableListOf<Product>()
+        var updateRatingResult: Outcome<Unit> = Outcome.Success(Unit)
+        val added = mutableListOf<ProductAnalysis>()
         val removed = mutableListOf<Product>()
+        val updatedRatings = mutableListOf<ProductAnalysis>()
 
-        override suspend fun addToFavourites(product: Product): Outcome<Unit> {
-            added += product
+        override suspend fun addToFavourites(analysis: ProductAnalysis): Outcome<Unit> {
+            added += analysis
             return pendingUpdate?.await() ?: updateResult
+        }
+
+        override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> {
+            updatedRatings += analysis
+            return updateRatingResult
         }
 
         override fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>> =
@@ -585,6 +642,8 @@ class ProductViewModelTest {
             productBrand = "Ferrero",
             updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
             imageUrl = null,
+            dietRate = DietRate.NOT_ADVISED,
+            carbsPer100g = 57.5,
         )
 
         fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf(*extra))

@@ -10,5 +10,6 @@ data class ProductAnalysisHistoryEntry(
     val productBarcode: String,
     val productBrand: String,
     val updateTime: Instant,
-    val dietRate: DietRate?
+    val dietRate: DietRate?,
+    val carbsPer100g: Double?
 )

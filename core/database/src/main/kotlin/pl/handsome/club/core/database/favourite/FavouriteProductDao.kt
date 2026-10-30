@@ -22,4 +22,7 @@ interface FavouriteProductDao {
     @Query("SELECT * FROM ${FavouriteProductEntity.TABLE_NAME} WHERE productBarcode = :barcode LIMIT 1")
     suspend fun findByBarcode(barcode: String): FavouriteProductEntity?
 
+    @Query("UPDATE ${FavouriteProductEntity.TABLE_NAME} SET dietRate = :dietRate, carbsPer100g = :carbsPer100g WHERE productBarcode = :barcode")
+    suspend fun updateRating(barcode: String, dietRate: String?, carbsPer100g: Double?)
+
 }

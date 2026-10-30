@@ -19,7 +19,7 @@ import pl.handsome.club.core.database.product.ProductEntity
         FavouriteProductEntity::class,
         ProductEntity::class
     ],
-    version = 5
+    version = 6
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

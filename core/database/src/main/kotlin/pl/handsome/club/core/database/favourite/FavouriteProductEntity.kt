@@ -12,7 +12,9 @@ data class FavouriteProductEntity(
     @PrimaryKey val productBarcode: String,
     val productName: String,
     val productBrand: String,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val dietRate: String?,
+    val carbsPer100g: Double?
 ) {
 
     var updateTime: Instant = Clock.System.now()
