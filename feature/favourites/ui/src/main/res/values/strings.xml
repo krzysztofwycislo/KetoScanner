@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="favourites_title">Favourite products</string>
-    <string name="favourites_search_hint">Search by name</string>
-    <string name="favourites_empty">No favourite products yet</string>
-    <string name="favourites_no_results">No favourites match \"%1$s\"</string>
+    <string name="favourites_title">Favourites</string>
+    <string name="favourites_subtitle">Your go-to picks, ready for the next shop.</string>
+    <string name="favourites_search_placeholder">Search favourites</string>
+    <string name="favourites_empty_title">No favourites yet</string>
+    <string name="favourites_empty_body">Tap the heart on a product to keep it here.</string>
+    <string name="favourites_no_results">No favourites match “%1$s”.</string>
     <string name="favourites_unnamed_product">Unnamed product</string>
     <string name="favourites_retry">Try again</string>
+    <string name="favourites_carbs">%1$s g</string>
+    <string name="favourites_carbs_missing">No data</string>
+    <string name="favourites_carbs_per_100g">%1$s g carbs per 100 g</string>
+    <string name="favourites_verdict_with_carbs">%1$s, %2$s</string>
+    <string name="favourites_verdict_good_keto">Keto-friendly</string>
+    <string name="favourites_verdict_good_low_carb">Low-carb friendly</string>
+    <string name="favourites_verdict_neutral">In small amounts</string>
+    <string name="favourites_verdict_not_advised_keto">Not keto-friendly</string>
+    <string name="favourites_verdict_not_advised_low_carb">Not low-carb friendly</string>
+    <string name="favourites_verdict_unknown">Not enough data yet</string>
 </resources>

@@ -10,6 +10,7 @@ android {
 
 dependencies {
     implementation(project(":feature:favourites:api"))
+    implementation(project(":feature:preferences:api"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:common"))
 

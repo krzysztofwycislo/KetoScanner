@@ -1,15 +1,21 @@
 package pl.handsome.club.feature.favourites.ui
 
 import pl.handsome.club.core.common.AppError
+import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
+import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 import pl.handsome.club.core.designsystem.R as DesignR
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
@@ -76,16 +82,50 @@ class FavouritesStateFactoryTest {
     }
 
     @Test
-    fun `when favourites exist then items keep order barcodes names brands and images`() {
+    fun `when content is initial load empty or error then search is hidden`() {
+        assertFalse(factory.createFor(Prototype.Default).showSearch)
+        assertFalse(factory.createFor(Prototype(favourites = emptyList())).showSearch)
+        assertFalse(factory.createFor(Prototype(loadError = AppError.Storage)).showSearch)
+    }
+
+    @Test
+    fun `when content is items or no results then search is shown`() {
+        assertTrue(factory.createFor(Prototype(favourites = listOf(favourite("1")))).showSearch)
+        assertTrue(
+            factory.createFor(Prototype(favourites = emptyList(), favouritesQuery = "cola")).showSearch,
+        )
+    }
+
+    @Test
+    fun `when favourites exist then items keep order barcodes names brands and verdicts`() {
         val state = factory.createFor(
-            Prototype(favourites = listOf(favourite("2"), favourite("1", imageUrl = IMAGE_URL))),
+            Prototype(
+                favourites = listOf(
+                    favourite("2"),
+                    favourite("1", dietRate = DietRate.GOOD, carbs = 3.5),
+                ),
+            ),
         )
 
         val items = assertIs<FavouritesContentState.ShowItems>(state.content).items
         assertEquals(
             listOf(
-                FavouriteItemState("2", UiText.Raw("Name 2"), UiText.Raw("Brand 2"), null),
-                FavouriteItemState("1", UiText.Raw("Name 1"), UiText.Raw("Brand 1"), IMAGE_URL),
+                FavouriteItemState(
+                    barcode = "2",
+                    name = UiText.Raw("Name 2"),
+                    brand = UiText.Raw("Brand 2"),
+                    rating = Rating.Unknown,
+                    carbs = UiText.Res(R.string.favourites_carbs_missing),
+                    verdictDescription = UiText.Res(R.string.favourites_verdict_unknown),
+                ),
+                FavouriteItemState(
+                    barcode = "1",
+                    name = UiText.Raw("Name 1"),
+                    brand = UiText.Raw("Brand 1"),
+                    rating = Rating.Positive,
+                    carbs = UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(3.5)),
+                    verdictDescription = withCarbs(R.string.favourites_verdict_good_keto, 3.5),
+                ),
             ),
             items,
         )
@@ -105,27 +145,103 @@ class FavouritesStateFactoryTest {
         assertEquals(null, item.brand)
     }
 
-    private fun singleItem(favourite: FavouriteProduct): FavouriteItemState =
-        assertIs<FavouritesContentState.ShowItems>(factory.createFor(Prototype(favourites = listOf(favourite))).content)
+    @Test
+    fun `when diet rate is set then it maps to the matching rating`() {
+        assertEquals(Rating.Positive, singleItem(favourite("1", dietRate = DietRate.GOOD)).rating)
+        assertEquals(Rating.Neutral, singleItem(favourite("1", dietRate = DietRate.NEUTRAL)).rating)
+        assertEquals(Rating.Negative, singleItem(favourite("1", dietRate = DietRate.NOT_ADVISED)).rating)
+        assertEquals(Rating.Unknown, singleItem(favourite("1", dietRate = null)).rating)
+    }
+
+    @Test
+    fun `when carbs are present then carbs text has the grams`() {
+        assertEquals(
+            UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(12.0)),
+            singleItem(favourite("1", carbs = 12.0)).carbs,
+        )
+    }
+
+    @Test
+    fun `when carbs are missing then carbs text is no data`() {
+        assertEquals(UiText.Res(R.string.favourites_carbs_missing), singleItem(favourite("1", carbs = null)).carbs)
+    }
+
+    @Test
+    fun `when mode is keto then verdict description uses the keto strings`() {
+        val keto = DietPreferences(80, DietMode.KETO)
+
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_good_keto, 2.0),
+            singleItem(favourite("1", dietRate = DietRate.GOOD, carbs = 2.0), keto).verdictDescription,
+        )
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_not_advised_keto, 40.0),
+            singleItem(favourite("1", dietRate = DietRate.NOT_ADVISED, carbs = 40.0), keto).verdictDescription,
+        )
+    }
+
+    @Test
+    fun `when mode is low carb then verdict description uses the low carb strings`() {
+        val lowCarb = DietPreferences(80, DietMode.LOW_CARB)
+
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_good_low_carb, 2.0),
+            singleItem(favourite("1", dietRate = DietRate.GOOD, carbs = 2.0), lowCarb).verdictDescription,
+        )
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_not_advised_low_carb, 40.0),
+            singleItem(favourite("1", dietRate = DietRate.NOT_ADVISED, carbs = 40.0), lowCarb).verdictDescription,
+        )
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_neutral, 9.0),
+            singleItem(favourite("1", dietRate = DietRate.NEUTRAL, carbs = 9.0), lowCarb).verdictDescription,
+        )
+    }
+
+    @Test
+    fun `when preferences are not loaded then verdict description falls back to keto`() {
+        assertEquals(
+            withCarbs(R.string.favourites_verdict_good_keto, 2.0),
+            singleItem(favourite("1", dietRate = DietRate.GOOD, carbs = 2.0)).verdictDescription,
+        )
+    }
+
+    @Test
+    fun `when carbs are missing then verdict description is the bare verdict`() {
+        assertEquals(
+            UiText.Res(R.string.favourites_verdict_good_keto),
+            singleItem(favourite("1", dietRate = DietRate.GOOD, carbs = null)).verdictDescription,
+        )
+    }
+
+    private fun singleItem(favourite: FavouriteProduct, preferences: DietPreferences? = null): FavouriteItemState =
+        assertIs<FavouritesContentState.ShowItems>(
+            factory.createFor(Prototype(favourites = listOf(favourite), dietPreferences = preferences)).content,
+        )
             .items
             .single()
 
-    private companion object {
-        const val IMAGE_URL = "https://example.com/image.jpg"
+    private fun withCarbs(verdict: Int, carbs: Double): UiText = UiText.Res(
+        R.string.favourites_verdict_with_carbs,
+        UiArg.Nested(UiText.Res(verdict)),
+        UiArg.Nested(UiText.Res(R.string.favourites_carbs_per_100g, UiArg.Numeric.Grams(carbs))),
+    )
 
+    private companion object {
         fun favourite(
             barcode: String,
             name: String = "Name $barcode",
             brand: String = "Brand $barcode",
-            imageUrl: String? = null,
+            dietRate: DietRate? = null,
+            carbs: Double? = null,
         ) = FavouriteProduct(
             barcode,
             name,
             brand,
             Instant.fromEpochMilliseconds(1_700_000_000_000),
-            imageUrl,
             null,
-            null,
+            dietRate,
+            carbs,
         )
     }
 }

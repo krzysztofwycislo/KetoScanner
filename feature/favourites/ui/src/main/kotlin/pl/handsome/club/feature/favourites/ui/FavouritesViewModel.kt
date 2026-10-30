@@ -33,11 +33,13 @@ import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent
 import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
 import pl.handsome.club.feature.favourites.ui.state.FavouritesState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
 
 internal class FavouritesViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val favourites: FavouriteProductsRepository,
+    private val preferences: DietPreferencesRepository,
     private val appEvents: AppEvents,
     private val stateFactory: FavouritesStateFactory,
     private val errorReporter: ErrorReporter,
@@ -90,6 +92,18 @@ internal class FavouritesViewModel(
         }
     }
 
+    private fun observePreferences() {
+        viewModelScope.launch {
+            preferences.observeDietPreferences().collect { outcome ->
+                outcome
+                    .onSuccess { dietPreferences ->
+                        statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+                    }
+                    .onFailure { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+            }
+        }
+    }
+
     private fun setQuery(query: String) {
         savedStateHandle[KEY_QUERY] = query
         statePrototype.update { it.copy(query = query) }
@@ -107,6 +121,7 @@ internal class FavouritesViewModel(
 
     init {
         observeFavourites()
+        observePreferences()
     }
 
     private companion object {

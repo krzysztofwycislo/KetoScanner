@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
@@ -17,7 +18,9 @@ import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
+import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.testing.FakeErrorReporter
+import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
@@ -25,6 +28,9 @@ import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
 import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.model.Product
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -36,6 +42,7 @@ import kotlin.time.Instant
 class FavouritesViewModelTest {
 
     private val favourites = FakeFavourites()
+    private val preferences = FakePreferences()
     private val errorReporter = FakeErrorReporter()
     private val appEventsReceived = mutableListOf<AppEvent>()
 
@@ -140,12 +147,35 @@ class FavouritesViewModelTest {
         assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEventsReceived)
     }
 
+    @Test
+    fun `when low carb preferences load then item verdicts follow the diet mode`() = runTest {
+        favourites.result = Outcome.Success(listOf(favourite("1", DietRate.GOOD)))
+        val viewModel = createViewModel()
+
+        preferences.emit(Outcome.Success(DietPreferences(80, DietMode.LOW_CARB)))
+
+        val item = assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content).items.single()
+        assertEquals(UiText.Res(R.string.favourites_verdict_good_low_carb), item.verdictDescription)
+    }
+
+    @Test
+    fun `when preferences fail to load then failure is reported and content stays`() = runTest {
+        favourites.result = Outcome.Success(listOf(favourite("1")))
+        val viewModel = createViewModel()
+
+        preferences.emit(Outcome.Failure(AppError.Storage))
+
+        assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content)
+        assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
+    }
+
     private fun TestScope.createViewModel(handle: SavedStateHandle = SavedStateHandle()): FavouritesViewModel {
         val appEvents = AppEvents(backgroundScope)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { appEvents.events.toList(appEventsReceived) }
         return FavouritesViewModel(
             savedStateHandle = handle,
             favourites = favourites,
+            preferences = preferences,
             appEvents = appEvents,
             stateFactory = FavouritesStateFactory(FavouritesResources()),
             errorReporter = errorReporter,
@@ -173,17 +203,32 @@ class FavouritesViewModelTest {
         override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
     }
 
+    private class FakePreferences : DietPreferencesRepository {
+
+        private val flow = MutableSharedFlow<Outcome<DietPreferences>>()
+
+        suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
+
+        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+
+        override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
+
+        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> = throw NotImplementedError()
+
+        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> = throw NotImplementedError()
+    }
+
     private companion object {
         const val KEY_QUERY = "query"
 
-        fun favourite(barcode: String) =
+        fun favourite(barcode: String, dietRate: DietRate? = null) =
             FavouriteProduct(
                 barcode,
                 "Name $barcode",
                 "Brand",
                 Instant.fromEpochMilliseconds(1_700_000_000_000),
                 null,
-                null,
+                dietRate,
                 null,
             )
     }
