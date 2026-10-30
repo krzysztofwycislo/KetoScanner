@@ -63,6 +63,11 @@ data class AppColors(
         val controlActive: Color,
         val hint: Color,
         val dim: Color,
+        val chip: Color,
+        val ratingPositive: Color,
+        val ratingNeutral: Color,
+        val ratingNegative: Color,
+        val ratingUnknown: Color,
     )
 }
 
@@ -109,5 +114,10 @@ val LightAppColors = AppColors(
         controlActive = Color(0xFFFFE58A),
         hint = Color(0xBF0E1411),
         dim = Color(0x8C0E1411),
+        chip = Color(0x1FFFFFFF),
+        ratingPositive = Color(0xFF8EF0BD),
+        ratingNeutral = Color(0xFFFFD27A),
+        ratingNegative = Color(0xFFFFA79E),
+        ratingUnknown = Color(0xFFC9D3CD),
     ),
 )

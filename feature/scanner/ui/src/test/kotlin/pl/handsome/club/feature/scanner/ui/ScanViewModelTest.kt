@@ -1,11 +1,13 @@
 package pl.handsome.club.feature.scanner.ui
 
 import androidx.lifecycle.SavedStateHandle
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
@@ -26,6 +28,7 @@ import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.core.testing.FakeAppLogger
+import pl.handsome.club.core.testing.FakeClock
 import pl.handsome.club.core.testing.FakeErrorReporter
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.analysis.api.model.DietRate
@@ -33,7 +36,9 @@ import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
@@ -52,14 +57,20 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 class ScanViewModelTest {
 
     private val products = FakeProductRepository()
     private val analyzeProduct = FakeAnalyzeProduct()
     private val history = FakeHistory()
+    private val preferences = FakePreferences()
+    private val clock = FakeClock(NOW)
     private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
     private val appEvents = mutableListOf<AppEvent>()
@@ -576,8 +587,140 @@ class ScanViewModelTest {
             )
         }
 
+    @Test
+    fun `when created then three trip entries are requested once`() = runTest {
+        createViewModel()
+
+        assertEquals(listOf(3), history.requestedAmounts)
+    }
+
+    @Test
+    fun `when trip entries are emitted then the preview shows the ones inside the window`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        history.entries.value = Outcome.Success(
+            listOf(entry("1"), entry("2", updateTime = NOW - 2.hours), entry("3", updateTime = NOW - 4.hours)),
+        )
+
+        assertEquals(listOf("1", "2"), viewModel.tripBarcodes())
+    }
+
+    @Test
+    fun `when the clock moves and the screen starts again then aged out entries are hidden`() = runTest {
+        history.entries.value = Outcome.Success(listOf(entry("1"), entry("2", updateTime = NOW - 2.hours)))
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        assertEquals(listOf("1", "2"), viewModel.tripBarcodes())
+
+        clock.now = NOW + 1.hours + 30.minutes
+        assertEquals(listOf("1", "2"), viewModel.tripBarcodes())
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        assertEquals(listOf("1"), viewModel.tripBarcodes())
+    }
+
+    @Test
+    fun `when new trip entries arrive then the time is refreshed`() = runTest {
+        history.entries.value = Outcome.Success(listOf(entry("1")))
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        clock.now = NOW + 3.hours
+        history.entries.value = Outcome.Success(listOf(entry("2", updateTime = NOW + 3.hours), entry("1")))
+
+        assertEquals(listOf("2"), viewModel.tripBarcodes())
+    }
+
+    @Test
+    fun `when a trip item is clicked then product opens without a lookup or history entry`() = runTest {
+        history.entries.value = Outcome.Success(listOf(entry("123")))
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnTripItemClicked("123"))
+
+        assertEquals(listOf<ScanEvent>(NavigateToProduct("123")), screenEvents)
+        assertTrue(products.refreshedBarcodes.isEmpty())
+        assertTrue(history.saved.isEmpty())
+    }
+
+    @Test
+    fun `when a found card is pending or shown then the trip is hidden and returns with the scan after scan next`() =
+        runTest {
+            history.entries.value = Outcome.Success(listOf(entry("1")))
+            val viewModel = createViewModel()
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+            assertTrue(viewModel.tripBarcodes().isEmpty())
+
+            analyzeProduct.emit(ratedAnalysis)
+            history.entries.value = Outcome.Success(listOf(entry("590"), entry("1")))
+            assertEquals(ratedCard, viewModel.state.value.found)
+            assertTrue(viewModel.tripBarcodes().isEmpty())
+
+            viewModel.onAction(ScanAction.OnScanNextClicked)
+            assertEquals(listOf("590", "1"), viewModel.tripBarcodes())
+        }
+
+    @Test
+    fun `when loading trip entries fails then it is reported and retried after 5 seconds`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        history.entries.value = Outcome.Failure(AppError.Storage)
+
+        assertEquals(AppError.Storage, errorReporter.reports.single().error)
+        assertTrue(appEvents.isEmpty())
+        assertTrue(viewModel.tripBarcodes().isEmpty())
+
+        history.entries.value = Outcome.Success(listOf(entry("1")))
+        advanceTimeBy(4_999)
+        runCurrent()
+        assertEquals(1, history.requestedAmounts.size)
+        assertTrue(viewModel.tripBarcodes().isEmpty())
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(2, history.requestedAmounts.size)
+        assertEquals(listOf("1"), viewModel.tripBarcodes())
+        assertEquals(1, errorReporter.reports.size)
+    }
+
+    @Test
+    fun `when low carb preferences load then the trip description follows them`() = runTest {
+        history.entries.value = Outcome.Success(listOf(entry("1")))
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        assertEquals(UiText.Res(R.string.scan_verdict_good_keto), tripItems(viewModel).single().description)
+
+        preferences.emit(Outcome.Success(DietPreferences(40, DietMode.LOW_CARB)))
+
+        assertEquals(UiText.Res(R.string.scan_verdict_good_low_carb), tripItems(viewModel).single().description)
+    }
+
+    private fun tripItems(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).trip
+
     private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
-        CameraState.Preview(isPaused = isPaused, torch = torch, isTypeSheetOpen = isTypeSheetOpen)
+        CameraState.Preview(
+            isPaused = isPaused,
+            torch = torch,
+            isTypeSheetOpen = isTypeSheetOpen,
+            trip = persistentListOf(),
+        )
+
+    private fun ScanViewModel.tripBarcodes(): List<String> = tripItems(this).map { it.barcode }
+
+    private fun entry(barcode: String, updateTime: Instant = NOW - 10.minutes) = ProductAnalysisHistoryEntry(
+        id = barcode.hashCode().toLong(),
+        productName = "Name $barcode",
+        productBarcode = barcode,
+        productBrand = "Brand",
+        updateTime = updateTime,
+        dietRate = DietRate.GOOD,
+        carbsPer100g = null,
+    )
 
     private fun TestScope.createViewModel(
         handle: SavedStateHandle = SavedStateHandle(),
@@ -596,6 +739,8 @@ class ScanViewModelTest {
             resources = resources,
             logger = logger,
             errorReporter = errorReporter,
+            preferences = preferences,
+            clock = clock,
             applicationScope = CoroutineScope(
                 backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler),
             ),
@@ -645,14 +790,33 @@ class ScanViewModelTest {
 
         var result: Outcome<Unit> = Outcome.Success(Unit)
         val saved = mutableListOf<ProductAnalysis>()
+        val entries = MutableStateFlow<Outcome<List<ProductAnalysisHistoryEntry>>>(Outcome.Success(emptyList()))
+        val requestedAmounts = mutableListOf<Int>()
 
         override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> {
             saved += analysis
             return result
         }
 
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> =
-            throw NotImplementedError()
+        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = flow {
+            requestedAmounts += amount
+            emitAll(entries)
+        }
+    }
+
+    private class FakePreferences : DietPreferencesRepository {
+
+        private val flow = MutableSharedFlow<Outcome<DietPreferences>>()
+
+        suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
+
+        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+
+        override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
+
+        override suspend fun setMaxDailyCarbsAmount(amount: Int): Outcome<Unit> = throw NotImplementedError()
+
+        override suspend fun setDietMode(mode: DietMode): Outcome<Unit> = throw NotImplementedError()
     }
 
     private companion object {
@@ -661,6 +825,7 @@ class ScanViewModelTest {
         const val KEY_TORCH = "torch"
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
         const val KEY_FOUND_BARCODE = "foundBarcode"
+        val NOW = Instant.parse("2026-10-30T12:00:00Z")
 
         val product = Product(
             name = "Nutella",

@@ -2,6 +2,10 @@ package pl.handsome.club.feature.scanner.ui.state
 
 import androidx.compose.runtime.Immutable
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 @Immutable
 internal data class ScanStatePrototype(
@@ -14,11 +18,16 @@ internal data class ScanStatePrototype(
     val isTypeSheetOpen: Boolean = false,
     val foundBarcode: String? = null,
     val foundAnalysis: ProductAnalysis? = null,
+    val tripEntries: List<ProductAnalysisHistoryEntry> = emptyList(),
+    val now: Instant = Instant.fromEpochMilliseconds(0),
+    val dietPreferences: DietPreferences? = null,
 ) {
 
     val isScanBlocked: Boolean get() = isScanPaused || isSearching || isTypeSheetOpen || foundBarcode != null
 
     companion object {
         val Default = ScanStatePrototype()
+        const val TRIP_LIMIT = 3
+        val TRIP_WINDOW = 3.hours
     }
 }

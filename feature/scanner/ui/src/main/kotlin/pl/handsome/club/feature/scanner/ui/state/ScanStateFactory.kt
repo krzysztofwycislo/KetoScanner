@@ -1,8 +1,14 @@
 package pl.handsome.club.feature.scanner.ui.state
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.scanner.ui.ScanResources
 import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
@@ -20,6 +26,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
             isPaused = isScanBlocked,
             torch = torch(),
             isTypeSheetOpen = isTypeSheetOpen,
+            trip = trip(),
         )
 
         CameraPermission.Rationale -> CameraState.PermissionPanel(
@@ -65,9 +72,29 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         }
     }
 
-    private fun DietRate.toRating(): Rating = when (this) {
+    private fun Prototype.trip(): ImmutableList<TripItemState> {
+        if (isTypeSheetOpen || foundBarcode != null) return persistentListOf()
+        val mode = (dietPreferences ?: DietPreferences.Default).dietMode
+        val windowStart = now - Prototype.TRIP_WINDOW
+        return tripEntries
+            .filter { it.updateTime >= windowStart }
+            .take(Prototype.TRIP_LIMIT)
+            .map { it.toTripItem(mode) }
+            .toImmutableList()
+    }
+
+    private fun ProductAnalysisHistoryEntry.toTripItem(mode: DietMode) = TripItemState(
+        barcode = productBarcode,
+        name = resources.productName(productName),
+        rating = dietRate.toRating(),
+        carbs = resources.tripCarbs(carbsPer100g),
+        description = resources.tripDescription(dietRate, mode, carbsPer100g),
+    )
+
+    private fun DietRate?.toRating(): Rating = when (this) {
         DietRate.GOOD -> Rating.Positive
         DietRate.NEUTRAL -> Rating.Neutral
         DietRate.NOT_ADVISED -> Rating.Negative
+        null -> Rating.Unknown
     }
 }

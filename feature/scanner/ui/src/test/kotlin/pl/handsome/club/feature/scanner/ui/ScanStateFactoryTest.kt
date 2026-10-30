@@ -1,12 +1,15 @@
 package pl.handsome.club.feature.scanner.ui
 
+import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.product.api.model.Product
 import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.scanner.ui.state.CameraPermission
@@ -14,11 +17,18 @@ import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
 import pl.handsome.club.feature.scanner.ui.state.Torch
+import pl.handsome.club.feature.scanner.ui.state.TripItemState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
 class ScanStateFactoryTest {
@@ -182,6 +192,125 @@ class ScanStateFactoryTest {
         )
     }
 
+    @Test
+    fun `when trip entries are inside the window then each maps to an item`() {
+        val items = trip(
+            withTrip(
+                entry(1, rate = DietRate.GOOD, carbs = 3.6),
+                entry(2, name = " ", rate = DietRate.NEUTRAL, carbs = null),
+                entry(3, rate = null, carbs = 1.0),
+            )
+        )
+
+        assertEquals(
+            listOf(
+                TripItemState(
+                    barcode = "barcode-1",
+                    name = UiText.Raw("Name 1"),
+                    rating = Rating.Positive,
+                    carbs = UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(3.6)),
+                    description = UiText.Res(
+                        R.string.scan_trip_verdict_with_carbs,
+                        UiArg.Nested(UiText.Res(R.string.scan_verdict_good_keto)),
+                        UiArg.Nested(UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(3.6))),
+                    ),
+                ),
+                TripItemState(
+                    barcode = "barcode-2",
+                    name = UiText.Res(R.string.scan_found_unnamed),
+                    rating = Rating.Neutral,
+                    carbs = UiText.Res(R.string.scan_trip_carbs_missing),
+                    description = UiText.Res(R.string.scan_verdict_neutral),
+                ),
+                TripItemState(
+                    barcode = "barcode-3",
+                    name = UiText.Raw("Name 3"),
+                    rating = Rating.Unknown,
+                    carbs = UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(1.0)),
+                    description = UiText.Res(
+                        R.string.scan_trip_verdict_with_carbs,
+                        UiArg.Nested(UiText.Res(R.string.scan_verdict_insufficient_data)),
+                        UiArg.Nested(UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(1.0))),
+                    ),
+                ),
+            ),
+            items,
+        )
+    }
+
+    @Test
+    fun `when a not advised entry is in the trip then its rating is negative`() {
+        assertEquals(Rating.Negative, trip(withTrip(entry(1, rate = DietRate.NOT_ADVISED))).single().rating)
+    }
+
+    @Test
+    fun `when an entry is older than the window then it is dropped and the boundary is kept`() {
+        val items = trip(
+            withTrip(
+                entry(1, age = 1.hours),
+                entry(2, age = Prototype.TRIP_WINDOW),
+                entry(3, age = Prototype.TRIP_WINDOW + 1.seconds),
+            )
+        )
+
+        assertEquals(listOf("barcode-1", "barcode-2"), items.map { it.barcode })
+    }
+
+    @Test
+    fun `when more entries than the limit are given then at most three are shown in the given order`() {
+        val items = trip(withTrip(entry(4), entry(2), entry(9), entry(1)))
+
+        assertEquals(listOf("barcode-4", "barcode-2", "barcode-9"), items.map { it.barcode })
+        assertEquals(3, Prototype.TRIP_LIMIT)
+        assertEquals(3.hours, Prototype.TRIP_WINDOW)
+    }
+
+    @Test
+    fun `when the type sheet is open or a found barcode is set then the trip is empty`() {
+        assertTrue(trip(withTrip(entry(1)).copy(isTypeSheetOpen = true)).isEmpty())
+        assertTrue(trip(withTrip(entry(1)).copy(foundBarcode = BARCODE)).isEmpty())
+        assertTrue(
+            trip(
+                withTrip(entry(1)).copy(
+                    foundBarcode = BARCODE,
+                    foundAnalysis = ProductAnalysis.InsufficientData(product),
+                )
+            ).isEmpty()
+        )
+    }
+
+    @Test
+    fun `when the diet mode changes then the trip description follows it`() {
+        val keto = DietPreferences(40, DietMode.KETO)
+        val lowCarb = DietPreferences(40, DietMode.LOW_CARB)
+
+        assertEquals(
+            UiText.Res(R.string.scan_verdict_good_keto),
+            trip(withTrip(entry(1, carbs = null), preferences = keto)).single().description,
+        )
+        assertEquals(
+            UiText.Res(R.string.scan_verdict_good_low_carb),
+            trip(withTrip(entry(1, carbs = null), preferences = lowCarb)).single().description,
+        )
+        assertEquals(
+            UiText.Res(R.string.scan_verdict_not_advised_low_carb),
+            trip(withTrip(entry(1, rate = DietRate.NOT_ADVISED, carbs = null), preferences = lowCarb))
+                .single().description,
+        )
+        assertEquals(
+            UiText.Res(R.string.scan_verdict_good_keto),
+            trip(withTrip(entry(1, carbs = null), preferences = null)).single().description,
+        )
+    }
+
+    @Test
+    fun `when the rate is missing and carbs are missing then the description is not enough data`() {
+        assertEquals(
+            UiText.Res(R.string.scan_verdict_insufficient_data),
+            trip(withTrip(entry(1, rate = null, carbs = null))).single().description,
+        )
+    }
+
     private fun found(analysis: ProductAnalysis): FoundCardState? =
         factory.createFor(granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis)).found
 
@@ -193,12 +322,40 @@ class ScanStateFactoryTest {
     private fun granted() = Prototype(cameraPermission = CameraPermission.Granted)
 
     private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
-        CameraState.Preview(isPaused = isPaused, torch = torch, isTypeSheetOpen = isTypeSheetOpen)
+        CameraState.Preview(
+            isPaused = isPaused,
+            torch = torch,
+            isTypeSheetOpen = isTypeSheetOpen,
+            trip = persistentListOf(),
+        )
 
     private fun camera(prototype: Prototype): CameraState = factory.createFor(prototype).camera
 
+    private fun trip(prototype: Prototype): List<TripItemState> =
+        assertIs<CameraState.Preview>(camera(prototype)).trip
+
+    private fun withTrip(vararg entries: ProductAnalysisHistoryEntry, preferences: DietPreferences? = null) =
+        granted().copy(tripEntries = entries.toList(), now = NOW, dietPreferences = preferences)
+
+    private fun entry(
+        id: Long,
+        age: Duration = 10.minutes,
+        name: String = "Name $id",
+        rate: DietRate? = DietRate.GOOD,
+        carbs: Double? = 3.6,
+    ) = ProductAnalysisHistoryEntry(
+        id = id,
+        productName = name,
+        productBarcode = "barcode-$id",
+        productBrand = "Brand",
+        updateTime = NOW - age,
+        dietRate = rate,
+        carbsPer100g = carbs,
+    )
+
     private companion object {
         const val BARCODE = "590"
+        val NOW = Instant.parse("2026-10-30T12:00:00Z")
 
         val product = Product(
             name = "Nutella",

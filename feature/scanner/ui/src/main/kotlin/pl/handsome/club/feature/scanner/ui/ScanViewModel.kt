@@ -28,11 +28,13 @@ import pl.handsome.club.core.common.ProgressTracker
 import pl.handsome.club.core.common.isReportable
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
+import pl.handsome.club.core.common.retryOnFailure
 import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
 import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.scanner.ui.event.OpenAppSettings
 import pl.handsome.club.feature.scanner.ui.event.RequestCameraPermission
@@ -46,6 +48,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnScanNextClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnStart
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTorchClicked
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTripItemClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent
@@ -54,6 +57,7 @@ import pl.handsome.club.feature.scanner.ui.state.CameraPermission
 import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
 import pl.handsome.club.feature.scanner.ui.state.ScanState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
@@ -67,6 +71,8 @@ internal class ScanViewModel(
     private val resources: ScanResources,
     private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
+    private val preferences: DietPreferencesRepository,
+    private val clock: Clock,
     private val applicationScope: CoroutineScope,
     initialQuery: String,
 ) : ViewModel() {
@@ -83,6 +89,7 @@ internal class ScanViewModel(
             isTorchOn = savedStateHandle.get<Boolean>(KEY_TORCH) ?: false,
             isTypeSheetOpen = savedStateHandle.get<Boolean>(KEY_TYPE_SHEET_OPEN) ?: false,
             foundBarcode = savedStateHandle.get<String>(KEY_FOUND_BARCODE),
+            now = clock.now(),
         )
     )
 
@@ -108,6 +115,34 @@ internal class ScanViewModel(
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
             OnScanNextClicked -> scanNext()
             OnDetailsClicked -> statePrototype.value.foundBarcode?.let { screenEvents send NavigateToProduct(it) }
+            is OnTripItemClicked -> screenEvents send NavigateToProduct(action.barcode)
+        }
+    }
+
+    private fun observeTrip() {
+        viewModelScope.launch {
+            history.observeLastUniqueEntries(Prototype.TRIP_LIMIT)
+                .retryOnFailure(::onTripFailed)
+                .collect { entries ->
+                    statePrototype.update { it.copy(tripEntries = entries, now = clock.now()) }
+                }
+        }
+    }
+
+    private suspend fun onTripFailed(error: AppError) {
+        errorReporter.report(TAG, "Loading trip entries failed", error)
+        delay(TRIP_RETRY_DELAY)
+    }
+
+    private fun observePreferences() {
+        viewModelScope.launch {
+            preferences.observeDietPreferences().collect { outcome ->
+                outcome
+                    .onSuccess { dietPreferences ->
+                        statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+                    }
+                    .onFailure { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+            }
         }
     }
 
@@ -142,7 +177,9 @@ internal class ScanViewModel(
     }
 
     private fun onStart(check: CameraPermissionCheck, hasTorch: Boolean) {
-        statePrototype.update { it.copy(isScanPaused = progress.inProgress.value, hasTorch = hasTorch) }
+        statePrototype.update {
+            it.copy(isScanPaused = progress.inProgress.value, hasTorch = hasTorch, now = clock.now())
+        }
         val current = statePrototype.value.cameraPermission
         when {
             check.isGranted -> setCameraPermission(CameraPermission.Granted)
@@ -251,6 +288,8 @@ internal class ScanViewModel(
     init {
         observeProgress()
         observeFoundAnalysis()
+        observeTrip()
+        observePreferences()
     }
 
     private companion object {
@@ -261,5 +300,6 @@ internal class ScanViewModel(
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
         const val KEY_FOUND_BARCODE = "foundBarcode"
         val SCAN_RESUME_DELAY = 2.seconds
+        val TRIP_RETRY_DELAY = 5.seconds
     }
 }

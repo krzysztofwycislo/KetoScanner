@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +36,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +54,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.designsystem.component.CameraHint
 import pl.handsome.club.core.designsystem.component.CameraIconButton
@@ -63,6 +71,7 @@ import pl.handsome.club.core.designsystem.component.TextInput
 import pl.handsome.club.core.designsystem.component.TopBar
 import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.component.VerdictBanner
+import pl.handsome.club.core.designsystem.component.cameraColor
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
@@ -86,13 +95,16 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnScanNextClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnStart
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTorchClicked
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTripItemClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanState
+import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype
 import pl.handsome.club.feature.scanner.ui.state.Torch
+import pl.handsome.club.feature.scanner.ui.state.TripItemState
 
 @Composable
 internal fun ScanScreen(onNavigation: (ScanNavigation) -> Unit) {
@@ -169,8 +181,96 @@ private fun CameraContent(state: ScanState, camera: CameraState.Preview, onActio
                     modifier = Modifier.padding(top = AppTheme.spacing.m),
                 )
             }
+            TripOverlay(camera.trip, innerPadding, onAction)
             TypeSheet(state, camera.isTypeSheetOpen, onAction)
             FoundOverlay(state.found, onAction)
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.TripOverlay(
+    trip: ImmutableList<TripItemState>,
+    innerPadding: PaddingValues,
+    onAction: (ScanAction) -> Unit,
+) {
+    var lastTrip by remember { mutableStateOf(trip) }
+    if (trip.isNotEmpty()) lastTrip = trip
+    AnimatedVisibility(
+        visible = trip.isNotEmpty(),
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.align(Alignment.BottomCenter),
+    ) {
+        TripStrip(
+            trip = lastTrip,
+            onAction = onAction,
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(start = AppTheme.spacing.m, end = AppTheme.spacing.m, bottom = AppTheme.spacing.s),
+        )
+    }
+}
+
+@Composable
+private fun TripStrip(trip: ImmutableList<TripItemState>, onAction: (ScanAction) -> Unit, modifier: Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("scanTripStrip"),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+    ) {
+        Text(
+            text = stringResource(R.string.scan_trip_title).uppercase(),
+            style = AppTheme.typography.label,
+            color = AppTheme.colors.text.onHero,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
+            trip.forEach { item ->
+                TripChip(item, onAction, Modifier.weight(1f))
+            }
+            repeat(ScanStatePrototype.TRIP_LIMIT - trip.size) {
+                Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifier: Modifier) {
+    val description = item.description.resolve()
+    Row(
+        modifier = modifier
+            .clip(AppTheme.shapes.control)
+            .background(AppTheme.colors.camera.chip)
+            .clickable(role = Role.Button) { onAction(OnTripItemClicked(item.barcode)) }
+            .padding(AppTheme.spacing.xs)
+            .semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = AppIcons.Bag.imageVector,
+            contentDescription = null,
+            tint = AppTheme.colors.text.inverse,
+            modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+        )
+        Column {
+            Text(
+                text = item.name.resolve(),
+                style = AppTheme.typography.caption,
+                color = AppTheme.colors.text.inverse,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = item.carbs.resolve(),
+                style = AppTheme.typography.caption,
+                fontWeight = FontWeight.ExtraBold,
+                color = item.rating.cameraColor(),
+                maxLines = 1,
+                modifier = Modifier.semantics { contentDescription = description },
+            )
         }
     }
 }
@@ -495,6 +595,7 @@ private fun previewState(
     torch: Torch = Torch.Off,
     isTypeSheetOpen: Boolean = false,
     found: FoundCardState? = null,
+    trip: ImmutableList<TripItemState> = persistentListOf(),
 ) = ScanState(
     query = query,
     showProgress = showProgress,
@@ -502,14 +603,58 @@ private fun previewState(
         isPaused = showProgress || isTypeSheetOpen || found != null,
         torch = torch,
         isTypeSheetOpen = isTypeSheetOpen,
+        trip = trip,
     ),
     found = found,
+)
+
+private fun previewTripItem(name: String, rating: Rating, carbs: Double?, verdict: Int) = TripItemState(
+    barcode = name,
+    name = UiText.Raw(name),
+    rating = rating,
+    carbs = if (carbs == null) {
+        UiText.Res(R.string.scan_trip_carbs_missing)
+    } else {
+        UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(carbs))
+    },
+    description = UiText.Res(verdict),
 )
 
 @Preview
 @Composable
 private fun ScanAimingPreview() {
     PreviewContent(previewState())
+}
+
+@Preview
+@Composable
+private fun ScanTripPreview() {
+    PreviewContent(
+        previewState(
+            trip = persistentListOf(
+                previewTripItem("Greek yogurt 10%", Rating.Positive, 3.6, R.string.scan_verdict_good_keto),
+                previewTripItem("Dark chocolate 85%", Rating.Neutral, 14.0, R.string.scan_verdict_neutral),
+                previewTripItem("Mineral water", Rating.Unknown, null, R.string.scan_verdict_insufficient_data),
+            ),
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun ScanTripSingleItemPreview() {
+    PreviewContent(
+        previewState(
+            trip = persistentListOf(
+                previewTripItem(
+                    name = "Nutella hazelnut spread with cocoa",
+                    rating = Rating.Negative,
+                    carbs = 57.5,
+                    verdict = R.string.scan_verdict_not_advised_keto,
+                ),
+            ),
+        )
+    )
 }
 
 @Preview

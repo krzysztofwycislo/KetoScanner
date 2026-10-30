@@ -28,4 +28,8 @@
     <string name="scan_found_carbs_per_100g">%1$s g carbs per 100 g</string>
     <string name="scan_next">Scan next</string>
     <string name="scan_details">Details</string>
+    <string name="scan_trip_title">This trip</string>
+    <string name="scan_trip_carbs">%1$s g</string>
+    <string name="scan_trip_carbs_missing">No data</string>
+    <string name="scan_trip_verdict_with_carbs">%1$s, %2$s</string>
 </resources>

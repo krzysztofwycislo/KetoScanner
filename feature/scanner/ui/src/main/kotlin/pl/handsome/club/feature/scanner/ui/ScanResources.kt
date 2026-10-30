@@ -49,4 +49,18 @@ internal class ScanResources {
     fun insufficientDataDetail(): UiText = UiText.Res(R.string.scan_found_insufficient_detail)
 
     fun carbsPer100g(grams: Double): UiText = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(grams))
+
+    fun tripCarbs(grams: Double?): UiText =
+        if (grams == null) UiText.Res(R.string.scan_trip_carbs_missing)
+        else UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(grams))
+
+    fun tripDescription(rate: DietRate?, mode: DietMode, carbs: Double?): UiText {
+        val verdict = if (rate == null) insufficientData() else verdictTitle(rate, mode)
+        return if (carbs == null) verdict
+        else UiText.Res(
+            R.string.scan_trip_verdict_with_carbs,
+            UiArg.Nested(verdict),
+            UiArg.Nested(carbsPer100g(carbs)),
+        )
+    }
 }
