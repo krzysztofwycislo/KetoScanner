@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
@@ -16,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,8 @@ import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.theme.AppTheme
+
+val LocalBottomBarOverlap = compositionLocalOf { 0.dp }
 
 @Composable
 fun Ui.Screen(
@@ -55,7 +59,9 @@ fun Ui.Screen(
             }
         },
         containerColor = containerColor,
-        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+        contentWindowInsets = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            .add(WindowInsets(bottom = LocalBottomBarOverlap.current)),
         content = content,
     )
 }

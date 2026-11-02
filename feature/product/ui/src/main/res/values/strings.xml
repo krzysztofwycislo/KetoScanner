@@ -36,7 +36,6 @@
     <string name="product_carbs">Carbs</string>
     <string name="product_sugars">Sugars</string>
     <string name="product_fibre">Fibre</string>
-    <string name="product_salt">Salt</string>
     <string name="product_value_grams">%1$s g</string>
     <string name="product_value_kcal">%1$s kcal</string>
     <string name="product_value_missing">-</string>
@@ -51,7 +50,6 @@
     <string name="product_advice_portion">Up to %1$s g/ml fits your daily limit of %2$s g carbs.</string>
     <string name="product_advice_unlimited">No carbs, so any portion fits your daily limit.</string>
     <string name="product_at_a_glance">At a glance</string>
-    <string name="product_nutrition">Nutrition</string>
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>
     <string name="product_basis_serving_with_value">%1$s g/ml</string>

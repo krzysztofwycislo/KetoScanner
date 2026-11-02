@@ -109,8 +109,6 @@ internal class ProductResources {
 
     fun fibre(): UiText = UiText.Res(R.string.product_fibre)
 
-    fun salt(): UiText = UiText.Res(R.string.product_salt)
-
     fun kcal(value: Double?): UiText =
         if (value == null) missingValue() else UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 

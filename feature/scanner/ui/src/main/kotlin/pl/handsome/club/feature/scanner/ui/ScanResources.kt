@@ -5,6 +5,8 @@ import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.feature.analysis.api.model.DietRate
+import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.handsome.club.feature.analysis.api.model.RatingReason
 import pl.handsome.club.feature.preferences.api.model.DietMode
 
 internal class ScanResources {
@@ -49,6 +51,39 @@ internal class ScanResources {
     fun insufficientDataDetail(): UiText = UiText.Res(R.string.scan_found_insufficient_detail)
 
     fun carbsPer100g(grams: Double): UiText = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(grams))
+
+    fun foundDetail(result: MacronutrientAnalysisResult): UiText =
+        result.reasons.firstOrNull()?.let(::reason) ?: carbsPer100g(result.carbsPer100g)
+
+    private fun reason(reason: RatingReason): UiText = when (reason) {
+        is RatingReason.HighCarbs ->
+            carbsPer100g(reason.gramsPer100g)
+
+        is RatingReason.HighCarbEnergyShare ->
+            UiText.Res(
+                R.string.scan_found_reason_carb_energy_share,
+                UiArg.Numeric.Percent(reason.share),
+            )
+
+        is RatingReason.LowFatAndProteinToCarbRatio ->
+            UiText.Res(
+                R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio,
+                UiArg.Numeric.Ratio(reason.ratio),
+            )
+
+        is RatingReason.HighSugars ->
+            UiText.Res(
+                R.string.scan_found_reason_high_sugars,
+                UiArg.Numeric.Grams(reason.gramsPer100g),
+            )
+
+        is RatingReason.HighCarbsPerServing ->
+            UiText.Res(
+                R.string.scan_found_reason_high_carbs_per_serving,
+                UiArg.Numeric.Grams(reason.carbsGrams),
+                UiArg.Numeric.Grams(reason.servingGrams),
+            )
+    }
 
     fun tripCarbs(grams: Double?): UiText =
         if (grams == null) UiText.Res(R.string.scan_trip_carbs_missing)

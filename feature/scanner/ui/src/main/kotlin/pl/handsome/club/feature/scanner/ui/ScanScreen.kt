@@ -39,7 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -147,10 +150,12 @@ private fun ScreenContent(state: ScanState, onAction: (ScanAction) -> Unit) {
 private fun CameraContent(state: ScanState, camera: CameraState.Preview, onAction: (ScanAction) -> Unit) {
     Ui.Screen(containerColor = AppTheme.colors.camera.background) { innerPadding ->
         LightStatusBarIconsEffect()
+        var scanArea by remember { mutableStateOf<Rect?>(null) }
         Box(modifier = Modifier.fillMaxSize()) {
             CameraPreview(
                 isPaused = camera.isPaused,
                 torchEnabled = camera.torch == Torch.On,
+                scanArea = scanArea,
                 onBarcodeScanned = { onAction(OnBarcodeScanned(it)) },
                 modifier = Modifier
                     .fillMaxSize()
@@ -176,15 +181,15 @@ private fun CameraContent(state: ScanState, camera: CameraState.Preview, onActio
                         )
                     }
                 }
-                Ui.ScanFrame()
+                Ui.ScanFrame(Modifier.onGloballyPositioned { scanArea = it.boundsInWindow() })
                 Ui.CameraHint(
                     text = stringResource(R.string.scan_aim_hint),
                     modifier = Modifier.padding(top = AppTheme.spacing.m),
                 )
             }
             TripOverlay(camera.trip, innerPadding, onAction)
-            TypeSheet(state, camera.isTypeSheetOpen, onAction)
-            FoundOverlay(state.found, onAction)
+            TypeSheet(state, camera.isTypeSheetOpen, innerPadding, onAction)
+            FoundOverlay(state.found, innerPadding, onAction)
         }
     }
 }
@@ -277,7 +282,11 @@ private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifi
 }
 
 @Composable
-private fun BoxScope.FoundOverlay(found: FoundCardState?, onAction: (ScanAction) -> Unit) {
+private fun BoxScope.FoundOverlay(
+    found: FoundCardState?,
+    innerPadding: PaddingValues,
+    onAction: (ScanAction) -> Unit,
+) {
     BackHandler(enabled = found != null) { onAction(OnScanNextClicked) }
     AnimatedVisibility(
         visible = found != null,
@@ -298,7 +307,9 @@ private fun BoxScope.FoundOverlay(found: FoundCardState?, onAction: (ScanAction)
         visible = found != null,
         enter = slideInVertically { it },
         exit = slideOutVertically { it },
-        modifier = Modifier.align(Alignment.BottomCenter),
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = innerPadding.calculateBottomPadding()),
     ) {
         lastFound?.let {
             FoundCard(it, onAction)
@@ -390,7 +401,12 @@ private fun CameraHeader(torch: Torch, onAction: (ScanAction) -> Unit) {
 }
 
 @Composable
-private fun BoxScope.TypeSheet(state: ScanState, visible: Boolean, onAction: (ScanAction) -> Unit) {
+private fun BoxScope.TypeSheet(
+    state: ScanState,
+    visible: Boolean,
+    innerPadding: PaddingValues,
+    onAction: (ScanAction) -> Unit,
+) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -410,6 +426,7 @@ private fun BoxScope.TypeSheet(state: ScanState, visible: Boolean, onAction: (Sc
         exit = slideOutVertically { it },
         modifier = Modifier
             .align(Alignment.BottomCenter)
+            .padding(bottom = innerPadding.calculateBottomPadding())
             .imePadding(),
     ) {
         TypeCard(state, visible, onAction)
@@ -490,7 +507,7 @@ private fun PermissionContent(state: ScanState, camera: CameraState.PermissionPa
                     BarcodeEntry(query = state.query, showProgress = state.showProgress, onAction = onAction)
                 }
             }
-            FoundOverlay(state.found, onAction)
+            FoundOverlay(state.found, innerPadding, onAction)
         }
     }
 }
@@ -714,12 +731,12 @@ private fun ScanFoundRatedPreview() {
     PreviewContent(
         previewState(
             found = FoundCardState(
-                name = UiText.Raw("Nutella hazelnut spread with cocoa"),
-                icon = AppIcons.Jar,
-                brand = UiText.Raw("Ferrero"),
+                name = UiText.Raw("Coca-Cola Original Taste"),
+                icon = AppIcons.Bottle,
+                brand = UiText.Raw("Coca-Cola"),
                 rating = Rating.Negative,
                 title = UiText.Res(R.string.scan_verdict_not_advised_keto),
-                detail = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(57.5)),
+                detail = UiText.Res(R.string.scan_found_reason_carb_energy_share, UiArg.Numeric.Percent(1.0)),
             )
         )
     )

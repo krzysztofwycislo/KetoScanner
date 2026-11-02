@@ -9,6 +9,7 @@ import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.handsome.club.feature.analysis.api.model.RatingReason
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
@@ -162,6 +163,44 @@ class ScanStateFactoryTest {
             UiText.Res(R.string.scan_verdict_not_advised_low_carb),
             found(rated(DietRate.NOT_ADVISED, DietMode.LOW_CARB))?.title,
         )
+    }
+
+    @Test
+    fun `when a rated analysis has reasons then the detail shows the first reason`() {
+        val reasons = listOf(
+            RatingReason.HighCarbEnergyShare(1.0, DietRate.NOT_ADVISED),
+            RatingReason.HighSugars(10.6, DietRate.NOT_ADVISED),
+        )
+
+        assertEquals(
+            UiText.Res(R.string.scan_found_reason_carb_energy_share, UiArg.Numeric.Percent(1.0)),
+            found(rated(DietRate.NOT_ADVISED, DietMode.KETO, reasons))?.detail,
+        )
+    }
+
+    @Test
+    fun `when a rated analysis has a reason then each reason maps to its text`() {
+        val resources = ScanResources()
+        val expected = mapOf(
+            RatingReason.HighCarbs(13.5, DietRate.NOT_ADVISED) to
+                UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(13.5)),
+            RatingReason.HighCarbEnergyShare(0.8, DietRate.NEUTRAL) to
+                UiText.Res(R.string.scan_found_reason_carb_energy_share, UiArg.Numeric.Percent(0.8)),
+            RatingReason.LowFatAndProteinToCarbRatio(0.4, DietRate.NOT_ADVISED) to
+                UiText.Res(R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(0.4)),
+            RatingReason.HighSugars(10.6, DietRate.NEUTRAL) to
+                UiText.Res(R.string.scan_found_reason_high_sugars, UiArg.Numeric.Grams(10.6)),
+            RatingReason.HighCarbsPerServing(330.0, 35.0, DietRate.NOT_ADVISED) to
+                UiText.Res(
+                    R.string.scan_found_reason_high_carbs_per_serving,
+                    UiArg.Numeric.Grams(35.0),
+                    UiArg.Numeric.Grams(330.0),
+                ),
+        )
+        expected.forEach { (reason, text) ->
+            val result = MacronutrientAnalysisResult(DietMode.KETO, reason.rate, listOf(reason), 57.5, null, 40)
+            assertEquals(text, resources.foundDetail(result))
+        }
     }
 
     @Test
@@ -321,10 +360,11 @@ class ScanStateFactoryTest {
     private fun found(analysis: ProductAnalysis): FoundCardState? =
         factory.createFor(granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis)).found
 
-    private fun rated(rate: DietRate, mode: DietMode) = ProductAnalysis.Rated(
-        product = product,
-        macronutrients = MacronutrientAnalysisResult(mode, rate, emptyList(), 57.5, null, 40),
-    )
+    private fun rated(rate: DietRate, mode: DietMode, reasons: List<RatingReason> = emptyList()) =
+        ProductAnalysis.Rated(
+            product = product,
+            macronutrients = MacronutrientAnalysisResult(mode, rate, reasons, 57.5, null, 40),
+        )
 
     private fun granted() = Prototype(cameraPermission = CameraPermission.Granted)
 

@@ -62,7 +62,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
                 brand = brand,
                 rating = macronutrients.rate.toRating(),
                 title = resources.verdictTitle(macronutrients.rate, macronutrients.dietMode),
-                detail = resources.carbsPer100g(macronutrients.carbsPer100g),
+                detail = resources.foundDetail(macronutrients),
             )
 
             is ProductAnalysis.InsufficientData -> FoundCardState(

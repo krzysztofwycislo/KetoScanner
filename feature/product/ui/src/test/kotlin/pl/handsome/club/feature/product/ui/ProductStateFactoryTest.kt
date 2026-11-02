@@ -16,8 +16,6 @@ import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.product.ui.state.CategoryChipState
 import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
-import pl.handsome.club.feature.product.ui.state.NutrientRowKind
-import pl.handsome.club.feature.product.ui.state.NutrientRowState
 import pl.handsome.club.feature.product.ui.state.ProductContentState
 import pl.handsome.club.feature.product.ui.state.ProductStateFactory
 import pl.handsome.club.feature.product.ui.state.VerdictState
@@ -273,54 +271,17 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when serving amount is set or missing then serving header matches`() {
+    fun `when serving amount is set or missing then glance serving label matches`() {
         val withServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "15"))))
         val withoutServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = null))))
         val blankServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = " "))))
 
         assertEquals(
             UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
-            withServing.nutrients.servingHeader,
+            withServing.glance.servingLabel,
         )
-        assertEquals(UiText.Res(R.string.product_basis_serving), withoutServing.nutrients.servingHeader)
-        assertEquals(UiText.Res(R.string.product_basis_serving), blankServing.nutrients.servingHeader)
-    }
-
-    @Test
-    fun `when serving amount is set or missing then glance serving label matches the serving header`() {
-        val withServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "15"))))
-        val withoutServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = null))))
-
-        assertEquals(withServing.nutrients.servingHeader, withServing.glance.servingLabel)
-        assertEquals(withoutServing.nutrients.servingHeader, withoutServing.glance.servingLabel)
-    }
-
-    @Test
-    fun `when nutrients are shown then rows keep order and format values`() {
-        val rows = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).nutrients.rows
-
-        assertEquals(
-            listOf(
-                NutrientRowState(UiText.Res(R.string.product_energy), kcal(88.0), kcal(588.0), NutrientRowKind.Regular),
-                NutrientRowState(UiText.Res(R.string.product_fats), grams(7.5), grams(50.0), NutrientRowKind.Regular),
-                NutrientRowState(
-                    UiText.Res(R.string.product_carbs),
-                    grams(2.0),
-                    grams(13.0),
-                    NutrientRowKind.Emphasized,
-                ),
-                NutrientRowState(UiText.Res(R.string.product_sugars), grams(1.1), grams(7.0), NutrientRowKind.Indented),
-                NutrientRowState(UiText.Res(R.string.product_fibre), grams(1.7), grams(11.0), NutrientRowKind.Regular),
-                NutrientRowState(
-                    UiText.Res(R.string.product_proteins),
-                    grams(3.8),
-                    grams(25.0),
-                    NutrientRowKind.Regular,
-                ),
-                NutrientRowState(UiText.Res(R.string.product_salt), grams(0.2), grams(1.1), NutrientRowKind.Regular),
-            ),
-            rows,
-        )
+        assertEquals(UiText.Res(R.string.product_basis_serving), withoutServing.glance.servingLabel)
+        assertEquals(UiText.Res(R.string.product_basis_serving), blankServing.glance.servingLabel)
     }
 
     @Test
@@ -382,17 +343,14 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when nutrient values are missing then rows show the missing value text`() {
-        val rows = show(
-            Prototype(analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))),
-        ).nutrients.rows
+    fun `when nutrient values are missing then glance tiles show the missing value text`() {
+        val analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))
+        val per100g = show(Prototype(analysis = analysis)).glance.tiles
+        val perServing = show(Prototype(analysis = analysis, isPerServingSelected = true)).glance.tiles
 
         val missing = UiText.Res(R.string.product_value_missing)
-        rows.forEach { row ->
-            assertEquals(missing, row.perServing)
-            assertEquals(missing, row.per100g)
-        }
-        assertEquals(7, rows.size)
+        assertEquals(List(6) { missing }, per100g.map { it.value })
+        assertEquals(List(6) { missing }, perServing.map { it.value })
     }
 
     private fun show(prototype: Prototype): ProductContentState.ShowProduct =

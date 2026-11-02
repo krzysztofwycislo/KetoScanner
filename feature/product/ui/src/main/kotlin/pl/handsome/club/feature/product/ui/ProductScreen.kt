@@ -16,19 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,9 +72,6 @@ import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
 import pl.handsome.club.feature.product.ui.state.GlanceState
 import pl.handsome.club.feature.product.ui.state.GlanceTileState
 import pl.handsome.club.feature.product.ui.state.ImagePreviewState
-import pl.handsome.club.feature.product.ui.state.NutrientRowKind
-import pl.handsome.club.feature.product.ui.state.NutrientRowState
-import pl.handsome.club.feature.product.ui.state.NutrientTableState
 import pl.handsome.club.feature.product.ui.state.ProductContentState.Error
 import pl.handsome.club.feature.product.ui.state.ProductContentState.Loading
 import pl.handsome.club.feature.product.ui.state.ProductContentState.ShowProduct
@@ -200,7 +194,6 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         ProductBlock(state.header, onAction)
         Verdict(state.verdict, onAction)
         Glance(state.glance, onAction)
-        NutrientTable(state.nutrients)
         Footer(state.dataSource, onAction)
     }
     state.imagePreview?.let {
@@ -334,91 +327,6 @@ private fun GlanceTile(state: GlanceTileState, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun NutrientTable(state: NutrientTableState) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppTheme.colors.background.surface, AppTheme.shapes.large)
-            .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.large)
-            .padding(horizontal = AppTheme.spacing.m),
-    ) {
-        NutrientRow(
-            label = stringResource(R.string.product_nutrition),
-            per100g = stringResource(R.string.product_basis_100g),
-            perServing = state.servingHeader.resolve(),
-            style = AppTheme.typography.caption,
-            labelColor = AppTheme.colors.text.muted,
-            per100gColor = AppTheme.colors.text.muted,
-        )
-        state.rows.forEach { row ->
-            HorizontalDivider(thickness = AppTheme.borders.hairline, color = AppTheme.colors.border.default)
-            NutrientRow(
-                label = row.label.resolve(),
-                per100g = row.per100g.resolve(),
-                perServing = row.perServing.resolve(),
-                style = if (row.kind == NutrientRowKind.Emphasized) {
-                    AppTheme.typography.bodyStrong
-                } else {
-                    AppTheme.typography.body
-                },
-                labelColor = if (row.kind == NutrientRowKind.Indented) {
-                    AppTheme.colors.text.muted
-                } else {
-                    AppTheme.colors.text.default
-                },
-                per100gColor = AppTheme.colors.text.default,
-                labelModifier = if (row.kind == NutrientRowKind.Indented) {
-                    Modifier.padding(start = AppTheme.spacing.s)
-                } else {
-                    Modifier
-                },
-            )
-        }
-    }
-}
-
-@Composable
-private fun NutrientRow(
-    label: String,
-    per100g: String,
-    perServing: String,
-    style: TextStyle,
-    labelColor: Color,
-    per100gColor: Color,
-    labelModifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = AppTheme.spacing.s),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            style = style,
-            color = labelColor,
-            modifier = Modifier
-                .weight(2f)
-                .then(labelModifier),
-        )
-        Text(
-            text = per100g,
-            style = style,
-            color = per100gColor,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            text = perServing,
-            style = style,
-            color = AppTheme.colors.text.muted,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
 private fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -521,36 +429,6 @@ private fun GlanceState.Companion.example(isPerServingSelected: Boolean, highlig
     ),
 )
 
-private fun NutrientRowState.Companion.example(
-    label: Int,
-    perServing: Double?,
-    per100g: Double?,
-    kind: NutrientRowKind = NutrientRowKind.Regular,
-) = NutrientRowState(
-    label = UiText.Res(label),
-    perServing = grams(perServing),
-    per100g = grams(per100g),
-    kind = kind,
-)
-
-private fun NutrientTableState.Companion.example() = NutrientTableState(
-    servingHeader = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
-    rows = persistentListOf(
-        NutrientRowState(
-            UiText.Res(R.string.product_energy),
-            kcal(88.0),
-            kcal(588.0),
-            NutrientRowKind.Regular,
-        ),
-        NutrientRowState.example(R.string.product_fats, 7.5, 50.0),
-        NutrientRowState.example(R.string.product_carbs, 2.0, 13.0, NutrientRowKind.Emphasized),
-        NutrientRowState.example(R.string.product_sugars, 1.1, 7.0, NutrientRowKind.Indented),
-        NutrientRowState.example(R.string.product_fibre, null, 11.0),
-        NutrientRowState.example(R.string.product_proteins, 3.8, 25.0),
-        NutrientRowState.example(R.string.product_salt, null, 1.1),
-    ),
-)
-
 private fun exampleShowProduct(
     header: ProductHeaderState = ProductHeaderState.example(),
     favourite: FavouriteButtonState? = FavouriteButtonState.example(isFavourite = false),
@@ -561,7 +439,6 @@ private fun exampleShowProduct(
     favourite = favourite,
     verdict = verdict,
     glance = glance,
-    nutrients = NutrientTableState.example(),
     imagePreview = null,
     dataSource = UiText.Res(R.string.product_data_source, UiArg.Text("3017620422003")),
 )

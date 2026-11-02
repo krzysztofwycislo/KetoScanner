@@ -20,9 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
@@ -42,6 +49,7 @@ private val ANALYSIS_TARGET_SIZE = Size(1280, 720)
 fun BarcodeCamera(
     isPaused: Boolean,
     torchEnabled: Boolean,
+    scanArea: Rect?,
     onBarcodeScanned: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,6 +64,8 @@ fun BarcodeCamera(
     val currentIsPaused by rememberUpdatedState(isPaused)
     val currentOnBarcodeScanned by rememberUpdatedState(onBarcodeScanned)
     val currentTorchEnabled by rememberUpdatedState(torchEnabled)
+    val currentScanArea by rememberUpdatedState(scanArea)
+    var cameraOffset by remember { mutableStateOf(Offset.Zero) }
 
     DisposableEffect(controller, lifecycleOwner) {
         val scanner = BarcodeScanning.getClient(
@@ -65,11 +75,13 @@ fun BarcodeCamera(
         )
         val analyzer = MlKitAnalyzer(
             listOf(scanner),
-            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+            ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
             ContextCompat.getMainExecutor(context),
         ) { result ->
             result.getThrowable(scanner)?.also { Log.e(TAG, "Barcode scanning failed", it) }
-            val barcode = result.getValue(scanner)?.firstOrNull()?.rawValue
+            val barcode = result.getValue(scanner)
+                ?.firstOrNull { it.rawValue != null && it.isInside(currentScanArea, cameraOffset) }
+                ?.rawValue
             if (barcode != null && !currentIsPaused) currentOnBarcodeScanned(barcode)
         }
         controller.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
@@ -109,8 +121,14 @@ fun BarcodeCamera(
                 keepScreenOn = true
             }
         },
-        modifier = modifier,
+        modifier = modifier.onGloballyPositioned { cameraOffset = it.boundsInWindow().topLeft },
     )
+}
+
+private fun Barcode.isInside(scanArea: Rect?, cameraOffset: Offset): Boolean {
+    if (scanArea == null) return true
+    val bounds = boundingBox?.toComposeRect()?.translate(cameraOffset) ?: return false
+    return scanArea.contains(bounds.topLeft) && scanArea.contains(bounds.bottomRight)
 }
 
 private fun createController(context: Context): LifecycleCameraController {

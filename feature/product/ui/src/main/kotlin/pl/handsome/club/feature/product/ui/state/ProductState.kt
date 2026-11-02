@@ -20,7 +20,6 @@ internal sealed interface ProductContentState {
         val favourite: FavouriteButtonState?,
         val verdict: VerdictState,
         val glance: GlanceState,
-        val nutrients: NutrientTableState,
         val imagePreview: ImagePreviewState?,
         val dataSource: UiText,
     ) : ProductContentState
@@ -90,26 +89,6 @@ internal data class GlanceTileState(
 ) {
     companion object
 }
-
-@Immutable
-internal data class NutrientTableState(
-    val servingHeader: UiText,
-    val rows: PersistentList<NutrientRowState>,
-) {
-    companion object
-}
-
-@Immutable
-internal data class NutrientRowState(
-    val label: UiText,
-    val perServing: UiText,
-    val per100g: UiText,
-    val kind: NutrientRowKind,
-) {
-    companion object
-}
-
-internal enum class NutrientRowKind { Regular, Emphasized, Indented }
 
 @Immutable
 internal data class ImagePreviewState(

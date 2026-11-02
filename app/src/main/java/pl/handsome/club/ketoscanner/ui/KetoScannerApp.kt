@@ -8,6 +8,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.designsystem.component.BottomBar
 import pl.handsome.club.core.designsystem.component.BottomBarItem
+import pl.handsome.club.core.designsystem.component.LocalBottomBarOverlap
 import pl.handsome.club.core.designsystem.component.Ui
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.ObserveEvents
@@ -95,12 +97,14 @@ internal fun KetoScannerApp() {
             )
         },
     ) { innerPadding ->
-        AppNavHost(
-            navController = navController,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding),
-        )
+        CompositionLocalProvider(LocalBottomBarOverlap provides AppTheme.sizes.scanButtonLift) {
+            AppNavHost(
+                navController = navController,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding),
+            )
+        }
     }
 }
 
