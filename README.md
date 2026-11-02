@@ -1,51 +1,35 @@
-# KetoS (Proof of concept)
+# KetoScanner
 
-Status: Closed (PoC not satisfied)
+**Scan a product, see if it fits your diet.**
 
-Application made for people on keto/low carb diet. 
-Main purpose is to make shopping faster by reducing time of checking macronutrients.
+KetoScanner is a shopping assistant for people on a keto or low-carb diet. Point the camera at a barcode and get a
+clear verdict, without reading the nutrition label in the shop aisle.
 
-Idea is simple - open the app, scan barcode and check results of scanned product.
+## What it does
 
-The app is intended for use only on small devices. (Rather, nobody goes shopping with a tablet)
+- **Scan or type a barcode.** The product is looked up and rated against your diet profile.
+- **A verdict with a reason.** Every product gets a clear verdict and the main reason behind it, for example that most
+  of its energy comes from carbs.
+- **Your diet, your limits.** Choose Strict keto, Keto or Low carb, or set your own daily carb limit.
+- **The macros at a glance.** Carbs, sugars, fibre, protein, fat and energy, per 100 g or per serving.
+- **History and favourites.** Recent scans are grouped by day and searchable; favourites are grouped by food type.
+- **This trip.** While you shop, the products you scanned in the last few hours stay one tap away.
 
-Application main features
-- search by barcode and analyze product macronutrients under circumstances of given low carb profile
-- history of latest analyzed products
-- favourite products list
+## How products are rated
 
-<!--- TODO screens -->
+The rating looks at more than carbs per 100 g. It also weighs how much of the energy comes from carbs, the balance of
+fat and protein against carbs, sugars and a realistic serving, all relative to your daily limit. Keto mode favours
+fat; low-carb mode is more relaxed.
 
-## Architecture
+KetoScanner is a shopping aid, not medical or dietary advice.
 
-The architecture is built around [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/).
+## Product data
 
-Logic has been set up in ViewModels, any external components used by them like repositories, apis etc. have been implemented behind interfaces so we received clean and testable logic functions. 
+Product information comes from [Open Food Facts](https://world.openfoodfacts.org), a free, collaborative database,
+available under the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/). Some products have
+incomplete data; the app says so instead of guessing.
 
-Any IO or time consuming tasks are handled with kotlin coroutines. 
+## Built with
 
-Repository layer is used for handling data operations. Data comes from a few different sources:
-- user preferences and settings are stored locally (DataStore)
-- product data is stored remotely and is fetched and stored in memory (Retrofit)
-- analyze history and favourite products are stored in SQLite database (Room)
-
-Navigation component to simplify into a single Activity app.
-
-Project is quite small so I have decided to use Koin as a light dependency injection library.
-
-<!--- TODO Espresso for basic instrumentation tests and JUnit and Mockito for unit testing. -->
-JUnit and Mockito with a little bit of Truth help for unit testing.
-
-### Other tools
-
-- image loading (Glide)
-- JSON parsing (Moshi)
-- barcode scanning (CameraX + Google MLKit)
- 
-## Api
- 
-https://world.openfoodfacts.org/data
- 
-Product data are fetched from OpenFoodFacts Api under [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/).
-
-Unfortunately that api doesn't provide us complete set of data in most cases, so POC has not been satisfied.
+Kotlin and Jetpack Compose on Android, with CameraX and ML Kit for barcode scanning. The core is kept platform-independent
+for a future move to Kotlin Multiplatform. Architecture notes for contributors are in [docs/architecture.md](docs/architecture.md).
