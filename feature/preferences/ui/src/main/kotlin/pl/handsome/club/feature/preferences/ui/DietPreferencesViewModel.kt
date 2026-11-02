@@ -22,6 +22,7 @@ import pl.handsome.club.core.common.EventQueue
 import pl.handsome.club.core.common.ProgressTracker
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
@@ -152,12 +153,12 @@ internal class DietPreferencesViewModel(
         applicationScope.launch(start = CoroutineStart.UNDISPATCHED) {
             saving.reportWork { preferences.setDietPreferences(chosen) }
                 .onSuccess {
-                    appEvents send ShowMessage(resources.saved())
+                    appEvents send ShowMessage(resources.saved(), MessageTone.Success)
                     screenEvents send NavigateBack
                 }
                 .onFailure { error ->
                     errorReporter.report(TAG, "Saving diet preferences failed", error)
-                    appEvents send ShowMessage(resources.saveFailed(error))
+                    appEvents send ShowMessage(resources.saveFailed(error), MessageTone.Error)
                 }
         }
     }

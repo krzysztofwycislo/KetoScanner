@@ -27,6 +27,8 @@ import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
 import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
+import pl.handsome.club.feature.favourites.ui.state.FavouriteGroupState
+import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
@@ -37,7 +39,10 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class FavouritesViewModelTest {
@@ -62,7 +67,7 @@ class FavouritesViewModelTest {
         favourites.result = Outcome.Success(listOf(favourite("1")))
         val viewModel = createViewModel()
 
-        val items = assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content).items
+        val items = items(viewModel)
         assertEquals(listOf("1"), items.map { it.barcode })
         assertEquals(listOf(""), favourites.queries)
     }
@@ -124,7 +129,7 @@ class FavouritesViewModelTest {
         favourites.result = Outcome.Success(listOf(favourite("1")))
         viewModel.onAction(FavouritesAction.OnRetryClicked)
 
-        assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content)
+        assertIs<FavouritesContentState.ShowGroups>(viewModel.state.value.content)
         assertEquals(listOf("", ""), favourites.queries)
         assertEquals(1, errorReporter.reports.size)
     }
@@ -155,7 +160,7 @@ class FavouritesViewModelTest {
 
         preferences.emit(Outcome.Success(DietPreferences(80, DietMode.LOW_CARB)))
 
-        val item = assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content).items.single()
+        val item = items(viewModel).single()
         assertEquals(UiText.Res(R.string.favourites_verdict_good_low_carb), item.verdictDescription)
     }
 
@@ -166,9 +171,63 @@ class FavouritesViewModelTest {
 
         preferences.emit(Outcome.Failure(AppError.Storage))
 
-        assertIs<FavouritesContentState.ShowItems>(viewModel.state.value.content)
+        assertIs<FavouritesContentState.ShowGroups>(viewModel.state.value.content)
         assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
     }
+
+    @Test
+    fun `when a group is clicked then it collapses and expands and the handle follows`() = runTest {
+        favourites.result = Outcome.Success(listOf(favourite("1", category = ProductCategory.CHEESE)))
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+
+        viewModel.onAction(FavouritesAction.OnGroupClicked(ProductCategory.CHEESE))
+
+        assertFalse(groups(viewModel).single().expanded)
+        assertEquals(arrayListOf("CHEESE"), handle.get<ArrayList<String>>(KEY_COLLAPSED))
+
+        viewModel.onAction(FavouritesAction.OnGroupClicked(ProductCategory.CHEESE))
+
+        assertTrue(groups(viewModel).single().expanded)
+        assertEquals(arrayListOf<String>(), handle.get<ArrayList<String>>(KEY_COLLAPSED))
+    }
+
+    @Test
+    fun `when handle was restored with collapsed categories then those groups are collapsed`() = runTest {
+        favourites.result = Outcome.Success(
+            listOf(
+                favourite("1", category = ProductCategory.CHEESE),
+                favourite("2", category = ProductCategory.MEAT),
+            ),
+        )
+
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_COLLAPSED to arrayListOf("MEAT", "UNKNOWN"))))
+
+        assertEquals(listOf(true, false), groups(viewModel).map { it.expanded })
+    }
+
+    @Test
+    fun `when a group is clicked while a search is applied then it is ignored`() = runTest {
+        favourites.result = Outcome.Success(listOf(favourite("1", category = ProductCategory.CHEESE)))
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(FavouritesAction.OnQueryChanged("name"))
+
+        viewModel.onAction(FavouritesAction.OnGroupClicked(ProductCategory.CHEESE))
+
+        assertTrue(groups(viewModel).single().expanded)
+        assertNull(handle.get<ArrayList<String>>(KEY_COLLAPSED))
+
+        viewModel.onAction(FavouritesAction.OnQueryChanged(""))
+
+        assertTrue(groups(viewModel).single().canToggle)
+        assertTrue(groups(viewModel).single().expanded)
+    }
+
+    private fun groups(viewModel: FavouritesViewModel): List<FavouriteGroupState> =
+        assertIs<FavouritesContentState.ShowGroups>(viewModel.state.value.content).groups
+
+    private fun items(viewModel: FavouritesViewModel): List<FavouriteItemState> = groups(viewModel).flatMap { it.items }
 
     private fun TestScope.createViewModel(handle: SavedStateHandle = SavedStateHandle()): FavouritesViewModel {
         val appEvents = AppEvents(backgroundScope)
@@ -220,8 +279,13 @@ class FavouritesViewModelTest {
 
     private companion object {
         const val KEY_QUERY = "query"
+        const val KEY_COLLAPSED = "collapsed"
 
-        fun favourite(barcode: String, dietRate: DietRate? = null) =
+        fun favourite(
+            barcode: String,
+            dietRate: DietRate? = null,
+            category: ProductCategory = ProductCategory.OTHER,
+        ) =
             FavouriteProduct(
                 barcode,
                 "Name $barcode",
@@ -230,7 +294,7 @@ class FavouritesViewModelTest {
                 null,
                 dietRate,
                 null,
-                ProductCategory.OTHER,
+                category,
             )
     }
 }

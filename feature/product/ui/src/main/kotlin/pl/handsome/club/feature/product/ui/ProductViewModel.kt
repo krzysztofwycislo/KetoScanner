@@ -22,6 +22,7 @@ import pl.handsome.club.core.common.EventQueue
 import pl.handsome.club.core.common.isReportable
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.feature.analysis.api.AnalyzeProduct
@@ -94,7 +95,7 @@ internal class ProductViewModel(
             OnPer100gClicked -> setPerServingSelected(false)
             OnPerServingClicked -> setPerServingSelected(true)
             OnOpenFoodFactsClicked -> screenEvents send OpenWebPage(PRODUCT_PAGE_URL + statePrototype.value.barcode)
-            OnWebPageUnavailable -> appEvents send ShowMessage(resources.linkUnavailable())
+            OnWebPageUnavailable -> appEvents send ShowMessage(resources.linkUnavailable(), MessageTone.Error)
         }
     }
 
@@ -184,12 +185,12 @@ internal class ProductViewModel(
                 .onSuccess {
                     statePrototype.update { it.copy(isFavourite = !isFavourite, isFavouriteUpdating = false) }
                     val message = if (isFavourite) resources.removedFromFavourites() else resources.addedToFavourites()
-                    appEvents send ShowMessage(message)
+                    appEvents send ShowMessage(message, MessageTone.Success)
                 }
                 .onFailure { error ->
                     log("Updating favourites failed", error)
                     statePrototype.update { it.copy(isFavouriteUpdating = false) }
-                    appEvents send ShowMessage(resources.error(error))
+                    appEvents send ShowMessage(resources.error(error), MessageTone.Error)
                 }
         }
     }

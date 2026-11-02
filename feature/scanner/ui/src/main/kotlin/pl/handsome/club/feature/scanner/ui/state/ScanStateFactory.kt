@@ -20,6 +20,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         showProgress = prototype.isSearching || (prototype.foundBarcode != null && prototype.foundAnalysis == null),
         camera = prototype.camera(),
         found = prototype.foundAnalysis?.toFoundCard(),
+        notFound = prototype.notFoundBarcode?.let { NotFoundCardState(resources.notFoundMessage(it)) },
     )
 
     private fun Prototype.camera(): CameraState = when (cameraPermission) {
@@ -77,7 +78,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     }
 
     private fun Prototype.trip(): ImmutableList<TripItemState> {
-        if (isTypeSheetOpen || foundBarcode != null) return persistentListOf()
+        if (isTypeSheetOpen || foundBarcode != null || notFoundBarcode != null) return persistentListOf()
         val mode = (dietPreferences ?: DietPreferences.Default).dietMode
         val windowStart = now - Prototype.TRIP_WINDOW
         return tripEntries

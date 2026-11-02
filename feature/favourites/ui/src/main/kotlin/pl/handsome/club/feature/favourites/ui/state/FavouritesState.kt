@@ -5,6 +5,7 @@ import kotlinx.collections.immutable.PersistentList
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.model.ProductCategory
 
 @Immutable
 internal data class FavouritesState(
@@ -18,9 +19,20 @@ internal sealed interface FavouritesContentState {
     data object InitialLoad : FavouritesContentState
     data object Empty : FavouritesContentState
     data class NoResults(val message: UiText) : FavouritesContentState
-    data class ShowItems(val items: PersistentList<FavouriteItemState>) : FavouritesContentState
+    data class ShowGroups(val groups: PersistentList<FavouriteGroupState>) : FavouritesContentState
     data class Error(val message: UiText) : FavouritesContentState
 }
+
+@Immutable
+internal data class FavouriteGroupState(
+    val category: ProductCategory,
+    val icon: AppIcon,
+    val label: UiText,
+    val count: UiText,
+    val expanded: Boolean,
+    val canToggle: Boolean,
+    val items: PersistentList<FavouriteItemState>,
+)
 
 @Immutable
 internal data class FavouriteItemState(

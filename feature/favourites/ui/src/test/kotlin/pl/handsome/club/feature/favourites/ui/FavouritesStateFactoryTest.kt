@@ -8,8 +8,10 @@ import pl.handsome.club.core.designsystem.text.UiText
 import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
+import pl.handsome.club.feature.favourites.ui.state.FavouriteGroupState
 import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState
+import pl.handsome.club.feature.favourites.ui.state.FavouritesState
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
@@ -99,7 +101,7 @@ class FavouritesStateFactoryTest {
     }
 
     @Test
-    fun `when favourites exist then items keep order barcodes names icons brands and verdicts`() {
+    fun `when favourites exist then items map barcodes names icons brands and verdicts in category order`() {
         val state = factory.createFor(
             Prototype(
                 favourites = listOf(
@@ -109,18 +111,9 @@ class FavouritesStateFactoryTest {
             ),
         )
 
-        val items = assertIs<FavouritesContentState.ShowItems>(state.content).items
+        val items = groups(state).flatMap { it.items }
         assertEquals(
             listOf(
-                FavouriteItemState(
-                    barcode = "2",
-                    name = UiText.Raw("Name 2"),
-                    icon = AppIcons.Bag,
-                    brand = UiText.Raw("Brand 2"),
-                    rating = Rating.Unknown,
-                    carbs = UiText.Res(R.string.favourites_carbs_missing),
-                    verdictDescription = UiText.Res(R.string.favourites_verdict_unknown),
-                ),
                 FavouriteItemState(
                     barcode = "1",
                     name = UiText.Raw("Name 1"),
@@ -130,9 +123,93 @@ class FavouritesStateFactoryTest {
                     carbs = UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(3.5)),
                     verdictDescription = withCarbs(R.string.favourites_verdict_good_keto, 3.5),
                 ),
+                FavouriteItemState(
+                    barcode = "2",
+                    name = UiText.Raw("Name 2"),
+                    icon = AppIcons.Bag,
+                    brand = UiText.Raw("Brand 2"),
+                    rating = Rating.Unknown,
+                    carbs = UiText.Res(R.string.favourites_carbs_missing),
+                    verdictDescription = UiText.Res(R.string.favourites_verdict_unknown),
+                ),
             ),
             items,
         )
+    }
+
+    @Test
+    fun `when favourites have categories then groups follow the category order with other last`() {
+        val state = factory.createFor(
+            Prototype(
+                favourites = listOf(
+                    favourite("1", category = ProductCategory.OTHER),
+                    favourite("2", category = ProductCategory.MEAT),
+                    favourite("3", category = ProductCategory.SPREADS),
+                    favourite("4", category = ProductCategory.MEAT),
+                ),
+            ),
+        )
+
+        val groups = groups(state)
+        assertEquals(
+            listOf(ProductCategory.SPREADS, ProductCategory.MEAT, ProductCategory.OTHER),
+            groups.map { it.category },
+        )
+        assertEquals(listOf(listOf("3"), listOf("2", "4"), listOf("1")), groups.map { g -> g.items.map { it.barcode } })
+    }
+
+    @Test
+    fun `when a group is built then it has the category icon label and count and is expanded`() {
+        val group = groups(
+            factory.createFor(
+                Prototype(
+                    favourites = listOf(
+                        favourite("1", category = ProductCategory.CHEESE),
+                        favourite("2", category = ProductCategory.CHEESE),
+                    ),
+                ),
+            ),
+        ).single()
+
+        assertEquals(AppIcons.Cheese, group.icon)
+        assertEquals(UiText.Res(DesignR.string.designsystem_category_cheese), group.label)
+        assertEquals(UiText.Res(R.string.favourites_group_count, UiArg.Numeric.Count(2)), group.count)
+        assertTrue(group.expanded)
+        assertTrue(group.canToggle)
+    }
+
+    @Test
+    fun `when a category is collapsed then only its group is not expanded`() {
+        val state = factory.createFor(
+            Prototype(
+                favourites = listOf(
+                    favourite("1", category = ProductCategory.CHEESE),
+                    favourite("2", category = ProductCategory.MEAT),
+                ),
+                collapsed = setOf(ProductCategory.MEAT, ProductCategory.FISH),
+            ),
+        )
+
+        assertEquals(listOf(true, false), groups(state).map { it.expanded })
+        assertEquals(listOf(true, true), groups(state).map { it.canToggle })
+    }
+
+    @Test
+    fun `when a search query is applied then every group is expanded and cannot be toggled`() {
+        val state = factory.createFor(
+            Prototype(
+                query = "a",
+                favourites = listOf(
+                    favourite("1", category = ProductCategory.CHEESE),
+                    favourite("2", category = ProductCategory.MEAT),
+                ),
+                favouritesQuery = "a",
+                collapsed = setOf(ProductCategory.MEAT),
+            ),
+        )
+
+        assertEquals(listOf(true, true), groups(state).map { it.expanded })
+        assertEquals(listOf(false, false), groups(state).map { it.canToggle })
     }
 
     @Test
@@ -219,11 +296,13 @@ class FavouritesStateFactoryTest {
     }
 
     private fun singleItem(favourite: FavouriteProduct, preferences: DietPreferences? = null): FavouriteItemState =
-        assertIs<FavouritesContentState.ShowItems>(
-            factory.createFor(Prototype(favourites = listOf(favourite), dietPreferences = preferences)).content,
-        )
+        groups(factory.createFor(Prototype(favourites = listOf(favourite), dietPreferences = preferences)))
+            .single()
             .items
             .single()
+
+    private fun groups(state: FavouritesState): List<FavouriteGroupState> =
+        assertIs<FavouritesContentState.ShowGroups>(state.content).groups
 
     private fun withCarbs(verdict: Int, carbs: Double): UiText = UiText.Res(
         R.string.favourites_verdict_with_carbs,

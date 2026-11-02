@@ -34,6 +34,7 @@ data class AppSizes(
     val radioCardMinHeight: Dp,
     val radioDot: Dp,
     val radioDotInner: Dp,
+    val overlayElevation: Dp,
 )
 
 val DefaultAppSizes = AppSizes(
@@ -65,4 +66,5 @@ val DefaultAppSizes = AppSizes(
     radioCardMinHeight = 72.dp,
     radioDot = 22.dp,
     radioDotInner = 10.dp,
+    overlayElevation = 8.dp,
 )

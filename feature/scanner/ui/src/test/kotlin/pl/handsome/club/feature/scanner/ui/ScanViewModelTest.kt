@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.setMain
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
 import pl.handsome.club.core.designsystem.event.AppEvent
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.icon.AppIcons
@@ -52,6 +53,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation.Naviga
 import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
+import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
 import pl.handsome.club.feature.scanner.ui.state.Torch
 import kotlin.test.AfterTest
@@ -294,31 +296,100 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a scanned product is not found then message is shown warning logged and scan resumes after 2 seconds`() =
+    fun `when a scanned product is not found then the card shows a warning is logged and the camera stays paused`() =
         runTest {
             products.result = Outcome.Failure(AppError.NotFound)
-            val viewModel = createViewModel()
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle)
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
             viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
-            assertEquals(
-                listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.scan_product_not_found))),
-                appEvents,
-            )
+            assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
             assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
             assertTrue(errorReporter.reports.isEmpty())
             assertTrue(screenEvents.isEmpty())
             assertFalse(viewModel.state.value.showProgress)
+            assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+            assertEquals("590", handle.get<String>(KEY_NOT_FOUND_BARCODE))
             assertEquals(preview(isPaused = true), viewModel.state.value.camera)
 
-            advanceTimeBy(1_999)
-            assertEquals(preview(isPaused = true), viewModel.state.value.camera)
-
-            advanceTimeBy(1)
+            advanceTimeBy(2_000)
             runCurrent()
+            assertEquals(preview(isPaused = true), viewModel.state.value.camera)
+
+            advanceTimeBy(60_000)
+            runCurrent()
+            assertEquals(preview(isPaused = true), viewModel.state.value.camera)
+            assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
+        }
+
+    @Test
+    fun `when scan next is clicked after not found then the card clears and the camera resumes`() = runTest {
+        products.result = Outcome.Failure(AppError.NotFound)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+
+        assertNull(viewModel.state.value.notFound)
+        assertNull(handle.get<String>(KEY_NOT_FOUND_BARCODE))
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
+
+        assertEquals(listOf("590", "123"), products.refreshedBarcodes)
+    }
+
+    @Test
+    fun `when type it is clicked after not found then the sheet opens with the barcode and the card clears`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.NotFound)
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle)
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            viewModel.onAction(ScanAction.OnTypeItClicked)
+
+            assertNull(viewModel.state.value.notFound)
+            assertNull(handle.get<String>(KEY_NOT_FOUND_BARCODE))
+            assertEquals("590", viewModel.state.value.query)
+            assertEquals("590", handle.get<String>(KEY_QUERY))
+            assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+            assertEquals(preview(isPaused = true, isTypeSheetOpen = true), viewModel.state.value.camera)
+
+            viewModel.onAction(ScanAction.OnTypeSheetDismissed)
+
             assertEquals(preview(isPaused = false), viewModel.state.value.camera)
         }
+
+    @Test
+    fun `when the not found card is shown then scans and submits are ignored`() = runTest {
+        products.result = Outcome.Failure(AppError.NotFound)
+        val viewModel = createViewModel(initialQuery = "777")
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
+        viewModel.onAction(ScanAction.OnSearchSubmitted)
+
+        assertEquals(listOf("590"), products.refreshedBarcodes)
+        assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+    }
+
+    @Test
+    fun `when restored with a not found barcode then the card shows and the camera stays paused`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_NOT_FOUND_BARCODE to "590")))
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+        assertEquals(preview(isPaused = true), viewModel.state.value.camera)
+        assertTrue(products.refreshedBarcodes.isEmpty())
+    }
 
     @Test
     fun `when search fails with parsing then the error message is shown and reported once`() = runTest {
@@ -327,7 +398,7 @@ class ScanViewModelTest {
 
         viewModel.onAction(ScanAction.OnSearchSubmitted)
 
-        assertEquals(AppEvent.ShowMessage(AppError.Parsing.toUiText()), appEvents.last())
+        assertEquals(AppEvent.ShowMessage(AppError.Parsing.toUiText(), MessageTone.Error), appEvents.last())
         assertEquals(AppError.Parsing, errorReporter.reports.single().error)
         assertTrue(logger.entries.isEmpty())
     }
@@ -409,7 +480,7 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a typed lookup fails then the sheet stays open`() = runTest {
+    fun `when a typed lookup is not found then the sheet closes and the not found card shows`() = runTest {
         products.result = Outcome.Failure(AppError.NotFound)
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle, initialQuery = "590")
@@ -420,10 +491,30 @@ class ScanViewModelTest {
         advanceTimeBy(2_000)
         runCurrent()
 
-        assertEquals(AppEvent.ShowMessage(UiText.Res(R.string.scan_product_not_found)), appEvents.last())
-        assertEquals(preview(isPaused = true, isTypeSheetOpen = true), viewModel.state.value.camera)
-        assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+        assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
+        assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+        assertEquals(preview(isPaused = true), viewModel.state.value.camera)
+        assertEquals(false, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
     }
+
+    @Test
+    fun `when a typed lookup fails with a network error then the sheet stays open and the message is shown`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.Network)
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle, initialQuery = "590")
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+            viewModel.onAction(ScanAction.OnTypeItClicked)
+
+            viewModel.onAction(ScanAction.OnSearchSubmitted)
+            advanceTimeBy(2_000)
+            runCurrent()
+
+            assertEquals(AppEvent.ShowMessage(AppError.Network.toUiText(), MessageTone.Error), appEvents.last())
+            assertNull(viewModel.state.value.notFound)
+            assertEquals(preview(isPaused = true, isTypeSheetOpen = true), viewModel.state.value.camera)
+            assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+        }
 
     @Test
     fun `when a barcode is scanned while the type sheet is open then it is ignored`() = runTest {
@@ -541,7 +632,7 @@ class ScanViewModelTest {
             assertNull(handle.get<String>(KEY_FOUND_BARCODE))
             assertFalse(viewModel.state.value.showProgress)
             assertEquals(
-                listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(AppError.Storage.toUiText())),
+                listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(AppError.Storage.toUiText(), MessageTone.Error)),
                 appEvents,
             )
             assertEquals(AppError.Storage, errorReporter.reports.single().error)
@@ -705,6 +796,9 @@ class ScanViewModelTest {
 
     private fun tripItems(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).trip
 
+    private fun notFoundCard(barcode: String) =
+        NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(barcode)))
+
     private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
         CameraState.Preview(
             isPaused = isPaused,
@@ -828,6 +922,7 @@ class ScanViewModelTest {
         const val KEY_TORCH = "torch"
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
         const val KEY_FOUND_BARCODE = "foundBarcode"
+        const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
 
         val product = Product(

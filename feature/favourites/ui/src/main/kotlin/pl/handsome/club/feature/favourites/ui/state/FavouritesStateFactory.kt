@@ -1,8 +1,11 @@
 package pl.handsome.club.feature.favourites.ui.state
 
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.icon.icon
+import pl.handsome.club.core.designsystem.text.label
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
 import pl.handsome.club.feature.favourites.ui.FavouritesResources
@@ -10,7 +13,7 @@ import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Empty
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Error
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.InitialLoad
 import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.NoResults
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.ShowItems
+import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.ShowGroups
 import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import pl.handsome.club.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
@@ -22,7 +25,7 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
         val content = prototype.content(mode)
         return FavouritesState(
             query = prototype.query,
-            showSearch = content is ShowItems || content is NoResults,
+            showSearch = content is ShowGroups || content is NoResults,
             content = content,
         )
     }
@@ -35,8 +38,31 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
             favourites == null -> InitialLoad
             favourites.isEmpty() && favouritesQuery.isBlank() -> Empty
             favourites.isEmpty() -> NoResults(resources.noResults(favouritesQuery.trim()))
-            else -> ShowItems(favourites.map { it.toItemState(mode) }.toPersistentList())
+            else -> ShowGroups(groups(favourites, mode))
         }
+    }
+
+    private fun Prototype.groups(
+        favourites: List<FavouriteProduct>,
+        mode: DietMode,
+    ): PersistentList<FavouriteGroupState> {
+        val byCategory = favourites.groupBy { it.category }
+        val canToggle = favouritesQuery.isBlank()
+        return ProductCategory.entries
+            .mapNotNull { category ->
+                byCategory[category]?.let { products ->
+                    FavouriteGroupState(
+                        category = category,
+                        icon = category.icon,
+                        label = category.label,
+                        count = resources.groupCount(products.size),
+                        expanded = !canToggle || category !in collapsed,
+                        canToggle = canToggle,
+                        items = products.map { it.toItemState(mode) }.toPersistentList(),
+                    )
+                }
+            }
+            .toPersistentList()
     }
 
     private fun FavouriteProduct.toItemState(mode: DietMode): FavouriteItemState = FavouriteItemState(

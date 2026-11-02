@@ -32,6 +32,9 @@ internal class FavouritesResources {
 
     fun loadError(error: AppError): UiText = error.toUiText()
 
+    fun groupCount(count: Int): UiText =
+        UiText.Res(R.string.favourites_group_count, UiArg.Numeric.Count(count.toLong()))
+
     private fun verdict(rate: DietRate?, mode: DietMode): UiText = when (rate) {
         DietRate.GOOD -> when (mode) {
             DietMode.KETO -> UiText.Res(R.string.favourites_verdict_good_keto)

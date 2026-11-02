@@ -12,6 +12,7 @@ internal data class ScanState(
     val showProgress: Boolean,
     val camera: CameraState,
     val found: FoundCardState?,
+    val notFound: NotFoundCardState?,
 )
 
 @Immutable
@@ -35,6 +36,9 @@ internal data class FoundCardState(
     val title: UiText,
     val detail: UiText,
 )
+
+@Immutable
+internal data class NotFoundCardState(val message: UiText)
 
 @Immutable
 internal data class TripItemState(

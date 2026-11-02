@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
@@ -166,7 +167,10 @@ class DietPreferencesViewModelTest {
 
         assertEquals(listOf(DietPreferences(20, DietMode.KETO)), preferences.saved)
         assertEquals(
-            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
+            listOf(
+                AppEvent.HideKeyboard,
+                AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved), MessageTone.Success),
+            ),
             appEventsReceived,
         )
         assertEquals(listOf<DietPreferencesEvent>(NavigateBack), screenEvents)
@@ -234,7 +238,10 @@ class DietPreferencesViewModelTest {
 
         assertFalse(form(viewModel).isSaving)
         assertEquals(
-            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved))),
+            listOf(
+                AppEvent.HideKeyboard,
+                AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved), MessageTone.Success),
+            ),
             appEventsReceived,
         )
     }
@@ -250,7 +257,10 @@ class DietPreferencesViewModelTest {
 
         assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
         assertEquals(
-            listOf(AppEvent.HideKeyboard, AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage))),
+            listOf(
+                AppEvent.HideKeyboard,
+                AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage), MessageTone.Error),
+            ),
             appEventsReceived,
         )
         assertTrue(screenEvents.isEmpty())

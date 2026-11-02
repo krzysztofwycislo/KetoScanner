@@ -18,4 +18,7 @@
     <string name="favourites_verdict_not_advised_keto">Not keto-friendly</string>
     <string name="favourites_verdict_not_advised_low_carb">Not low-carb friendly</string>
     <string name="favourites_verdict_unknown">Not enough data yet</string>
+    <string name="favourites_group_count">%1$s</string>
+    <string name="favourites_group_expanded">Expanded</string>
+    <string name="favourites_group_collapsed">Collapsed</string>
 </resources>

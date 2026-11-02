@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,7 +29,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import pl.handsome.club.core.designsystem.component.BottomBar
 import pl.handsome.club.core.designsystem.component.BottomBarItem
 import pl.handsome.club.core.designsystem.component.LocalBottomBarOverlap
+import pl.handsome.club.core.designsystem.component.SnackbarHost
 import pl.handsome.club.core.designsystem.component.Ui
+import pl.handsome.club.core.designsystem.component.showAppMessage
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.text.rememberUiTextResolver
@@ -65,7 +65,7 @@ internal fun KetoScannerApp() {
         when (event) {
             is AppEvent.ShowMessage -> scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar(resolver.resolve(event.text), duration = SnackbarDuration.Long)
+                snackbarHostState.showAppMessage(resolver.resolve(event.text), event.tone)
             }
 
             AppEvent.HideKeyboard -> hideKeyboard()
@@ -83,7 +83,7 @@ internal fun KetoScannerApp() {
         containerColor = AppTheme.colors.background.default,
         contentWindowInsets = WindowInsets(0),
         snackbarHost = {
-            SnackbarHost(snackbarHostState, Modifier.padding(bottom = AppTheme.sizes.scanButtonLift))
+            Ui.SnackbarHost(snackbarHostState, Modifier.padding(bottom = AppTheme.sizes.scanButtonLift))
         },
         bottomBar = {
             AppBottomBar(

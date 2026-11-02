@@ -29,6 +29,7 @@ import pl.handsome.club.core.common.isReportable
 import pl.handsome.club.core.common.onFailure
 import pl.handsome.club.core.common.onSuccess
 import pl.handsome.club.core.common.retryOnFailure
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
 import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
 import pl.handsome.club.core.designsystem.event.AppEvents
@@ -89,6 +90,7 @@ internal class ScanViewModel(
             isTorchOn = savedStateHandle.get<Boolean>(KEY_TORCH) ?: false,
             isTypeSheetOpen = savedStateHandle.get<Boolean>(KEY_TYPE_SHEET_OPEN) ?: false,
             foundBarcode = savedStateHandle.get<String>(KEY_FOUND_BARCODE),
+            notFoundBarcode = savedStateHandle.get<String>(KEY_NOT_FOUND_BARCODE),
             now = clock.now(),
         )
     )
@@ -111,7 +113,7 @@ internal class ScanViewModel(
             OnSearchSubmitted -> search(statePrototype.value.query.trim())
             is OnBarcodeScanned -> if (!statePrototype.value.isScanBlocked) search(action.barcode)
             OnTorchClicked -> toggleTorch()
-            OnTypeItClicked -> setTypeSheetOpen(true)
+            OnTypeItClicked -> openTypeSheet()
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
             OnScanNextClicked -> scanNext()
             OnDetailsClicked -> statePrototype.value.foundBarcode?.let { screenEvents send NavigateToProduct(it) }
@@ -232,18 +234,35 @@ internal class ScanViewModel(
         statePrototype.update { it.copy(isTypeSheetOpen = isOpen) }
     }
 
+    private fun openTypeSheet() {
+        statePrototype.value.notFoundBarcode?.let { barcode ->
+            setQuery(barcode)
+            setNotFoundBarcode(null)
+            statePrototype.update { it.copy(isScanPaused = false) }
+        }
+        setTypeSheetOpen(true)
+    }
+
     private fun setFoundBarcode(barcode: String?) {
         savedStateHandle[KEY_FOUND_BARCODE] = barcode
         statePrototype.update { it.copy(foundBarcode = barcode, foundAnalysis = null) }
     }
 
+    private fun setNotFoundBarcode(barcode: String?) {
+        savedStateHandle[KEY_NOT_FOUND_BARCODE] = barcode
+        statePrototype.update { it.copy(notFoundBarcode = barcode) }
+    }
+
     private fun scanNext() {
         setFoundBarcode(null)
+        setNotFoundBarcode(null)
         statePrototype.update { it.copy(isScanPaused = false) }
     }
 
     private fun search(barcode: String) {
-        if (barcode.isBlank() || progress.inProgress.value || statePrototype.value.foundBarcode != null) return
+        val prototype = statePrototype.value
+        if (barcode.isBlank() || progress.inProgress.value) return
+        if (prototype.foundBarcode != null || prototype.notFoundBarcode != null) return
         statePrototype.update { it.copy(isScanPaused = true) }
         appEvents send HideKeyboard
 
@@ -254,7 +273,7 @@ internal class ScanViewModel(
                     setFoundBarcode(barcode)
                     saveFoundAnalysisToHistory()
                 }
-                .onFailure { error -> onSearchFailed(error) }
+                .onFailure { error -> onSearchFailed(barcode, error) }
         }
     }
 
@@ -269,13 +288,18 @@ internal class ScanViewModel(
         }
     }
 
-    private suspend fun onSearchFailed(error: AppError) {
+    private suspend fun onSearchFailed(barcode: String, error: AppError) {
         reportOrLog("Searching product failed", error)
-        showFailureAndResume(error)
+        if (error == AppError.NotFound) {
+            setTypeSheetOpen(false)
+            setNotFoundBarcode(barcode)
+        } else {
+            showFailureAndResume(error)
+        }
     }
 
     private suspend fun showFailureAndResume(error: AppError) {
-        appEvents send ShowMessage(resources.searchFailed(error))
+        appEvents send ShowMessage(resources.searchFailed(error), MessageTone.Error)
         delay(SCAN_RESUME_DELAY)
         statePrototype.update { it.copy(isScanPaused = false) }
     }
@@ -299,6 +323,7 @@ internal class ScanViewModel(
         const val KEY_TORCH = "torch"
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
         const val KEY_FOUND_BARCODE = "foundBarcode"
+        const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val SCAN_RESUME_DELAY = 2.seconds
         val TRIP_RETRY_DELAY = 5.seconds
     }

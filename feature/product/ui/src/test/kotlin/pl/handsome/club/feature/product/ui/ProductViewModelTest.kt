@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.common.Outcome
+import pl.handsome.club.core.designsystem.component.MessageTone
 import pl.handsome.club.core.designsystem.event.AppEvent
 import pl.handsome.club.core.designsystem.event.AppEvents
 import pl.handsome.club.core.designsystem.text.UiText
@@ -369,7 +370,12 @@ class ProductViewModelTest {
         val button = assertNotNull(showProduct(viewModel).favourite)
         assertTrue(button.isFavourite)
         assertTrue(button.isEnabled)
-        assertEquals(listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_added_to_favourites))), messages)
+        assertEquals(
+            listOf<AppEvent>(
+                AppEvent.ShowMessage(UiText.Res(R.string.product_added_to_favourites), MessageTone.Success),
+            ),
+            messages,
+        )
     }
 
     @Test
@@ -384,7 +390,9 @@ class ProductViewModelTest {
         assertTrue(favourites.added.isEmpty())
         assertFalse(assertNotNull(showProduct(viewModel).favourite).isFavourite)
         assertEquals(
-            listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_removed_from_favourites))),
+            listOf<AppEvent>(
+                AppEvent.ShowMessage(UiText.Res(R.string.product_removed_from_favourites), MessageTone.Success),
+            ),
             messages,
         )
     }
@@ -402,7 +410,9 @@ class ProductViewModelTest {
             assertFalse(button.isFavourite)
             assertTrue(button.isEnabled)
             assertEquals(
-                listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage))),
+                listOf<AppEvent>(
+                    AppEvent.ShowMessage(UiText.Res(DesignR.string.designsystem_error_storage), MessageTone.Error),
+                ),
                 messages,
             )
             assertEquals(1, logger.entries.size)
@@ -523,7 +533,10 @@ class ProductViewModelTest {
 
         viewModel.onAction(ProductAction.OnWebPageUnavailable)
 
-        assertEquals(listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_link_unavailable))), messages)
+        assertEquals(
+            listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_link_unavailable), MessageTone.Error)),
+            messages,
+        )
     }
 
     private fun TestScope.createViewModel(

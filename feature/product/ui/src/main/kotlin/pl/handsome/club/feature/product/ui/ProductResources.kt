@@ -3,6 +3,7 @@ package pl.handsome.club.feature.product.ui
 import pl.handsome.club.core.common.AppError
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.designsystem.text.label
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.analysis.api.model.DietRate
@@ -18,27 +19,8 @@ internal class ProductResources {
 
     fun imageDescription(): UiText = UiText.Res(R.string.product_image)
 
-    fun categoryLabel(category: ProductCategory): UiText? {
-        val id = when (category) {
-            ProductCategory.SPREADS -> R.string.product_category_spreads
-            ProductCategory.OILS_AND_SAUCES -> R.string.product_category_oils_and_sauces
-            ProductCategory.WATER -> R.string.product_category_water
-            ProductCategory.DRINKS -> R.string.product_category_drinks
-            ProductCategory.MILK_AND_JUICE -> R.string.product_category_milk_and_juice
-            ProductCategory.YOGURT_AND_CREAM -> R.string.product_category_yogurt_and_cream
-            ProductCategory.CHOCOLATE_AND_BARS -> R.string.product_category_chocolate_and_bars
-            ProductCategory.CHEESE -> R.string.product_category_cheese
-            ProductCategory.EGGS -> R.string.product_category_eggs
-            ProductCategory.FISH -> R.string.product_category_fish
-            ProductCategory.NUTS_AND_SEEDS -> R.string.product_category_nuts_and_seeds
-            ProductCategory.GRAINS -> R.string.product_category_grains
-            ProductCategory.BISCUITS -> R.string.product_category_biscuits
-            ProductCategory.TEA_AND_GREENS -> R.string.product_category_tea_and_greens
-            ProductCategory.MEAT -> R.string.product_category_meat
-            ProductCategory.OTHER -> return null
-        }
-        return UiText.Res(id)
-    }
+    fun categoryLabel(category: ProductCategory): UiText? =
+        category.takeUnless { it == ProductCategory.OTHER }?.label
 
     fun imagePreviewDescription(): UiText = UiText.Res(R.string.product_image_preview)
 

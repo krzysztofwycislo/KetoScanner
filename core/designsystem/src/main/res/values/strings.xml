@@ -9,6 +9,8 @@
     <string name="designsystem_preview_product">Product: %1$s</string>
     <string name="designsystem_preview_image">Sample product image</string>
     <string name="designsystem_preview_snackbar">Sample snackbar message</string>
+    <string name="designsystem_preview_snackbar_success">Saved</string>
+    <string name="designsystem_preview_snackbar_error">Something went wrong. Try again later.</string>
     <string name="designsystem_preview_rating">Sample rating</string>
     <string name="designsystem_preview_button">Sample button</string>
     <string name="designsystem_preview_tab_home">Home</string>
@@ -19,6 +21,22 @@
         <item quantity="other">%1$s products</item>
     </plurals>
     <string name="designsystem_back">Back</string>
+    <string name="designsystem_category_spreads">Spreads</string>
+    <string name="designsystem_category_oils_and_sauces">Oils and sauces</string>
+    <string name="designsystem_category_water">Water</string>
+    <string name="designsystem_category_drinks">Drinks</string>
+    <string name="designsystem_category_milk_and_juice">Milk and juice</string>
+    <string name="designsystem_category_yogurt_and_cream">Yogurt and cream</string>
+    <string name="designsystem_category_chocolate_and_bars">Chocolate and bars</string>
+    <string name="designsystem_category_cheese">Cheese</string>
+    <string name="designsystem_category_eggs">Eggs</string>
+    <string name="designsystem_category_fish">Fish and seafood</string>
+    <string name="designsystem_category_nuts_and_seeds">Nuts and seeds</string>
+    <string name="designsystem_category_grains">Pasta, bread and rice</string>
+    <string name="designsystem_category_biscuits">Biscuits</string>
+    <string name="designsystem_category_tea_and_greens">Tea, herbs and greens</string>
+    <string name="designsystem_category_meat">Meat</string>
+    <string name="designsystem_category_other">Other</string>
     <string name="designsystem_error_network">No internet connection. Check your connection and try again.</string>
     <string name="designsystem_error_server">The server isn\'t responding. Try again later.</string>
     <string name="designsystem_error_not_found">We couldn\'t find what you were looking for.</string>

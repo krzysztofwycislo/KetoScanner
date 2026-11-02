@@ -18,12 +18,14 @@ internal data class ScanStatePrototype(
     val isTypeSheetOpen: Boolean = false,
     val foundBarcode: String? = null,
     val foundAnalysis: ProductAnalysis? = null,
+    val notFoundBarcode: String? = null,
     val tripEntries: List<ProductAnalysisHistoryEntry> = emptyList(),
     val now: Instant = Instant.fromEpochMilliseconds(0),
     val dietPreferences: DietPreferences? = null,
 ) {
 
-    val isScanBlocked: Boolean get() = isScanPaused || isSearching || isTypeSheetOpen || foundBarcode != null
+    val isScanBlocked: Boolean
+        get() = isScanPaused || isSearching || isTypeSheetOpen || foundBarcode != null || notFoundBarcode != null
 
     companion object {
         val Default = ScanStatePrototype()

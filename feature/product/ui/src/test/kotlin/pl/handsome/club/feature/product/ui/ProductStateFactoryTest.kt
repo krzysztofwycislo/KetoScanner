@@ -196,7 +196,7 @@ class ProductStateFactoryTest {
         val header = show(Prototype(analysis = rated(DietRate.GOOD, product(category = ProductCategory.WATER)))).header
 
         assertEquals(
-            CategoryChipState(AppIcons.Bottle, UiText.Res(R.string.product_category_water)),
+            CategoryChipState(AppIcons.Bottle, UiText.Res(DesignR.string.designsystem_category_water)),
             header.category,
         )
     }

@@ -23,8 +23,9 @@ internal class ScanResources {
 
     fun openSettings(): UiText = UiText.Res(R.string.scan_camera_permission_open_settings)
 
-    fun searchFailed(error: AppError): UiText =
-        if (error == AppError.NotFound) UiText.Res(R.string.scan_product_not_found) else error.toUiText()
+    fun searchFailed(error: AppError): UiText = error.toUiText()
+
+    fun notFoundMessage(barcode: String): UiText = UiText.Res(R.string.scan_not_found_message, UiArg.Text(barcode))
 
     fun productName(name: String): UiText =
         if (name.isBlank()) UiText.Res(R.string.scan_found_unnamed) else UiText.Raw(name)

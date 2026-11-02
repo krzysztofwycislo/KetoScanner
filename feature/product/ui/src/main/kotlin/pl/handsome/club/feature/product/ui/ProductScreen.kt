@@ -51,9 +51,11 @@ import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.designsystem.text.label
 import pl.handsome.club.core.designsystem.text.resolve
 import pl.handsome.club.core.designsystem.text.toUiText
 import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.handsome.club.core.model.ProductCategory
 import pl.handsome.club.feature.product.ui.event.ProductAction
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnBackClicked
 import pl.handsome.club.feature.product.ui.event.ProductAction.OnFavouriteClicked
@@ -376,7 +378,7 @@ private fun ProductHeaderState.Companion.example(name: String = "Peanut butter")
     imageUrl = null,
     imageDescription = UiText.Res(R.string.product_image),
     isImageClickable = false,
-    category = CategoryChipState(AppIcons.Jar, UiText.Res(R.string.product_category_spreads)),
+    category = CategoryChipState(AppIcons.Jar, ProductCategory.SPREADS.label),
     brand = UiText.Raw("Nuts & Co"),
     name = UiText.Raw(name),
     nameMaxLines = 1,

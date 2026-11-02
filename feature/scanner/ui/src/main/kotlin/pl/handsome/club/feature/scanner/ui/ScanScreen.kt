@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -105,6 +104,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
+import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanState
 import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype
 import pl.handsome.club.feature.scanner.ui.state.Torch
@@ -168,28 +168,26 @@ private fun CameraContent(state: ScanState, camera: CameraState.Preview, onActio
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CameraHeader(camera.torch, onAction)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(AppTheme.spacing.xl * 2),
-                ) {
-                    if (state.showProgress) {
-                        LinearProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = AppTheme.spacing.m),
-                        )
-                    }
-                }
-                Ui.ScanFrame(Modifier.onGloballyPositioned { scanArea = it.boundsInWindow() })
+                Spacer(Modifier.height(AppTheme.spacing.xl * 2))
+                Ui.ScanFrame(
+                    modifier = Modifier.onGloballyPositioned { scanArea = it.boundsInWindow() },
+                    searching = state.showProgress,
+                )
                 Ui.CameraHint(
-                    text = stringResource(R.string.scan_aim_hint),
+                    text = stringResource(
+                        if (state.showProgress) {
+                            R.string.scan_searching_hint
+                        } else {
+                            R.string.scan_aim_hint
+                        },
+                    ),
                     modifier = Modifier.padding(top = AppTheme.spacing.m),
                 )
             }
             TripOverlay(camera.trip, innerPadding, onAction)
             TypeSheet(state, camera.isTypeSheetOpen, innerPadding, onAction)
             FoundOverlay(state.found, innerPadding, onAction)
+            NotFoundOverlay(state.notFound, innerPadding, showTypeIt = true, onAction = onAction)
         }
     }
 }
@@ -368,6 +366,94 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
 }
 
 @Composable
+private fun BoxScope.NotFoundOverlay(
+    notFound: NotFoundCardState?,
+    innerPadding: PaddingValues,
+    showTypeIt: Boolean,
+    onAction: (ScanAction) -> Unit,
+) {
+    BackHandler(enabled = notFound != null) { onAction(OnScanNextClicked) }
+    AnimatedVisibility(
+        visible = notFound != null,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.matchParentSize(),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.camera.dim)
+                .pointerInput(Unit) {},
+        )
+    }
+    var lastNotFound by remember { mutableStateOf(notFound) }
+    if (notFound != null) lastNotFound = notFound
+    AnimatedVisibility(
+        visible = notFound != null,
+        enter = slideInVertically { it },
+        exit = slideOutVertically { it },
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = innerPadding.calculateBottomPadding()),
+    ) {
+        lastNotFound?.let {
+            NotFoundCard(it, showTypeIt, onAction)
+        }
+    }
+}
+
+@Composable
+private fun NotFoundCard(notFound: NotFoundCardState, showTypeIt: Boolean, onAction: (ScanAction) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.spacing.m)
+            .background(AppTheme.colors.background.surface, AppTheme.shapes.extraLarge)
+            .pointerInput(Unit) {}
+            .padding(AppTheme.spacing.l)
+            .testTag("scanNotFoundCard"),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Ui.IconTile(AppIcons.Search.imageVector)
+            Text(
+                text = stringResource(R.string.scan_product_not_found),
+                style = AppTheme.typography.section,
+                color = AppTheme.colors.text.default,
+            )
+        }
+        Text(
+            text = notFound.message.resolve(),
+            style = AppTheme.typography.body,
+            color = AppTheme.colors.text.muted,
+        )
+        if (showTypeIt) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+                Ui.SecondaryButton(
+                    text = stringResource(R.string.scan_type_it),
+                    onClick = { onAction(OnTypeItClicked) },
+                    modifier = Modifier.weight(1f),
+                )
+                Ui.PrimaryButton(
+                    text = stringResource(R.string.scan_next),
+                    onClick = { onAction(OnScanNextClicked) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        } else {
+            Ui.PrimaryButton(
+                text = stringResource(R.string.scan_close),
+                onClick = { onAction(OnScanNextClicked) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
 private fun CameraHeader(torch: Torch, onAction: (ScanAction) -> Unit) {
     Row(
         modifier = Modifier
@@ -508,6 +594,7 @@ private fun PermissionContent(state: ScanState, camera: CameraState.PermissionPa
                 }
             }
             FoundOverlay(state.found, innerPadding, onAction)
+            NotFoundOverlay(state.notFound, innerPadding, showTypeIt = false, onAction = onAction)
         }
     }
 }
@@ -613,17 +700,23 @@ private fun previewState(
     torch: Torch = Torch.Off,
     isTypeSheetOpen: Boolean = false,
     found: FoundCardState? = null,
+    notFound: NotFoundCardState? = null,
     trip: ImmutableList<TripItemState> = persistentListOf(),
 ) = ScanState(
     query = query,
     showProgress = showProgress,
     camera = CameraState.Preview(
-        isPaused = showProgress || isTypeSheetOpen || found != null,
+        isPaused = showProgress || isTypeSheetOpen || found != null || notFound != null,
         torch = torch,
         isTypeSheetOpen = isTypeSheetOpen,
         trip = trip,
     ),
     found = found,
+    notFound = notFound,
+)
+
+private val previewNotFound = NotFoundCardState(
+    UiText.Res(R.string.scan_not_found_message, UiArg.Text("5900512300320")),
 )
 
 private fun previewTripItem(
@@ -727,6 +820,36 @@ private fun ScanSearchingPreview() {
 
 @Preview
 @Composable
+private fun ScanSearchingCameraPreview() {
+    PreviewContent(previewState(showProgress = true))
+}
+
+@Preview
+@Composable
+private fun ScanNotFoundPreview() {
+    PreviewContent(previewState(notFound = previewNotFound))
+}
+
+@Preview
+@Composable
+private fun ScanNotFoundPermissionPanelPreview() {
+    PreviewContent(
+        ScanState(
+            query = "5900512300320",
+            showProgress = false,
+            camera = CameraState.PermissionPanel(
+                title = UiText.Res(R.string.scan_camera_permission_denied_title),
+                message = UiText.Res(R.string.scan_camera_permission_denied),
+                buttonLabel = UiText.Res(R.string.scan_camera_permission_open_settings),
+            ),
+            found = null,
+            notFound = previewNotFound,
+        )
+    )
+}
+
+@Preview
+@Composable
 private fun ScanFoundRatedPreview() {
     PreviewContent(
         previewState(
@@ -772,6 +895,7 @@ private fun ScanRationalePreview() {
                 buttonLabel = UiText.Res(R.string.scan_camera_permission_allow),
             ),
             found = null,
+            notFound = null,
         )
     )
 }
@@ -789,6 +913,7 @@ private fun ScanDeniedPreview() {
                 buttonLabel = UiText.Res(R.string.scan_camera_permission_open_settings),
             ),
             found = null,
+            notFound = null,
         )
     )
 }
@@ -796,5 +921,7 @@ private fun ScanDeniedPreview() {
 @Preview
 @Composable
 private fun ScanHiddenPreview() {
-    PreviewContent(ScanState(query = "", showProgress = false, camera = CameraState.Hidden, found = null))
+    PreviewContent(
+        ScanState(query = "", showProgress = false, camera = CameraState.Hidden, found = null, notFound = null),
+    )
 }

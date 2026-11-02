@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,7 +61,7 @@ private val ScanFrameVector: ImageVector by lazy {
 }
 
 @Composable
-fun Ui.ScanFrame(modifier: Modifier = Modifier) {
+fun Ui.ScanFrame(modifier: Modifier = Modifier, searching: Boolean = false) {
     Box(
         modifier = modifier.size(AppTheme.sizes.scanFrameWidth, AppTheme.sizes.scanFrameHeight),
         contentAlignment = Alignment.Center,
@@ -71,13 +72,28 @@ fun Ui.ScanFrame(modifier: Modifier = Modifier) {
             colorFilter = ColorFilter.tint(AppTheme.colors.text.inverse),
             modifier = Modifier.matchParentSize(),
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = AppTheme.spacing.xxl)
-                .height(AppTheme.sizes.aimLine)
-                .background(AppTheme.colors.text.highlight, AppTheme.shapes.pill),
-        )
+        if (searching) {
+            Box(
+                modifier = Modifier
+                    .size(AppTheme.sizes.messageIcon)
+                    .background(AppTheme.colors.camera.hint, AppTheme.shapes.circle),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    color = AppTheme.colors.text.highlight,
+                    trackColor = Color.Transparent,
+                    modifier = Modifier.size(AppTheme.sizes.iconM),
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.spacing.xxl)
+                    .height(AppTheme.sizes.aimLine)
+                    .background(AppTheme.colors.text.highlight, AppTheme.shapes.pill),
+            )
+        }
     }
 }
 
@@ -170,6 +186,14 @@ private fun CameraPreviewBox(content: @Composable () -> Unit) {
 private fun ScanFramePreview() {
     CameraPreviewBox {
         Ui.ScanFrame()
+    }
+}
+
+@Preview
+@Composable
+private fun ScanFrameSearchingPreview() {
+    CameraPreviewBox {
+        Ui.ScanFrame(searching = true)
     }
 }
 

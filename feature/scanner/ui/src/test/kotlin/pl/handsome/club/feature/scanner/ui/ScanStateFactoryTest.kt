@@ -18,6 +18,7 @@ import pl.handsome.club.feature.product.api.model.ProductNutriments
 import pl.handsome.club.feature.scanner.ui.state.CameraPermission
 import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
+import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
 import pl.handsome.club.feature.scanner.ui.state.Torch
 import pl.handsome.club.feature.scanner.ui.state.TripItemState
@@ -125,6 +126,20 @@ class ScanStateFactoryTest {
     @Test
     fun `when nothing is found then there is no card`() {
         assertNull(factory.createFor(granted()).found)
+        assertNull(factory.createFor(granted()).notFound)
+    }
+
+    @Test
+    fun `when a barcode is not found then the not found card shows its message and the preview is paused`() {
+        val state = factory.createFor(granted().copy(notFoundBarcode = BARCODE))
+
+        assertEquals(
+            NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(BARCODE))),
+            state.notFound,
+        )
+        assertNull(state.found)
+        assertFalse(state.showProgress)
+        assertEquals(preview(isPaused = true), state.camera)
     }
 
     @Test
@@ -312,9 +327,10 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when the type sheet is open or a found barcode is set then the trip is empty`() {
+    fun `when the type sheet is open or a found or not found barcode is set then the trip is empty`() {
         assertTrue(trip(withTrip(entry(1)).copy(isTypeSheetOpen = true)).isEmpty())
         assertTrue(trip(withTrip(entry(1)).copy(foundBarcode = BARCODE)).isEmpty())
+        assertTrue(trip(withTrip(entry(1)).copy(notFoundBarcode = BARCODE)).isEmpty())
         assertTrue(
             trip(
                 withTrip(entry(1)).copy(
