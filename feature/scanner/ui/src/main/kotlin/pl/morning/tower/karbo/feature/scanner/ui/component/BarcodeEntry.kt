@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -14,14 +14,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.PrimaryButton
-import pl.handsome.club.core.designsystem.component.TextInput
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnQueryChanged
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
+import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
+import pl.morning.tower.karbo.core.designsystem.component.TextInput
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnQueryChanged
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 
 @Composable
 internal fun BarcodeEntry(

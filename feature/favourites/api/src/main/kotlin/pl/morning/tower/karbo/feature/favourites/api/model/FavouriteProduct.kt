@@ -1,7 +1,7 @@
-package pl.handsome.club.feature.favourites.api.model
+package pl.morning.tower.karbo.feature.favourites.api.model
 
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import kotlin.time.Instant
 
 

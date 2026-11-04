@@ -1,32 +1,32 @@
-package pl.handsome.club.feature.product.ui
+package pl.morning.tower.karbo.feature.product.ui
 
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.analysis.api.model.RatingReason
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.product.ui.state.CategoryChipState
-import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
-import pl.handsome.club.feature.product.ui.state.ImagePreviewState
-import pl.handsome.club.feature.product.ui.state.ProductContentState
-import pl.handsome.club.feature.product.ui.state.ProductStateFactory
-import pl.handsome.club.feature.product.ui.state.VerdictState
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.feature.product.ui.state.CategoryChipState
+import pl.morning.tower.karbo.feature.product.ui.state.FavouriteButtonState
+import pl.morning.tower.karbo.feature.product.ui.state.ImagePreviewState
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState
+import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
+import pl.morning.tower.karbo.feature.product.ui.state.VerdictState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import pl.handsome.club.core.designsystem.R as DesignR
-import pl.handsome.club.feature.product.ui.state.ProductStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.R as DesignR
+import pl.morning.tower.karbo.feature.product.ui.state.ProductStatePrototype as Prototype
 
 class ProductStateFactoryTest {
 

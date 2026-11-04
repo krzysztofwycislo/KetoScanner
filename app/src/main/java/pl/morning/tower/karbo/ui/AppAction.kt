@@ -1,6 +1,6 @@
-package pl.handsome.club.ketoscanner.ui
+package pl.morning.tower.karbo.ui
 
-import pl.handsome.club.ketoscanner.navigation.BottomNavSection
+import pl.morning.tower.karbo.navigation.BottomNavSection
 
 internal sealed interface AppAction {
     data class OnDestinationChanged(val tab: BottomNavSection?) : AppAction

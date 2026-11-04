@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.about.ui
+package pl.morning.tower.karbo.feature.about.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,14 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.TopBar
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.event.ObserveEvents
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.about.ui.event.AboutAction
-import pl.handsome.club.feature.about.ui.event.AboutAction.OnBackClicked
-import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.TopBar
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.about.ui.event.AboutAction
+import pl.morning.tower.karbo.feature.about.ui.event.AboutAction.OnBackClicked
+import pl.morning.tower.karbo.feature.about.ui.event.AboutEvent.AboutNavigation
 
 @Composable
 internal fun AboutScreen(onNavigation: (AboutNavigation) -> Unit) {

@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -23,25 +23,25 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.CardOverlay
-import pl.handsome.club.core.designsystem.component.IconTile
-import pl.handsome.club.core.designsystem.component.PrimaryButton
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.component.SecondaryButton
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.VerdictBanner
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnDetailsClicked
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnScanNextClicked
-import pl.handsome.club.feature.scanner.ui.state.FoundCardState
+import pl.morning.tower.karbo.core.designsystem.component.CardOverlay
+import pl.morning.tower.karbo.core.designsystem.component.IconTile
+import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.component.SecondaryButton
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.component.VerdictBanner
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnDetailsClicked
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnScanNextClicked
+import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
 
 @Composable
 internal fun BoxScope.FoundOverlay(

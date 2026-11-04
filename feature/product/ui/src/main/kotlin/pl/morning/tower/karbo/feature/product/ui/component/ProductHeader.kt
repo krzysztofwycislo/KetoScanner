@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.ui.component
+package pl.morning.tower.karbo.feature.product.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,25 +18,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
-import pl.handsome.club.core.designsystem.component.CircleIconButton
-import pl.handsome.club.core.designsystem.component.InfoChip
-import pl.handsome.club.core.designsystem.component.ProductImage
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.product.ui.R
-import pl.handsome.club.feature.product.ui.event.ProductAction
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnBackClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnFavouriteClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnImageClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnNameClicked
-import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
-import pl.handsome.club.feature.product.ui.state.ImagePreviewState
-import pl.handsome.club.feature.product.ui.state.ProductHeaderState
+import pl.morning.tower.karbo.core.designsystem.component.CircleIconButton
+import pl.morning.tower.karbo.core.designsystem.component.InfoChip
+import pl.morning.tower.karbo.core.designsystem.component.ProductImage
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.product.ui.R
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnBackClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnFavouriteClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnImageClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnNameClicked
+import pl.morning.tower.karbo.feature.product.ui.state.FavouriteButtonState
+import pl.morning.tower.karbo.feature.product.ui.state.ImagePreviewState
+import pl.morning.tower.karbo.feature.product.ui.state.ProductHeaderState
 
 @Composable
 internal fun Header(

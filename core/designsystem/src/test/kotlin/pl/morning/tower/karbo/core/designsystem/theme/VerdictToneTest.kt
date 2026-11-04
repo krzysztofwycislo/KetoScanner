@@ -1,6 +1,6 @@
-package pl.handsome.club.core.designsystem.theme
+package pl.morning.tower.karbo.core.designsystem.theme
 
-import pl.handsome.club.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.Rating
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

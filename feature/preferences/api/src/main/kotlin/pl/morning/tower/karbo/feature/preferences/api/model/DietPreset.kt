@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.api.model
+package pl.morning.tower.karbo.feature.preferences.api.model
 
 enum class DietPreset(val preferences: DietPreferences) {
     STRICT_KETO(DietPreferences(20, DietMode.KETO)),

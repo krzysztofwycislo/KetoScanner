@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.analysis.api.model
+package pl.morning.tower.karbo.feature.analysis.api.model
 
-import pl.handsome.club.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.Product
 
 sealed interface ProductAnalysis {
 

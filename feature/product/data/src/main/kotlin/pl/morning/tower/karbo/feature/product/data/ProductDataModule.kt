@@ -1,11 +1,11 @@
-package pl.handsome.club.feature.product.data
+package pl.morning.tower.karbo.feature.product.data
 
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import pl.handsome.club.core.common.APPLICATION_SCOPE
-import pl.handsome.club.feature.product.api.ProductRepository
+import pl.morning.tower.karbo.core.common.APPLICATION_SCOPE
+import pl.morning.tower.karbo.feature.product.api.ProductRepository
 
 val productDataModule = module {
     singleOf(::ProductPersistenceImpl) bind ProductPersistence::class

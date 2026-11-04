@@ -1,20 +1,20 @@
-package pl.handsome.club.feature.preferences.ui
+package pl.morning.tower.karbo.feature.preferences.ui
 
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.feature.analysis.api.DietRatingLimits
-import pl.handsome.club.feature.analysis.api.model.CarbLimits
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.preferences.api.model.DietPreset
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
-import pl.handsome.club.feature.preferences.ui.state.RatingGuideRowState
-import pl.handsome.club.feature.preferences.ui.state.RatingGuideState
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.feature.analysis.api.DietRatingLimits
+import pl.morning.tower.karbo.feature.analysis.api.model.CarbLimits
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.feature.preferences.ui.state.RatingGuideRowState
+import pl.morning.tower.karbo.feature.preferences.ui.state.RatingGuideState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,8 +22,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import pl.handsome.club.core.designsystem.R as DesignR
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.R as DesignR
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
 
 class DietPreferencesStateFactoryTest {
 

@@ -1,4 +1,4 @@
-package pl.handsome.club.core.common
+package pl.morning.tower.karbo.core.common
 
 import kotlin.test.Test
 import kotlin.test.assertFalse

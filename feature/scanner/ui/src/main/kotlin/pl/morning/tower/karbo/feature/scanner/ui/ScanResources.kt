@@ -1,13 +1,13 @@
-package pl.handsome.club.feature.scanner.ui
+package pl.morning.tower.karbo.feature.scanner.ui
 
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.toUiText
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.RatingReason
-import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.toUiText
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 
 internal class ScanResources {
 

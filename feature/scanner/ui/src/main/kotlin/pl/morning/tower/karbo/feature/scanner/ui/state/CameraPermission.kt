@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.state
+package pl.morning.tower.karbo.feature.scanner.ui.state
 
 internal enum class CameraPermission { Unchecked, Requesting, Granted, Rationale, Denied }
 

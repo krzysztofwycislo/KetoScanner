@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.history.ui
+package pl.morning.tower.karbo.feature.history.ui
 
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStateFactory
 
 val historyUiModule = module {
     viewModelOf(::HistoryViewModel)

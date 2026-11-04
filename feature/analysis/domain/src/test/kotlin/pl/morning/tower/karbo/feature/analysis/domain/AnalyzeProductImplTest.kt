@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -7,15 +7,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.product.api.ProductRepository
-import pl.handsome.club.feature.product.api.model.Product
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.ProductRepository
+import pl.morning.tower.karbo.feature.product.api.model.Product
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

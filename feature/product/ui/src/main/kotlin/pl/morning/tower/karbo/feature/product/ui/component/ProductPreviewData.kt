@@ -1,20 +1,20 @@
-package pl.handsome.club.feature.product.ui.component
+package pl.morning.tower.karbo.feature.product.ui.component
 
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.label
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.product.ui.R
-import pl.handsome.club.feature.product.ui.state.CategoryChipState
-import pl.handsome.club.feature.product.ui.state.FavouriteButtonState
-import pl.handsome.club.feature.product.ui.state.GlanceState
-import pl.handsome.club.feature.product.ui.state.GlanceTileState
-import pl.handsome.club.feature.product.ui.state.ProductContentState.ShowProduct
-import pl.handsome.club.feature.product.ui.state.ProductHeaderState
-import pl.handsome.club.feature.product.ui.state.VerdictState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.label
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.product.ui.R
+import pl.morning.tower.karbo.feature.product.ui.state.CategoryChipState
+import pl.morning.tower.karbo.feature.product.ui.state.FavouriteButtonState
+import pl.morning.tower.karbo.feature.product.ui.state.GlanceState
+import pl.morning.tower.karbo.feature.product.ui.state.GlanceTileState
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.ShowProduct
+import pl.morning.tower.karbo.feature.product.ui.state.ProductHeaderState
+import pl.morning.tower.karbo.feature.product.ui.state.VerdictState
 
 internal fun ProductHeaderState.Companion.example(name: String = "Peanut butter") = ProductHeaderState(
     imageUrl = null,

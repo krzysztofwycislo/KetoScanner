@@ -1,18 +1,18 @@
-package pl.handsome.club.feature.scanner.ui.state
+package pl.morning.tower.karbo.feature.scanner.ui.state
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.scanner.ui.ScanResources
-import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.scanner.ui.ScanResources
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
 internal class ScanStateFactory(private val resources: ScanResources) {
 

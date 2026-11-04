@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.ui
+package pl.morning.tower.karbo.ui
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.Dispatchers
@@ -10,12 +10,12 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.ketoscanner.navigation.BottomNavSection
-import pl.handsome.club.ketoscanner.ui.AppAction.OnDestinationChanged
-import pl.handsome.club.ketoscanner.ui.AppAction.OnTabClicked
-import pl.handsome.club.ketoscanner.ui.AppNavigation.NavigateToTab
-import pl.handsome.club.ketoscanner.ui.AppNavigation.PopToTabRoot
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.navigation.BottomNavSection
+import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
+import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
+import pl.morning.tower.karbo.ui.AppNavigation.NavigateToTab
+import pl.morning.tower.karbo.ui.AppNavigation.PopToTabRoot
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

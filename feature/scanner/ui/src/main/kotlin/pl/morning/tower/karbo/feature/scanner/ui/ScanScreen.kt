@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui
+package pl.morning.tower.karbo.feature.scanner.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -8,25 +8,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.event.ObserveEvents
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.camera.LightStatusBarIconsEffect
-import pl.handsome.club.feature.scanner.ui.camera.rememberCameraPermissionHandler
-import pl.handsome.club.feature.scanner.ui.camera.rememberHasTorch
-import pl.handsome.club.feature.scanner.ui.component.CameraContent
-import pl.handsome.club.feature.scanner.ui.component.PermissionContent
-import pl.handsome.club.feature.scanner.ui.event.OpenAppSettings
-import pl.handsome.club.feature.scanner.ui.event.PerformHapticFeedback
-import pl.handsome.club.feature.scanner.ui.event.RequestCameraPermission
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnCameraPermissionResult
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnStart
-import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
-import pl.handsome.club.feature.scanner.ui.event.ScanFeedback
-import pl.handsome.club.feature.scanner.ui.state.CameraState
-import pl.handsome.club.feature.scanner.ui.state.ScanState
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.camera.LightStatusBarIconsEffect
+import pl.morning.tower.karbo.feature.scanner.ui.camera.rememberCameraPermissionHandler
+import pl.morning.tower.karbo.feature.scanner.ui.camera.rememberHasTorch
+import pl.morning.tower.karbo.feature.scanner.ui.component.CameraContent
+import pl.morning.tower.karbo.feature.scanner.ui.component.PermissionContent
+import pl.morning.tower.karbo.feature.scanner.ui.event.OpenAppSettings
+import pl.morning.tower.karbo.feature.scanner.ui.event.PerformHapticFeedback
+import pl.morning.tower.karbo.feature.scanner.ui.event.RequestCameraPermission
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnCameraPermissionResult
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnStart
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanFeedback
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanState
 
 @Composable
 internal fun ScanScreen(onNavigation: (ScanNavigation) -> Unit) {

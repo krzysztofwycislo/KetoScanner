@@ -1,6 +1,6 @@
-package pl.handsome.club.ketoscanner.ui
+package pl.morning.tower.karbo.ui
 
-import pl.handsome.club.ketoscanner.navigation.BottomNavSection
+import pl.morning.tower.karbo.navigation.BottomNavSection
 
 internal sealed interface AppNavigation {
     data class NavigateToTab(val tab: BottomNavSection) : AppNavigation

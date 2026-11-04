@@ -1,17 +1,17 @@
-package pl.handsome.club.feature.history.data
+package pl.morning.tower.karbo.feature.history.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import pl.handsome.club.core.common.AppDispatchers
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.common.outcomeOf
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.core.common.AppDispatchers
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.outcomeOf
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import kotlin.coroutines.cancellation.CancellationException
 
 internal class AnalysisHistoryRepositoryImpl(

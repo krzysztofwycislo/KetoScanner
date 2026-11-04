@@ -1,9 +1,9 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.openfoodapi.data.ApiProduct
-import pl.handsome.club.openfoodapi.data.GetProductResponse
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.openfoodapi.data.ApiProduct
+import pl.morning.tower.karbo.openfoodapi.data.GetProductResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

@@ -1,8 +1,8 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
-import pl.handsome.club.openfoodapi.data.ApiNutriments
-import pl.handsome.club.openfoodapi.data.ApiProduct
-import pl.handsome.club.openfoodapi.data.GetProductResponse
+import pl.morning.tower.karbo.openfoodapi.data.ApiNutriments
+import pl.morning.tower.karbo.openfoodapi.data.ApiProduct
+import pl.morning.tower.karbo.openfoodapi.data.GetProductResponse
 
 
 private const val PRODUCT_NAME = "test name"

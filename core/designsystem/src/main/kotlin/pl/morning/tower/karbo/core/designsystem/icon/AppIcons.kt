@@ -1,10 +1,10 @@
-package pl.handsome.club.core.designsystem.icon
+package pl.morning.tower.karbo.core.designsystem.icon
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import pl.handsome.club.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.R
 
 @JvmInline
 value class AppIcon(@DrawableRes val id: Int)

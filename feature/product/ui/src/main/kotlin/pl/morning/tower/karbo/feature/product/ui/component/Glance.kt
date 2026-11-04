@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.ui.component
+package pl.morning.tower.karbo.feature.product.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,19 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.SegmentedToggle
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.color
-import pl.handsome.club.core.designsystem.component.containerColor
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.product.ui.R
-import pl.handsome.club.feature.product.ui.event.ProductAction
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnPer100gClicked
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnPerServingClicked
-import pl.handsome.club.feature.product.ui.state.GlanceState
-import pl.handsome.club.feature.product.ui.state.GlanceTileState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.SegmentedToggle
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.component.color
+import pl.morning.tower.karbo.core.designsystem.component.containerColor
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.product.ui.R
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPer100gClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPerServingClicked
+import pl.morning.tower.karbo.feature.product.ui.state.GlanceState
+import pl.morning.tower.karbo.feature.product.ui.state.GlanceTileState
 
 private const val GLANCE_COLUMNS = 3
 

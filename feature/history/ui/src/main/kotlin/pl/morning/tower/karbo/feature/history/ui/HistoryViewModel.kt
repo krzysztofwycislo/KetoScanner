@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.history.ui
+package pl.morning.tower.karbo.feature.history.ui
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -15,33 +15,33 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.ErrorReporter
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.core.common.onFailure
-import pl.handsome.club.core.common.onSuccess
-import pl.handsome.club.core.common.retryOnFailure
-import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
-import pl.handsome.club.feature.history.ui.event.HistoryAction
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnBackClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnEntryClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnFilterClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnQueryChanged
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnRetryClicked
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnSearchSubmitted
-import pl.handsome.club.feature.history.ui.event.HistoryAction.OnStart
-import pl.handsome.club.feature.history.ui.event.HistoryEvent
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
-import pl.handsome.club.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
-import pl.handsome.club.feature.history.ui.state.HistoryFilter
-import pl.handsome.club.feature.history.ui.state.HistoryState
-import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.core.common.onFailure
+import pl.morning.tower.karbo.core.common.onSuccess
+import pl.morning.tower.karbo.core.common.retryOnFailure
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnBackClicked
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnEntryClicked
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnFilterClicked
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnQueryChanged
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnSearchSubmitted
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnStart
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryState
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStateFactory
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
-import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStatePrototype as Prototype
 
 internal class HistoryViewModel(
     private val savedStateHandle: SavedStateHandle,

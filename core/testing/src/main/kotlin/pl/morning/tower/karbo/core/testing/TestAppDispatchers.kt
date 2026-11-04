@@ -1,10 +1,10 @@
-package pl.handsome.club.core.testing
+package pl.morning.tower.karbo.core.testing
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
-import pl.handsome.club.core.common.AppDispatchers
+import pl.morning.tower.karbo.core.common.AppDispatchers
 
 class TestAppDispatchers(scheduler: TestCoroutineScheduler? = null) : AppDispatchers {
     val dispatcher: TestDispatcher = StandardTestDispatcher(scheduler)

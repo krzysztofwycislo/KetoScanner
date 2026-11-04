@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.product.ui
+package pl.morning.tower.karbo.feature.product.ui
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation
 
 @Serializable
 data class ProductRoute(val barcode: String)

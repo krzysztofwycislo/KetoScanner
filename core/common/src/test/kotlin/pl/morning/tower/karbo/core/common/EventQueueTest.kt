@@ -1,4 +1,4 @@
-package pl.handsome.club.core.common
+package pl.morning.tower.karbo.core.common
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take

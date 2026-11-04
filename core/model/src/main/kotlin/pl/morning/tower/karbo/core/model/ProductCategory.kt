@@ -1,4 +1,4 @@
-package pl.handsome.club.core.model
+package pl.morning.tower.karbo.core.model
 
 enum class ProductCategory {
     SPREADS,

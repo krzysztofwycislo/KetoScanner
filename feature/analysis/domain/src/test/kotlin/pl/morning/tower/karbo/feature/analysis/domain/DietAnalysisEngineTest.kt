@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -81,7 +81,7 @@ class DietAnalysisEngineTest {
         }
     }
 
-    private fun rated(preferences: DietPreferences, product: pl.handsome.club.feature.product.api.model.Product) =
+    private fun rated(preferences: DietPreferences, product: pl.morning.tower.karbo.feature.product.api.model.Product) =
         assertIs<ProductAnalysis.Rated>(dietAnalysisEngine.analyze(preferences, product)).macronutrients
 
 }

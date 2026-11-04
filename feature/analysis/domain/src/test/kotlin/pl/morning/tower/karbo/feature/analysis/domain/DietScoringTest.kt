@@ -1,14 +1,14 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.DietRate.GOOD
-import pl.handsome.club.feature.analysis.api.model.DietRate.NEUTRAL
-import pl.handsome.club.feature.analysis.api.model.DietRate.NOT_ADVISED
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.analysis.api.model.RatingReason
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.GOOD
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NEUTRAL
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NOT_ADVISED
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,18 +1,18 @@
-package pl.handsome.club.ketoscanner.ui
+package pl.morning.tower.karbo.ui
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.core.designsystem.event.AppEvent
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.ketoscanner.navigation.BottomNavSection
-import pl.handsome.club.ketoscanner.ui.AppAction.OnDestinationChanged
-import pl.handsome.club.ketoscanner.ui.AppAction.OnTabClicked
-import pl.handsome.club.ketoscanner.ui.AppNavigation.NavigateToTab
-import pl.handsome.club.ketoscanner.ui.AppNavigation.PopToTabRoot
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.navigation.BottomNavSection
+import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
+import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
+import pl.morning.tower.karbo.ui.AppNavigation.NavigateToTab
+import pl.morning.tower.karbo.ui.AppNavigation.PopToTabRoot
 
 internal const val KEY_SELECTED_TAB = "selectedTab"
 

@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.favourites.ui.event
+package pl.morning.tower.karbo.feature.favourites.ui.event
 
 sealed interface FavouritesEvent {
 

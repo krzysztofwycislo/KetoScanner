@@ -1,8 +1,8 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.feature.analysis.api.DietRatingLimits
-import pl.handsome.club.feature.analysis.api.model.CarbLimits
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.analysis.api.DietRatingLimits
+import pl.morning.tower.karbo.feature.analysis.api.model.CarbLimits
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 
 internal class DietRatingLimitsImpl : DietRatingLimits {
     override fun carbsPer100g(preferences: DietPreferences): CarbLimits =

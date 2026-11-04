@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
 import java.util.Locale
 import java.util.TimeZone

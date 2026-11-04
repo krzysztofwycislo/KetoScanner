@@ -1,12 +1,12 @@
-package pl.handsome.club.feature.history.data
+package pl.morning.tower.karbo.feature.history.data
 
-import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.analysis.api.model.carbsPer100g
-import pl.handsome.club.feature.analysis.api.model.dietRate
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.core.database.history.ProductAnalysisHistoryEntryEntity
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.analysis.api.model.carbsPer100g
+import pl.morning.tower.karbo.feature.analysis.api.model.dietRate
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 
 internal fun ProductAnalysisHistoryEntryEntity.toDomain(): ProductAnalysisHistoryEntry =
     ProductAnalysisHistoryEntry(

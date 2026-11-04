@@ -1,4 +1,4 @@
-package pl.handsome.club.core.common
+package pl.morning.tower.karbo.core.common
 
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow

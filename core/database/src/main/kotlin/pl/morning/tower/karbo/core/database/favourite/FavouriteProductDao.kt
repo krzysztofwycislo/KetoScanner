@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database.favourite
+package pl.morning.tower.karbo.core.database.favourite
 
 import androidx.room.Dao
 import androidx.room.Delete

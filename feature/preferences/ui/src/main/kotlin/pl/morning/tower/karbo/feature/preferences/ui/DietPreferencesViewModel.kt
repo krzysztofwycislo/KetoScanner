@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.ui
+package pl.morning.tower.karbo.feature.preferences.ui
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,31 +17,31 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.handsome.club.core.common.ErrorReporter
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.core.common.ProgressTracker
-import pl.handsome.club.core.common.onFailure
-import pl.handsome.club.core.common.onSuccess
-import pl.handsome.club.core.designsystem.component.MessageTone
-import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
-import pl.handsome.club.core.designsystem.event.AppEvent.ShowMessage
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesState
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
+import pl.morning.tower.karbo.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.core.common.ProgressTracker
+import pl.morning.tower.karbo.core.common.onFailure
+import pl.morning.tower.karbo.core.common.onSuccess
+import pl.morning.tower.karbo.core.designsystem.component.MessageTone
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent.ShowMessage
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
 
 internal class DietPreferencesViewModel(
     private val savedStateHandle: SavedStateHandle,

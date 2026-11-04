@@ -1,4 +1,4 @@
-package pl.handsome.club.core.datastore
+package pl.morning.tower.karbo.core.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore

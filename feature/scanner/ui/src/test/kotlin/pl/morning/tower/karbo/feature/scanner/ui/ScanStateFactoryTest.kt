@@ -1,28 +1,28 @@
-package pl.handsome.club.feature.scanner.ui
+package pl.morning.tower.karbo.feature.scanner.ui
 
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.analysis.api.model.RatingReason
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.scanner.ui.state.CameraPermission
-import pl.handsome.club.feature.scanner.ui.state.CameraState
-import pl.handsome.club.feature.scanner.ui.state.FoundCardState
-import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
-import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
-import pl.handsome.club.feature.scanner.ui.state.TorchButtonState
-import pl.handsome.club.feature.scanner.ui.state.TripItemState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermission
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
+import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
+import pl.morning.tower.karbo.feature.scanner.ui.state.NotFoundCardState
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanStateFactory
+import pl.morning.tower.karbo.feature.scanner.ui.state.TorchButtonState
+import pl.morning.tower.karbo.feature.scanner.ui.state.TripItemState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -35,7 +35,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype as Prototype
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
 class ScanStateFactoryTest {
 

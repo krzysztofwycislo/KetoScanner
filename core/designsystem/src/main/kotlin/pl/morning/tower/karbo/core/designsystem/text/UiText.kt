@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes

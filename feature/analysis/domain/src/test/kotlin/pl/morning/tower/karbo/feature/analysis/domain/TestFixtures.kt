@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 
 
 private const val PRODUCT_NAME = "test name"

@@ -1,18 +1,18 @@
-package pl.handsome.club.feature.preferences.ui.component
+package pl.morning.tower.karbo.feature.preferences.ui.component
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.ui.R
-import pl.handsome.club.feature.preferences.ui.state.CustomProfileState
-import pl.handsome.club.feature.preferences.ui.state.DietModeOptionState
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOptionState
-import pl.handsome.club.feature.preferences.ui.state.RatingGuideRowState
-import pl.handsome.club.feature.preferences.ui.state.RatingGuideState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.ui.R
+import pl.morning.tower.karbo.feature.preferences.ui.state.CustomProfileState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietModeOptionState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOptionState
+import pl.morning.tower.karbo.feature.preferences.ui.state.RatingGuideRowState
+import pl.morning.tower.karbo.feature.preferences.ui.state.RatingGuideState
 
 private val previewTitles = mapOf(
     DietProfileOption.STRICT_KETO to R.string.preferences_preset_strict_keto,

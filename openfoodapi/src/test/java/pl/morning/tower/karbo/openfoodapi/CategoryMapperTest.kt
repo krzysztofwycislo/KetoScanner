@@ -1,6 +1,6 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.model.ProductCategory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

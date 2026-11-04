@@ -1,8 +1,8 @@
-package pl.handsome.club.core.designsystem.event
+package pl.morning.tower.karbo.core.designsystem.event
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.common.EventQueue
+import pl.morning.tower.karbo.core.common.EventQueue
 
 class AppEvents(scope: CoroutineScope) {
 

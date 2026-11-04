@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database
+package pl.morning.tower.karbo.core.database
 
 import androidx.room.TypeConverter
 import kotlin.time.Instant

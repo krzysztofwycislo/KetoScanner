@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.component
+package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.VisibilityThreshold
@@ -27,11 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.core.designsystem.theme.spec
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.core.designsystem.theme.spec
 
 @Composable
 fun <T : Any> Ui.CardOverlay(

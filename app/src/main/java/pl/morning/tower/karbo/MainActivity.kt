@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner
+package pl.morning.tower.karbo
 
 import android.graphics.Color
 import android.os.Bundle
@@ -6,8 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.ketoscanner.ui.KetoScannerApp
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.ui.KarboApp
 
 private val LightNavigationBarScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
 private val DarkNavigationBarScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                KetoScannerApp()
+                KarboApp()
             }
         }
     }

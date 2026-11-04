@@ -1,15 +1,15 @@
-package pl.handsome.club.feature.preferences.data
+package pl.morning.tower.karbo.feature.preferences.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.testing.TestAppDispatchers
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.testing.TestAppDispatchers
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals

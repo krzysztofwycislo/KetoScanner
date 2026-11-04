@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.theme
+package pl.morning.tower.karbo.core.designsystem.theme
 
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearOutSlowInEasing

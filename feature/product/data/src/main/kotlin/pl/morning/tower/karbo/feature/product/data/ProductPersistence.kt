@@ -1,8 +1,8 @@
-package pl.handsome.club.feature.product.data
+package pl.morning.tower.karbo.feature.product.data
 
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.database.product.ProductDao
-import pl.handsome.club.core.database.product.ProductEntity
+import pl.morning.tower.karbo.core.database.product.ProductDao
+import pl.morning.tower.karbo.core.database.product.ProductEntity
 
 internal interface ProductPersistence {
     suspend fun find(barcode: String): ProductEntity?

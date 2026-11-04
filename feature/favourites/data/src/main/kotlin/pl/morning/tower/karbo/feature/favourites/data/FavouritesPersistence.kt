@@ -1,8 +1,8 @@
-package pl.handsome.club.feature.favourites.data
+package pl.morning.tower.karbo.feature.favourites.data
 
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.database.favourite.FavouriteProductDao
-import pl.handsome.club.core.database.favourite.FavouriteProductEntity
+import pl.morning.tower.karbo.core.database.favourite.FavouriteProductDao
+import pl.morning.tower.karbo.core.database.favourite.FavouriteProductEntity
 
 internal interface FavouritesPersistence {
     fun observe(nameQuery: String): Flow<List<FavouriteProductEntity>>

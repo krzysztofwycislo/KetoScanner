@@ -1,6 +1,6 @@
-package pl.handsome.club.core.testing
+package pl.morning.tower.karbo.core.testing
 
-import pl.handsome.club.core.common.AppLogger
+import pl.morning.tower.karbo.core.common.AppLogger
 
 class FakeAppLogger : AppLogger {
 

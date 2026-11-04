@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,20 +26,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import pl.handsome.club.core.designsystem.component.PrimaryButton
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.TopBar
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnPermissionButtonClicked
-import pl.handsome.club.feature.scanner.ui.state.CameraState
-import pl.handsome.club.feature.scanner.ui.state.ScanState
+import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.TopBar
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnPermissionButtonClicked
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanState
 
 @Composable
 internal fun PermissionContent(state: ScanState, camera: CameraState.PermissionPanel, onAction: (ScanAction) -> Unit) {

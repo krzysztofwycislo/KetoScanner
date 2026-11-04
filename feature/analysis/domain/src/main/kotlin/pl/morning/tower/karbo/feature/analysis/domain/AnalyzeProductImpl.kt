@@ -1,13 +1,13 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import pl.handsome.club.core.common.getOrNull
-import pl.handsome.club.feature.analysis.api.AnalyzeProduct
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.product.api.ProductRepository
+import pl.morning.tower.karbo.core.common.getOrNull
+import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.ProductRepository
 
 internal class AnalyzeProductImpl(
     private val products: ProductRepository,

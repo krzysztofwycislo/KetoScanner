@@ -1,3 +1,3 @@
 plugins {
-    id("ketoscanner.kotlin.library")
+    id("karbo.kotlin.library")
 }

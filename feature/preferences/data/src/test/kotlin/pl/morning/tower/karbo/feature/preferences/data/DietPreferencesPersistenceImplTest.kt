@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.data
+package pl.morning.tower.karbo.feature.preferences.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import kotlinx.coroutines.CoroutineScope

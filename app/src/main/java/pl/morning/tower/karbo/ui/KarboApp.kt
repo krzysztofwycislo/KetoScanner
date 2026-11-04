@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.ui
+package pl.morning.tower.karbo.ui
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -26,27 +26,27 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
-import pl.handsome.club.core.designsystem.component.BottomBar
-import pl.handsome.club.core.designsystem.component.BottomBarItem
-import pl.handsome.club.core.designsystem.component.LocalBottomBarOverlap
-import pl.handsome.club.core.designsystem.component.SnackbarHost
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.showAppMessage
-import pl.handsome.club.core.designsystem.event.AppEvent
-import pl.handsome.club.core.designsystem.event.ObserveEvents
-import pl.handsome.club.core.designsystem.text.rememberUiTextResolver
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.ketoscanner.navigation.AppNavHost
-import pl.handsome.club.ketoscanner.navigation.BottomNavSection
-import pl.handsome.club.ketoscanner.navigation.navigateToTab
-import pl.handsome.club.ketoscanner.navigation.toBottomNavSection
-import pl.handsome.club.ketoscanner.ui.AppAction.OnDestinationChanged
-import pl.handsome.club.ketoscanner.ui.AppAction.OnTabClicked
-import pl.handsome.club.ketoscanner.ui.AppNavigation.NavigateToTab
-import pl.handsome.club.ketoscanner.ui.AppNavigation.PopToTabRoot
+import pl.morning.tower.karbo.core.designsystem.component.BottomBar
+import pl.morning.tower.karbo.core.designsystem.component.BottomBarItem
+import pl.morning.tower.karbo.core.designsystem.component.LocalBottomBarOverlap
+import pl.morning.tower.karbo.core.designsystem.component.SnackbarHost
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.component.showAppMessage
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent
+import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.text.rememberUiTextResolver
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.navigation.AppNavHost
+import pl.morning.tower.karbo.navigation.BottomNavSection
+import pl.morning.tower.karbo.navigation.navigateToTab
+import pl.morning.tower.karbo.navigation.toBottomNavSection
+import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
+import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
+import pl.morning.tower.karbo.ui.AppNavigation.NavigateToTab
+import pl.morning.tower.karbo.ui.AppNavigation.PopToTabRoot
 
 @Composable
-internal fun KetoScannerApp() {
+internal fun KarboApp() {
     val viewModel: AppViewModel = koinViewModel()
     val koin = getKoin()
     setSingletonImageLoaderFactory { koin.get<ImageLoader>() }

@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.theme
+package pl.morning.tower.karbo.core.designsystem.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,9 +19,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
 
 private val LocalAppColors = staticCompositionLocalOf { LightAppColors }
 private val LocalAppTypography = staticCompositionLocalOf { DefaultAppTypography }

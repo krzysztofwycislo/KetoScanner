@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.favourites.ui
+package pl.morning.tower.karbo.feature.favourites.ui
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,26 +17,26 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.handsome.club.core.common.ErrorReporter
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.core.common.onFailure
-import pl.handsome.club.core.common.onSuccess
-import pl.handsome.club.core.designsystem.event.AppEvent.HideKeyboard
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnGroupClicked
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnItemClicked
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
-import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent
-import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
-import pl.handsome.club.feature.favourites.ui.state.FavouritesState
-import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
+import pl.morning.tower.karbo.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.core.common.onFailure
+import pl.morning.tower.karbo.core.common.onSuccess
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnGroupClicked
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnItemClicked
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesState
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesStateFactory
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
 
 internal class FavouritesViewModel(
     private val savedStateHandle: SavedStateHandle,

@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.scanner.ui
+package pl.morning.tower.karbo.feature.scanner.ui
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation
 
 @Serializable
 data object ScanRoute

@@ -1,8 +1,8 @@
-# KetoScanner
+# Karbo
 
 **Scan a product, see if it fits your diet.**
 
-KetoScanner is a shopping assistant for people on a keto or low-carb diet. Point the camera at a barcode and get a
+Karbo is a shopping assistant for people on a keto or low-carb diet. Point the camera at a barcode and get a
 clear verdict, without reading the nutrition label in the shop aisle.
 
 ## What it does
@@ -21,7 +21,7 @@ The rating looks at more than carbs per 100 g. It also weighs how much of the en
 fat and protein against carbs, sugars and a realistic serving, all relative to your daily limit. Keto mode favours
 fat; low-carb mode is more relaxed.
 
-KetoScanner is a shopping aid, not medical or dietary advice.
+Karbo is a shopping aid, not medical or dietary advice.
 
 ## Product data
 

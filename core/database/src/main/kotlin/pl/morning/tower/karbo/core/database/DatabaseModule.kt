@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database
+package pl.morning.tower.karbo.core.database
 
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module

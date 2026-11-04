@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.history.api
+package pl.morning.tower.karbo.feature.history.api
 
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 
 
 interface AnalysisHistoryRepository {

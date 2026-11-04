@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.component
+package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 
 @Composable
 fun Ui.RatingRow(

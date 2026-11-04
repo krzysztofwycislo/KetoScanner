@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -23,18 +23,18 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.CircleIconButton
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.component.SheetOverlay
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
+import pl.morning.tower.karbo.core.designsystem.component.CircleIconButton
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.component.SheetOverlay
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 
 @Composable
 internal fun BoxScope.TypeSheet(

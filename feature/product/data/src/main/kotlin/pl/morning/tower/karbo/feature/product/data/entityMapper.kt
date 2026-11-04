@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.product.data
+package pl.morning.tower.karbo.feature.product.data
 
-import pl.handsome.club.core.database.product.ProductEntity
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.core.database.product.ProductEntity
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import kotlin.time.Instant
 
 internal fun ProductEntity.toDomain(): Product =

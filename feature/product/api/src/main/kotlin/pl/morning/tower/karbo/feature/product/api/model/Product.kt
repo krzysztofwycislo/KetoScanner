@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.product.api.model
+package pl.morning.tower.karbo.feature.product.api.model
 
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.model.ProductCategory
 
 data class Product(
     val name: String,

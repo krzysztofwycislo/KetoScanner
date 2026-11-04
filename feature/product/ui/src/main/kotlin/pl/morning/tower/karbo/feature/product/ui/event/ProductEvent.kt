@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.ui.event
+package pl.morning.tower.karbo.feature.product.ui.event
 
 sealed interface ProductEvent {
 

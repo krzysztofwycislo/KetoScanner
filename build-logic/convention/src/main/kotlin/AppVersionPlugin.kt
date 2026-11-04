@@ -3,7 +3,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Sets versionName = "<ketoscanner.versionBase>.<git commit count>" and versionCode = git commit count
+ * Sets versionName = "<karbo.versionBase>.<git commit count>" and versionCode = git commit count
  * on every variant of an Android application module.
  * Resolved lazily, so a new commit does not invalidate the configuration cache.
  */
@@ -15,7 +15,7 @@ class AppVersionPlugin : Plugin<Project> {
             val gitCommitCount = providers.of(GitCommitCountValueSource::class.java) {
                 parameters.repoDir.set(project.rootProject.layout.projectDirectory)
             }.orElse(0)
-            val versionBase = providers.gradleProperty("ketoscanner.versionBase").orElse("0.0.1")
+            val versionBase = providers.gradleProperty("karbo.versionBase").orElse("0.0.1")
             val appVersionName = versionBase.zip(gitCommitCount) { base, count -> "$base.$count" }
             val appVersionCode = gitCommitCount.map { maxOf(it, 1) }
 

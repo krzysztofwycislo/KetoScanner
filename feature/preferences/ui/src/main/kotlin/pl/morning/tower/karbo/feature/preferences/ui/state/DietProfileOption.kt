@@ -1,7 +1,7 @@
-package pl.handsome.club.feature.preferences.ui.state
+package pl.morning.tower.karbo.feature.preferences.ui.state
 
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
 
 internal enum class DietProfileOption(val preset: DietPreset?) {
     STRICT_KETO(DietPreset.STRICT_KETO),

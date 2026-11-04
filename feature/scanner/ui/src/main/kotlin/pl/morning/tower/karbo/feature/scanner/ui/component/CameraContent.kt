@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,28 +25,28 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.CameraHint
-import pl.handsome.club.core.designsystem.component.CameraIconButton
-import pl.handsome.club.core.designsystem.component.CameraPillButton
-import pl.handsome.club.core.designsystem.component.ScanFrame
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
-import pl.handsome.club.feature.scanner.ui.camera.CameraPreview
-import pl.handsome.club.feature.scanner.ui.camera.LightStatusBarIconsEffect
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTorchClicked
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
-import pl.handsome.club.feature.scanner.ui.state.CameraState
-import pl.handsome.club.feature.scanner.ui.state.ScanState
-import pl.handsome.club.feature.scanner.ui.state.TorchButtonState
+import pl.morning.tower.karbo.core.designsystem.component.CameraHint
+import pl.morning.tower.karbo.core.designsystem.component.CameraIconButton
+import pl.morning.tower.karbo.core.designsystem.component.CameraPillButton
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrame
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
+import pl.morning.tower.karbo.feature.scanner.ui.camera.CameraPreview
+import pl.morning.tower.karbo.feature.scanner.ui.camera.LightStatusBarIconsEffect
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTorchClicked
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeItClicked
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanState
+import pl.morning.tower.karbo.feature.scanner.ui.state.TorchButtonState
 
 private const val WIDE_FRAME_WIDTH_FRACTION = 0.5f
 

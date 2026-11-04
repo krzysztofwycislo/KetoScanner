@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.data
+package pl.morning.tower.karbo.feature.product.data
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -13,15 +13,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.database.product.ProductEntity
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.core.testing.FakeClock
-import pl.handsome.club.core.testing.TestAppDispatchers
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.openfoodapi.ProductNetworkSource
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.database.product.ProductEntity
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.core.testing.FakeClock
+import pl.morning.tower.karbo.core.testing.TestAppDispatchers
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.openfoodapi.ProductNetworkSource
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals

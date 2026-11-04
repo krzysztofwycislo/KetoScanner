@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.about.ui.event
+package pl.morning.tower.karbo.feature.about.ui.event
 
 sealed interface AboutEvent {
 

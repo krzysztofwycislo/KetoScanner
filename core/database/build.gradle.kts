@@ -1,11 +1,11 @@
 plugins {
-    id("ketoscanner.android.library")
+    id("karbo.android.library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
 }
 
 android {
-    namespace = "pl.handsome.club.core.database"
+    namespace = "pl.morning.tower.karbo.core.database"
 }
 
 room {

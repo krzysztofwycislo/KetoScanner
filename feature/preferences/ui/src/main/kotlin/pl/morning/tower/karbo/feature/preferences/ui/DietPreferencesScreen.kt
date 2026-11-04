@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.ui
+package pl.morning.tower.karbo.feature.preferences.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,33 +21,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.component.ContentCrossfade
-import pl.handsome.club.core.designsystem.component.PrimaryButton
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.TopBar
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.event.ObserveEvents
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.text.toUiText
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.preferences.ui.component.CustomProfile
-import pl.handsome.club.feature.preferences.ui.component.OptionList
-import pl.handsome.club.feature.preferences.ui.component.RatingGuide
-import pl.handsome.club.feature.preferences.ui.component.previewCustom
-import pl.handsome.club.feature.preferences.ui.component.previewInputError
-import pl.handsome.club.feature.preferences.ui.component.previewOptions
-import pl.handsome.club.feature.preferences.ui.component.previewRatingGuide
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Error
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Form
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesState
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.component.ContentCrossfade
+import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.TopBar
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.text.toUiText
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.preferences.ui.component.CustomProfile
+import pl.morning.tower.karbo.feature.preferences.ui.component.OptionList
+import pl.morning.tower.karbo.feature.preferences.ui.component.RatingGuide
+import pl.morning.tower.karbo.feature.preferences.ui.component.previewCustom
+import pl.morning.tower.karbo.feature.preferences.ui.component.previewInputError
+import pl.morning.tower.karbo.feature.preferences.ui.component.previewOptions
+import pl.morning.tower.karbo.feature.preferences.ui.component.previewRatingGuide
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.Error
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.Form
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
 
 @Composable
 internal fun DietPreferencesScreen(onNavigation: (DietPreferencesNavigation) -> Unit) {

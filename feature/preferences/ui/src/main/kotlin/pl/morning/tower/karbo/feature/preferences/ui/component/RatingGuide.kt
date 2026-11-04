@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.ui.component
+package pl.morning.tower.karbo.feature.preferences.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,12 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.RatingRow
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.preferences.ui.R
-import pl.handsome.club.feature.preferences.ui.state.RatingGuideState
+import pl.morning.tower.karbo.core.designsystem.component.RatingRow
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.preferences.ui.R
+import pl.morning.tower.karbo.feature.preferences.ui.state.RatingGuideState
 
 @Composable
 internal fun RatingGuide(state: RatingGuideState) {

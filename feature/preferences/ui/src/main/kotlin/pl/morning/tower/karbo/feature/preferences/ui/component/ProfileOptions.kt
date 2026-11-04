@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.ui.component
+package pl.morning.tower.karbo.feature.preferences.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,21 +16,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.component.RadioCard
-import pl.handsome.club.core.designsystem.component.SegmentedToggle
-import pl.handsome.club.core.designsystem.component.TextInput
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.preferences.ui.R
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
-import pl.handsome.club.feature.preferences.ui.state.CustomProfileState
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOptionState
+import pl.morning.tower.karbo.core.designsystem.component.RadioCard
+import pl.morning.tower.karbo.core.designsystem.component.SegmentedToggle
+import pl.morning.tower.karbo.core.designsystem.component.TextInput
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.preferences.ui.R
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
+import pl.morning.tower.karbo.feature.preferences.ui.state.CustomProfileState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOptionState
 
 @Composable
 internal fun OptionList(options: List<DietProfileOptionState>, onAction: (DietPreferencesAction) -> Unit) {

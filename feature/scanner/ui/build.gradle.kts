@@ -1,11 +1,11 @@
 plugins {
-    id("ketoscanner.android.library")
-    id("ketoscanner.compose")
+    id("karbo.android.library")
+    id("karbo.compose")
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "pl.handsome.club.feature.scanner.ui"
+    namespace = "pl.morning.tower.karbo.feature.scanner.ui"
 
     buildFeatures {
         buildConfig = true

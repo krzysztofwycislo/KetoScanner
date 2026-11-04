@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
 import java.math.RoundingMode
 import java.text.NumberFormat

@@ -1,8 +1,8 @@
-package pl.handsome.club.core.database.history
+package pl.morning.tower.karbo.core.database.history
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import pl.handsome.club.core.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
+import pl.morning.tower.karbo.core.database.history.ProductAnalysisHistoryEntryEntity.Companion.TABLE_NAME
 import kotlin.time.Clock
 import kotlin.time.Instant
 

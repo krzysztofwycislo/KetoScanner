@@ -1,18 +1,18 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.withContext
-import pl.handsome.club.core.common.AppDispatchers
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.common.fold
-import pl.handsome.club.core.common.outcomeOf
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
-import pl.handsome.club.openfoodapi.data.GetProductResponse
+import pl.morning.tower.karbo.core.common.AppDispatchers
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.fold
+import pl.morning.tower.karbo.core.common.outcomeOf
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.openfoodapi.api.OpenFoodFactsApi
+import pl.morning.tower.karbo.openfoodapi.data.GetProductResponse
 
 
 class OpenFoodFactsProductSource(

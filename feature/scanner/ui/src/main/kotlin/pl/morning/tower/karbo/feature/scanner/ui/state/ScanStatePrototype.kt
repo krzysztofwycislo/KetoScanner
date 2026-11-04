@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.scanner.ui.state
+package pl.morning.tower.karbo.feature.scanner.ui.state
 
 import androidx.compose.runtime.Immutable
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 

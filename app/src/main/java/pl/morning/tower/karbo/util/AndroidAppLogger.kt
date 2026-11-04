@@ -1,7 +1,7 @@
-package pl.handsome.club.ketoscanner.util
+package pl.morning.tower.karbo.util
 
 import android.util.Log
-import pl.handsome.club.core.common.AppLogger
+import pl.morning.tower.karbo.core.common.AppLogger
 
 
 internal object AndroidAppLogger : AppLogger {

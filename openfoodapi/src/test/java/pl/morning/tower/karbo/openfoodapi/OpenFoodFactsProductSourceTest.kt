@@ -1,4 +1,4 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -18,15 +18,15 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.DefaultAppDispatchers
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageHttpClient
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.DefaultAppDispatchers
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.openfoodapi.api.OpenFoodFactsApi
+import pl.morning.tower.karbo.openfoodapi.api.createOpenFoodFactsHttpClient
+import pl.morning.tower.karbo.openfoodapi.api.createOpenFoodFactsImageHttpClient
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -35,7 +35,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
-private const val TEST_USER_AGENT = "KetoScanner/test (contact)"
+private const val TEST_USER_AGENT = "Karbo/test (contact)"
 
 class OpenFoodFactsProductSourceTest {
 
@@ -183,7 +183,7 @@ class OpenFoodFactsProductSourceTest {
             imageRequests += request
             respond(ByteArray(0), HttpStatusCode.OK)
         }
-        val imageClient = createOpenFoodFactsImageHttpClient(imageEngine, "KetoScanner", "test", "contact")
+        val imageClient = createOpenFoodFactsImageHttpClient(imageEngine, "Karbo", "test", "contact")
 
         imageClient.get("https://images.openfoodfacts.org/image.jpg")
 
@@ -205,7 +205,7 @@ class OpenFoodFactsProductSourceTest {
     private fun apiClient(enableBodyLogging: Boolean = false): HttpClient =
         createOpenFoodFactsHttpClient(
             engine = mockEngine,
-            appName = "KetoScanner",
+            appName = "Karbo",
             appVersion = "test",
             contact = "contact",
             enableBodyLogging = enableBodyLogging,

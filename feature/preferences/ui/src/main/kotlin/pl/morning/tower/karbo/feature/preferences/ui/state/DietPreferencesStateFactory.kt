@@ -1,18 +1,18 @@
-package pl.handsome.club.feature.preferences.ui.state
+package pl.morning.tower.karbo.feature.preferences.ui.state
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.feature.analysis.api.DietRatingLimits
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.preferences.ui.DietPreferencesResources
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Error
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.Form
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.feature.analysis.api.DietRatingLimits
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.ui.DietPreferencesResources
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.Error
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.Form
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
 
 internal class DietPreferencesStateFactory(
     private val resources: DietPreferencesResources,

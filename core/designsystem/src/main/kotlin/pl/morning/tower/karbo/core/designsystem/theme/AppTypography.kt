@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.theme
+package pl.morning.tower.karbo.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import pl.handsome.club.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.R
 
 internal val PlusJakartaSans = FontFamily(
     Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),

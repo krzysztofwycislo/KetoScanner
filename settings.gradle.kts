@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KetoScanner"
+rootProject.name = "Karbo"
 include(
     ":app",
     ":openfoodapi",

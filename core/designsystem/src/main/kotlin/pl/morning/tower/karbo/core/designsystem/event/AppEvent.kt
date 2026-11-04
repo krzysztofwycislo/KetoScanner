@@ -1,7 +1,7 @@
-package pl.handsome.club.core.designsystem.event
+package pl.morning.tower.karbo.core.designsystem.event
 
-import pl.handsome.club.core.designsystem.component.MessageTone
-import pl.handsome.club.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.component.MessageTone
+import pl.morning.tower.karbo.core.designsystem.text.UiText
 
 sealed interface AppEvent {
     data object HideKeyboard : AppEvent

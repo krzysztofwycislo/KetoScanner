@@ -1,22 +1,22 @@
-package pl.handsome.club.feature.favourites.ui.state
+package pl.morning.tower.karbo.feature.favourites.ui.state
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.core.designsystem.text.label
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.favourites.ui.FavouritesResources
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Empty
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Error
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.InitialLoad
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.NoResults
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.ShowGroups
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.core.designsystem.text.label
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
+import pl.morning.tower.karbo.feature.favourites.ui.FavouritesResources
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Empty
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Error
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.InitialLoad
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.NoResults
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.ShowGroups
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesStatePrototype as Prototype
 
 internal class FavouritesStateFactory(private val resources: FavouritesResources) {
 

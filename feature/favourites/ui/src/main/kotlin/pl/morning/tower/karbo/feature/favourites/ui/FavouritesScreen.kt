@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.favourites.ui
+package pl.morning.tower.karbo.feature.favourites.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,31 +20,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.component.ContentCrossfade
-import pl.handsome.club.core.designsystem.component.Screen
-import pl.handsome.club.core.designsystem.component.SearchField
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.event.ObserveEvents
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.text.toUiText
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.favourites.ui.component.Groups
-import pl.handsome.club.feature.favourites.ui.component.previewGroups
-import pl.handsome.club.feature.favourites.ui.component.previewSearchGroups
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
-import pl.handsome.club.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Empty
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.Error
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.InitialLoad
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.NoResults
-import pl.handsome.club.feature.favourites.ui.state.FavouritesContentState.ShowGroups
-import pl.handsome.club.feature.favourites.ui.state.FavouritesState
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.component.ContentCrossfade
+import pl.morning.tower.karbo.core.designsystem.component.Screen
+import pl.morning.tower.karbo.core.designsystem.component.SearchField
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.text.toUiText
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.favourites.ui.component.Groups
+import pl.morning.tower.karbo.feature.favourites.ui.component.previewGroups
+import pl.morning.tower.karbo.feature.favourites.ui.component.previewSearchGroups
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Empty
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Error
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.InitialLoad
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.NoResults
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.ShowGroups
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesState
 
 @Composable
 internal fun FavouritesScreen(onNavigation: (FavouritesNavigation) -> Unit) {

@@ -1,4 +1,4 @@
-package pl.handsome.club.openfoodapi.data
+package pl.morning.tower.karbo.openfoodapi.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

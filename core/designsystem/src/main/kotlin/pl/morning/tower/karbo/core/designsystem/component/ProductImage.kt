@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.component
+package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -8,10 +8,10 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import coil3.compose.AsyncImage
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 
 @Composable
 fun Ui.ProductImage(

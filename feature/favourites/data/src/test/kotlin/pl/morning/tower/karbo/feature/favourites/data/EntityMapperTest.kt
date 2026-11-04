@@ -1,14 +1,14 @@
-package pl.handsome.club.feature.favourites.data
+package pl.morning.tower.karbo.feature.favourites.data
 
-import pl.handsome.club.core.database.favourite.FavouriteProductEntity
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.core.database.favourite.FavouriteProductEntity
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

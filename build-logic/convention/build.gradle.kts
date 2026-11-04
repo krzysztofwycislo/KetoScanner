@@ -10,19 +10,19 @@ dependencies {
 gradlePlugin {
     plugins {
         register("appVersion") {
-            id = "ketoscanner.app-version"
+            id = "karbo.app-version"
             implementationClass = "AppVersionPlugin"
         }
         register("kotlinLibrary") {
-            id = "ketoscanner.kotlin.library"
+            id = "karbo.kotlin.library"
             implementationClass = "KotlinLibraryConventionPlugin"
         }
         register("androidLibrary") {
-            id = "ketoscanner.android.library"
+            id = "karbo.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("compose") {
-            id = "ketoscanner.compose"
+            id = "karbo.compose"
             implementationClass = "ComposeConventionPlugin"
         }
     }

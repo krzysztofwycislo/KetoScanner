@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.history.ui.state
+package pl.morning.tower.karbo.feature.history.ui.state
 
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.DateTimeUnit
@@ -7,20 +7,20 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.history.ui.HistoryResources
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.Empty
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.Error
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.InitialLoad
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.NoResults
-import pl.handsome.club.feature.history.ui.state.HistoryContentState.ShowGroups
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.history.ui.HistoryResources
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.Empty
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.Error
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.InitialLoad
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.NoResults
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.ShowGroups
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStatePrototype as Prototype
 
 internal class HistoryStateFactory(private val resources: HistoryResources) {
 

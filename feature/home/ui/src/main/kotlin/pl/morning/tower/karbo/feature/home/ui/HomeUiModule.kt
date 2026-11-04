@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.home.ui
+package pl.morning.tower.karbo.feature.home.ui
 
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import pl.handsome.club.feature.home.ui.state.HomeStateFactory
+import pl.morning.tower.karbo.feature.home.ui.state.HomeStateFactory
 
 val homeUiModule = module {
     viewModelOf(::HomeViewModel)

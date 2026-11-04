@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.event
+package pl.morning.tower.karbo.feature.scanner.ui.event
 
 sealed interface ScanEvent {
 

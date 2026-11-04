@@ -1,15 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("ketoscanner.app-version")
-    id("ketoscanner.compose")
+    id("karbo.app-version")
+    id("karbo.compose")
 }
 
 android {
-    namespace = "pl.handsome.club.ketoscanner"
+    namespace = "pl.morning.tower.karbo"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "pl.handsome.club.ketoscanner"
+        applicationId = "pl.morning.tower.karbo"
 
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()

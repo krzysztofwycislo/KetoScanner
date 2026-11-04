@@ -1,4 +1,4 @@
-package pl.handsome.club.barcodescanner
+package pl.morning.tower.karbo.barcodescanner
 
 import android.Manifest
 import android.content.Context

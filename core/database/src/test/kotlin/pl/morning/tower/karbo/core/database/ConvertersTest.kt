@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database
+package pl.morning.tower.karbo.core.database
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

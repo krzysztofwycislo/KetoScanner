@@ -1,10 +1,10 @@
-package pl.handsome.club.feature.scanner.ui.camera
+package pl.morning.tower.karbo.feature.scanner.ui.camera
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import pl.handsome.club.barcodescanner.BarcodeCamera
+import pl.morning.tower.karbo.barcodescanner.BarcodeCamera
 
 @SuppressLint("MissingPermission")
 @Composable

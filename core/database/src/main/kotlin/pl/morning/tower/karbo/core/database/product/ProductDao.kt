@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database.product
+package pl.morning.tower.karbo.core.database.product
 
 import androidx.room.Dao
 import androidx.room.Query

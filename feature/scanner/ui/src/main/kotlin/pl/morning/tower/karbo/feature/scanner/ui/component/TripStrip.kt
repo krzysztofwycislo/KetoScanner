@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,20 +26,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.designsystem.component.FadeVisibility
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.cameraColor
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
-import pl.handsome.club.feature.scanner.ui.event.ScanAction
-import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTripItemClicked
-import pl.handsome.club.feature.scanner.ui.state.ScanStatePrototype
-import pl.handsome.club.feature.scanner.ui.state.TripItemState
+import pl.morning.tower.karbo.core.designsystem.component.FadeVisibility
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.component.cameraColor
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTripItemClicked
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanStatePrototype
+import pl.morning.tower.karbo.feature.scanner.ui.state.TripItemState
 
 @Composable
 internal fun BoxScope.TripOverlay(

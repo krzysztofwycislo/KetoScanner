@@ -1,4 +1,4 @@
-package pl.handsome.club.core.database.history
+package pl.morning.tower.karbo.core.database.history
 
 import androidx.room.Dao
 import androidx.room.Insert

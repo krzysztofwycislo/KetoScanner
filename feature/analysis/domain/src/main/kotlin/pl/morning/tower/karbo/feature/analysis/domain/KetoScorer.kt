@@ -1,7 +1,7 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.feature.analysis.api.model.CarbLimits
-import pl.handsome.club.feature.analysis.api.model.RatingReason
+import pl.morning.tower.karbo.feature.analysis.api.model.CarbLimits
+import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
 
 internal object KetoScorer : DietScorer {
 

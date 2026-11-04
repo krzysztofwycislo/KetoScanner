@@ -1,21 +1,21 @@
-package pl.handsome.club.feature.scanner.ui.component
+package pl.morning.tower.karbo.feature.scanner.ui.component
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.component.ScanFrameMode
-import pl.handsome.club.core.designsystem.icon.AppIcon
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.feature.scanner.ui.R
-import pl.handsome.club.feature.scanner.ui.ScanResources
-import pl.handsome.club.feature.scanner.ui.state.CameraState
-import pl.handsome.club.feature.scanner.ui.state.FoundCardState
-import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
-import pl.handsome.club.feature.scanner.ui.state.ScanState
-import pl.handsome.club.feature.scanner.ui.state.TorchButtonState
-import pl.handsome.club.feature.scanner.ui.state.TripItemState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.feature.scanner.ui.R
+import pl.morning.tower.karbo.feature.scanner.ui.ScanResources
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
+import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
+import pl.morning.tower.karbo.feature.scanner.ui.state.NotFoundCardState
+import pl.morning.tower.karbo.feature.scanner.ui.state.ScanState
+import pl.morning.tower.karbo.feature.scanner.ui.state.TorchButtonState
+import pl.morning.tower.karbo.feature.scanner.ui.state.TripItemState
 
 internal val previewResources = ScanResources()
 

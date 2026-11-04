@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
 import android.content.Context
 import android.content.res.Resources
@@ -10,8 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import java.util.Locale
 import java.util.TimeZone
 

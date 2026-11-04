@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.about.ui
+package pl.morning.tower.karbo.feature.about.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -6,8 +6,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import pl.handsome.club.feature.about.ui.event.AboutAction
-import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.about.ui.event.AboutAction
+import pl.morning.tower.karbo.feature.about.ui.event.AboutEvent.AboutNavigation.NavigateBack
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.home.ui
+package pl.morning.tower.karbo.feature.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,33 +14,33 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.ErrorReporter
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.core.common.onFailure
-import pl.handsome.club.core.common.onSuccess
-import pl.handsome.club.core.common.retryOnFailure
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
-import pl.handsome.club.feature.home.ui.event.HomeAction
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnAboutClicked
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnEntryClicked
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnProfileClicked
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnRetryClicked
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnSeeAllClicked
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnStart
-import pl.handsome.club.feature.home.ui.event.HomeAction.OnStartScanningClicked
-import pl.handsome.club.feature.home.ui.event.HomeEvent
-import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToAbout
-import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToDietPreferences
-import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToHistory
-import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToProduct
-import pl.handsome.club.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToScan
-import pl.handsome.club.feature.home.ui.state.HomeState
-import pl.handsome.club.feature.home.ui.state.HomeStateFactory
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.core.common.onFailure
+import pl.morning.tower.karbo.core.common.onSuccess
+import pl.morning.tower.karbo.core.common.retryOnFailure
+import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnAboutClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnEntryClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnProfileClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnRetryClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnSeeAllClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnStart
+import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnStartScanningClicked
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToAbout
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToDietPreferences
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToHistory
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation.NavigateToScan
+import pl.morning.tower.karbo.feature.home.ui.state.HomeState
+import pl.morning.tower.karbo.feature.home.ui.state.HomeStateFactory
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
-import pl.handsome.club.feature.home.ui.state.HomeStatePrototype as Prototype
+import pl.morning.tower.karbo.feature.home.ui.state.HomeStatePrototype as Prototype
 
 internal class HomeViewModel(
     private val history: AnalysisHistoryRepository,

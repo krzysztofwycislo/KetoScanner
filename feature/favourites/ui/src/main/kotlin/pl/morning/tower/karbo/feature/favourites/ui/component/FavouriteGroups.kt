@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.favourites.ui.component
+package pl.morning.tower.karbo.feature.favourites.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,19 +25,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.collections.immutable.PersistentList
-import pl.handsome.club.core.designsystem.component.IconTile
-import pl.handsome.club.core.designsystem.component.ListRowCard
-import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.VerdictPill
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.imageVector
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnGroupClicked
-import pl.handsome.club.feature.favourites.ui.event.FavouritesAction.OnItemClicked
-import pl.handsome.club.feature.favourites.ui.state.FavouriteGroupState
-import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
+import pl.morning.tower.karbo.core.designsystem.component.IconTile
+import pl.morning.tower.karbo.core.designsystem.component.ListRowCard
+import pl.morning.tower.karbo.core.designsystem.component.Ui
+import pl.morning.tower.karbo.core.designsystem.component.VerdictPill
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnGroupClicked
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnItemClicked
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteGroupState
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteItemState
 
 @Composable
 internal fun Groups(groups: PersistentList<FavouriteGroupState>, onAction: (FavouritesAction) -> Unit) {

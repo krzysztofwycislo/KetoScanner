@@ -1,4 +1,4 @@
-package pl.handsome.club.core.common
+package pl.morning.tower.karbo.core.common
 
 interface ErrorReporter {
     fun report(tag: String, message: String, error: AppError)

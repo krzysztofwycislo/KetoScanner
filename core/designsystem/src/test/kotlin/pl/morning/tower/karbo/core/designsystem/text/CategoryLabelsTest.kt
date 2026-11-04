@@ -1,7 +1,7 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
-import pl.handsome.club.core.designsystem.R
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.model.ProductCategory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

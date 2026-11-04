@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.history.ui.event
+package pl.morning.tower.karbo.feature.history.ui.event
 
 sealed interface HistoryEvent {
 

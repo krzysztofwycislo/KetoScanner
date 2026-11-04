@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.ui
+package pl.morning.tower.karbo.feature.preferences.ui
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.CompletableDeferred
@@ -15,24 +15,24 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.designsystem.component.MessageTone
-import pl.handsome.club.core.designsystem.event.AppEvent
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.testing.FakeErrorReporter
-import pl.handsome.club.feature.analysis.api.DietRatingLimits
-import pl.handsome.club.feature.analysis.api.model.CarbLimits
-import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesAction
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent
-import pl.handsome.club.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesContentState
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
-import pl.handsome.club.feature.preferences.ui.state.DietProfileOption
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.designsystem.component.MessageTone
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.testing.FakeErrorReporter
+import pl.morning.tower.karbo.feature.analysis.api.DietRatingLimits
+import pl.morning.tower.karbo.feature.analysis.api.model.CarbLimits
+import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesAction
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent
+import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesContentState
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietProfileOption
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -42,7 +42,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import pl.handsome.club.core.designsystem.R as DesignR
+import pl.morning.tower.karbo.core.designsystem.R as DesignR
 
 class DietPreferencesViewModelTest {
 

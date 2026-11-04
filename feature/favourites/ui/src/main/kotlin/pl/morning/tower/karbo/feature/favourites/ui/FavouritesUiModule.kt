@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.favourites.ui
+package pl.morning.tower.karbo.feature.favourites.ui
 
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import pl.handsome.club.feature.favourites.ui.state.FavouritesStateFactory
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesStateFactory
 
 val favouritesUiModule = module {
     viewModelOf(::FavouritesViewModel)

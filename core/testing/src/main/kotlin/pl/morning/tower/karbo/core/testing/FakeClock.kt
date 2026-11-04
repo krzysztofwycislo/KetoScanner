@@ -1,4 +1,4 @@
-package pl.handsome.club.core.testing
+package pl.morning.tower.karbo.core.testing
 
 import kotlin.time.Clock
 import kotlin.time.Instant

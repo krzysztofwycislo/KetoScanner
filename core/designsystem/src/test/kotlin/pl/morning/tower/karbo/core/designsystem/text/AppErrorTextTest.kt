@@ -1,7 +1,7 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.R
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.R
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

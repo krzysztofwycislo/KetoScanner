@@ -1,7 +1,7 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.R
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.R
 
 fun AppError.toUiText(): UiText = when (this) {
     AppError.Network -> UiText.Res(R.string.designsystem_error_network)

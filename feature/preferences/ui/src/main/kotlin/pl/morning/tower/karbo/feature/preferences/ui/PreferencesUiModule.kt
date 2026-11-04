@@ -1,11 +1,11 @@
-package pl.handsome.club.feature.preferences.ui
+package pl.morning.tower.karbo.feature.preferences.ui
 
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import pl.handsome.club.core.common.APPLICATION_SCOPE
-import pl.handsome.club.feature.preferences.ui.state.DietPreferencesStateFactory
+import pl.morning.tower.karbo.core.common.APPLICATION_SCOPE
+import pl.morning.tower.karbo.feature.preferences.ui.state.DietPreferencesStateFactory
 
 val preferencesUiModule = module {
     viewModel {

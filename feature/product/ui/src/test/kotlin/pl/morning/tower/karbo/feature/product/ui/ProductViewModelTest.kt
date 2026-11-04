@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.ui
+package pl.morning.tower.karbo.feature.product.ui
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.CompletableDeferred
@@ -15,30 +15,30 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.designsystem.component.MessageTone
-import pl.handsome.club.core.designsystem.event.AppEvent
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.core.testing.FakeAppLogger
-import pl.handsome.club.core.testing.FakeErrorReporter
-import pl.handsome.club.feature.analysis.api.AnalyzeProduct
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.MacronutrientAnalysisResult
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.favourites.api.FavouriteProductsRepository
-import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.product.api.ProductRepository
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.feature.product.ui.event.ProductAction
-import pl.handsome.club.feature.product.ui.event.ProductEvent.OpenWebPage
-import pl.handsome.club.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
-import pl.handsome.club.feature.product.ui.state.ProductContentState
-import pl.handsome.club.feature.product.ui.state.ProductStateFactory
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.designsystem.component.MessageTone
+import pl.morning.tower.karbo.core.designsystem.event.AppEvent
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.core.testing.FakeAppLogger
+import pl.morning.tower.karbo.core.testing.FakeErrorReporter
+import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
+import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
+import pl.morning.tower.karbo.feature.product.api.ProductRepository
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState
+import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -49,7 +49,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
-import pl.handsome.club.core.designsystem.R as DesignR
+import pl.morning.tower.karbo.core.designsystem.R as DesignR
 
 class ProductViewModelTest {
 

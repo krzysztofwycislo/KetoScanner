@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.scanner.ui.event
+package pl.morning.tower.karbo.feature.scanner.ui.event
 
-import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermissionCheck
 
 internal sealed interface ScanAction {
     data class OnStart(val check: CameraPermissionCheck, val hasTorch: Boolean) : ScanAction

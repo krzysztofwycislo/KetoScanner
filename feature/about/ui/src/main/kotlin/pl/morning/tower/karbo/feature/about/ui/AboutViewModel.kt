@@ -1,13 +1,13 @@
-package pl.handsome.club.feature.about.ui
+package pl.morning.tower.karbo.feature.about.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.common.EventQueue
-import pl.handsome.club.feature.about.ui.event.AboutAction
-import pl.handsome.club.feature.about.ui.event.AboutAction.OnBackClicked
-import pl.handsome.club.feature.about.ui.event.AboutEvent
-import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation.NavigateBack
+import pl.morning.tower.karbo.core.common.EventQueue
+import pl.morning.tower.karbo.feature.about.ui.event.AboutAction
+import pl.morning.tower.karbo.feature.about.ui.event.AboutAction.OnBackClicked
+import pl.morning.tower.karbo.feature.about.ui.event.AboutEvent
+import pl.morning.tower.karbo.feature.about.ui.event.AboutEvent.AboutNavigation.NavigateBack
 
 internal class AboutViewModel : ViewModel() {
 

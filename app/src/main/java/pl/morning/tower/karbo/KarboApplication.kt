@@ -1,33 +1,33 @@
-package pl.handsome.club.ketoscanner
+package pl.morning.tower.karbo
 
 import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import pl.handsome.club.core.database.databaseModule
-import pl.handsome.club.core.datastore.dataStoreModule
-import pl.handsome.club.feature.about.ui.aboutUiModule
-import pl.handsome.club.feature.analysis.domain.analysisDomainModule
-import pl.handsome.club.feature.favourites.data.favouritesDataModule
-import pl.handsome.club.feature.favourites.ui.favouritesUiModule
-import pl.handsome.club.feature.history.data.historyDataModule
-import pl.handsome.club.feature.history.ui.historyUiModule
-import pl.handsome.club.feature.home.ui.homeUiModule
-import pl.handsome.club.feature.preferences.data.preferencesDataModule
-import pl.handsome.club.feature.preferences.ui.preferencesUiModule
-import pl.handsome.club.feature.product.data.productDataModule
-import pl.handsome.club.feature.product.ui.productUiModule
-import pl.handsome.club.feature.scanner.ui.scannerUiModule
-import pl.handsome.club.ketoscanner.di.appModules
+import pl.morning.tower.karbo.core.database.databaseModule
+import pl.morning.tower.karbo.core.datastore.dataStoreModule
+import pl.morning.tower.karbo.feature.about.ui.aboutUiModule
+import pl.morning.tower.karbo.feature.analysis.domain.analysisDomainModule
+import pl.morning.tower.karbo.feature.favourites.data.favouritesDataModule
+import pl.morning.tower.karbo.feature.favourites.ui.favouritesUiModule
+import pl.morning.tower.karbo.feature.history.data.historyDataModule
+import pl.morning.tower.karbo.feature.history.ui.historyUiModule
+import pl.morning.tower.karbo.feature.home.ui.homeUiModule
+import pl.morning.tower.karbo.feature.preferences.data.preferencesDataModule
+import pl.morning.tower.karbo.feature.preferences.ui.preferencesUiModule
+import pl.morning.tower.karbo.feature.product.data.productDataModule
+import pl.morning.tower.karbo.feature.product.ui.productUiModule
+import pl.morning.tower.karbo.feature.scanner.ui.scannerUiModule
+import pl.morning.tower.karbo.di.appModules
 
 
 @Suppress("unused")
-class KetoSApplication : Application() {
+class KarboApplication : Application() {
 
     override fun onCreate(){
         super.onCreate()
 
         startKoin {
-            androidContext(this@KetoSApplication)
+            androidContext(this@KarboApplication)
             modules(
                 appModules,
                 analysisDomainModule,

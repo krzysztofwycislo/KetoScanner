@@ -1,8 +1,8 @@
-package pl.handsome.club.core.designsystem.theme
+package pl.morning.tower.karbo.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import pl.handsome.club.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.component.Rating
 
 @Immutable
 data class AppColors(

@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.analysis.api.model
+package pl.morning.tower.karbo.feature.analysis.api.model
 
 
 enum class DietRate {

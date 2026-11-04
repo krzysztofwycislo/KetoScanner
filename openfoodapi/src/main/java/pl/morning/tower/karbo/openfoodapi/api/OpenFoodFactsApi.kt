@@ -1,4 +1,4 @@
-package pl.handsome.club.openfoodapi.api
+package pl.morning.tower.karbo.openfoodapi.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get

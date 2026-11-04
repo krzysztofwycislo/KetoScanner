@@ -1,18 +1,18 @@
-package pl.handsome.club.feature.favourites.ui.component
+package pl.morning.tower.karbo.feature.favourites.ui.component
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcon
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.label
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.favourites.ui.FavouritesResources
-import pl.handsome.club.feature.favourites.ui.R
-import pl.handsome.club.feature.favourites.ui.state.FavouriteGroupState
-import pl.handsome.club.feature.favourites.ui.state.FavouriteItemState
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.label
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.favourites.ui.FavouritesResources
+import pl.morning.tower.karbo.feature.favourites.ui.R
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteGroupState
+import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteItemState
 
 private val previewResources = FavouritesResources()
 

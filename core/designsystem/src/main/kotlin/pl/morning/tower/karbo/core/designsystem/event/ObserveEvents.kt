@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.event
+package pl.morning.tower.karbo.core.designsystem.event
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

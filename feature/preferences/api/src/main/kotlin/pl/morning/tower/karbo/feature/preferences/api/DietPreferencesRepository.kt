@@ -1,8 +1,8 @@
-package pl.handsome.club.feature.preferences.api
+package pl.morning.tower.karbo.feature.preferences.api
 
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 
 
 interface DietPreferencesRepository {

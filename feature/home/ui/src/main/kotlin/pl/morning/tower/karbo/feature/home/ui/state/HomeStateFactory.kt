@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.home.ui.state
+package pl.morning.tower.karbo.feature.home.ui.state
 
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.DateTimeUnit
@@ -6,19 +6,19 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.home.ui.HomeResources
-import pl.handsome.club.feature.home.ui.state.HomeRecentState.Empty
-import pl.handsome.club.feature.home.ui.state.HomeRecentState.Error
-import pl.handsome.club.feature.home.ui.state.HomeRecentState.InitialLoad
-import pl.handsome.club.feature.home.ui.state.HomeRecentState.ShowItems
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
-import pl.handsome.club.feature.home.ui.state.HomeStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.home.ui.HomeResources
+import pl.morning.tower.karbo.feature.home.ui.state.HomeRecentState.Empty
+import pl.morning.tower.karbo.feature.home.ui.state.HomeRecentState.Error
+import pl.morning.tower.karbo.feature.home.ui.state.HomeRecentState.InitialLoad
+import pl.morning.tower.karbo.feature.home.ui.state.HomeRecentState.ShowItems
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.home.ui.state.HomeStatePrototype as Prototype
 
 internal class HomeStateFactory(private val resources: HomeResources) {
 

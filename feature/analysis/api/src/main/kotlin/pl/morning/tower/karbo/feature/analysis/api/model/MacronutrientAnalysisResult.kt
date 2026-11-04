@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.analysis.api.model
+package pl.morning.tower.karbo.feature.analysis.api.model
 
-import pl.handsome.club.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 
 data class MacronutrientAnalysisResult(
     val dietMode: DietMode,

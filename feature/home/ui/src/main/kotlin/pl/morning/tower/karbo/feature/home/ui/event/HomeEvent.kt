@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.home.ui.event
+package pl.morning.tower.karbo.feature.home.ui.event
 
 sealed interface HomeEvent {
 

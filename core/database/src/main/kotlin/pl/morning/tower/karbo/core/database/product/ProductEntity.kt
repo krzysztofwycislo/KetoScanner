@@ -1,8 +1,8 @@
-package pl.handsome.club.core.database.product
+package pl.morning.tower.karbo.core.database.product
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import pl.handsome.club.core.database.product.ProductEntity.Companion.TABLE_NAME
+import pl.morning.tower.karbo.core.database.product.ProductEntity.Companion.TABLE_NAME
 import kotlin.time.Instant
 
 

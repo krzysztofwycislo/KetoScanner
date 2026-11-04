@@ -1,10 +1,10 @@
-package pl.handsome.club.feature.home.ui.state
+package pl.morning.tower.karbo.feature.home.ui.state
 
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcon
-import pl.handsome.club.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
+import pl.morning.tower.karbo.core.designsystem.text.UiText
 
 @Immutable
 internal data class HomeState(

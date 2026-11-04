@@ -1,9 +1,9 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.api.model.ProductNutriments
-import pl.handsome.club.openfoodapi.data.ApiNutriments
-import pl.handsome.club.openfoodapi.data.GetProductResponse
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.openfoodapi.data.ApiNutriments
+import pl.morning.tower.karbo.openfoodapi.data.GetProductResponse
 
 
 internal fun parseGetProductResponse(response: GetProductResponse): Product? {

@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.camera
+package pl.morning.tower.karbo.feature.scanner.ui.camera
 
 import android.Manifest
 import android.app.Activity
@@ -16,7 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermissionCheck
 
 internal class CameraPermissionHandler(
     private val activity: Activity,

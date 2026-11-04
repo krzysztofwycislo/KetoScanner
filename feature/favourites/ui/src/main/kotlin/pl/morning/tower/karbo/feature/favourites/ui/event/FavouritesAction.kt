@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.favourites.ui.event
+package pl.morning.tower.karbo.feature.favourites.ui.event
 
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.model.ProductCategory
 
 internal sealed interface FavouritesAction {
     data class OnQueryChanged(val query: String) : FavouritesAction

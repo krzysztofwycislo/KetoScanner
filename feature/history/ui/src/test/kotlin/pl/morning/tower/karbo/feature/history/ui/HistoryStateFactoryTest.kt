@@ -1,28 +1,28 @@
-package pl.handsome.club.feature.history.ui
+package pl.morning.tower.karbo.feature.history.ui
 
 import kotlinx.datetime.TimeZone
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.text.UiArg
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.toUiText
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.history.ui.state.HistoryContentState
-import pl.handsome.club.feature.history.ui.state.HistoryFilter
-import pl.handsome.club.feature.history.ui.state.HistoryState
-import pl.handsome.club.feature.history.ui.state.HistoryStateFactory
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.toUiText
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryState
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStateFactory
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Instant
-import pl.handsome.club.feature.history.ui.state.HistoryStatePrototype as Prototype
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryStatePrototype as Prototype
 
 class HistoryStateFactoryTest {
 

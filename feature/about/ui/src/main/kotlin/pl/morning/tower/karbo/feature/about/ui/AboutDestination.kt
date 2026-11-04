@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.about.ui
+package pl.morning.tower.karbo.feature.about.ui
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation
+import pl.morning.tower.karbo.feature.about.ui.event.AboutEvent.AboutNavigation
 
 @Serializable
 data object AboutRoute

@@ -1,8 +1,8 @@
-package pl.handsome.club.feature.product.ui.state
+package pl.morning.tower.karbo.feature.product.ui.state
 
 import androidx.compose.runtime.Immutable
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 
 @Immutable
 internal data class ProductStatePrototype(

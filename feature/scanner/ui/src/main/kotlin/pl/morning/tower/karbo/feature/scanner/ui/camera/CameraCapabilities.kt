@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.scanner.ui.camera
+package pl.morning.tower.karbo.feature.scanner.ui.camera
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable

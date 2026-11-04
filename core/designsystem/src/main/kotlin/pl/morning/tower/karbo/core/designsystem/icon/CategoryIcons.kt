@@ -1,6 +1,6 @@
-package pl.handsome.club.core.designsystem.icon
+package pl.morning.tower.karbo.core.designsystem.icon
 
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.model.ProductCategory
 
 val ProductCategory.icon: AppIcon
     get() = when (this) {

@@ -1,10 +1,10 @@
-package pl.handsome.club.feature.favourites.ui.state
+package pl.morning.tower.karbo.feature.favourites.ui.state
 
 import androidx.compose.runtime.Immutable
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.model.ProductCategory
-import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 
 @Immutable
 internal data class FavouritesStatePrototype(

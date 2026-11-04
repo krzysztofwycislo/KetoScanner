@@ -1,18 +1,18 @@
-package pl.handsome.club.feature.product.ui.state
+package pl.morning.tower.karbo.feature.product.ui.state
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import pl.handsome.club.core.designsystem.component.Rating
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.core.designsystem.icon.icon
-import pl.handsome.club.feature.analysis.api.model.DietRate
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.feature.product.ui.ProductResources
-import pl.handsome.club.feature.product.ui.state.ProductContentState.Error
-import pl.handsome.club.feature.product.ui.state.ProductContentState.Loading
-import pl.handsome.club.feature.product.ui.state.ProductContentState.ShowProduct
-import pl.handsome.club.feature.product.ui.state.ProductStatePrototype as Prototype
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.icon
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.ui.ProductResources
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.Error
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.Loading
+import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.ShowProduct
+import pl.morning.tower.karbo.feature.product.ui.state.ProductStatePrototype as Prototype
 
 internal class ProductStateFactory(private val resources: ProductResources) {
 

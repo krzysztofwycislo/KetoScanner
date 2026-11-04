@@ -1,10 +1,10 @@
 plugins {
-    id("ketoscanner.android.library")
+    id("karbo.android.library")
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "pl.handsome.club.openfoodapi"
+    namespace = "pl.morning.tower.karbo.openfoodapi"
 }
 
 dependencies {

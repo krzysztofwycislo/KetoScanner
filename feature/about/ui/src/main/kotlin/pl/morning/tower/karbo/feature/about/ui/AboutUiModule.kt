@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.about.ui
+package pl.morning.tower.karbo.feature.about.ui
 
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module

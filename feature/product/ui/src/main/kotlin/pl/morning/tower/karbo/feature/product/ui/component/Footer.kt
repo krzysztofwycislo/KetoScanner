@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.ui.component
+package pl.morning.tower.karbo.feature.product.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,12 +15,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import pl.handsome.club.core.designsystem.text.UiText
-import pl.handsome.club.core.designsystem.text.resolve
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.feature.product.ui.R
-import pl.handsome.club.feature.product.ui.event.ProductAction
-import pl.handsome.club.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.designsystem.text.resolve
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.product.ui.R
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
 
 @Composable
 internal fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {

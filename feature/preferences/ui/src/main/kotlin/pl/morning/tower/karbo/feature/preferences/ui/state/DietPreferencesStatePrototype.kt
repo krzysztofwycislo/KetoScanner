@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.preferences.ui.state
+package pl.morning.tower.karbo.feature.preferences.ui.state
 
 import androidx.compose.runtime.Immutable
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.feature.preferences.api.model.DietMode
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 
 @Immutable
 internal data class DietPreferencesStatePrototype(

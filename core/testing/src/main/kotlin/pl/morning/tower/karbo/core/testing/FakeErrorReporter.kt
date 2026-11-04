@@ -1,7 +1,7 @@
-package pl.handsome.club.core.testing
+package pl.morning.tower.karbo.core.testing
 
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.ErrorReporter
 
 class FakeErrorReporter : ErrorReporter {
 

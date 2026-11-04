@@ -1,6 +1,6 @@
-package pl.handsome.club.openfoodapi
+package pl.morning.tower.karbo.openfoodapi
 
-import pl.handsome.club.core.model.ProductCategory
+import pl.morning.tower.karbo.core.model.ProductCategory
 
 private val categoryTags: List<Pair<ProductCategory, Set<String>>> = listOf(
     ProductCategory.CHEESE to setOf("en:cheeses"),

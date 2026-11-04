@@ -1,4 +1,4 @@
-package pl.handsome.club.ketoscanner.di
+package pl.morning.tower.karbo.di
 
 import coil3.ImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
@@ -14,25 +14,25 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import pl.handsome.club.core.common.APPLICATION_SCOPE
-import pl.handsome.club.core.common.AppDispatchers
-import pl.handsome.club.core.common.AppLogger
-import pl.handsome.club.core.common.DefaultAppDispatchers
-import pl.handsome.club.core.common.ErrorReporter
-import pl.handsome.club.core.common.LoggingErrorReporter
-import pl.handsome.club.core.designsystem.event.AppEvents
-import pl.handsome.club.ketoscanner.util.AndroidAppLogger
-import pl.handsome.club.ketoscanner.BuildConfig
-import pl.handsome.club.ketoscanner.ui.AppViewModel
-import pl.handsome.club.openfoodapi.OpenFoodFactsProductSource
-import pl.handsome.club.openfoodapi.ProductNetworkSource
-import pl.handsome.club.openfoodapi.api.OpenFoodFactsApi
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsHttpClient
-import pl.handsome.club.openfoodapi.api.createOpenFoodFactsImageHttpClient
+import pl.morning.tower.karbo.core.common.APPLICATION_SCOPE
+import pl.morning.tower.karbo.core.common.AppDispatchers
+import pl.morning.tower.karbo.core.common.AppLogger
+import pl.morning.tower.karbo.core.common.DefaultAppDispatchers
+import pl.morning.tower.karbo.core.common.ErrorReporter
+import pl.morning.tower.karbo.core.common.LoggingErrorReporter
+import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.util.AndroidAppLogger
+import pl.morning.tower.karbo.BuildConfig
+import pl.morning.tower.karbo.ui.AppViewModel
+import pl.morning.tower.karbo.openfoodapi.OpenFoodFactsProductSource
+import pl.morning.tower.karbo.openfoodapi.ProductNetworkSource
+import pl.morning.tower.karbo.openfoodapi.api.OpenFoodFactsApi
+import pl.morning.tower.karbo.openfoodapi.api.createOpenFoodFactsHttpClient
+import pl.morning.tower.karbo.openfoodapi.api.createOpenFoodFactsImageHttpClient
 import kotlin.time.Clock
 
 
-private const val OPEN_FOOD_FACTS_APP_NAME = "KetoScanner"
+private const val OPEN_FOOD_FACTS_APP_NAME = "Karbo"
 private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo/KetoScanner"
 private const val IMAGE_HTTP_CLIENT = "imageHttpClient"
 

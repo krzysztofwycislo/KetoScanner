@@ -1,9 +1,9 @@
 plugins {
-    id("ketoscanner.android.library")
+    id("karbo.android.library")
 }
 
 android {
-    namespace = "pl.handsome.club.feature.product.data"
+    namespace = "pl.morning.tower.karbo.feature.product.data"
 }
 
 dependencies {

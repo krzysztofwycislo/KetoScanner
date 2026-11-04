@@ -1,10 +1,10 @@
-package pl.handsome.club.feature.home.ui.state
+package pl.morning.tower.karbo.feature.home.ui.state
 
 import androidx.compose.runtime.Immutable
 import kotlinx.datetime.TimeZone
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
-import pl.handsome.club.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import kotlin.time.Instant
 
 @Immutable

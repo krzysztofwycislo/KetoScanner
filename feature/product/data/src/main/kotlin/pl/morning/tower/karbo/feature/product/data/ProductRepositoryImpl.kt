@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.product.data
+package pl.morning.tower.karbo.feature.product.data
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
-import pl.handsome.club.core.common.AppDispatchers
-import pl.handsome.club.core.common.AppError
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.core.common.outcomeOf
-import pl.handsome.club.core.database.product.ProductEntity
-import pl.handsome.club.feature.product.api.ProductRepository
-import pl.handsome.club.feature.product.api.model.Product
-import pl.handsome.club.openfoodapi.ProductNetworkSource
+import pl.morning.tower.karbo.core.common.AppDispatchers
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.outcomeOf
+import pl.morning.tower.karbo.core.database.product.ProductEntity
+import pl.morning.tower.karbo.feature.product.api.ProductRepository
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.openfoodapi.ProductNetworkSource
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days

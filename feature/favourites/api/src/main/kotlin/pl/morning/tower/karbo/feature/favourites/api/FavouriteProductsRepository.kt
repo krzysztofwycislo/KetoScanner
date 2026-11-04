@@ -1,10 +1,10 @@
-package pl.handsome.club.feature.favourites.api
+package pl.morning.tower.karbo.feature.favourites.api
 
 import kotlinx.coroutines.flow.Flow
-import pl.handsome.club.core.common.Outcome
-import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
-import pl.handsome.club.feature.favourites.api.model.FavouriteProduct
-import pl.handsome.club.feature.product.api.model.Product
+import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
+import pl.morning.tower.karbo.feature.product.api.model.Product
 
 
 interface FavouriteProductsRepository {

@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.history.ui.event
+package pl.morning.tower.karbo.feature.history.ui.event
 
-import pl.handsome.club.feature.history.ui.state.HistoryFilter
+import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
 
 internal sealed interface HistoryAction {
     data object OnStart : HistoryAction

@@ -1,16 +1,16 @@
-package pl.handsome.club.ketoscanner.navigation
+package pl.morning.tower.karbo.navigation
 
 import androidx.annotation.StringRes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import pl.handsome.club.core.designsystem.icon.AppIcon
-import pl.handsome.club.core.designsystem.icon.AppIcons
-import pl.handsome.club.feature.favourites.ui.FavouritesRoute
-import pl.handsome.club.feature.home.ui.HomeRoute
-import pl.handsome.club.feature.scanner.ui.ScanRoute
-import pl.handsome.club.ketoscanner.R
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.feature.favourites.ui.FavouritesRoute
+import pl.morning.tower.karbo.feature.home.ui.HomeRoute
+import pl.morning.tower.karbo.feature.scanner.ui.ScanRoute
+import pl.morning.tower.karbo.R
 
 internal enum class BottomNavSection(
     val route: Any,

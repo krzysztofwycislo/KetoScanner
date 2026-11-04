@@ -1,9 +1,9 @@
-package pl.handsome.club.feature.history.data
+package pl.morning.tower.karbo.feature.history.data
 
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
+import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 
 val historyDataModule = module {
     singleOf(::AnalysisHistoryPersistenceImpl) bind AnalysisHistoryPersistence::class

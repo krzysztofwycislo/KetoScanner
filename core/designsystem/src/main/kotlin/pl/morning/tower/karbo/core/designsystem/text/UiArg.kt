@@ -1,4 +1,4 @@
-package pl.handsome.club.core.designsystem.text
+package pl.morning.tower.karbo.core.designsystem.text
 
 import androidx.compose.runtime.Immutable
 import kotlin.time.Instant

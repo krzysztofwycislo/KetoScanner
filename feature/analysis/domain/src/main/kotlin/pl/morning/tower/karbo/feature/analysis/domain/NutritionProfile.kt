@@ -1,6 +1,6 @@
-package pl.handsome.club.feature.analysis.domain
+package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.handsome.club.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.Product
 
 internal data class NutritionProfile(
     val carbs: Double,

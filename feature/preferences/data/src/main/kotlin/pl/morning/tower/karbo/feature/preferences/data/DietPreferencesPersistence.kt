@@ -1,4 +1,4 @@
-package pl.handsome.club.feature.preferences.data
+package pl.morning.tower.karbo.feature.preferences.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import pl.handsome.club.core.datastore.MAX_CARBS_AMOUNT_KEY_NAME
+import pl.morning.tower.karbo.core.datastore.MAX_CARBS_AMOUNT_KEY_NAME
 
 internal data class StoredDietPreferences(val maxDailyCarbsAmount: Int?, val dietMode: String?)
 

@@ -1,10 +1,10 @@
-package pl.handsome.club.core.designsystem.component
+package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
-import pl.handsome.club.core.designsystem.theme.AppTheme
-import pl.handsome.club.core.designsystem.theme.toneFor
+import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.core.designsystem.theme.toneFor
 
 @Composable
 @ReadOnlyComposable
