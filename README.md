@@ -32,4 +32,4 @@ incomplete data; the app says so instead of guessing.
 ## Built with
 
 Kotlin and Jetpack Compose on Android, with CameraX and ML Kit for barcode scanning. The core is kept platform-independent
-for a future move to Kotlin Multiplatform. Architecture notes for contributors are in [docs/architecture.md](docs/architecture.md).
+for a future move to Kotlin Multiplatform.
