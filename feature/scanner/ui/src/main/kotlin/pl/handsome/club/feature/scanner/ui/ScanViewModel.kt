@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.scanner.ui
 
-import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -113,9 +112,9 @@ internal class ScanViewModel(
             is OnCameraPermissionResult -> onCameraPermissionResult(action.check)
             OnPermissionButtonClicked -> onPermissionButtonClicked()
             is OnQueryChanged -> setQuery(action.query)
-            OnSearchSubmitted -> search(statePrototype.value.query.trim(), fromCamera = false, lock = null)
+            OnSearchSubmitted -> search(statePrototype.value.query.trim(), fromCamera = false)
             is OnBarcodeScanned -> {
-                if (!statePrototype.value.isScanBlocked) search(action.barcode, fromCamera = true, lock = action.lock)
+                if (!statePrototype.value.isScanBlocked) search(action.barcode, fromCamera = true)
             }
             OnTorchClicked -> toggleTorch()
             OnTypeItClicked -> openTypeSheet()
@@ -243,7 +242,7 @@ internal class ScanViewModel(
         statePrototype.value.notFoundBarcode?.let { barcode ->
             setQuery(barcode)
             setNotFoundBarcode(null)
-            statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
+            statePrototype.update { it.copy(isScanPaused = false) }
         }
         setTypeSheetOpen(true)
     }
@@ -261,14 +260,14 @@ internal class ScanViewModel(
     private fun scanNext() {
         setFoundBarcode(null)
         setNotFoundBarcode(null)
-        statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
+        statePrototype.update { it.copy(isScanPaused = false) }
     }
 
-    private fun search(barcode: String, fromCamera: Boolean, lock: Rect?) {
+    private fun search(barcode: String, fromCamera: Boolean) {
         val prototype = statePrototype.value
         if (barcode.isBlank() || progress.inProgress.value) return
         if (prototype.foundBarcode != null || prototype.notFoundBarcode != null) return
-        statePrototype.update { it.copy(isScanPaused = true, scanLock = lock) }
+        statePrototype.update { it.copy(isScanPaused = true) }
         if (fromCamera) screenEvents send PerformHapticFeedback(ScanFeedback.Detected)
         appEvents send HideKeyboard
 
@@ -309,7 +308,7 @@ internal class ScanViewModel(
     private suspend fun showFailureAndResume(error: AppError) {
         appEvents send ShowMessage(resources.searchFailed(error), MessageTone.Error)
         delay(SCAN_RESUME_DELAY)
-        statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
+        statePrototype.update { it.copy(isScanPaused = false) }
     }
 
     private fun reportOrLog(message: String, error: AppError) {

@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -123,19 +122,6 @@ private fun ScanFoundRatedPreview() {
 
 @Preview
 @Composable
-private fun ScanFoundLockedPreview() {
-    ScanScreenPreview(
-        previewState(
-            isPaused = true,
-            frame = ScanFrameMode.Found,
-            frameLock = Rect(0.2f, 0.35f, 0.8f, 0.65f),
-            found = previewFound,
-        ),
-    )
-}
-
-@Preview
-@Composable
 private fun ScanFoundInsufficientDataPreview() {
     ScanScreenPreview(
         previewState(
@@ -156,5 +142,5 @@ private fun ScanFoundInsufficientDataPreview() {
 @Preview(widthDp = 891, heightDp = 411)
 @Composable
 private fun ScanFoundLandscapePreview() {
-    ScanFoundLockedPreview()
+    ScanFoundRatedPreview()
 }

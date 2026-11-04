@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.scanner.ui.component
 
-import androidx.compose.ui.geometry.Rect
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.component.Rating
@@ -30,7 +29,6 @@ internal fun previewState(
     torchButton: TorchButtonState? = previewTorchOff,
     isTypeSheetOpen: Boolean = false,
     frame: ScanFrameMode = ScanFrameMode.Aiming,
-    frameLock: Rect? = null,
     hint: UiText = previewResources.aimHint(),
     found: FoundCardState? = null,
     notFound: NotFoundCardState? = null,
@@ -45,7 +43,6 @@ internal fun previewState(
         isTypeSheetOpen = isTypeSheetOpen,
         trip = trip,
         frame = frame,
-        frameLock = frameLock,
         hint = hint,
     ),
     found = found,

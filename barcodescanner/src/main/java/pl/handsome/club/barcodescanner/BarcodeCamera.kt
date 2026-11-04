@@ -50,7 +50,7 @@ fun BarcodeCamera(
     isPaused: Boolean,
     torchEnabled: Boolean,
     scanArea: Rect?,
-    onBarcodeScanned: (String, Rect) -> Unit,
+    onBarcodeScanned: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (LocalInspectionMode.current) {
@@ -79,9 +79,10 @@ fun BarcodeCamera(
             ContextCompat.getMainExecutor(context),
         ) { result ->
             result.getThrowable(scanner)?.also { Log.e(TAG, "Barcode scanning failed", it) }
-            val scanned = result.getValue(scanner)
-                ?.firstNotNullOfOrNull { it.scannedInside(currentScanArea, cameraOffset) }
-            if (scanned != null && !currentIsPaused) currentOnBarcodeScanned(scanned.first, scanned.second)
+            val barcode = result.getValue(scanner)
+                ?.firstOrNull { it.rawValue != null && it.isInside(currentScanArea, cameraOffset) }
+                ?.rawValue
+            if (barcode != null && !currentIsPaused) currentOnBarcodeScanned(barcode)
         }
         controller.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
         controller.bindToLifecycle(lifecycleOwner)
@@ -124,12 +125,10 @@ fun BarcodeCamera(
     )
 }
 
-private fun Barcode.scannedInside(scanArea: Rect?, cameraOffset: Offset): Pair<String, Rect>? {
-    val value = rawValue ?: return null
-    val bounds = boundingBox?.toComposeRect()?.translate(cameraOffset)
-    if (scanArea == null) return value to (bounds ?: Rect.Zero)
-    if (bounds == null || !scanArea.contains(bounds.topLeft) || !scanArea.contains(bounds.bottomRight)) return null
-    return value to bounds
+private fun Barcode.isInside(scanArea: Rect?, cameraOffset: Offset): Boolean {
+    if (scanArea == null) return true
+    val bounds = boundingBox?.toComposeRect()?.translate(cameraOffset) ?: return false
+    return scanArea.contains(bounds.topLeft) && scanArea.contains(bounds.bottomRight)
 }
 
 private fun createController(context: Context): LifecycleCameraController {

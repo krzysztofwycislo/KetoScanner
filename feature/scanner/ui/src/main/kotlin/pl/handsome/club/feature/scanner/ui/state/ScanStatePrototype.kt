@@ -1,7 +1,6 @@
 package pl.handsome.club.feature.scanner.ui.state
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.geometry.Rect
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
 import pl.handsome.club.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
@@ -23,7 +22,6 @@ internal data class ScanStatePrototype(
     val tripEntries: List<ProductAnalysisHistoryEntry> = emptyList(),
     val now: Instant = Instant.fromEpochMilliseconds(0),
     val dietPreferences: DietPreferences? = null,
-    val scanLock: Rect? = null,
 ) {
 
     val isScanBlocked: Boolean

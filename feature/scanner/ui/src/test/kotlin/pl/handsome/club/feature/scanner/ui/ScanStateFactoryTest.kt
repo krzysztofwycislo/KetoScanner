@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.scanner.ui
 
-import androidx.compose.ui.geometry.Rect
 import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.component.ScanFrameMode
@@ -209,7 +208,6 @@ class ScanStateFactoryTest {
     fun `when the type sheet is open the scan is paused or resuming after an error then the frame is idle`() {
         assertEquals(ScanFrameMode.Idle, frame(granted().copy(isTypeSheetOpen = true)))
         assertEquals(ScanFrameMode.Idle, frame(granted().copy(isScanPaused = true)))
-        assertEquals(ScanFrameMode.Idle, frame(granted().copy(isScanPaused = true, scanLock = LOCK)))
     }
 
     @Test
@@ -226,24 +224,6 @@ class ScanStateFactoryTest {
     @Test
     fun `when a barcode is not found then the frame is not found`() {
         assertEquals(ScanFrameMode.NotFound, frame(granted().copy(notFoundBarcode = BARCODE)))
-    }
-
-    @Test
-    fun `when the frame is searching found or not found then the lock passes through`() {
-        val locked = granted().copy(scanLock = LOCK)
-
-        assertEquals(LOCK, frameLock(locked.copy(isSearching = true)))
-        assertEquals(LOCK, frameLock(locked.withFoundAnalysis()))
-        assertEquals(LOCK, frameLock(locked.copy(notFoundBarcode = BARCODE)))
-    }
-
-    @Test
-    fun `when the frame aims or is idle then there is no lock even if one is set`() {
-        val locked = granted().copy(scanLock = LOCK)
-
-        assertNull(frameLock(locked))
-        assertNull(frameLock(locked.copy(isScanPaused = true)))
-        assertNull(frameLock(locked.copy(isTypeSheetOpen = true)))
     }
 
     @Test
@@ -505,7 +485,6 @@ class ScanStateFactoryTest {
         isTypeSheetOpen = isTypeSheetOpen,
         trip = persistentListOf(),
         frame = frame,
-        frameLock = null,
         hint = hint,
     )
 
@@ -517,8 +496,6 @@ class ScanStateFactoryTest {
 
     private fun torchButton(prototype: Prototype): TorchButtonState? =
         assertIs<CameraState.Preview>(camera(prototype)).torchButton
-
-    private fun frameLock(prototype: Prototype): Rect? = assertIs<CameraState.Preview>(camera(prototype)).frameLock
 
     private fun trip(prototype: Prototype): List<TripItemState> =
         assertIs<CameraState.Preview>(camera(prototype)).trip
@@ -546,7 +523,6 @@ class ScanStateFactoryTest {
 
     private companion object {
         const val BARCODE = "590"
-        val LOCK = Rect(0.2f, 0.35f, 0.8f, 0.65f)
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
         val AIM_HINT = UiText.Res(R.string.scan_aim_hint)
         val SEARCHING_HINT = UiText.Res(R.string.scan_searching_hint)

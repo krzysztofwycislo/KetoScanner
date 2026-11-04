@@ -33,19 +33,15 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         get() = isSearching || (foundBarcode != null && foundAnalysis == null)
 
     private fun Prototype.camera(): CameraState = when (cameraPermission) {
-        CameraPermission.Granted -> {
-            val frame = frame()
-            CameraState.Preview(
-                isPaused = isScanBlocked,
-                isTorchOn = hasTorch && isTorchOn,
-                torchButton = torchButton(),
-                isTypeSheetOpen = isTypeSheetOpen,
-                trip = trip(),
-                frame = frame,
-                frameLock = scanLock.takeIf { frame.usesLock },
-                hint = if (showProgress) resources.searchingHint() else resources.aimHint(),
-            )
-        }
+        CameraPermission.Granted -> CameraState.Preview(
+            isPaused = isScanBlocked,
+            isTorchOn = hasTorch && isTorchOn,
+            torchButton = torchButton(),
+            isTypeSheetOpen = isTypeSheetOpen,
+            trip = trip(),
+            frame = frame(),
+            hint = if (showProgress) resources.searchingHint() else resources.aimHint(),
+        )
 
         CameraPermission.Rationale -> CameraState.PermissionPanel(
             title = resources.rationaleTitle(),
@@ -69,12 +65,6 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         isScanBlocked -> ScanFrameMode.Idle
         else -> ScanFrameMode.Aiming
     }
-
-    private val ScanFrameMode.usesLock: Boolean
-        get() = when (this) {
-            ScanFrameMode.Searching, ScanFrameMode.Found, ScanFrameMode.NotFound -> true
-            ScanFrameMode.Aiming, ScanFrameMode.Idle -> false
-        }
 
     private fun Prototype.torchButton(): TorchButtonState? {
         if (!hasTorch) return null

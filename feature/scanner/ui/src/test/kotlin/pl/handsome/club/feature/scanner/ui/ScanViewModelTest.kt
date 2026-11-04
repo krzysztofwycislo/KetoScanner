@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.scanner.ui
 
-import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CompletableDeferred
@@ -276,7 +275,7 @@ class ScanViewModelTest {
         viewModel.onAction(ScanAction.OnSearchSubmitted)
         assertFalse(viewModel.state.value.isLookUpEnabled)
         viewModel.onAction(ScanAction.OnSearchSubmitted)
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
         gate.complete(Unit)
         analyzeProduct.emit(ratedAnalysis)
 
@@ -310,7 +309,7 @@ class ScanViewModelTest {
             val viewModel = createViewModel(handle)
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
             assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
@@ -337,7 +336,7 @@ class ScanViewModelTest {
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle)
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         viewModel.onAction(ScanAction.OnScanNextClicked)
 
@@ -345,7 +344,7 @@ class ScanViewModelTest {
         assertNull(handle.get<String>(KEY_NOT_FOUND_BARCODE))
         assertEquals(preview(isPaused = false), viewModel.state.value.camera)
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf("590", "123"), products.refreshedBarcodes)
     }
@@ -357,7 +356,7 @@ class ScanViewModelTest {
             val handle = SavedStateHandle()
             val viewModel = createViewModel(handle)
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             viewModel.onAction(ScanAction.OnTypeItClicked)
 
@@ -381,9 +380,9 @@ class ScanViewModelTest {
         products.result = Outcome.Failure(AppError.NotFound)
         val viewModel = createViewModel(initialQuery = "777")
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
         viewModel.onAction(ScanAction.OnSearchSubmitted)
 
         assertEquals(listOf("590"), products.refreshedBarcodes)
@@ -417,9 +416,9 @@ class ScanViewModelTest {
     fun `when a barcode is scanned while scanning is paused then it is ignored`() = runTest {
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf("590"), products.refreshedBarcodes)
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
@@ -547,7 +546,7 @@ class ScanViewModelTest {
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
         viewModel.onAction(ScanAction.OnTypeItClicked)
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         assertTrue(products.refreshedBarcodes.isEmpty())
         assertTrue(screenEvents.isEmpty())
@@ -560,7 +559,7 @@ class ScanViewModelTest {
             val viewModel = createViewModel(handle)
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals("590", handle.get<String>(KEY_FOUND_BARCODE))
             assertFalse(viewModel.state.value.isLookUpEnabled)
@@ -588,7 +587,7 @@ class ScanViewModelTest {
         analyzeProduct.emit(ratedAnalysis)
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         viewModel.onAction(ScanAction.OnDetailsClicked)
 
@@ -603,7 +602,7 @@ class ScanViewModelTest {
         val handle = SavedStateHandle()
         val viewModel = createViewModel(handle)
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         viewModel.onAction(ScanAction.OnScanNextClicked)
 
@@ -612,7 +611,7 @@ class ScanViewModelTest {
         assertTrue(viewModel.state.value.isLookUpEnabled)
         assertEquals(preview(isPaused = false), viewModel.state.value.camera)
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf("590", "123"), products.refreshedBarcodes)
     }
@@ -639,7 +638,7 @@ class ScanViewModelTest {
         viewModel.onAction(ScanAction.OnSearchSubmitted)
 
         viewModel.onAction(ScanAction.OnSearchSubmitted)
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf("590"), products.refreshedBarcodes)
         assertEquals(ratedCard, viewModel.state.value.found)
@@ -654,7 +653,7 @@ class ScanViewModelTest {
             val viewModel = createViewModel(handle)
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertNull(viewModel.state.value.found)
             assertNull(handle.get<String>(KEY_FOUND_BARCODE))
@@ -679,7 +678,7 @@ class ScanViewModelTest {
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         assertEquals(ratedCard, viewModel.state.value.found)
         assertEquals(FakeAppLogger.Level.Error, logger.entries.single().level)
@@ -694,7 +693,7 @@ class ScanViewModelTest {
             val viewModel = createViewModel()
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(
                 FoundCardState(
@@ -774,7 +773,7 @@ class ScanViewModelTest {
             val viewModel = createViewModel()
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", lock = null))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
             assertTrue(viewModel.tripBarcodes().isEmpty())
 
             analyzeProduct.emit(ratedAnalysis)
@@ -823,24 +822,24 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a camera scan is accepted then a detected haptic is sent once and the frame locks on the barcode`() =
+    fun `when a camera scan is accepted then a detected haptic is sent once and the frame searches`() =
         runTest {
             val gate = products.gate()
             val viewModel = createViewModel()
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
             assertEquals(
-                preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT, frameLock = LOCK),
+                preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT),
                 viewModel.state.value.camera,
             )
             gate.complete(Unit)
         }
 
     @Test
-    fun `when a typed search runs then no detected haptic is sent and the frame has no lock`() = runTest {
+    fun `when a typed search runs then no detected haptic is sent`() = runTest {
         val gate = products.gate()
         val viewModel = createViewModel(initialQuery = "590")
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
@@ -856,16 +855,15 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a scan is ignored while blocked then nothing is sent and the old lock stays`() = runTest {
+    fun `when a scan is ignored while blocked then nothing is sent`() = runTest {
         val gate = products.gate()
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("123", OTHER_LOCK))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
-        assertEquals(LOCK, frameLock(viewModel))
         gate.complete(Unit)
     }
 
@@ -874,44 +872,38 @@ class ScanViewModelTest {
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
 
         analyzeProduct.emit(ratedAnalysis)
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, FOUND_HAPTIC), screenEvents)
-        assertEquals(
-            preview(isPaused = true, frame = ScanFrameMode.Found, frameLock = LOCK),
-            viewModel.state.value.camera,
-        )
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.Found), viewModel.state.value.camera)
 
         analyzeProduct.emit(ratedAnalysis.copy(product = product.copy(name = "Nutella B-ready")))
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, FOUND_HAPTIC), screenEvents)
     }
 
     @Test
-    fun `when a scanned product is not found then the not found haptic is sent and the frame keeps the lock`() =
+    fun `when a scanned product is not found then the not found haptic is sent and the frame shows not found`() =
         runTest {
             products.result = Outcome.Failure(AppError.NotFound)
             val viewModel = createViewModel()
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, NOT_FOUND_HAPTIC), screenEvents)
-            assertEquals(
-                preview(isPaused = true, frame = ScanFrameMode.NotFound, frameLock = LOCK),
-                viewModel.state.value.camera,
-            )
+            assertEquals(preview(isPaused = true, frame = ScanFrameMode.NotFound), viewModel.state.value.camera)
         }
 
     @Test
-    fun `when a scan fails with a network error then no verdict haptic is sent and the lock clears on resume`() =
+    fun `when a scan fails with a network error then no verdict haptic is sent and the frame aims on resume`() =
         runTest {
             products.result = Outcome.Failure(AppError.Network)
             val viewModel = createViewModel()
             viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
 
-            viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
             assertEquals(preview(isPaused = true, frame = ScanFrameMode.Idle), viewModel.state.value.camera)
@@ -922,19 +914,6 @@ class ScanViewModelTest {
             assertEquals(preview(isPaused = false), viewModel.state.value.camera)
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
         }
-
-    @Test
-    fun `when scan next is clicked then the lock clears`() = runTest {
-        analyzeProduct.emit(ratedAnalysis)
-        val viewModel = createViewModel()
-        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
-        viewModel.onAction(ScanAction.OnBarcodeScanned("590", LOCK))
-        assertEquals(LOCK, frameLock(viewModel))
-
-        viewModel.onAction(ScanAction.OnScanNextClicked)
-
-        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
-    }
 
     @Test
     fun `when restored with a found barcode then no haptic is sent`() = runTest {
@@ -958,7 +937,6 @@ class ScanViewModelTest {
         torch: TorchButtonState? = null,
         isTorchOn: Boolean = false,
         isTypeSheetOpen: Boolean = false,
-        frameLock: Rect? = null,
         hint: UiText = UiText.Res(R.string.scan_aim_hint),
     ) = CameraState.Preview(
         isPaused = isPaused,
@@ -967,12 +945,8 @@ class ScanViewModelTest {
         isTypeSheetOpen = isTypeSheetOpen,
         trip = persistentListOf(),
         frame = frame,
-        frameLock = frameLock,
         hint = hint,
     )
-
-    private fun frameLock(viewModel: ScanViewModel) =
-        assertIs<CameraState.Preview>(viewModel.state.value.camera).frameLock
 
     private fun ScanViewModel.tripBarcodes(): List<String> = tripItems(this).map { it.barcode }
 
@@ -1091,8 +1065,6 @@ class ScanViewModelTest {
         const val KEY_FOUND_BARCODE = "foundBarcode"
         const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
-        val LOCK = Rect(0.2f, 0.35f, 0.8f, 0.65f)
-        val OTHER_LOCK = Rect(0.1f, 0.1f, 0.5f, 0.5f)
         val SEARCHING_HINT = UiText.Res(R.string.scan_searching_hint)
         val TORCH_OFF = TorchButtonState(isActive = false, contentDescription = UiText.Res(R.string.scan_torch_on))
         val TORCH_ON = TorchButtonState(isActive = true, contentDescription = UiText.Res(R.string.scan_torch_off))

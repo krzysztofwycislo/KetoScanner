@@ -32,7 +32,6 @@ import pl.handsome.club.core.designsystem.component.ScanFrame
 import pl.handsome.club.core.designsystem.component.ScanFrameMode
 import pl.handsome.club.core.designsystem.component.Screen
 import pl.handsome.club.core.designsystem.component.Ui
-import pl.handsome.club.core.designsystem.component.scanFrameLockOf
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.text.resolve
@@ -61,9 +60,7 @@ internal fun CameraContent(state: ScanState, camera: CameraState.Preview, onActi
                 isPaused = camera.isPaused,
                 torchEnabled = camera.isTorchOn,
                 scanArea = scanArea,
-                onBarcodeScanned = { barcode, bounds ->
-                    onAction(OnBarcodeScanned(barcode, scanArea?.let { scanFrameLockOf(bounds, it) }))
-                },
+                onBarcodeScanned = { barcode -> onAction(OnBarcodeScanned(barcode)) },
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag("cameraPreviewView"),
@@ -109,7 +106,6 @@ private fun BoxScope.TallCameraLayout(
         Spacer(Modifier.height(AppTheme.spacing.xl * 2))
         Ui.ScanFrame(
             mode = camera.frame,
-            lock = camera.frameLock,
             modifier = frameModifier,
         )
         Ui.CameraHint(
@@ -158,7 +154,6 @@ private fun WideCameraLayout(
         ) {
             Ui.ScanFrame(
                 mode = camera.frame,
-                lock = camera.frameLock,
                 modifier = frameModifier,
             )
         }

@@ -1,6 +1,5 @@
 package pl.handsome.club.feature.scanner.ui.event
 
-import androidx.compose.ui.geometry.Rect
 import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
 
 internal sealed interface ScanAction {
@@ -9,7 +8,7 @@ internal sealed interface ScanAction {
     data object OnPermissionButtonClicked : ScanAction
     data class OnQueryChanged(val query: String) : ScanAction
     data object OnSearchSubmitted : ScanAction
-    data class OnBarcodeScanned(val barcode: String, val lock: Rect?) : ScanAction
+    data class OnBarcodeScanned(val barcode: String) : ScanAction
     data object OnTorchClicked : ScanAction
     data object OnTypeItClicked : ScanAction
     data object OnTypeSheetDismissed : ScanAction

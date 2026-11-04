@@ -1,7 +1,6 @@
 package pl.handsome.club.feature.scanner.ui.state
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.geometry.Rect
 import kotlinx.collections.immutable.ImmutableList
 import pl.handsome.club.core.designsystem.component.Rating
 import pl.handsome.club.core.designsystem.component.ScanFrameMode
@@ -27,7 +26,6 @@ internal sealed interface CameraState {
         val isTypeSheetOpen: Boolean,
         val trip: ImmutableList<TripItemState>,
         val frame: ScanFrameMode,
-        val frameLock: Rect?,
         val hint: UiText,
     ) : CameraState
     data class PermissionPanel(val title: UiText, val message: UiText, val buttonLabel: UiText) : CameraState

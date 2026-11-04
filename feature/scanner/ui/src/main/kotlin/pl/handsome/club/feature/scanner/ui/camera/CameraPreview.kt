@@ -12,7 +12,7 @@ internal fun CameraPreview(
     isPaused: Boolean,
     torchEnabled: Boolean,
     scanArea: Rect?,
-    onBarcodeScanned: (String, Rect) -> Unit,
+    onBarcodeScanned: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BarcodeCamera(
