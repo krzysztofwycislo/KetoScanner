@@ -24,6 +24,7 @@ data class AppSizes(
     val scanFrameHeight: Dp,
     val aimLine: Dp,
     val messageIcon: Dp,
+    val scanCheck: Dp,
     val logoTile: Dp,
     val logoIcon: Dp,
     val chipIcon: Dp,
@@ -35,6 +36,7 @@ data class AppSizes(
     val radioDot: Dp,
     val radioDotInner: Dp,
     val overlayElevation: Dp,
+    val overlayCardMaxWidth: Dp,
 )
 
 val DefaultAppSizes = AppSizes(
@@ -56,6 +58,7 @@ val DefaultAppSizes = AppSizes(
     scanFrameHeight = 240.dp,
     aimLine = 3.dp,
     messageIcon = 72.dp,
+    scanCheck = 64.dp,
     logoTile = 28.dp,
     logoIcon = 16.dp,
     chipIcon = 18.dp,
@@ -67,4 +70,5 @@ val DefaultAppSizes = AppSizes(
     radioDot = 22.dp,
     radioDotInner = 10.dp,
     overlayElevation = 8.dp,
+    overlayCardMaxWidth = 560.dp,
 )

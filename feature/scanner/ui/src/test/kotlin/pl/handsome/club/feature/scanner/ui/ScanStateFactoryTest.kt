@@ -1,7 +1,9 @@
 package pl.handsome.club.feature.scanner.ui
 
+import androidx.compose.ui.geometry.Rect
 import kotlinx.collections.immutable.persistentListOf
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.component.ScanFrameMode
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.text.UiArg
 import pl.handsome.club.core.designsystem.text.UiText
@@ -20,12 +22,13 @@ import pl.handsome.club.feature.scanner.ui.state.CameraState
 import pl.handsome.club.feature.scanner.ui.state.FoundCardState
 import pl.handsome.club.feature.scanner.ui.state.NotFoundCardState
 import pl.handsome.club.feature.scanner.ui.state.ScanStateFactory
-import pl.handsome.club.feature.scanner.ui.state.Torch
+import pl.handsome.club.feature.scanner.ui.state.TorchButtonState
 import pl.handsome.club.feature.scanner.ui.state.TripItemState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration
@@ -52,31 +55,83 @@ class ScanStateFactoryTest {
 
     @Test
     fun `when permission is granted and scan is paused then preview is paused`() {
-        assertEquals(preview(isPaused = true), camera(granted().copy(isScanPaused = true)))
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.Idle), camera(granted().copy(isScanPaused = true)))
     }
 
     @Test
     fun `when permission is granted and a search runs then preview is paused`() {
-        assertEquals(preview(isPaused = true), camera(granted().copy(isSearching = true)))
+        assertEquals(
+            preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT),
+            camera(granted().copy(isSearching = true)),
+        )
     }
 
     @Test
     fun `when the type sheet is open then preview shows it and is paused`() {
         assertEquals(
-            preview(isPaused = true, isTypeSheetOpen = true),
+            preview(isPaused = true, isTypeSheetOpen = true, frame = ScanFrameMode.Idle),
             camera(granted().copy(isTypeSheetOpen = true)),
         )
     }
 
     @Test
     fun `when the device has no torch then torch is unavailable even if it was turned on`() {
-        assertEquals(preview(torch = Torch.Unavailable), camera(granted().copy(hasTorch = false, isTorchOn = true)))
+        assertEquals(preview(torch = null), camera(granted().copy(hasTorch = false, isTorchOn = true)))
     }
 
     @Test
     fun `when the device has a torch then torch follows its on state`() {
-        assertEquals(preview(torch = Torch.Off), camera(granted().copy(hasTorch = true, isTorchOn = false)))
-        assertEquals(preview(torch = Torch.On), camera(granted().copy(hasTorch = true, isTorchOn = true)))
+        assertEquals(preview(torch = TORCH_OFF), camera(granted().copy(hasTorch = true, isTorchOn = false)))
+        assertEquals(
+            preview(torch = TORCH_ON, isTorchOn = true),
+            camera(granted().copy(hasTorch = true, isTorchOn = true)),
+        )
+    }
+
+    @Test
+    fun `when the torch is off then its button is inactive and offers to turn it on`() {
+        assertEquals(TORCH_OFF, torchButton(granted().copy(hasTorch = true, isTorchOn = false)))
+    }
+
+    @Test
+    fun `when the torch is on then its button is active and offers to turn it off`() {
+        assertEquals(TORCH_ON, torchButton(granted().copy(hasTorch = true, isTorchOn = true)))
+    }
+
+    @Test
+    fun `when the device has no torch then there is no torch button and the torch stays off`() {
+        val camera = assertIs<CameraState.Preview>(camera(granted().copy(hasTorch = false, isTorchOn = true)))
+
+        assertNull(camera.torchButton)
+        assertFalse(camera.isTorchOn)
+    }
+
+    @Test
+    fun `when no search runs then the hint asks to aim`() {
+        assertEquals(AIM_HINT, hint(granted()))
+        assertEquals(AIM_HINT, hint(granted().copy(isScanPaused = true)))
+        assertEquals(AIM_HINT, hint(granted().withFoundAnalysis()))
+        assertEquals(AIM_HINT, hint(granted().copy(notFoundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when a search runs or a found barcode waits for its analysis then the hint says it is searching`() {
+        assertEquals(SEARCHING_HINT, hint(granted().copy(isSearching = true)))
+        assertEquals(SEARCHING_HINT, hint(granted().copy(foundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when the camera is granted then the not found card offers type it`() {
+        assertTrue(assertNotNull(factory.createFor(granted().copy(notFoundBarcode = BARCODE)).notFound).showTypeIt)
+    }
+
+    @Test
+    fun `when the camera is denied or needs rationale then the not found card offers only close`() {
+        val denied = Prototype(cameraPermission = CameraPermission.Denied, notFoundBarcode = BARCODE)
+        val rationale = Prototype(cameraPermission = CameraPermission.Rationale, notFoundBarcode = BARCODE)
+
+        assertFalse(assertNotNull(factory.createFor(denied).notFound).showTypeIt)
+        assertFalse(assertNotNull(factory.createFor(rationale).notFound).showTypeIt)
     }
 
     @Test
@@ -104,9 +159,9 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when searching or not then progress follows`() {
-        assertTrue(factory.createFor(Prototype(isSearching = true)).showProgress)
-        assertFalse(factory.createFor(Prototype(isSearching = false)).showProgress)
+    fun `when searching or not then look up is disabled or enabled`() {
+        assertFalse(factory.createFor(Prototype(isSearching = true)).isLookUpEnabled)
+        assertTrue(factory.createFor(Prototype(isSearching = false)).isLookUpEnabled)
     }
 
     @Test
@@ -115,12 +170,15 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when a barcode is found without an analysis then progress shows the preview is paused and no card shows`() {
+    fun `when a barcode is found without an analysis then look up is disabled and the preview is paused`() {
         val state = factory.createFor(granted().copy(foundBarcode = BARCODE))
 
-        assertTrue(state.showProgress)
+        assertFalse(state.isLookUpEnabled)
         assertNull(state.found)
-        assertEquals(preview(isPaused = true), state.camera)
+        assertEquals(
+            preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT),
+            state.camera,
+        )
     }
 
     @Test
@@ -134,12 +192,58 @@ class ScanStateFactoryTest {
         val state = factory.createFor(granted().copy(notFoundBarcode = BARCODE))
 
         assertEquals(
-            NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(BARCODE))),
+            NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(BARCODE)), showTypeIt = true),
             state.notFound,
         )
         assertNull(state.found)
-        assertFalse(state.showProgress)
-        assertEquals(preview(isPaused = true), state.camera)
+        assertTrue(state.isLookUpEnabled)
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.NotFound), state.camera)
+    }
+
+    @Test
+    fun `when nothing blocks the scan then the frame aims`() {
+        assertEquals(ScanFrameMode.Aiming, frame(granted()))
+    }
+
+    @Test
+    fun `when the type sheet is open the scan is paused or resuming after an error then the frame is idle`() {
+        assertEquals(ScanFrameMode.Idle, frame(granted().copy(isTypeSheetOpen = true)))
+        assertEquals(ScanFrameMode.Idle, frame(granted().copy(isScanPaused = true)))
+        assertEquals(ScanFrameMode.Idle, frame(granted().copy(isScanPaused = true, scanLock = LOCK)))
+    }
+
+    @Test
+    fun `when a search runs or a found barcode waits for its analysis then the frame is searching`() {
+        assertEquals(ScanFrameMode.Searching, frame(granted().copy(isSearching = true)))
+        assertEquals(ScanFrameMode.Searching, frame(granted().copy(foundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when an analysis is found then the frame is found`() {
+        assertEquals(ScanFrameMode.Found, frame(granted().withFoundAnalysis()))
+    }
+
+    @Test
+    fun `when a barcode is not found then the frame is not found`() {
+        assertEquals(ScanFrameMode.NotFound, frame(granted().copy(notFoundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when the frame is searching found or not found then the lock passes through`() {
+        val locked = granted().copy(scanLock = LOCK)
+
+        assertEquals(LOCK, frameLock(locked.copy(isSearching = true)))
+        assertEquals(LOCK, frameLock(locked.withFoundAnalysis()))
+        assertEquals(LOCK, frameLock(locked.copy(notFoundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when the frame aims or is idle then there is no lock even if one is set`() {
+        val locked = granted().copy(scanLock = LOCK)
+
+        assertNull(frameLock(locked))
+        assertNull(frameLock(locked.copy(isScanPaused = true)))
+        assertNull(frameLock(locked.copy(isTypeSheetOpen = true)))
     }
 
     @Test
@@ -242,11 +346,11 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when a found analysis is shown then progress is hidden`() {
-        assertFalse(
+    fun `when a found analysis is shown then look up is enabled`() {
+        assertTrue(
             factory.createFor(
                 granted().copy(foundBarcode = BARCODE, foundAnalysis = ProductAnalysis.InsufficientData(product))
-            ).showProgress
+            ).isLookUpEnabled
         )
     }
 
@@ -384,15 +488,37 @@ class ScanStateFactoryTest {
 
     private fun granted() = Prototype(cameraPermission = CameraPermission.Granted)
 
-    private fun preview(isPaused: Boolean = false, torch: Torch = Torch.Unavailable, isTypeSheetOpen: Boolean = false) =
-        CameraState.Preview(
-            isPaused = isPaused,
-            torch = torch,
-            isTypeSheetOpen = isTypeSheetOpen,
-            trip = persistentListOf(),
-        )
+    private fun Prototype.withFoundAnalysis() =
+        copy(foundBarcode = BARCODE, foundAnalysis = rated(DietRate.GOOD, DietMode.KETO))
+
+    private fun preview(
+        isPaused: Boolean = false,
+        torch: TorchButtonState? = null,
+        isTorchOn: Boolean = false,
+        isTypeSheetOpen: Boolean = false,
+        frame: ScanFrameMode = ScanFrameMode.Aiming,
+        hint: UiText = AIM_HINT,
+    ) = CameraState.Preview(
+        isPaused = isPaused,
+        isTorchOn = isTorchOn,
+        torchButton = torch,
+        isTypeSheetOpen = isTypeSheetOpen,
+        trip = persistentListOf(),
+        frame = frame,
+        frameLock = null,
+        hint = hint,
+    )
 
     private fun camera(prototype: Prototype): CameraState = factory.createFor(prototype).camera
+
+    private fun frame(prototype: Prototype): ScanFrameMode = assertIs<CameraState.Preview>(camera(prototype)).frame
+
+    private fun hint(prototype: Prototype): UiText = assertIs<CameraState.Preview>(camera(prototype)).hint
+
+    private fun torchButton(prototype: Prototype): TorchButtonState? =
+        assertIs<CameraState.Preview>(camera(prototype)).torchButton
+
+    private fun frameLock(prototype: Prototype): Rect? = assertIs<CameraState.Preview>(camera(prototype)).frameLock
 
     private fun trip(prototype: Prototype): List<TripItemState> =
         assertIs<CameraState.Preview>(camera(prototype)).trip
@@ -420,7 +546,12 @@ class ScanStateFactoryTest {
 
     private companion object {
         const val BARCODE = "590"
+        val LOCK = Rect(0.2f, 0.35f, 0.8f, 0.65f)
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
+        val AIM_HINT = UiText.Res(R.string.scan_aim_hint)
+        val SEARCHING_HINT = UiText.Res(R.string.scan_searching_hint)
+        val TORCH_OFF = TorchButtonState(isActive = false, contentDescription = UiText.Res(R.string.scan_torch_on))
+        val TORCH_ON = TorchButtonState(isActive = true, contentDescription = UiText.Res(R.string.scan_torch_off))
 
         val product = Product(
             name = "Nutella",

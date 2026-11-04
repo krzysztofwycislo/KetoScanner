@@ -195,9 +195,9 @@ class DietPreferencesStateFactoryTest {
     }
 
     @Test
-    fun `saving flag is passed through`() {
-        assertTrue(form(loaded(DietPreferences(40)).copy(isSaving = true)).isSaving)
-        assertFalse(form(loaded(DietPreferences(40))).isSaving)
+    fun `when saving then save is disabled otherwise enabled`() {
+        assertFalse(form(loaded(DietPreferences(40)).copy(isSaving = true)).isSaveEnabled)
+        assertTrue(form(loaded(DietPreferences(40))).isSaveEnabled)
     }
 
     private fun loaded(preferences: DietPreferences) = Prototype(

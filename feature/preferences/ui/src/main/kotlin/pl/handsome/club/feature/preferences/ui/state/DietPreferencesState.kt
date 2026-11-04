@@ -19,7 +19,7 @@ internal sealed interface DietPreferencesContentState {
         val options: PersistentList<DietProfileOptionState>,
         val custom: CustomProfileState?,
         val ratingGuide: RatingGuideState?,
-        val isSaving: Boolean,
+        val isSaveEnabled: Boolean,
     ) : DietPreferencesContentState
 }
 

@@ -23,6 +23,14 @@ internal class ScanResources {
 
     fun openSettings(): UiText = UiText.Res(R.string.scan_camera_permission_open_settings)
 
+    fun aimHint(): UiText = UiText.Res(R.string.scan_aim_hint)
+
+    fun searchingHint(): UiText = UiText.Res(R.string.scan_searching_hint)
+
+    fun torchOn(): UiText = UiText.Res(R.string.scan_torch_on)
+
+    fun torchOff(): UiText = UiText.Res(R.string.scan_torch_off)
+
     fun searchFailed(error: AppError): UiText = error.toUiText()
 
     fun notFoundMessage(barcode: String): UiText = UiText.Res(R.string.scan_not_found_message, UiArg.Text(barcode))

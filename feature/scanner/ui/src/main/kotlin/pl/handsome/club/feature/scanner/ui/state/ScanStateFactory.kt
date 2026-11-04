@@ -4,6 +4,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.component.ScanFrameMode
 import pl.handsome.club.core.designsystem.icon.icon
 import pl.handsome.club.feature.analysis.api.model.DietRate
 import pl.handsome.club.feature.analysis.api.model.ProductAnalysis
@@ -17,19 +18,34 @@ internal class ScanStateFactory(private val resources: ScanResources) {
 
     fun createFor(prototype: Prototype): ScanState = ScanState(
         query = prototype.query,
-        showProgress = prototype.isSearching || (prototype.foundBarcode != null && prototype.foundAnalysis == null),
+        isLookUpEnabled = !prototype.showProgress,
         camera = prototype.camera(),
         found = prototype.foundAnalysis?.toFoundCard(),
-        notFound = prototype.notFoundBarcode?.let { NotFoundCardState(resources.notFoundMessage(it)) },
+        notFound = prototype.notFoundBarcode?.let {
+            NotFoundCardState(
+                message = resources.notFoundMessage(it),
+                showTypeIt = prototype.cameraPermission == CameraPermission.Granted,
+            )
+        },
     )
 
+    private val Prototype.showProgress: Boolean
+        get() = isSearching || (foundBarcode != null && foundAnalysis == null)
+
     private fun Prototype.camera(): CameraState = when (cameraPermission) {
-        CameraPermission.Granted -> CameraState.Preview(
-            isPaused = isScanBlocked,
-            torch = torch(),
-            isTypeSheetOpen = isTypeSheetOpen,
-            trip = trip(),
-        )
+        CameraPermission.Granted -> {
+            val frame = frame()
+            CameraState.Preview(
+                isPaused = isScanBlocked,
+                isTorchOn = hasTorch && isTorchOn,
+                torchButton = torchButton(),
+                isTypeSheetOpen = isTypeSheetOpen,
+                trip = trip(),
+                frame = frame,
+                frameLock = scanLock.takeIf { frame.usesLock },
+                hint = if (showProgress) resources.searchingHint() else resources.aimHint(),
+            )
+        }
 
         CameraPermission.Rationale -> CameraState.PermissionPanel(
             title = resources.rationaleTitle(),
@@ -46,10 +62,26 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         CameraPermission.Unchecked, CameraPermission.Requesting -> CameraState.Hidden
     }
 
-    private fun Prototype.torch(): Torch = when {
-        !hasTorch -> Torch.Unavailable
-        isTorchOn -> Torch.On
-        else -> Torch.Off
+    private fun Prototype.frame(): ScanFrameMode = when {
+        foundAnalysis != null -> ScanFrameMode.Found
+        notFoundBarcode != null -> ScanFrameMode.NotFound
+        showProgress -> ScanFrameMode.Searching
+        isScanBlocked -> ScanFrameMode.Idle
+        else -> ScanFrameMode.Aiming
+    }
+
+    private val ScanFrameMode.usesLock: Boolean
+        get() = when (this) {
+            ScanFrameMode.Searching, ScanFrameMode.Found, ScanFrameMode.NotFound -> true
+            ScanFrameMode.Aiming, ScanFrameMode.Idle -> false
+        }
+
+    private fun Prototype.torchButton(): TorchButtonState? {
+        if (!hasTorch) return null
+        return TorchButtonState(
+            isActive = isTorchOn,
+            contentDescription = if (isTorchOn) resources.torchOff() else resources.torchOn(),
+        )
     }
 
     private fun ProductAnalysis.toFoundCard(): FoundCardState {

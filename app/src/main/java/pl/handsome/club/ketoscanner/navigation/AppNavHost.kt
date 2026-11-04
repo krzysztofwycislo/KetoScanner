@@ -1,7 +1,6 @@
 package pl.handsome.club.ketoscanner.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,6 +10,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import pl.handsome.club.core.designsystem.theme.AppMotion
+import pl.handsome.club.core.designsystem.theme.AppTheme
 import pl.handsome.club.feature.about.ui.AboutRoute
 import pl.handsome.club.feature.about.ui.aboutDestination
 import pl.handsome.club.feature.about.ui.event.AboutEvent.AboutNavigation
@@ -34,43 +35,42 @@ import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.handsome.club.feature.scanner.ui.scanDestination
 import kotlin.reflect.KClass
 
-private const val TRANSITION_DURATION_MILLIS = 200
-
 private val pushedRoutes: List<KClass<*>> =
     listOf(ProductRoute::class, DietPreferencesRoute::class, AboutRoute::class, HistoryRoute::class)
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
+    val motion = AppTheme.motion
     NavHost(
         navController = navController,
         startDestination = HomeRoute,
         modifier = modifier,
         enterTransition = {
             if (targetState.isPushed()) {
-                slideIntoContainer(SlideDirection.Start, transitionSpec())
+                slideIntoContainer(SlideDirection.Start, motion.transitionSpec())
             } else {
-                fadeIn(transitionSpec())
+                fadeIn(motion.transitionSpec())
             }
         },
         exitTransition = {
             if (targetState.isPushed()) {
-                slideOutOfContainer(SlideDirection.Start, transitionSpec())
+                slideOutOfContainer(SlideDirection.Start, motion.transitionSpec())
             } else {
-                fadeOut(transitionSpec())
+                fadeOut(motion.transitionSpec())
             }
         },
         popEnterTransition = {
             if (initialState.isPushed()) {
-                slideIntoContainer(SlideDirection.End, transitionSpec())
+                slideIntoContainer(SlideDirection.End, motion.transitionSpec())
             } else {
-                fadeIn(transitionSpec())
+                fadeIn(motion.transitionSpec())
             }
         },
         popExitTransition = {
             if (initialState.isPushed()) {
-                slideOutOfContainer(SlideDirection.End, transitionSpec())
+                slideOutOfContainer(SlideDirection.End, motion.transitionSpec())
             } else {
-                fadeOut(transitionSpec())
+                fadeOut(motion.transitionSpec())
             }
         },
     ) {
@@ -81,7 +81,7 @@ internal fun AppNavHost(navController: NavHostController, modifier: Modifier = M
                     HomeNavigation.NavigateToDietPreferences -> navigate(DietPreferencesRoute)
                     HomeNavigation.NavigateToAbout -> navigate(AboutRoute)
                     HomeNavigation.NavigateToHistory -> navigate(HistoryRoute)
-                    HomeNavigation.NavigateToScan -> navigateToTab(TopLevelTab.SCAN)
+                    HomeNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
                 }
             }
         }
@@ -131,7 +131,7 @@ internal fun AppNavHost(navController: NavHostController, modifier: Modifier = M
     }
 }
 
-private fun <T> transitionSpec() = tween<T>(TRANSITION_DURATION_MILLIS, easing = LinearOutSlowInEasing)
+private fun <T> AppMotion.transitionSpec() = tween<T>(durationMedium, easing = easingStandard)
 
 private fun NavBackStackEntry.isPushed(): Boolean = pushedRoutes.any { destination.hasRoute(it) }
 

@@ -17,7 +17,9 @@ import pl.handsome.club.feature.preferences.api.model.DietMode
 import pl.handsome.club.feature.preferences.api.model.DietPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 import pl.handsome.club.feature.home.ui.state.HomeStatePrototype as Prototype
 
@@ -57,6 +59,26 @@ class HomeStateFactoryTest {
 
         assertEquals(listOf(3L, 1L, 2L), recent.items.map { it.id })
         assertEquals(listOf("barcode-3", "barcode-1", "barcode-2"), recent.items.map { it.barcode })
+    }
+
+    @Test
+    fun `when recent has items then see all is shown`() {
+        assertTrue(factory.createFor(prototype(listOf(entry(1)))).showSeeAll)
+    }
+
+    @Test
+    fun `when recent is initial load then see all is hidden`() {
+        assertFalse(factory.createFor(Prototype.Default).showSeeAll)
+    }
+
+    @Test
+    fun `when recent is empty then see all is hidden`() {
+        assertFalse(factory.createFor(Prototype(entries = emptyList())).showSeeAll)
+    }
+
+    @Test
+    fun `when recent is error then see all is hidden even with entries`() {
+        assertFalse(factory.createFor(Prototype(entries = listOf(entry(1)), loadError = AppError.Storage)).showSeeAll)
     }
 
     @Test

@@ -10,6 +10,7 @@ import pl.handsome.club.core.designsystem.text.UiText
 internal data class HomeState(
     val profileLabel: UiText,
     val recent: HomeRecentState,
+    val showSeeAll: Boolean,
 )
 
 @Immutable

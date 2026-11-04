@@ -49,6 +49,7 @@ internal data class FavouriteButtonState(
     val isFavourite: Boolean,
     val description: UiText,
     val isEnabled: Boolean,
+    val icon: AppIcon,
 ) {
     companion object
 }

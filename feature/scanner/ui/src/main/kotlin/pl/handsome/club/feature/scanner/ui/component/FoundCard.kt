@@ -1,0 +1,160 @@
+package pl.handsome.club.feature.scanner.ui.component
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import pl.handsome.club.core.designsystem.component.CardOverlay
+import pl.handsome.club.core.designsystem.component.IconTile
+import pl.handsome.club.core.designsystem.component.PrimaryButton
+import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.component.ScanFrameMode
+import pl.handsome.club.core.designsystem.component.SecondaryButton
+import pl.handsome.club.core.designsystem.component.Ui
+import pl.handsome.club.core.designsystem.component.VerdictBanner
+import pl.handsome.club.core.designsystem.icon.AppIcons
+import pl.handsome.club.core.designsystem.icon.imageVector
+import pl.handsome.club.core.designsystem.text.UiText
+import pl.handsome.club.core.designsystem.text.resolve
+import pl.handsome.club.core.designsystem.theme.AppTheme
+import pl.handsome.club.feature.scanner.ui.R
+import pl.handsome.club.feature.scanner.ui.ScanScreenPreview
+import pl.handsome.club.feature.scanner.ui.event.ScanAction
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnDetailsClicked
+import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnScanNextClicked
+import pl.handsome.club.feature.scanner.ui.state.FoundCardState
+
+@Composable
+internal fun BoxScope.FoundOverlay(
+    found: FoundCardState?,
+    innerPadding: PaddingValues,
+    onAction: (ScanAction) -> Unit,
+) {
+    BackHandler(enabled = found != null) { onAction(OnScanNextClicked) }
+    Ui.CardOverlay(
+        value = found,
+        onDismiss = { onAction(OnScanNextClicked) },
+        contentPadding = innerPadding,
+        modifier = Modifier.matchParentSize(),
+    ) {
+        FoundCard(it, onAction)
+    }
+}
+
+@Composable
+private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
+    val title = found.title.resolve()
+    Column(
+        modifier = Modifier
+            .widthIn(max = AppTheme.sizes.overlayCardMaxWidth)
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .semantics { paneTitle = title }
+            .padding(AppTheme.spacing.m)
+            .background(AppTheme.colors.background.surface, AppTheme.shapes.extraLarge)
+            .pointerInput(Unit) {}
+            .padding(AppTheme.spacing.l)
+            .testTag("scanFoundCard"),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Ui.IconTile(found.icon.imageVector)
+            Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
+                Text(
+                    text = found.name.resolve(),
+                    style = AppTheme.typography.section,
+                    color = AppTheme.colors.text.default,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                found.brand?.let {
+                    Text(
+                        text = it.resolve(),
+                        style = AppTheme.typography.body,
+                        color = AppTheme.colors.text.muted,
+                    )
+                }
+            }
+        }
+        Ui.VerdictBanner(rating = found.rating, title = found.title, details = listOf(found.detail))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+            Ui.SecondaryButton(
+                text = stringResource(R.string.scan_next),
+                onClick = { onAction(OnScanNextClicked) },
+                modifier = Modifier.weight(1f),
+            )
+            Ui.PrimaryButton(
+                text = stringResource(R.string.scan_details),
+                onClick = { onAction(OnDetailsClicked) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ScanFoundRatedPreview() {
+    ScanScreenPreview(previewState(isPaused = true, frame = ScanFrameMode.Found, found = previewFound))
+}
+
+@Preview
+@Composable
+private fun ScanFoundLockedPreview() {
+    ScanScreenPreview(
+        previewState(
+            isPaused = true,
+            frame = ScanFrameMode.Found,
+            frameLock = Rect(0.2f, 0.35f, 0.8f, 0.65f),
+            found = previewFound,
+        ),
+    )
+}
+
+@Preview
+@Composable
+private fun ScanFoundInsufficientDataPreview() {
+    ScanScreenPreview(
+        previewState(
+            isPaused = true,
+            frame = ScanFrameMode.Found,
+            found = FoundCardState(
+                name = UiText.Res(R.string.scan_found_unnamed),
+                icon = AppIcons.Bag,
+                brand = null,
+                rating = Rating.Unknown,
+                title = UiText.Res(R.string.scan_verdict_insufficient_data),
+                detail = UiText.Res(R.string.scan_found_insufficient_detail),
+            ),
+        )
+    )
+}
+
+@Preview(widthDp = 891, heightDp = 411)
+@Composable
+private fun ScanFoundLandscapePreview() {
+    ScanFoundLockedPreview()
+}

@@ -1,5 +1,6 @@
 package pl.handsome.club.feature.scanner.ui
 
+import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,6 +39,7 @@ import pl.handsome.club.feature.history.api.AnalysisHistoryRepository
 import pl.handsome.club.feature.preferences.api.DietPreferencesRepository
 import pl.handsome.club.feature.product.api.ProductRepository
 import pl.handsome.club.feature.scanner.ui.event.OpenAppSettings
+import pl.handsome.club.feature.scanner.ui.event.PerformHapticFeedback
 import pl.handsome.club.feature.scanner.ui.event.RequestCameraPermission
 import pl.handsome.club.feature.scanner.ui.event.ScanAction
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
@@ -54,6 +56,7 @@ import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.handsome.club.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent
 import pl.handsome.club.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
+import pl.handsome.club.feature.scanner.ui.event.ScanFeedback
 import pl.handsome.club.feature.scanner.ui.state.CameraPermission
 import pl.handsome.club.feature.scanner.ui.state.CameraPermissionCheck
 import pl.handsome.club.feature.scanner.ui.state.ScanState
@@ -110,8 +113,10 @@ internal class ScanViewModel(
             is OnCameraPermissionResult -> onCameraPermissionResult(action.check)
             OnPermissionButtonClicked -> onPermissionButtonClicked()
             is OnQueryChanged -> setQuery(action.query)
-            OnSearchSubmitted -> search(statePrototype.value.query.trim())
-            is OnBarcodeScanned -> if (!statePrototype.value.isScanBlocked) search(action.barcode)
+            OnSearchSubmitted -> search(statePrototype.value.query.trim(), fromCamera = false, lock = null)
+            is OnBarcodeScanned -> {
+                if (!statePrototype.value.isScanBlocked) search(action.barcode, fromCamera = true, lock = action.lock)
+            }
             OnTorchClicked -> toggleTorch()
             OnTypeItClicked -> openTypeSheet()
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
@@ -238,7 +243,7 @@ internal class ScanViewModel(
         statePrototype.value.notFoundBarcode?.let { barcode ->
             setQuery(barcode)
             setNotFoundBarcode(null)
-            statePrototype.update { it.copy(isScanPaused = false) }
+            statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
         }
         setTypeSheetOpen(true)
     }
@@ -256,14 +261,15 @@ internal class ScanViewModel(
     private fun scanNext() {
         setFoundBarcode(null)
         setNotFoundBarcode(null)
-        statePrototype.update { it.copy(isScanPaused = false) }
+        statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
     }
 
-    private fun search(barcode: String) {
+    private fun search(barcode: String, fromCamera: Boolean, lock: Rect?) {
         val prototype = statePrototype.value
         if (barcode.isBlank() || progress.inProgress.value) return
         if (prototype.foundBarcode != null || prototype.notFoundBarcode != null) return
-        statePrototype.update { it.copy(isScanPaused = true) }
+        statePrototype.update { it.copy(isScanPaused = true, scanLock = lock) }
+        if (fromCamera) screenEvents send PerformHapticFeedback(ScanFeedback.Detected)
         appEvents send HideKeyboard
 
         viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -281,6 +287,7 @@ internal class ScanViewModel(
         val analysis = statePrototype
             .first { it.foundBarcode == null || it.foundAnalysis != null }
             .foundAnalysis ?: return
+        screenEvents send PerformHapticFeedback(ScanFeedback.Found)
         applicationScope.launch {
             history.save(analysis).onFailure { error ->
                 logger.error(TAG, "Saving history entry failed: $error", (error as? AppError.Unknown)?.cause)
@@ -293,6 +300,7 @@ internal class ScanViewModel(
         if (error == AppError.NotFound) {
             setTypeSheetOpen(false)
             setNotFoundBarcode(barcode)
+            screenEvents send PerformHapticFeedback(ScanFeedback.NotFound)
         } else {
             showFailureAndResume(error)
         }
@@ -301,7 +309,7 @@ internal class ScanViewModel(
     private suspend fun showFailureAndResume(error: AppError) {
         appEvents send ShowMessage(resources.searchFailed(error), MessageTone.Error)
         delay(SCAN_RESUME_DELAY)
-        statePrototype.update { it.copy(isScanPaused = false) }
+        statePrototype.update { it.copy(isScanPaused = false, scanLock = null) }
     }
 
     private fun reportOrLog(message: String, error: AppError) {

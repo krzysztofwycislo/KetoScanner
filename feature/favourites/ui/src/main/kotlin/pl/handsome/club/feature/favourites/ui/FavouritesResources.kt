@@ -35,6 +35,9 @@ internal class FavouritesResources {
     fun groupCount(count: Int): UiText =
         UiText.Res(R.string.favourites_group_count, UiArg.Numeric.Count(count.toLong()))
 
+    fun groupToggleState(expanded: Boolean): UiText =
+        UiText.Res(if (expanded) R.string.favourites_group_expanded else R.string.favourites_group_collapsed)
+
     private fun verdict(rate: DietRate?, mode: DietMode): UiText = when (rate) {
         DietRate.GOOD -> when (mode) {
             DietMode.KETO -> UiText.Res(R.string.favourites_verdict_good_keto)

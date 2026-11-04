@@ -213,6 +213,24 @@ class FavouritesStateFactoryTest {
     }
 
     @Test
+    fun `when a group is expanded or collapsed then its toggle state says so`() {
+        val state = factory.createFor(
+            Prototype(
+                favourites = listOf(
+                    favourite("1", category = ProductCategory.CHEESE),
+                    favourite("2", category = ProductCategory.MEAT),
+                ),
+                collapsed = setOf(ProductCategory.MEAT),
+            ),
+        )
+
+        assertEquals(
+            listOf(UiText.Res(R.string.favourites_group_expanded), UiText.Res(R.string.favourites_group_collapsed)),
+            groups(state).map { it.toggleState },
+        )
+    }
+
+    @Test
     fun `when favourite name is blank then name is unnamed product`() {
         val item = singleItem(favourite("1", name = " "))
 

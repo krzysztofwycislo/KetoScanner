@@ -37,11 +37,13 @@ import pl.handsome.club.core.designsystem.event.ObserveEvents
 import pl.handsome.club.core.designsystem.text.rememberUiTextResolver
 import pl.handsome.club.core.designsystem.theme.AppTheme
 import pl.handsome.club.ketoscanner.navigation.AppNavHost
-import pl.handsome.club.ketoscanner.navigation.TopLevelTab
+import pl.handsome.club.ketoscanner.navigation.BottomNavSection
 import pl.handsome.club.ketoscanner.navigation.navigateToTab
-import pl.handsome.club.ketoscanner.navigation.topLevelTab
+import pl.handsome.club.ketoscanner.navigation.toBottomNavSection
 import pl.handsome.club.ketoscanner.ui.AppAction.OnDestinationChanged
 import pl.handsome.club.ketoscanner.ui.AppAction.OnTabClicked
+import pl.handsome.club.ketoscanner.ui.AppNavigation.NavigateToTab
+import pl.handsome.club.ketoscanner.ui.AppNavigation.PopToTabRoot
 
 @Composable
 internal fun KetoScannerApp() {
@@ -72,9 +74,17 @@ internal fun KetoScannerApp() {
         }
     }
 
+    ObserveEvents(viewModel.navigationEvents) { navigation ->
+        when (navigation) {
+            is NavigateToTab -> navController.navigateToTab(navigation.tab)
+            is PopToTabRoot -> navController.popBackStack(navigation.tab.route, inclusive = false)
+        }
+    }
+
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val currentEntry by navController.currentBackStackEntryAsState()
-    val currentTab = currentEntry?.destination?.topLevelTab()
+    val currentTab = currentEntry?.destination?.toBottomNavSection()
+
     LaunchedEffect(currentEntry?.destination?.id) { hideKeyboard() }
     LaunchedEffect(currentTab) { viewModel.onAction(OnDestinationChanged(currentTab)) }
 
@@ -88,12 +98,7 @@ internal fun KetoScannerApp() {
         bottomBar = {
             AppBottomBar(
                 selectedTab = selectedTab,
-                onTabClick = { tab ->
-                    val reselected = tab == selectedTab
-                    viewModel.onAction(OnTabClicked(tab))
-                    if (reselected) navController.popBackStack(tab.route, inclusive = false)
-                    else navController.navigateToTab(tab)
-                },
+                onAction = viewModel::onAction,
             )
         },
     ) { innerPadding ->
@@ -109,14 +114,14 @@ internal fun KetoScannerApp() {
 }
 
 @Composable
-private fun AppBottomBar(selectedTab: TopLevelTab, onTabClick: (TopLevelTab) -> Unit) {
-    val items = TopLevelTab.entries
+private fun AppBottomBar(selectedTab: BottomNavSection, onAction: (AppAction) -> Unit) {
+    val items = BottomNavSection.entries
         .map { BottomBarItem(stringResource(it.label), it.icon, it.selectedIcon, it.isProminent) }
         .toImmutableList()
 
     Ui.BottomBar(
         items = items,
         selectedIndex = selectedTab.ordinal,
-        onItemClick = { index -> onTabClick(TopLevelTab.entries[index]) },
+        onItemClick = { index -> onAction(OnTabClicked(BottomNavSection.entries[index])) },
     )
 }

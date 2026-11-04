@@ -231,12 +231,12 @@ class DietPreferencesViewModelTest {
         viewModel.onAction(DietPreferencesAction.OnSaveClicked)
 
         assertEquals(listOf(DietPreferences(40, DietMode.KETO)), preferences.saved)
-        assertTrue(form(viewModel).isSaving)
+        assertFalse(form(viewModel).isSaveEnabled)
 
         gate.complete(Unit)
         testScheduler.runCurrent()
 
-        assertFalse(form(viewModel).isSaving)
+        assertTrue(form(viewModel).isSaveEnabled)
         assertEquals(
             listOf(
                 AppEvent.HideKeyboard,

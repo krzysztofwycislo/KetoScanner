@@ -257,17 +257,40 @@ class ProductStateFactoryTest {
         val analysis = rated(DietRate.GOOD)
 
         assertEquals(
-            FavouriteButtonState(true, UiText.Res(R.string.product_remove_from_favourites), isEnabled = true),
+            FavouriteButtonState(
+                isFavourite = true,
+                description = UiText.Res(R.string.product_remove_from_favourites),
+                isEnabled = true,
+                icon = AppIcons.HeartFilled,
+            ),
             show(Prototype(analysis = analysis, isFavourite = true)).favourite,
         )
         assertEquals(
-            FavouriteButtonState(false, UiText.Res(R.string.product_add_to_favourites), isEnabled = true),
+            FavouriteButtonState(
+                isFavourite = false,
+                description = UiText.Res(R.string.product_add_to_favourites),
+                isEnabled = true,
+                icon = AppIcons.Heart,
+            ),
             show(Prototype(analysis = analysis, isFavourite = false)).favourite,
         )
         assertEquals(
-            FavouriteButtonState(false, UiText.Res(R.string.product_add_to_favourites), isEnabled = false),
+            FavouriteButtonState(
+                isFavourite = false,
+                description = UiText.Res(R.string.product_add_to_favourites),
+                isEnabled = false,
+                icon = AppIcons.Heart,
+            ),
             show(Prototype(analysis = analysis, isFavourite = false, isFavouriteUpdating = true)).favourite,
         )
+    }
+
+    @Test
+    fun `when the product is a favourite then the button shows a filled heart otherwise an outlined one`() {
+        val analysis = rated(DietRate.GOOD)
+
+        assertEquals(AppIcons.HeartFilled, show(Prototype(analysis = analysis, isFavourite = true)).favourite?.icon)
+        assertEquals(AppIcons.Heart, show(Prototype(analysis = analysis, isFavourite = false)).favourite?.icon)
     }
 
     @Test

@@ -12,7 +12,7 @@ import pl.handsome.club.feature.home.ui.HomeRoute
 import pl.handsome.club.feature.scanner.ui.ScanRoute
 import pl.handsome.club.ketoscanner.R
 
-internal enum class TopLevelTab(
+internal enum class BottomNavSection(
     val route: Any,
     @StringRes val label: Int,
     val icon: AppIcon,
@@ -24,10 +24,10 @@ internal enum class TopLevelTab(
     FAVOURITES(FavouritesRoute, R.string.bottom_navigation_favourites, AppIcons.Heart, AppIcons.HeartFilled),
 }
 
-internal fun NavDestination.topLevelTab(): TopLevelTab? =
-    TopLevelTab.entries.firstOrNull { hasRoute(it.route::class) }
+internal fun NavDestination.toBottomNavSection(): BottomNavSection? =
+    BottomNavSection.entries.firstOrNull { hasRoute(it.route::class) }
 
-internal fun NavHostController.navigateToTab(tab: TopLevelTab) {
+internal fun NavHostController.navigateToTab(tab: BottomNavSection) {
     navigate(tab.route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true

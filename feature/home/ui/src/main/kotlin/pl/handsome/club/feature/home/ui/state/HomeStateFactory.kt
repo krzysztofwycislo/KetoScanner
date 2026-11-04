@@ -22,10 +22,14 @@ import pl.handsome.club.feature.home.ui.state.HomeStatePrototype as Prototype
 
 internal class HomeStateFactory(private val resources: HomeResources) {
 
-    fun createFor(prototype: Prototype): HomeState = HomeState(
-        profileLabel = resources.profileLabel(prototype.dietPreferences),
-        recent = prototype.recent(),
-    )
+    fun createFor(prototype: Prototype): HomeState {
+        val recent = prototype.recent()
+        return HomeState(
+            profileLabel = resources.profileLabel(prototype.dietPreferences),
+            recent = recent,
+            showSeeAll = recent is ShowItems,
+        )
+    }
 
     private fun Prototype.recent(): HomeRecentState {
         val entries = entries

@@ -10,3 +10,7 @@ sealed interface ScanEvent {
 internal data object RequestCameraPermission : ScanEvent
 
 internal data object OpenAppSettings : ScanEvent
+
+internal data class PerformHapticFeedback(val feedback: ScanFeedback) : ScanEvent
+
+internal enum class ScanFeedback { Detected, Found, NotFound }

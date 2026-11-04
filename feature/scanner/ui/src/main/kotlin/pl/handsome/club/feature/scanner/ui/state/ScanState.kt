@@ -1,15 +1,17 @@
 package pl.handsome.club.feature.scanner.ui.state
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Rect
 import kotlinx.collections.immutable.ImmutableList
 import pl.handsome.club.core.designsystem.component.Rating
+import pl.handsome.club.core.designsystem.component.ScanFrameMode
 import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.text.UiText
 
 @Immutable
 internal data class ScanState(
     val query: String,
-    val showProgress: Boolean,
+    val isLookUpEnabled: Boolean,
     val camera: CameraState,
     val found: FoundCardState?,
     val notFound: NotFoundCardState?,
@@ -20,9 +22,13 @@ internal sealed interface CameraState {
     data object Hidden : CameraState
     data class Preview(
         val isPaused: Boolean,
-        val torch: Torch,
+        val isTorchOn: Boolean,
+        val torchButton: TorchButtonState?,
         val isTypeSheetOpen: Boolean,
         val trip: ImmutableList<TripItemState>,
+        val frame: ScanFrameMode,
+        val frameLock: Rect?,
+        val hint: UiText,
     ) : CameraState
     data class PermissionPanel(val title: UiText, val message: UiText, val buttonLabel: UiText) : CameraState
 }
@@ -38,7 +44,7 @@ internal data class FoundCardState(
 )
 
 @Immutable
-internal data class NotFoundCardState(val message: UiText)
+internal data class NotFoundCardState(val message: UiText, val showTypeIt: Boolean)
 
 @Immutable
 internal data class TripItemState(
@@ -50,4 +56,5 @@ internal data class TripItemState(
     val description: UiText,
 )
 
-internal enum class Torch { Unavailable, Off, On }
+@Immutable
+internal data class TorchButtonState(val isActive: Boolean, val contentDescription: UiText)

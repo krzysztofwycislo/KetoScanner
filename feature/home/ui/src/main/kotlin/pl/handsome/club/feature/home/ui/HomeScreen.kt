@@ -111,7 +111,7 @@ private fun ScreenContent(state: HomeState, onAction: (HomeAction) -> Unit) {
                 )
             }
             item(key = KEY_RECENT_TITLE) {
-                RecentTitle(showSeeAll = state.recent is ShowItems, onAction = onAction)
+                RecentTitle(showSeeAll = state.showSeeAll, onAction = onAction)
             }
             recentContent(state.recent, onAction)
         }
@@ -331,7 +331,7 @@ private fun HomeShowItemsPreview() {
         HomeItemState.example(4, "Mystery bar", AppIcons.Bag, Rating.Unknown, null),
     )
     AppTheme {
-        ScreenContent(HomeState(previewProfile, ShowItems(items))) {}
+        ScreenContent(HomeState(previewProfile, ShowItems(items), showSeeAll = true)) {}
     }
 }
 
@@ -339,7 +339,7 @@ private fun HomeShowItemsPreview() {
 @Composable
 private fun HomeInitialLoadPreview() {
     AppTheme {
-        ScreenContent(HomeState(UiText.Res(R.string.home_profile_default), InitialLoad)) {}
+        ScreenContent(HomeState(UiText.Res(R.string.home_profile_default), InitialLoad, showSeeAll = false)) {}
     }
 }
 
@@ -347,7 +347,7 @@ private fun HomeInitialLoadPreview() {
 @Composable
 private fun HomeEmptyPreview() {
     AppTheme {
-        ScreenContent(HomeState(previewProfile, Empty)) {}
+        ScreenContent(HomeState(previewProfile, Empty, showSeeAll = false)) {}
     }
 }
 
@@ -355,6 +355,6 @@ private fun HomeEmptyPreview() {
 @Composable
 private fun HomeErrorPreview() {
     AppTheme {
-        ScreenContent(HomeState(previewProfile, Error(AppError.Storage.toUiText()))) {}
+        ScreenContent(HomeState(previewProfile, Error(AppError.Storage.toUiText()), showSeeAll = false)) {}
     }
 }

@@ -29,6 +29,7 @@ private val LocalAppSpacing = staticCompositionLocalOf { DefaultAppSpacing }
 private val LocalAppSizes = staticCompositionLocalOf { DefaultAppSizes }
 private val LocalAppShapes = staticCompositionLocalOf { DefaultAppShapes }
 private val LocalAppBorders = staticCompositionLocalOf { DefaultAppBorders }
+private val LocalAppMotion = staticCompositionLocalOf { DefaultAppMotion }
 
 object AppTheme {
 
@@ -49,6 +50,9 @@ object AppTheme {
 
     val borders: AppBorders
         @Composable @ReadOnlyComposable get() = LocalAppBorders.current
+
+    val motion: AppMotion
+        @Composable @ReadOnlyComposable get() = LocalAppMotion.current
 }
 
 @Composable
@@ -62,6 +66,7 @@ fun AppTheme(content: @Composable () -> Unit) {
         LocalAppSizes provides DefaultAppSizes,
         LocalAppShapes provides DefaultAppShapes,
         LocalAppBorders provides DefaultAppBorders,
+        LocalAppMotion provides DefaultAppMotion,
     ) {
         MaterialTheme(
             colorScheme = colors.toMaterialColorScheme(),

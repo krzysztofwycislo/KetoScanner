@@ -33,7 +33,7 @@ internal class DietPreferencesStateFactory(
                 options = options(option),
                 custom = if (option == DietProfileOption.CUSTOM) custom() else null,
                 ratingGuide = chosenPreferences()?.let(::ratingGuide),
-                isSaving = isSaving,
+                isSaveEnabled = !isSaving,
             )
         }
     }

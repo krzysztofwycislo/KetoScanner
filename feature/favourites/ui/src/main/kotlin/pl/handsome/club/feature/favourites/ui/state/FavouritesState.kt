@@ -31,6 +31,7 @@ internal data class FavouriteGroupState(
     val count: UiText,
     val expanded: Boolean,
     val canToggle: Boolean,
+    val toggleState: UiText,
     val items: PersistentList<FavouriteItemState>,
 )
 

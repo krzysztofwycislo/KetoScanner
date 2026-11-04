@@ -51,13 +51,15 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
         return ProductCategory.entries
             .mapNotNull { category ->
                 byCategory[category]?.let { products ->
+                    val expanded = !canToggle || category !in collapsed
                     FavouriteGroupState(
                         category = category,
                         icon = category.icon,
                         label = category.label,
                         count = resources.groupCount(products.size),
-                        expanded = !canToggle || category !in collapsed,
+                        expanded = expanded,
                         canToggle = canToggle,
+                        toggleState = resources.groupToggleState(expanded),
                         items = products.map { it.toItemState(mode) }.toPersistentList(),
                     )
                 }
