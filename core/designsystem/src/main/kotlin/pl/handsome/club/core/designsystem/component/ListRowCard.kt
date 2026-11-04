@@ -36,7 +36,7 @@ fun Ui.ListRowCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = AppTheme.sizes.rowMinHeight)
+            .defaultMinSize(minHeight = AppTheme.sizes.control.l)
             .clip(shape)
             .background(AppTheme.colors.background.surface)
             .border(AppTheme.borders.hairline, AppTheme.colors.border.default, shape)

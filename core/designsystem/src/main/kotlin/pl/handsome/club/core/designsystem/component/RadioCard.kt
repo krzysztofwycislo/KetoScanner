@@ -47,7 +47,7 @@ fun Ui.RadioCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = AppTheme.sizes.radioCardMinHeight)
+            .defaultMinSize(minHeight = AppTheme.sizes.control.xl)
             .clip(shape)
             .background(AppTheme.colors.background.surface)
             .border(border, borderColor, shape)
@@ -88,14 +88,14 @@ private fun RadioDot(selected: Boolean) {
     }
     Box(
         modifier = Modifier
-            .size(AppTheme.sizes.radioDot)
+            .size(AppTheme.sizes.icon.m)
             .border(AppTheme.borders.selected, ringColor, AppTheme.shapes.circle),
         contentAlignment = Alignment.Center,
     ) {
         if (selected) {
             Box(
                 modifier = Modifier
-                    .size(AppTheme.sizes.radioDotInner)
+                    .size(AppTheme.sizes.icon.m / 2)
                     .background(AppTheme.colors.accent, AppTheme.shapes.circle),
             )
         }

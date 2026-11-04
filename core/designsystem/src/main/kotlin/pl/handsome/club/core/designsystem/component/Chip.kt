@@ -30,7 +30,7 @@ fun Ui.Chip(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.height(AppTheme.sizes.button),
+        modifier = modifier.height(AppTheme.sizes.control.s),
         shape = AppTheme.shapes.pill,
         color = AppTheme.colors.background.surface,
         contentColor = AppTheme.colors.text.default,
@@ -44,7 +44,7 @@ fun Ui.Chip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(AppTheme.sizes.chipIcon),
+                modifier = Modifier.size(AppTheme.sizes.icon.s),
             )
             Text(
                 text = text,

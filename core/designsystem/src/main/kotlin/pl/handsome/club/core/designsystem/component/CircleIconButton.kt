@@ -30,7 +30,7 @@ fun Ui.CircleIconButton(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.size(AppTheme.sizes.touchTarget),
+        modifier = modifier.size(AppTheme.sizes.control.m),
         enabled = enabled,
         shape = AppTheme.shapes.circle,
         color = AppTheme.colors.background.surface,
@@ -41,7 +41,7 @@ fun Ui.CircleIconButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription.resolve(),
-                modifier = Modifier.size(AppTheme.sizes.iconS),
+                modifier = Modifier.size(AppTheme.sizes.icon.m),
             )
         }
     }

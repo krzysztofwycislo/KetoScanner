@@ -191,7 +191,7 @@ private fun SwatchRow(colors: List<Color>) {
 private fun ColorSwatch(color: Color) {
     Box(
         modifier = Modifier
-            .size(AppTheme.sizes.iconS)
+            .size(AppTheme.sizes.icon.m)
             .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.small)
             .background(color, AppTheme.shapes.small),
     )

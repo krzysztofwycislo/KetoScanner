@@ -40,7 +40,7 @@ fun Ui.VerdictPill(
     Row(
         modifier = modifier
             .then(semantics)
-            .defaultMinSize(minHeight = AppTheme.sizes.pillMinHeight)
+            .defaultMinSize(minHeight = AppTheme.sizes.control.xs)
             .background(rating.containerColor(), AppTheme.shapes.pill)
             .padding(horizontal = AppTheme.spacing.s),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
@@ -50,7 +50,7 @@ fun Ui.VerdictPill(
             imageVector = rating.markIcon().imageVector,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(AppTheme.sizes.iconXs),
+            modifier = Modifier.size(AppTheme.sizes.icon.xs),
         )
         Text(
             text = text.resolve(),

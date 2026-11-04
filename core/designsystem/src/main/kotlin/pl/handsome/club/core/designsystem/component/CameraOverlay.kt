@@ -64,6 +64,8 @@ private val SCAN_FRAME_STROKE = 5.dp
 private val SCAN_FRAME_INSET = 3.dp
 private val SCAN_FRAME_RADIUS = 13.dp
 private val SCAN_FRAME_ARM = 37.dp
+private val SCAN_FRAME_WIDTH = 320.dp
+private val SCAN_FRAME_HEIGHT = 240.dp
 
 enum class ScanFrameMode { Aiming, Idle, Searching, Found, NotFound }
 
@@ -74,8 +76,8 @@ private val ScanFrameMode.usesLock: Boolean
 fun Ui.ScanFrame(mode: ScanFrameMode, lock: Rect?, modifier: Modifier = Modifier) {
     val motion = AppTheme.motion
     val density = LocalDensity.current
-    val frameWidth = AppTheme.sizes.scanFrameWidth
-    val frameHeight = AppTheme.sizes.scanFrameHeight
+    val frameWidth = SCAN_FRAME_WIDTH
+    val frameHeight = SCAN_FRAME_HEIGHT
     val lockPadding = AppTheme.spacing.s
     val strokeColor by animateColorAsState(
         targetValue = if (mode == ScanFrameMode.Found) AppTheme.colors.text.highlight else AppTheme.colors.text.inverse,
@@ -201,7 +203,7 @@ private fun AimLine(modifier: Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.spacing.xxl)
-            .height(AppTheme.sizes.aimLine)
+            .height(AppTheme.spacing.xxs)
             .background(AppTheme.colors.text.highlight, AppTheme.shapes.pill),
     )
 }
@@ -210,14 +212,14 @@ private fun AimLine(modifier: Modifier) {
 private fun SearchingDisc() {
     Box(
         modifier = Modifier
-            .size(AppTheme.sizes.messageIcon)
+            .size(AppTheme.sizes.iconDisc)
             .background(AppTheme.colors.camera.hint, AppTheme.shapes.circle),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
             color = AppTheme.colors.text.highlight,
             trackColor = Color.Transparent,
-            modifier = Modifier.size(AppTheme.sizes.iconM),
+            modifier = Modifier.size(AppTheme.sizes.icon.xl),
         )
     }
 }
@@ -227,7 +229,7 @@ private fun FoundDisc() {
     Ui.PopIn {
         Box(
             modifier = Modifier
-                .size(AppTheme.sizes.scanCheck)
+                .size(AppTheme.sizes.control.l)
                 .background(AppTheme.colors.text.highlight, AppTheme.shapes.circle),
             contentAlignment = Alignment.Center,
         ) {
@@ -235,7 +237,7 @@ private fun FoundDisc() {
                 imageVector = AppIcons.Check.imageVector,
                 contentDescription = null,
                 tint = AppTheme.colors.text.default,
-                modifier = Modifier.size(AppTheme.sizes.iconM),
+                modifier = Modifier.size(AppTheme.sizes.icon.xl),
             )
         }
     }
@@ -252,7 +254,7 @@ fun Ui.CameraIconButton(
     val colors = AppTheme.colors
     Box(
         modifier = modifier
-            .size(AppTheme.sizes.touchTarget)
+            .size(AppTheme.sizes.control.m)
             .clip(AppTheme.shapes.circle)
             .background(if (active) colors.camera.controlActive else colors.camera.control)
             .toggleable(value = active, role = Role.Switch, onValueChange = { onClick() }),
@@ -262,7 +264,7 @@ fun Ui.CameraIconButton(
             imageVector = icon,
             contentDescription = contentDescription.resolve(),
             tint = if (active) colors.text.default else colors.text.inverse,
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+            modifier = Modifier.size(AppTheme.sizes.icon.m),
         )
     }
 }
@@ -276,7 +278,7 @@ fun Ui.CameraPillButton(
 ) {
     Row(
         modifier = modifier
-            .height(AppTheme.sizes.touchTarget)
+            .height(AppTheme.sizes.control.m)
             .clip(AppTheme.shapes.pill)
             .background(AppTheme.colors.camera.control)
             .clickable(role = Role.Button, onClick = onClick)
@@ -288,7 +290,7 @@ fun Ui.CameraPillButton(
             imageVector = icon,
             contentDescription = null,
             tint = AppTheme.colors.text.inverse,
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+            modifier = Modifier.size(AppTheme.sizes.icon.m),
         )
         Text(
             text = text,

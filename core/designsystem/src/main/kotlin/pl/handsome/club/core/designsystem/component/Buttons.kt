@@ -25,7 +25,7 @@ fun Ui.PrimaryButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(AppTheme.sizes.control),
+        modifier = modifier.height(AppTheme.sizes.control.m),
         enabled = enabled,
         shape = AppTheme.shapes.control,
         colors = ButtonDefaults.buttonColors(
@@ -46,7 +46,7 @@ fun Ui.SecondaryButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(AppTheme.sizes.control),
+        modifier = modifier.height(AppTheme.sizes.control.m),
         enabled = enabled,
         shape = AppTheme.shapes.control,
         border = BorderStroke(AppTheme.borders.control, AppTheme.colors.border.strong),

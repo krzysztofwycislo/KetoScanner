@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
@@ -43,6 +44,9 @@ private const val HERO_VIEWPORT_WIDTH = 190f
 private const val HERO_VIEWPORT_HEIGHT = 120f
 private const val HERO_ILLUSTRATION_ALPHA = 0.9f
 private const val HERO_BARS_ALPHA = 0.5f
+private val HERO_CARD_HEIGHT = 236.dp
+private val HERO_ILLUSTRATION_WIDTH = 190.dp
+private val HERO_ILLUSTRATION_HEIGHT = 120.dp
 
 @Composable
 fun Ui.HeroCard(
@@ -58,7 +62,7 @@ fun Ui.HeroCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(AppTheme.sizes.heroCard)
+            .height(HERO_CARD_HEIGHT)
             .clip(AppTheme.shapes.extraLarge)
             .background(colors.background.hero)
             .clickable(role = Role.Button, onClick = onClick)
@@ -67,8 +71,8 @@ fun Ui.HeroCard(
         HeroIllustration(
             frameColor = colors.text.highlight,
             barsColor = colors.text.inverse,
-            width = AppTheme.sizes.heroIllustrationWidth,
-            height = AppTheme.sizes.heroIllustrationHeight,
+            width = HERO_ILLUSTRATION_WIDTH,
+            height = HERO_ILLUSTRATION_HEIGHT,
             modifier = Modifier.align(Alignment.TopEnd),
         )
         Column(
@@ -94,7 +98,7 @@ fun Ui.HeroCard(
             }
             Row(
                 modifier = Modifier
-                    .height(AppTheme.sizes.control)
+                    .height(AppTheme.sizes.control.m)
                     .background(colors.text.highlight, AppTheme.shapes.control)
                     .padding(horizontal = AppTheme.spacing.m),
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
@@ -104,7 +108,7 @@ fun Ui.HeroCard(
                     imageVector = actionIcon,
                     contentDescription = null,
                     tint = colors.background.hero,
-                    modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+                    modifier = Modifier.size(AppTheme.sizes.icon.s),
                 )
                 Text(
                     text = actionText,

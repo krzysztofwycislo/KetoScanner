@@ -30,7 +30,7 @@ fun Ui.InfoChip(
     val color = AppTheme.colors.text.subtle
     Row(
         modifier = modifier
-            .defaultMinSize(minHeight = AppTheme.sizes.pillMinHeight)
+            .defaultMinSize(minHeight = AppTheme.sizes.control.xs)
             .background(AppTheme.colors.background.subtle, AppTheme.shapes.pill)
             .padding(start = AppTheme.spacing.xs, end = AppTheme.spacing.s),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
@@ -40,7 +40,7 @@ fun Ui.InfoChip(
             imageVector = icon,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(AppTheme.sizes.chipIcon),
+            modifier = Modifier.size(AppTheme.sizes.icon.s),
         )
         Text(
             text = text,

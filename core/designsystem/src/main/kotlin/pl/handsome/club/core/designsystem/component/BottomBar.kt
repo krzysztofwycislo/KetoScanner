@@ -103,7 +103,7 @@ private fun RegularItem(item: BottomBarItem, selected: Boolean, modifier: Modifi
             imageVector = (if (selected) item.selectedIcon else item.icon).imageVector,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+            modifier = Modifier.size(AppTheme.sizes.icon.m),
         )
         Text(
             text = item.label,
@@ -138,7 +138,7 @@ private fun ProminentItem(
     ) {
         Box(
             modifier = Modifier
-                .size(AppTheme.sizes.scanButton)
+                .size(AppTheme.sizes.control.l)
                 .clip(AppTheme.shapes.circle)
                 .indication(interactionSource, ripple())
                 .background(AppTheme.colors.accent, AppTheme.shapes.circle)
@@ -149,7 +149,7 @@ private fun ProminentItem(
                 imageVector = (if (selected) item.selectedIcon else item.icon).imageVector,
                 contentDescription = null,
                 tint = AppTheme.colors.text.inverse,
-                modifier = Modifier.size(AppTheme.sizes.iconL),
+                modifier = Modifier.size(AppTheme.sizes.icon.l),
             )
         }
         Text(

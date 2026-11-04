@@ -133,7 +133,7 @@ private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(AppTheme.sizes.logoTile)
+                    .size(AppTheme.sizes.icon.l)
                     .background(AppTheme.colors.accent, AppTheme.shapes.small),
                 contentAlignment = Alignment.Center,
             ) {
@@ -141,7 +141,7 @@ private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
                     imageVector = AppIcons.Logo.imageVector,
                     contentDescription = null,
                     tint = AppTheme.colors.text.inverse,
-                    modifier = Modifier.size(AppTheme.sizes.logoIcon),
+                    modifier = Modifier.size(AppTheme.sizes.icon.xs),
                 )
             }
             Text(
@@ -174,7 +174,7 @@ private fun RecentTitle(showSeeAll: Boolean, onAction: (HomeAction) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = AppTheme.sizes.touchTarget),
+            .defaultMinSize(minHeight = AppTheme.sizes.control.m),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -186,7 +186,7 @@ private fun RecentTitle(showSeeAll: Boolean, onAction: (HomeAction) -> Unit) {
         if (showSeeAll) {
             Row(
                 modifier = Modifier
-                    .defaultMinSize(minHeight = AppTheme.sizes.touchTarget)
+                    .defaultMinSize(minHeight = AppTheme.sizes.control.m)
                     .clickable(role = Role.Button) { onAction(OnSeeAllClicked) }
                     .padding(horizontal = AppTheme.spacing.xxs),
                 verticalAlignment = Alignment.CenterVertically,
@@ -200,7 +200,7 @@ private fun RecentTitle(showSeeAll: Boolean, onAction: (HomeAction) -> Unit) {
                     imageVector = AppIcons.ChevronRight.imageVector,
                     contentDescription = null,
                     tint = AppTheme.colors.text.accent,
-                    modifier = Modifier.size(AppTheme.sizes.chipIcon),
+                    modifier = Modifier.size(AppTheme.sizes.icon.s),
                 )
             }
         }
@@ -219,7 +219,7 @@ private fun LazyListScope.recentContent(
                     .padding(AppTheme.spacing.m),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(modifier = Modifier.size(AppTheme.sizes.iconL))
+                CircularProgressIndicator(modifier = Modifier.size(AppTheme.sizes.icon.l))
             }
         }
 

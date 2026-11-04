@@ -79,7 +79,7 @@ private fun GroupHeader(group: FavouriteGroupState, onAction: (FavouritesAction)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = AppTheme.sizes.touchTarget)
+            .heightIn(min = AppTheme.sizes.control.m)
             .then(toggle)
             .padding(horizontal = AppTheme.spacing.xxs)
             .testTag("favouritesGroup_${group.category.name}"),
@@ -90,7 +90,7 @@ private fun GroupHeader(group: FavouriteGroupState, onAction: (FavouritesAction)
             imageVector = group.icon.imageVector,
             contentDescription = null,
             tint = AppTheme.colors.text.subtle,
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+            modifier = Modifier.size(AppTheme.sizes.icon.m),
         )
         Text(
             text = group.label.resolve(),
@@ -112,7 +112,7 @@ private fun GroupHeader(group: FavouriteGroupState, onAction: (FavouritesAction)
                 contentDescription = null,
                 tint = AppTheme.colors.text.subtle,
                 modifier = Modifier
-                    .size(AppTheme.sizes.iconS)
+                    .size(AppTheme.sizes.icon.m)
                     .rotate(if (group.expanded) 90f else 0f),
             )
         }

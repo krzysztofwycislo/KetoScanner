@@ -128,7 +128,7 @@ private fun PermissionCard(camera: CameraState.PermissionPanel, onAction: (ScanA
         ) {
             Box(
                 modifier = Modifier
-                    .size(AppTheme.sizes.messageIcon)
+                    .size(AppTheme.sizes.iconDisc)
                     .background(AppTheme.colors.background.subtle, AppTheme.shapes.circle),
                 contentAlignment = Alignment.Center,
             ) {
@@ -136,7 +136,7 @@ private fun PermissionCard(camera: CameraState.PermissionPanel, onAction: (ScanA
                     imageVector = AppIcons.CameraOff.imageVector,
                     contentDescription = null,
                     tint = AppTheme.colors.text.muted,
-                    modifier = Modifier.size(AppTheme.sizes.iconM),
+                    modifier = Modifier.size(AppTheme.sizes.icon.xl),
                 )
             }
             Text(

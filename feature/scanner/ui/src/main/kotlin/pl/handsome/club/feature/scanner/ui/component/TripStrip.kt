@@ -113,7 +113,7 @@ private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifi
             imageVector = item.icon.imageVector,
             contentDescription = null,
             tint = AppTheme.colors.text.inverse,
-            modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+            modifier = Modifier.size(AppTheme.sizes.icon.s),
         )
         Column {
             Text(

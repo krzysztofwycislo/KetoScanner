@@ -40,7 +40,7 @@ private fun ProductImageNoUrlPreview() {
         Ui.ProductImage(
             url = null,
             contentDescription = UiText.Res(R.string.designsystem_preview_image),
-            modifier = Modifier.size(AppTheme.sizes.thumbnail),
+            modifier = Modifier.size(AppTheme.sizes.productPhoto),
         )
     }
 }

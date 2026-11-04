@@ -38,7 +38,7 @@ fun Ui.RatingRow(
             imageVector = rating.markIcon().imageVector,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+            modifier = Modifier.size(AppTheme.sizes.icon.s),
         )
         Text(
             text = title,

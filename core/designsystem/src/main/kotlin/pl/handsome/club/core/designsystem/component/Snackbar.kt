@@ -25,11 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import pl.handsome.club.core.designsystem.R
 import pl.handsome.club.core.designsystem.icon.AppIcon
 import pl.handsome.club.core.designsystem.icon.AppIcons
 import pl.handsome.club.core.designsystem.icon.imageVector
 import pl.handsome.club.core.designsystem.theme.AppTheme
+
+private val SNACKBAR_ELEVATION = 8.dp
 
 enum class MessageTone { Info, Success, Error }
 
@@ -58,7 +61,7 @@ fun Ui.Snackbar(
         modifier = modifier
             .fillMaxWidth()
             .padding(AppTheme.spacing.m)
-            .shadow(AppTheme.sizes.overlayElevation, shape)
+            .shadow(SNACKBAR_ELEVATION, shape)
             .clip(shape)
             .background(AppTheme.colors.background.surface)
             .border(AppTheme.borders.hairline, AppTheme.colors.border.default, shape)
@@ -70,7 +73,7 @@ fun Ui.Snackbar(
     ) {
         Box(
             modifier = Modifier
-                .size(AppTheme.sizes.button)
+                .size(AppTheme.sizes.control.s)
                 .background(tone.color(), AppTheme.shapes.circle),
             contentAlignment = Alignment.Center,
         ) {
@@ -78,7 +81,7 @@ fun Ui.Snackbar(
                 imageVector = tone.icon.imageVector,
                 contentDescription = null,
                 tint = AppTheme.colors.text.inverse,
-                modifier = Modifier.size(AppTheme.sizes.iconS),
+                modifier = Modifier.size(AppTheme.sizes.icon.m),
             )
         }
         Text(

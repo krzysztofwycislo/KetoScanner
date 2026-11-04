@@ -79,7 +79,7 @@ internal fun InputField(
         cursorBrush = SolidColor(AppTheme.colors.accent),
         decorationBox = { innerTextField ->
             val containerModifier = Modifier
-                .heightIn(min = AppTheme.sizes.control)
+                .heightIn(min = AppTheme.sizes.control.m)
                 .background(containerColor, AppTheme.shapes.control)
                 .border(
                     width = AppTheme.borders.control,
@@ -107,7 +107,7 @@ internal fun InputField(
                         imageVector = leadingIcon,
                         contentDescription = null,
                         tint = AppTheme.colors.text.muted,
-                        modifier = Modifier.size(AppTheme.sizes.buttonIcon),
+                        modifier = Modifier.size(AppTheme.sizes.icon.s),
                     )
                     textBox(Modifier.weight(1f))
                 }

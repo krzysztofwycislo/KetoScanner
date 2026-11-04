@@ -50,7 +50,7 @@ fun Ui.SegmentedToggle(
                 modifier = segmentModifier
                     .clip(AppTheme.shapes.small)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(index) })
-                    .defaultMinSize(minHeight = AppTheme.sizes.touchTarget)
+                    .defaultMinSize(minHeight = AppTheme.sizes.control.m)
                     .padding(horizontal = AppTheme.spacing.s),
                 contentAlignment = Alignment.Center,
             ) {

@@ -55,7 +55,7 @@ fun Ui.VerdictBanner(
                         imageVector = rating.markIcon().imageVector,
                         contentDescription = null,
                         tint = AppTheme.colors.text.inverse,
-                        modifier = Modifier.size(AppTheme.sizes.iconS),
+                        modifier = Modifier.size(AppTheme.sizes.icon.m),
                     )
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {

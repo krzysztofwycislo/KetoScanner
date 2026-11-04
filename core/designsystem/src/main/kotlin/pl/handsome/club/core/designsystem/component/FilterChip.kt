@@ -38,7 +38,7 @@ fun Ui.FilterChip(
     else Modifier.border(AppTheme.borders.control, AppTheme.colors.border.strong, shape)
     Box(
         modifier = modifier
-            .defaultMinSize(minHeight = AppTheme.sizes.touchTarget)
+            .defaultMinSize(minHeight = AppTheme.sizes.control.m)
             .selectable(
                 selected = selected,
                 interactionSource = interactionSource,
@@ -50,7 +50,7 @@ fun Ui.FilterChip(
     ) {
         Box(
             modifier = Modifier
-                .height(AppTheme.sizes.button)
+                .height(AppTheme.sizes.control.s)
                 .clip(shape)
                 .background(if (selected) AppTheme.colors.accent else AppTheme.colors.background.surface)
                 .then(borderModifier)

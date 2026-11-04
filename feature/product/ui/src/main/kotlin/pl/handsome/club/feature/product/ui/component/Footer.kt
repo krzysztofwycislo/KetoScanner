@@ -36,7 +36,7 @@ internal fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {
         )
         Box(
             modifier = Modifier
-                .defaultMinSize(minHeight = AppTheme.sizes.touchTarget)
+                .defaultMinSize(minHeight = AppTheme.sizes.control.m)
                 .clip(AppTheme.shapes.small)
                 .clickable(role = Role.Button) { onAction(OnOpenFoodFactsClicked) }
                 .padding(horizontal = AppTheme.spacing.s),

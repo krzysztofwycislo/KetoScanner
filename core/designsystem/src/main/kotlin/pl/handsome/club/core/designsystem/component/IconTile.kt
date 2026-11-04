@@ -26,7 +26,7 @@ fun Ui.IconTile(icon: ImageVector, modifier: Modifier = Modifier) {
             imageVector = icon,
             contentDescription = null,
             tint = AppTheme.colors.text.subtle,
-            modifier = Modifier.size(AppTheme.sizes.iconS),
+            modifier = Modifier.size(AppTheme.sizes.icon.m),
         )
     }
 }
