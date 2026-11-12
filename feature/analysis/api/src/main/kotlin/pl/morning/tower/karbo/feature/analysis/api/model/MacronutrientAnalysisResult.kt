@@ -7,6 +7,5 @@ data class MacronutrientAnalysisResult(
     val rate: DietRate,
     val reasons: List<RatingReason>,
     val carbsPer100g: Double,
-    val maxProductPortion: Double?,
     val dailyCarbConsumption: Int,
 )

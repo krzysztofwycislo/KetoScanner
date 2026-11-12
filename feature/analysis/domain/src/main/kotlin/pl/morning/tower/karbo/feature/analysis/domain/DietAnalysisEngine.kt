@@ -7,26 +7,24 @@ import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import pl.morning.tower.karbo.feature.product.api.model.Product
 
-
 internal class DietAnalysisEngine {
 
     fun analyze(preferences: DietPreferences, product: Product): ProductAnalysis {
         val profile = product.toNutritionProfile() ?: return ProductAnalysis.InsufficientData(product)
         val dailyCarbs = preferences.maxDailyCarbsAmount
-        val reasons = scorerFor(preferences.dietMode).reasons(profile, dailyCarbs)
+        val reasons = scorerFor(preferences.dietMode).reasons(profile = profile, dailyCarbs = dailyCarbs)
             .sortedByDescending(RatingReason::rate)
+        val rate = reasons.firstOrNull()?.rate ?: DietRate.GOOD
 
         return ProductAnalysis.Rated(
-            product,
-            MacronutrientAnalysisResult(
+            product = product,
+            macronutrients = MacronutrientAnalysisResult(
                 dietMode = preferences.dietMode,
-                rate = reasons.firstOrNull()?.rate ?: DietRate.GOOD,
+                rate = rate,
                 reasons = reasons,
                 carbsPer100g = profile.carbs,
-                maxProductPortion = if (profile.carbs > 0) dailyCarbs / profile.carbs * 100 else null,
                 dailyCarbConsumption = dailyCarbs,
             ),
         )
     }
-
 }

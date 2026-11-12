@@ -65,7 +65,7 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when analysis is rated then verdict has rating summary with mode and portion`() {
+    fun `when analysis is rated then verdict has rating and summary with mode`() {
         val ratings = mapOf(
             DietRate.GOOD to Rating.Positive,
             DietRate.NEUTRAL to Rating.Neutral,
@@ -86,14 +86,6 @@ class ProductStateFactoryTest {
 
             assertEquals(ratings.getValue(dietRate), verdict.rating)
             assertEquals(UiText.Res(summary), verdict.summary)
-            assertEquals(
-                UiText.Res(
-                    R.string.product_advice_portion,
-                    UiArg.Numeric.WholeNumber(MAX_PORTION),
-                    UiArg.Numeric.Count(DAILY_CARBS.toLong()),
-                ),
-                verdict.portion,
-            )
         }
     }
 
@@ -148,15 +140,6 @@ class ProductStateFactoryTest {
             listOf<UiText>(UiText.Res(R.string.product_carbs_per_100g, UiArg.Numeric.Grams(CARBS))),
             verdict.reasons,
         )
-    }
-
-    @Test
-    fun `when max portion is null then the unlimited text is shown`() {
-        val verdict = assertIs<VerdictState.Rated>(
-            show(Prototype(analysis = rated(DietRate.GOOD, maxPortion = null))).verdict,
-        )
-
-        assertEquals(UiText.Res(R.string.product_advice_unlimited), verdict.portion)
     }
 
     @Test
@@ -359,6 +342,68 @@ class ProductStateFactoryTest {
     }
 
     @Test
+    fun `when per 100 g is selected then the carbs tile shows the share of 100 g in the daily limit`() {
+        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
+
+        assertEquals(dayShare(13.0 / DAILY_CARBS), glance.tiles.first().detail)
+    }
+
+    @Test
+    fun `when per serving is selected then the carbs tile shows the share of one serving in the daily limit`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(dietRate = DietRate.GOOD, product = product(nutriments = fullNutriments)),
+                isPerServingSelected = true,
+            ),
+        ).glance
+
+        assertEquals(dayShare(2.0 / DAILY_CARBS), glance.tiles.first().detail)
+    }
+
+    @Test
+    fun `when the serving toggle is hidden then the carbs tile shows the share of 100 g`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(
+                    dietRate = DietRate.GOOD,
+                    product = product(servingAmount = "1000", nutriments = fullNutriments),
+                ),
+                isPerServingSelected = true,
+            ),
+        ).glance
+
+        assertEquals(dayShare(13.0 / DAILY_CARBS), glance.tiles.first().detail)
+    }
+
+    @Test
+    fun `when the carbs are over the daily limit then the carbs tile shows the real share over 100 percent`() {
+        val nutriments = fullNutriments.copy(carbohydratesPer100g = 50.0)
+        val glance = show(
+            Prototype(analysis = rated(dietRate = DietRate.NOT_ADVISED, product = product(nutriments = nutriments))),
+        ).glance
+
+        assertEquals(dayShare(1.25), glance.tiles.first().detail)
+    }
+
+    @Test
+    fun `when the carbs value is unknown or data is insufficient then the carbs tile has no share`() {
+        val unknownCarbs = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))))
+        val insufficient = show(
+            Prototype(analysis = ProductAnalysis.InsufficientData(product(nutriments = fullNutriments))),
+        )
+
+        assertNull(unknownCarbs.glance.tiles.first().detail)
+        assertNull(insufficient.glance.tiles.first().detail)
+    }
+
+    @Test
+    fun `only the carbs tile has a detail line`() {
+        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
+
+        glance.tiles.drop(1).forEach { assertNull(it.detail) }
+    }
+
+    @Test
     fun `when product is shown then data source has the barcode`() {
         val content = show(Prototype(analysis = rated(DietRate.GOOD)))
 
@@ -376,12 +421,65 @@ class ProductStateFactoryTest {
         assertEquals(List(6) { missing }, perServing.map { it.value })
     }
 
+    @Test
+    fun `when the serving is usable then the serving toggle is visible`() {
+        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "250")))).glance
+
+        assertTrue(glance.isServingToggleVisible)
+    }
+
+    @Test
+    fun `when the serving is over 500 then the toggle is hidden and per 100 g values are shown`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(
+                    dietRate = DietRate.GOOD,
+                    product = product(servingAmount = "1000", nutriments = fullNutriments),
+                ),
+                isPerServingSelected = true,
+            )
+        ).glance
+
+        assertFalse(glance.isServingToggleVisible)
+        assertFalse(glance.isPerServingSelected)
+        assertEquals(grams(13.0), glance.tiles.first().value)
+    }
+
+    @Test
+    fun `when there is no serving then the serving toggle is hidden`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(dietRate = DietRate.GOOD, product = product(servingAmount = null)),
+                isPerServingSelected = true,
+            )
+        ).glance
+
+        assertFalse(glance.isServingToggleVisible)
+        assertFalse(glance.isPerServingSelected)
+    }
+
+    @Test
+    fun `when the serving is exactly 100 then the toggle is hidden and per 100 g values are shown`() {
+        val glance = show(
+            Prototype(
+                analysis = rated(
+                    dietRate = DietRate.GOOD,
+                    product = product(servingAmount = "100", nutriments = fullNutriments),
+                ),
+                isPerServingSelected = true,
+            )
+        ).glance
+
+        assertFalse(glance.isServingToggleVisible)
+        assertFalse(glance.isPerServingSelected)
+        assertEquals(grams(13.0), glance.tiles.first().value)
+    }
+
     private fun show(prototype: Prototype): ProductContentState.ShowProduct =
         assertIs<ProductContentState.ShowProduct>(factory.createFor(prototype).content)
 
     private companion object {
         const val CARBS = 15.0
-        const val MAX_PORTION = 266.6
         const val DAILY_CARBS = 40
         const val IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front.jpg"
 
@@ -425,14 +523,21 @@ class ProductStateFactoryTest {
             product: Product = product(),
             mode: DietMode = DietMode.KETO,
             reasons: List<RatingReason> = emptyList(),
-            maxPortion: Double? = MAX_PORTION,
         ) = ProductAnalysis.Rated(
             product = product,
-            macronutrients = MacronutrientAnalysisResult(mode, dietRate, reasons, CARBS, maxPortion, DAILY_CARBS),
+            macronutrients = MacronutrientAnalysisResult(
+                dietMode = mode,
+                rate = dietRate,
+                reasons = reasons,
+                carbsPer100g = CARBS,
+                dailyCarbConsumption = DAILY_CARBS,
+            ),
         )
 
         fun kcal(value: Double) = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 
         fun grams(value: Double) = UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(value))
+
+        fun dayShare(share: Double) = UiText.Res(R.string.product_carbs_day_share, UiArg.Numeric.Percent(share))
     }
 }

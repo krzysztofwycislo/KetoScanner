@@ -63,13 +63,8 @@ internal class ProductResources {
 
     fun insufficientDataAdvice(): UiText = UiText.Res(R.string.product_verdict_insufficient_data_advice)
 
-    fun portion(maxProductPortion: Double?, dailyCarbs: Int): UiText =
-        if (maxProductPortion == null) UiText.Res(R.string.product_advice_unlimited)
-        else UiText.Res(
-            R.string.product_advice_portion,
-            UiArg.Numeric.WholeNumber(maxProductPortion),
-            UiArg.Numeric.Count(dailyCarbs.toLong()),
-        )
+    fun carbsDayShare(share: Double): UiText =
+        UiText.Res(R.string.product_carbs_day_share, UiArg.Numeric.Percent(share))
 
     fun servingLabel(servingAmount: String?): UiText =
         if (servingAmount.isNullOrBlank()) UiText.Res(R.string.product_basis_serving)

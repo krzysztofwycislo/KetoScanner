@@ -298,7 +298,13 @@ class FavouriteProductsRepositoryImplTest {
 
         fun rated(rate: DietRate) = ProductAnalysis.Rated(
             product,
-            MacronutrientAnalysisResult(DietMode.KETO, rate, emptyList(), CARBS, 800.0, 40),
+            MacronutrientAnalysisResult(
+                dietMode = DietMode.KETO,
+                rate = rate,
+                reasons = emptyList(),
+                carbsPer100g = CARBS,
+                dailyCarbConsumption = 40,
+            ),
         )
     }
 }

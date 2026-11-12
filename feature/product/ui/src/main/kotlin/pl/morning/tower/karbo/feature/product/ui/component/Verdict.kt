@@ -26,9 +26,7 @@ internal fun Verdict(state: VerdictState, onAction: (ProductAction) -> Unit) {
             rating = state.rating,
             title = state.summary,
             details = state.reasons,
-        ) {
-            Text(text = state.portion.resolve(), style = AppTheme.typography.body)
-        }
+        )
 
         is VerdictState.InsufficientData -> Ui.VerdictBanner(
             rating = Rating.Unknown,

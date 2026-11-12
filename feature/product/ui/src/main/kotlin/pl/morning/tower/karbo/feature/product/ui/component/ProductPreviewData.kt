@@ -49,11 +49,6 @@ internal fun VerdictState.Companion.exampleRated() = VerdictState.Rated(
         UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(0.19)),
         UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(7.0)),
     ),
-    portion = UiText.Res(
-        R.string.product_advice_portion,
-        UiArg.Numeric.WholeNumber(266.6),
-        UiArg.Numeric.Count(40),
-    ),
 )
 
 internal fun VerdictState.Companion.exampleInsufficientData() = VerdictState.InsufficientData(
@@ -68,11 +63,24 @@ private fun grams(value: Double?): UiText =
 
 private fun kcal(value: Double): UiText = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 
-internal fun GlanceState.Companion.example(isPerServingSelected: Boolean, highlight: Rating) = GlanceState(
+internal fun GlanceState.Companion.example(
+    isPerServingSelected: Boolean,
+    highlight: Rating,
+    isServingToggleVisible: Boolean = true,
+) = GlanceState(
+    isServingToggleVisible = isServingToggleVisible,
     isPerServingSelected = isPerServingSelected,
     servingLabel = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
     tiles = persistentListOf(
-        GlanceTileState(UiText.Res(R.string.product_carbs), grams(if (isPerServingSelected) 2.0 else 13.0), highlight),
+        GlanceTileState(
+            label = UiText.Res(R.string.product_carbs),
+            value = grams(if (isPerServingSelected) 2.0 else 13.0),
+            highlight = highlight,
+            detail = UiText.Res(
+                R.string.product_carbs_day_share,
+                UiArg.Numeric.Percent(if (isPerServingSelected) 0.05 else 0.33),
+            ),
+        ),
         GlanceTileState(UiText.Res(R.string.product_sugars), grams(if (isPerServingSelected) 1.1 else 7.0), null),
         GlanceTileState(UiText.Res(R.string.product_fibre), grams(if (isPerServingSelected) null else 11.0), null),
         GlanceTileState(UiText.Res(R.string.product_proteins), grams(if (isPerServingSelected) 3.8 else 25.0), null),

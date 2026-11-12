@@ -19,7 +19,6 @@ import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.GOOD
-import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NEUTRAL
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NOT_ADVISED
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.analysis.api.model.dietRate
@@ -28,7 +27,6 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.api.model.Product
-import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -43,15 +41,15 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when the profile changes then each food gets the expected rate without resubscribing`() = runTest {
-        products.rows.value = Outcome.Success(foods.map { it.product })
-        val emissions = collect(foods.map { it.barcode }.toSet())
+        products.rows.value = Outcome.Success(realProducts.map { it.product })
+        val emissions = collect(realProducts.map { it.barcode }.toSet())
 
         DietPreset.entries.forEach { preset ->
             preferences.current.value = Outcome.Success(preset.preferences)
             runCurrent()
 
             val analyses = emissions.last()
-            foods.forEach { food ->
+            realProducts.forEach { food ->
                 assertEquals(food.rates.getValue(preset), analyses[food.barcode]?.dietRate, "${food.name} in $preset")
             }
         }
@@ -60,14 +58,14 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when a list and a single analysis rate the same product then they agree`() = runTest {
-        products.rows.value = Outcome.Success(foods.map { it.product })
+        products.rows.value = Outcome.Success(realProducts.map { it.product })
         val analyzeProduct = AnalyzeProductImpl(products, preferences, engine, errorReporter)
 
         DietPreset.entries.forEach { preset ->
             preferences.current.value = Outcome.Success(preset.preferences)
-            val analyses = analyzeProducts(foods.map { it.barcode }.toSet()).first()
+            val analyses = analyzeProducts(realProducts.map { it.barcode }.toSet()).first()
 
-            foods.forEach { food ->
+            realProducts.forEach { food ->
                 assertEquals(analyzeProduct(food.barcode.value).first(), analyses[food.barcode], food.name)
             }
         }
@@ -96,7 +94,7 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when a barcode has no row then it is absent and the other barcodes are rated`() = runTest {
-        val hummus = foods.first().product
+        val hummus = realProducts.named(HUMMUS).product
         products.rows.value = Outcome.Success(listOf(hummus))
 
         val analyses = analyzeProducts(setOf(Barcode(hummus.barcode), Barcode(MISSING_BARCODE))).first()
@@ -109,15 +107,15 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when a product emission changes the nutrition then the rate is updated`() = runTest {
-        val hummus = foods.first().product
-        val bread = foods.single { it.name == "White bread" }.product.copy(barcode = hummus.barcode)
+        val hummus = realProducts.named(HUMMUS).product
+        val bread = realProducts.named("White bread (Jason's Sourdough)").product.copy(barcode = hummus.barcode)
         products.rows.value = Outcome.Success(listOf(hummus))
         val emissions = collect(setOf(Barcode(hummus.barcode)))
 
         products.rows.value = Outcome.Success(listOf(bread))
         runCurrent()
 
-        assertEquals(listOf(NEUTRAL, NOT_ADVISED), emissions.map { rateOf(it, hummus.barcode) })
+        assertEquals(listOf(GOOD, NOT_ADVISED), emissions.map { rateOf(it, hummus.barcode) })
     }
 
     @Test
@@ -131,7 +129,7 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when preferences fail before any success then products are rated with the default`() = runTest {
-        val hummus = foods.first()
+        val hummus = realProducts.named(HUMMUS)
         products.rows.value = Outcome.Success(listOf(hummus.product))
         preferences.current.value = Outcome.Failure(AppError.Storage)
 
@@ -144,7 +142,7 @@ class AnalyzeProductsImplTest {
 
     @Test
     fun `when preferences fail after a success then the last good profile keeps being used`() = runTest {
-        val hummus = foods.first()
+        val hummus = realProducts.named(HUMMUS)
         products.rows.value = Outcome.Success(listOf(hummus.product))
         preferences.current.value = Outcome.Success(DietPreset.LOW_CARB.preferences)
         val emissions = collect(setOf(hummus.barcode))
@@ -167,11 +165,6 @@ class AnalyzeProductsImplTest {
 
     private fun rateOf(analyses: Map<Barcode, ProductAnalysis>, barcode: String): DietRate? =
         analyses[Barcode(barcode)]?.dietRate
-
-    private class Food(val product: Product, val rates: Map<DietPreset, DietRate>) {
-        val name: String get() = product.name
-        val barcode: Barcode get() = Barcode(product.barcode)
-    }
 
     private class FakeProductRepository : ProductRepository {
 
@@ -205,37 +198,6 @@ class AnalyzeProductsImplTest {
 
     private companion object {
         const val MISSING_BARCODE = "missing"
-
-        fun food(name: String, nutriments: ProductNutriments, serving: String?): Product =
-            createProduct(name, nutriments, serving).copy(barcode = "barcode $name")
-
-        fun rates(strictKeto: DietRate, keto: DietRate, lowCarb: DietRate) = mapOf(
-            DietPreset.STRICT_KETO to strictKeto,
-            DietPreset.KETO to keto,
-            DietPreset.LOW_CARB to lowCarb,
-        )
-
-        val foods = listOf(
-            Food(
-                food("Hummus", macroNutriments(20.0, 7.0, 12.0, 0.5), null),
-                rates(NOT_ADVISED, NEUTRAL, GOOD),
-            ),
-            Food(
-                food("Greek yoghurt 10 %", macroNutriments(10.0, 4.0, 3.5, 3.5), "150"),
-                rates(NEUTRAL, GOOD, GOOD),
-            ),
-            Food(
-                food("Milk 3.2 %", macroNutriments(3.2, 3.3, 4.8, 4.8), "250"),
-                rates(NOT_ADVISED, NOT_ADVISED, NEUTRAL),
-            ),
-            Food(
-                food("White bread", macroNutriments(3.0, 8.0, 49.0, 5.0), null),
-                rates(NOT_ADVISED, NOT_ADVISED, NOT_ADVISED),
-            ),
-            Food(
-                food("Olive oil", macroNutriments(91.6, 0.0, 0.0, 0.0), null),
-                rates(GOOD, GOOD, GOOD),
-            ),
-        )
+        const val HUMMUS = "Hummus (Labeyrie)"
     }
 }

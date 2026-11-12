@@ -61,7 +61,6 @@ internal sealed interface VerdictState {
         val rating: Rating,
         val summary: UiText,
         val reasons: PersistentList<UiText>,
-        val portion: UiText,
     ) : VerdictState
 
     data class InsufficientData(
@@ -75,6 +74,7 @@ internal sealed interface VerdictState {
 
 @Immutable
 internal data class GlanceState(
+    val isServingToggleVisible: Boolean,
     val isPerServingSelected: Boolean,
     val servingLabel: UiText,
     val tiles: PersistentList<GlanceTileState>,
@@ -87,6 +87,7 @@ internal data class GlanceTileState(
     val label: UiText,
     val value: UiText,
     val highlight: Rating?,
+    val detail: UiText? = null,
 ) {
     companion object
 }

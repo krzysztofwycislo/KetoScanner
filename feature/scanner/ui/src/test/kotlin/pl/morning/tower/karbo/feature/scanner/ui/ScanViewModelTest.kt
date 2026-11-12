@@ -1090,12 +1090,11 @@ class ScanViewModelTest {
         val ratedAnalysis = ProductAnalysis.Rated(
             product = product,
             macronutrients = MacronutrientAnalysisResult(
-                DietMode.KETO,
-                DietRate.NOT_ADVISED,
-                emptyList(),
-                57.5,
-                69.6,
-                40,
+                dietMode = DietMode.KETO,
+                rate = DietRate.NOT_ADVISED,
+                reasons = emptyList(),
+                carbsPer100g = 57.5,
+                dailyCarbConsumption = 40,
             ),
         )
         val ratedCard = FoundCardState(

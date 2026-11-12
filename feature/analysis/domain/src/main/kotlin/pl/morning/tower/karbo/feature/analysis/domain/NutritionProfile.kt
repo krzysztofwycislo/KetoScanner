@@ -1,6 +1,8 @@
 package pl.morning.tower.karbo.feature.analysis.domain
 
+import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.usableServingGrams
 
 internal data class NutritionProfile(
     val carbs: Double,
@@ -8,6 +10,8 @@ internal data class NutritionProfile(
     val protein: Double,
     val sugars: Double?,
     val servingGrams: Double?,
+    val fibre: Double?,
+    val liquid: Boolean,
 ) {
 
     val energy: Double = FAT_KCAL_PER_GRAM * fat + PROTEIN_KCAL_PER_GRAM * protein + CARBS_KCAL_PER_GRAM * carbs
@@ -25,6 +29,8 @@ internal data class NutritionProfile(
     }
 }
 
+private val LIQUID_CATEGORIES = setOf(ProductCategory.DRINKS, ProductCategory.MILK_AND_JUICE, ProductCategory.WATER)
+
 internal fun Product.toNutritionProfile(): NutritionProfile? {
     val carbs = nutriments.carbohydratesPer100g ?: return null
     val fat = nutriments.fatsPer100g ?: return null
@@ -34,6 +40,8 @@ internal fun Product.toNutritionProfile(): NutritionProfile? {
         fat = fat,
         protein = protein,
         sugars = nutriments.sugarsPer100g,
-        servingGrams = servingAmount?.trim()?.toDoubleOrNull()?.takeIf { it > 0 },
+        servingGrams = usableServingGrams,
+        fibre = nutriments.fibrePer100g,
+        liquid = category in LIQUID_CATEGORIES,
     )
 }

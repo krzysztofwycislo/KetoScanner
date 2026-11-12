@@ -1,5 +1,6 @@
 plugins {
     id("karbo.kotlin.library")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -10,4 +11,5 @@ dependencies {
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.serialization.json)
 }

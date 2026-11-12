@@ -19,6 +19,7 @@
     <string name="product_fats">Fats</string>
     <string name="product_proteins">Proteins</string>
     <string name="product_carbs">Carbs</string>
+    <string name="product_carbs_day_share">%1$s of your day</string>
     <string name="product_sugars">Sugars</string>
     <string name="product_fibre">Fibre</string>
     <string name="product_value_grams">%1$s g</string>
@@ -32,8 +33,6 @@
     <string name="product_verdict_insufficient_data">Not enough data yet</string>
     <string name="product_verdict_insufficient_data_detail">Open Food Facts is missing carbs, fat or protein for it</string>
     <string name="product_verdict_insufficient_data_advice">Check the label on the pack. Adding the values to Open Food Facts helps the next shopper.</string>
-    <string name="product_advice_portion">Up to %1$s g/ml fits your daily limit of %2$s g carbs.</string>
-    <string name="product_advice_unlimited">No carbs, so any portion fits your daily limit.</string>
     <string name="product_at_a_glance">At a glance</string>
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>

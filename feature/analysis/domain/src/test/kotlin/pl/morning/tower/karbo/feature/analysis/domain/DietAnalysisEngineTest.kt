@@ -1,5 +1,6 @@
 package pl.morning.tower.karbo.feature.analysis.domain
 
+import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
@@ -51,15 +52,6 @@ class DietAnalysisEngineTest {
     }
 
     @Test
-    fun `max product portion is the daily limit divided by carbs times 100 and null without carbs`() {
-        val withCarbs = createProduct("carbs", macroNutriments(50.0, 0.0, 10.0), null)
-        val withoutCarbs = createProduct("no carbs", macroNutriments(50.0, 0.0, 0.0), null)
-
-        assertEquals(400.0, rated(DietPreferences(40), withCarbs).maxProductPortion)
-        assertNull(rated(DietPreferences(40), withoutCarbs).maxProductPortion)
-    }
-
-    @Test
     fun `result carries the mode daily limit and carbs per 100 g`() {
         val result = rated(DietPreferences(30, DietMode.LOW_CARB), exampleProduct)
 
@@ -73,11 +65,39 @@ class DietAnalysisEngineTest {
         val nutriments = macroNutriments(50.0, 0.0, 10.0)
 
         assertEquals(30.0, createProduct("p", nutriments, " 30 ").toNutritionProfile()?.servingGrams)
-        listOf(null, "", " ", "abc", "0", "-5").forEach { serving ->
+        assertEquals(
+            500.0,
+            createProduct(name = "p", productNutriments = nutriments, servingAmount = "500")
+                .toNutritionProfile()
+                ?.servingGrams,
+        )
+        listOf(null, "", " ", "abc", "0", "-5", "501", "1000").forEach { serving ->
             assertNull(
                 createProduct("p", nutriments, serving).toNutritionProfile()?.servingGrams,
                 "serving \"$serving\"",
             )
+        }
+    }
+
+    @Test
+    fun `the profile carries fibre and marks drinks, juices and water as liquid`() {
+        val product = createProduct(
+            name = "p",
+            productNutriments = macroNutriments(
+                fatsPer100g = 0.1,
+                proteinsPer100g = 1.0,
+                carbohydratesPer100g = 9.0,
+                fibrePer100g = 2.0,
+            ),
+            servingAmount = null,
+        )
+
+        assertEquals(2.0, product.toNutritionProfile()?.fibre)
+        listOf(ProductCategory.DRINKS, ProductCategory.MILK_AND_JUICE, ProductCategory.WATER).forEach { category ->
+            assertEquals(true, product.copy(category = category).toNutritionProfile()?.liquid, "$category")
+        }
+        listOf(ProductCategory.OTHER, ProductCategory.TEA_AND_GREENS).forEach { category ->
+            assertEquals(false, product.copy(category = category).toNutritionProfile()?.liquid, "$category")
         }
     }
 

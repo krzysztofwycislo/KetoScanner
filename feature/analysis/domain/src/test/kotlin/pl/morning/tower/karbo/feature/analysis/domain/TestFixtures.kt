@@ -71,7 +71,17 @@ internal fun profile(
     carbs: Double,
     sugars: Double? = null,
     servingGrams: Double? = null,
-) = NutritionProfile(carbs = carbs, fat = fat, protein = protein, sugars = sugars, servingGrams = servingGrams)
+    fibre: Double? = null,
+    liquid: Boolean = false,
+) = NutritionProfile(
+    carbs = carbs,
+    fat = fat,
+    protein = protein,
+    sugars = sugars,
+    servingGrams = servingGrams,
+    fibre = fibre,
+    liquid = liquid,
+)
 
 
 internal val exampleNutrients = ProductNutriments(250.0, 500.0, 20.0, 40.0, 10.0, 20.0, 5.0, 10.0, 1.0, 2.0)

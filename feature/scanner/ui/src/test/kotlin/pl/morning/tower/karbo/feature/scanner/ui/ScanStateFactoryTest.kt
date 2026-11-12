@@ -297,7 +297,13 @@ class ScanStateFactoryTest {
                 ),
         )
         expected.forEach { (reason, text) ->
-            val result = MacronutrientAnalysisResult(DietMode.KETO, reason.rate, listOf(reason), 57.5, null, 40)
+            val result = MacronutrientAnalysisResult(
+                dietMode = DietMode.KETO,
+                rate = reason.rate,
+                reasons = listOf(reason),
+                carbsPer100g = 57.5,
+                dailyCarbConsumption = 40,
+            )
             assertEquals(text, resources.foundDetail(result))
         }
     }
@@ -463,7 +469,13 @@ class ScanStateFactoryTest {
     private fun rated(rate: DietRate, mode: DietMode, reasons: List<RatingReason> = emptyList()) =
         ProductAnalysis.Rated(
             product = product,
-            macronutrients = MacronutrientAnalysisResult(mode, rate, reasons, 57.5, null, 40),
+            macronutrients = MacronutrientAnalysisResult(
+                dietMode = mode,
+                rate = rate,
+                reasons = reasons,
+                carbsPer100g = 57.5,
+                dailyCarbConsumption = 40,
+            ),
         )
 
     private fun granted() = Prototype(cameraPermission = CameraPermission.Granted)

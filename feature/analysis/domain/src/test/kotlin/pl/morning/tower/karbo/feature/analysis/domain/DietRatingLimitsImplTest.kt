@@ -14,10 +14,10 @@ class DietRatingLimitsImplTest {
     private val limits = DietRatingLimitsImpl()
 
     @Test
-    fun `carbs limits are a third and a half of the daily limit`() {
-        assertEquals(CarbLimits(20 / 3.0, 10.0), limits.carbsPer100g(DietPreferences(20, DietMode.KETO)))
-        assertEquals(CarbLimits(40 / 3.0, 20.0), limits.carbsPer100g(DietPreferences(40, DietMode.KETO)))
-        assertEquals(CarbLimits(100 / 3.0, 50.0), limits.carbsPer100g(DietPreferences(100, DietMode.LOW_CARB)))
+    fun `carbs limits are a quarter and a half of the daily limit in keto and a quarter and a third in low carb`() {
+        assertEquals(CarbLimits(5.0, 10.0), limits.carbsPer100g(DietPreferences(20, DietMode.KETO)))
+        assertEquals(CarbLimits(10.0, 20.0), limits.carbsPer100g(DietPreferences(40, DietMode.KETO)))
+        assertEquals(CarbLimits(25.0, 100 / 3.0), limits.carbsPer100g(DietPreferences(100, DietMode.LOW_CARB)))
     }
 
     @Test

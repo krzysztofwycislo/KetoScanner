@@ -8,6 +8,7 @@ import pl.morning.tower.karbo.core.designsystem.icon.icon
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.usableServingGrams
 import pl.morning.tower.karbo.feature.product.ui.ProductResources
 import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.Error
 import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState.Loading
@@ -73,7 +74,6 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 summary = resources.ratingSummary(rate, dietMode),
                 reasons = reasons.take(MAX_REASONS).map(resources::reason).toPersistentList()
                     .ifEmpty { persistentListOf(resources.carbsPer100g(carbsPer100g)) },
-                portion = resources.portion(maxProductPortion, dailyCarbConsumption),
             )
         }
 
@@ -85,19 +85,30 @@ internal class ProductStateFactory(private val resources: ProductResources) {
     }
 
     private fun Prototype.glance(analysis: ProductAnalysis): GlanceState = with(analysis.product.nutriments) {
-        val perServing = isPerServingSelected
+        val servingGrams = analysis.product.usableServingGrams
+        val isServingToggleVisible = servingGrams != null && servingGrams != BASIS_GRAMS
+        val perServing = isServingToggleVisible && isPerServingSelected
         val carbsHighlight = when (analysis) {
             is ProductAnalysis.Rated -> analysis.macronutrients.rate.toRating()
             is ProductAnalysis.InsufficientData -> Rating.Unknown
         }
+        val carbs = if (perServing) carbohydratesPerServing else carbohydratesPer100g
+        val carbsDayShare = when (analysis) {
+            is ProductAnalysis.Rated -> carbs?.let {
+                resources.carbsDayShare(share = it / analysis.macronutrients.dailyCarbConsumption)
+            }
+            is ProductAnalysis.InsufficientData -> null
+        }
         GlanceState(
+            isServingToggleVisible = isServingToggleVisible,
             isPerServingSelected = perServing,
             servingLabel = resources.servingLabel(analysis.product.servingAmount),
             tiles = persistentListOf(
                 GlanceTileState(
-                    resources.carbs(),
-                    resources.grams(if (perServing) carbohydratesPerServing else carbohydratesPer100g),
-                    carbsHighlight,
+                    label = resources.carbs(),
+                    value = resources.grams(carbs),
+                    highlight = carbsHighlight,
+                    detail = carbsDayShare,
                 ),
                 GlanceTileState(
                     resources.sugars(),
@@ -138,5 +149,6 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         const val COLLAPSED_NAME_LINES = 1
         const val EXPANDED_NAME_LINES = 10
         const val MAX_REASONS = 2
+        const val BASIS_GRAMS = 100.0
     }
 }

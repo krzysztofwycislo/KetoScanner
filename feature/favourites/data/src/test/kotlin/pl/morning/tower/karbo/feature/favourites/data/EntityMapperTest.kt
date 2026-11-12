@@ -102,7 +102,13 @@ class EntityMapperTest {
         const val CARBS = 12.5
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
-        val macronutrients = MacronutrientAnalysisResult(DietMode.KETO, DietRate.GOOD, emptyList(), CARBS, 800.0, 40)
+        val macronutrients = MacronutrientAnalysisResult(
+            dietMode = DietMode.KETO,
+            rate = DietRate.GOOD,
+            reasons = emptyList(),
+            carbsPer100g = CARBS,
+            dailyCarbConsumption = 40,
+        )
 
         val product = Product(
             name = NAME,

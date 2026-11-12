@@ -1,6 +1,5 @@
 package pl.morning.tower.karbo.feature.analysis.domain
 
-import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.GOOD
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NEUTRAL
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate.NOT_ADVISED
@@ -9,6 +8,7 @@ import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,27 +19,17 @@ class DietScoringTest {
 
     private val engine = DietAnalysisEngine()
 
-    private val foods = listOf(
-        Food("Coca-Cola", 0.0, 0.0, 10.6, 10.6, null, "330", NOT_ADVISED, NOT_ADVISED),
-        Food("Diet cola", 0.0, 0.0, 0.0, 0.0, null, "330", GOOD, GOOD),
-        Food("Olive oil", 91.6, 0.0, 0.0, 0.0, null, null, GOOD, GOOD),
-        Food("Cheddar", 34.0, 25.0, 0.1, 0.1, null, "30", GOOD, GOOD),
-        Food("Walnuts", 65.0, 15.0, 7.0, 2.6, 6.7, "30", GOOD, GOOD),
-        Food("Chicken breast", 1.5, 23.0, 0.0, 0.0, null, null, GOOD, GOOD),
-        Food("Greek yoghurt 10 %", 10.0, 4.0, 3.5, 3.5, null, "150", GOOD, GOOD),
-        Food("Milk 3.2 %", 3.2, 3.3, 4.8, 4.8, null, "250", NOT_ADVISED, NEUTRAL),
-        Food("Hummus", 20.0, 7.0, 12.0, 0.5, null, null, NEUTRAL, GOOD),
-        Food("Dark chocolate 90 %", 55.0, 10.0, 14.0, 7.0, null, null, NEUTRAL, NEUTRAL),
-        Food("White bread", 3.0, 8.0, 49.0, 5.0, null, null, NOT_ADVISED, NOT_ADVISED),
-        Food("Tomato", 0.2, 0.9, 2.9, 2.6, null, null, GOOD, GOOD),
-    )
-
     @Test
-    fun `when products are rated then each gets the expected rate in both modes`() {
-        val failures = foods.flatMap { food ->
-            listOf(DietMode.KETO to food.keto, DietMode.LOW_CARB to food.lowCarb).mapNotNull { (mode, expected) ->
-                val actual = analyze(food, mode).rate
-                if (actual == expected) null else "${food.name} in $mode: expected $expected but was $actual"
+    fun `when real products are rated then each gets the expected rate under every preset`() {
+        val failures = realProducts.flatMap { realProduct ->
+            DietPreset.entries.mapNotNull { preset ->
+                val expected = realProduct.rates.getValue(preset)
+                val actual = analyze(realProduct, preset).rate
+                if (actual == expected) {
+                    null
+                } else {
+                    "${realProduct.name} in $preset: expected $expected but was $actual"
+                }
             }
         }
 
@@ -48,7 +38,7 @@ class DietScoringTest {
 
     @Test
     fun `when Coca-Cola is rated in keto then every failed criterion is listed in table order`() {
-        val result = analyze(foods.single { it.name == "Coca-Cola" }, DietMode.KETO)
+        val result = analyze(realProducts.named("Coca-Cola (can)"), DietPreset.KETO)
 
         assertReasons(
             listOf(
@@ -56,6 +46,7 @@ class DietScoringTest {
                 RatingReason.LowFatAndProteinToCarbRatio(0.0, NOT_ADVISED),
                 RatingReason.HighSugars(10.6, NOT_ADVISED),
                 RatingReason.HighCarbsPerServing(330.0, 34.98, NOT_ADVISED),
+                RatingReason.HighCarbs(10.6, NEUTRAL),
             ),
             result.reasons,
         )
@@ -63,7 +54,7 @@ class DietScoringTest {
 
     @Test
     fun `when chicken breast is rated in keto then it has no reasons`() {
-        val result = analyze(foods.single { it.name == "Chicken breast" }, DietMode.KETO)
+        val result = analyze(realProducts.named("Chicken breast (Fleury Michon)"), DietPreset.KETO)
 
         assertEquals(GOOD, result.rate)
         assertEquals(emptyList(), result.reasons)
@@ -71,12 +62,12 @@ class DietScoringTest {
 
     @Test
     fun `when milk is rated in keto then the ratio is neutral and the carb share not advised`() {
-        val result = analyze(foods.single { it.name == "Milk 3.2 %" }, DietMode.KETO)
+        val result = analyze(realProducts.named("Mleko świeże 2% (Piątnica)"), DietPreset.KETO)
 
         assertReasons(
             listOf(
-                RatingReason.HighCarbEnergyShare(19.2 / 61.2, NOT_ADVISED),
-                RatingReason.LowFatAndProteinToCarbRatio(6.5 / 4.8, NEUTRAL),
+                RatingReason.HighCarbEnergyShare(19.2 / 50.0, NOT_ADVISED),
+                RatingReason.LowFatAndProteinToCarbRatio(5.2 / 4.8, NEUTRAL),
                 RatingReason.HighCarbsPerServing(250.0, 12.0, NEUTRAL),
             ),
             result.reasons,
@@ -98,14 +89,9 @@ class DietScoringTest {
         assertIs<RatingReason.HighCarbs>(rated.macronutrients.reasons.last())
     }
 
-    private fun analyze(food: Food, mode: DietMode): MacronutrientAnalysisResult {
-        val product = createProduct(
-            food.name,
-            macroNutriments(food.fat, food.protein, food.carbs, food.sugars, food.fibre),
-            food.serving,
-        )
-        val result = engine.analyze(DietPreferences(40, mode), product)
-        return assertIs<ProductAnalysis.Rated>(result, "${food.name} in $mode").macronutrients
+    private fun analyze(realProduct: RealProduct, preset: DietPreset): MacronutrientAnalysisResult {
+        val result = engine.analyze(preset.preferences, realProduct.product)
+        return assertIs<ProductAnalysis.Rated>(result, "${realProduct.name} in $preset").macronutrients
     }
 
     private fun assertReasons(expected: List<RatingReason>, actual: List<RatingReason>) {
@@ -123,18 +109,6 @@ class DietScoringTest {
         is RatingReason.HighSugars -> listOf(reason.gramsPer100g)
         is RatingReason.HighCarbsPerServing -> listOf(reason.servingGrams, reason.carbsGrams)
     }
-
-    private data class Food(
-        val name: String,
-        val fat: Double,
-        val protein: Double,
-        val carbs: Double,
-        val sugars: Double?,
-        val fibre: Double?,
-        val serving: String?,
-        val keto: DietRate,
-        val lowCarb: DietRate,
-    )
 
     private companion object {
         const val TOLERANCE = 0.0001
