@@ -121,7 +121,7 @@ internal class ScanViewModel(
             OnTypeItClicked -> openTypeSheet()
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
             OnScanNextClicked -> scanNext()
-            OnDetailsClicked -> statePrototype.value.foundBarcode?.let { screenEvents send NavigateToProduct(it) }
+            OnDetailsClicked -> openDetails()
             is OnTripItemClicked -> screenEvents send NavigateToProduct(action.barcode)
         }
     }
@@ -254,6 +254,14 @@ internal class ScanViewModel(
     private fun setNotFoundBarcode(barcode: String?) {
         savedStateHandle[KEY_NOT_FOUND_BARCODE] = barcode
         statePrototype.update { it.copy(notFoundBarcode = barcode) }
+    }
+
+    private fun openDetails() {
+        val barcode = statePrototype.value.foundBarcode ?: return
+        screenEvents send NavigateToProduct(barcode)
+        setFoundBarcode(null)
+        setNotFoundBarcode(null)
+        statePrototype.update { it.copy(isScanPaused = true) }
     }
 
     private fun scanNext() {

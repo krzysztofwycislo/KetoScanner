@@ -586,17 +586,28 @@ class ScanViewModelTest {
         }
 
     @Test
-    fun `when details is clicked then product opens the card stays and no further history is saved`() = runTest {
+    fun `when details is clicked then product opens the card is cleared and scanning resumes on return`() = runTest {
         analyzeProduct.emit(ratedAnalysis)
-        val viewModel = createViewModel()
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
         viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         viewModel.onAction(ScanAction.OnDetailsClicked)
 
         assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, FOUND_HAPTIC, NavigateToProduct("590")), screenEvents)
-        assertEquals(ratedCard, viewModel.state.value.found)
+        assertNull(viewModel.state.value.found)
+        assertNull(handle.get<String>(KEY_FOUND_BARCODE))
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.Idle), viewModel.state.value.camera)
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
         assertEquals(1, history.saved.size)
+        assertEquals(listOf("590"), products.refreshedBarcodes)
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
     }
 
     @Test
