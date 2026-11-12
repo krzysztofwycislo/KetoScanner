@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.ErrorReporter
@@ -17,6 +20,7 @@ import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
 import pl.morning.tower.karbo.navigation.AppStart
 import pl.morning.tower.karbo.navigation.BottomNavSection
+import pl.morning.tower.karbo.navigation.RoutePresentation
 import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
 import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
 import pl.morning.tower.karbo.ui.AppNavigation.NavigateToTab
@@ -36,18 +40,44 @@ internal class AppViewModel(
     private val navigationQueue = EventQueue<AppNavigation>(viewModelScope)
     val navigationEvents: Flow<AppNavigation> = navigationQueue.events
 
-    val selectedTab: StateFlow<BottomNavSection> =
+    private val selectedTab: StateFlow<BottomNavSection> =
         savedStateHandle.getStateFlow(KEY_SELECTED_TAB, BottomNavSection.HOME)
 
     private val appStart = MutableStateFlow<AppStart?>(null)
     val start: StateFlow<AppStart?> = appStart.asStateFlow()
 
+    private val presentation = MutableStateFlow<RoutePresentation?>(null)
+
+    val bottomBar: StateFlow<BottomBarState> =
+        combine(appStart, presentation, selectedTab) { start, presentation, tab ->
+            BottomBarState(
+                isVisible = isBottomBarVisible(start = start, presentation = presentation),
+                selectedTab = tab,
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = BottomBarState(isVisible = false, selectedTab = selectedTab.value),
+        )
+
     fun onAction(action: AppAction) {
         when (action) {
-            is OnDestinationChanged -> action.tab?.let(::select)
+            is OnDestinationChanged -> onDestinationChanged(action.tab, action.presentation)
             is OnTabClicked -> onTabClicked(action.tab)
         }
     }
+
+    private fun onDestinationChanged(tab: BottomNavSection?, presentation: RoutePresentation) {
+        this.presentation.value = presentation
+        tab?.let(::select)
+    }
+
+    private fun isBottomBarVisible(start: AppStart?, presentation: RoutePresentation?): Boolean =
+        when {
+            start == null -> false
+            presentation == null -> start != AppStart.ONBOARDING
+            else -> presentation != RoutePresentation.FULL_SCREEN
+        }
 
     private fun loadStart() {
         viewModelScope.launch {

@@ -1,57 +1,35 @@
 package pl.morning.tower.karbo.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
-import pl.morning.tower.karbo.core.designsystem.component.BottomBar
-import pl.morning.tower.karbo.core.designsystem.component.BottomBarItem
 import pl.morning.tower.karbo.core.designsystem.component.LocalBottomBarOverlap
 import pl.morning.tower.karbo.core.designsystem.component.SnackbarHost
 import pl.morning.tower.karbo.core.designsystem.component.Ui
-import pl.morning.tower.karbo.core.designsystem.component.showAppMessage
-import pl.morning.tower.karbo.core.designsystem.event.AppEvent
-import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
-import pl.morning.tower.karbo.core.designsystem.text.rememberUiTextResolver
+import pl.morning.tower.karbo.core.designsystem.component.rememberBottomBarOverlap
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
-import pl.morning.tower.karbo.feature.onboarding.ui.OnboardingRoute
 import pl.morning.tower.karbo.navigation.AppNavHost
-import pl.morning.tower.karbo.navigation.AppStart
-import pl.morning.tower.karbo.navigation.BottomNavSection
-import pl.morning.tower.karbo.navigation.navigateToTab
-import pl.morning.tower.karbo.navigation.toBottomNavSection
-import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
-import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
-import pl.morning.tower.karbo.ui.AppNavigation.NavigateToTab
-import pl.morning.tower.karbo.ui.AppNavigation.PopToTabRoot
+import pl.morning.tower.karbo.ui.component.AppBottomBar
+import pl.morning.tower.karbo.ui.component.AppEventsEffect
+import pl.morning.tower.karbo.ui.component.AppNavigationEffect
+import pl.morning.tower.karbo.ui.component.AppStartPlaceholder
+import pl.morning.tower.karbo.ui.component.DestinationEffect
 
 @Composable
 internal fun KarboApp() {
@@ -61,83 +39,40 @@ internal fun KarboApp() {
 
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val resolver = rememberUiTextResolver()
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
 
-    val hideKeyboard = {
-        keyboardController?.hide()
-        focusManager.clearFocus()
-    }
+    AppEventsEffect(events = viewModel.events, snackbarHostState = snackbarHostState)
+    AppNavigationEffect(navigationEvents = viewModel.navigationEvents, navController = navController)
+    DestinationEffect(navController = navController, onAction = viewModel::onAction)
 
-    ObserveEvents(viewModel.events) { event ->
-        when (event) {
-            is AppEvent.ShowMessage -> scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showAppMessage(resolver.resolve(event.text), event.tone)
-            }
-
-            AppEvent.HideKeyboard -> hideKeyboard()
-        }
-    }
-
-    ObserveEvents(viewModel.navigationEvents) { navigation ->
-        when (navigation) {
-            is NavigateToTab -> navController.navigateToTab(navigation.tab)
-            is PopToTabRoot -> navController.popBackStack(navigation.tab.route, inclusive = false)
-        }
-    }
-
-    val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
-    val currentEntry by navController.currentBackStackEntryAsState()
-    val currentTab = currentEntry?.destination?.toBottomNavSection()
-
-    LaunchedEffect(currentEntry?.destination?.id) { hideKeyboard() }
-    LaunchedEffect(currentTab) { viewModel.onAction(OnDestinationChanged(currentTab)) }
-
+    val bottomBar by viewModel.bottomBar.collectAsStateWithLifecycle()
     val start by viewModel.start.collectAsStateWithLifecycle()
     val appStart = start
     if (appStart == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(AppTheme.colors.background.default),
-        )
+        AppStartPlaceholder()
         return
     }
 
-    val destination = currentEntry?.destination
-    val isBottomBarHidden = if (destination == null) {
-        appStart == AppStart.ONBOARDING
-    } else {
-        destination.hasRoute<OnboardingRoute>()
-    }
-
-    val bottomBarOverlap = if (isBottomBarHidden) {
-        0.dp
-    } else {
-        AppTheme.sizes.scanButtonLift
-    }
+    val bottomBarOverlap = rememberBottomBarOverlap(visible = bottomBar.isVisible)
 
     Scaffold(
         modifier = Modifier.semantics { testTagsAsResourceId = true },
         containerColor = AppTheme.colors.background.default,
-        contentWindowInsets = if (isBottomBarHidden) {
-            WindowInsets.navigationBars
-        } else {
+        contentWindowInsets = if (bottomBar.isVisible) {
             WindowInsets(0)
+        } else {
+            WindowInsets.navigationBars
         },
         snackbarHost = {
-            Ui.SnackbarHost(snackbarHostState, Modifier.padding(bottom = bottomBarOverlap))
+            Ui.SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = bottomBarOverlap),
+            )
         },
         bottomBar = {
-            if (!isBottomBarHidden) {
-                AppBottomBar(
-                    selectedTab = selectedTab,
-                    onAction = viewModel::onAction,
-                )
-            }
+            AppBottomBar(
+                state = bottomBar,
+                onAction = viewModel::onAction,
+            )
         },
     ) { innerPadding ->
         CompositionLocalProvider(LocalBottomBarOverlap provides bottomBarOverlap) {
@@ -150,17 +85,4 @@ internal fun KarboApp() {
             )
         }
     }
-}
-
-@Composable
-private fun AppBottomBar(selectedTab: BottomNavSection, onAction: (AppAction) -> Unit) {
-    val items = BottomNavSection.entries
-        .map { BottomBarItem(stringResource(it.label), it.icon, it.selectedIcon, it.isProminent) }
-        .toImmutableList()
-
-    Ui.BottomBar(
-        items = items,
-        selectedIndex = selectedTab.ordinal,
-        onItemClick = { index -> onAction(OnTabClicked(BottomNavSection.entries[index])) },
-    )
 }

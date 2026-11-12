@@ -36,10 +36,6 @@ import pl.morning.tower.karbo.feature.product.ui.productDestination
 import pl.morning.tower.karbo.feature.scanner.ui.ScanRoute
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.morning.tower.karbo.feature.scanner.ui.scanDestination
-import kotlin.reflect.KClass
-
-private val pushedRoutes: List<KClass<*>> =
-    listOf(ProductRoute::class, DietPreferencesRoute::class, AboutRoute::class, HistoryRoute::class)
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, start: AppStart, modifier: Modifier = Modifier) {
@@ -153,7 +149,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
 
 private fun <T> AppMotion.transitionSpec() = tween<T>(durationMedium, easing = easingStandard)
 
-private fun NavBackStackEntry.isPushed(): Boolean = pushedRoutes.any { destination.hasRoute(it) }
+private fun NavBackStackEntry.isPushed(): Boolean = destination.presentation() == RoutePresentation.PUSHED
 
 private inline fun <reified T : Any> NavHostController.ifCurrent(action: NavHostController.() -> Unit) {
     if (currentDestination?.hasRoute<T>() == true) action()
