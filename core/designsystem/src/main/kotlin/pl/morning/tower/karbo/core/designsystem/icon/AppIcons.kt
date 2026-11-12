@@ -30,6 +30,7 @@ object AppIcons {
     val Logo = AppIcon(R.drawable.ic_logo)
     val Sliders = AppIcon(R.drawable.ic_sliders)
     val Info = AppIcon(R.drawable.ic_info)
+    val Clock = AppIcon(R.drawable.ic_clock)
     val Search = AppIcon(R.drawable.ic_search)
     val Jar = AppIcon(R.drawable.ic_jar)
     val Bottle = AppIcon(R.drawable.ic_bottle)

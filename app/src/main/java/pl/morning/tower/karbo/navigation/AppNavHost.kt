@@ -108,6 +108,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
                 when (navigation) {
                     is HistoryNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
                     HistoryNavigation.NavigateBack -> navigateUp()
+                    HistoryNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
                 }
             }
         }
@@ -122,6 +123,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
             navController.ifCurrent<FavouritesRoute> {
                 when (navigation) {
                     is FavouritesNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
+                    FavouritesNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
                 }
             }
         }

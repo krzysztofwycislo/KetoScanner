@@ -22,10 +22,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.designsystem.component.ContentCrossfade
+import pl.morning.tower.karbo.core.designsystem.component.EmptyState
 import pl.morning.tower.karbo.core.designsystem.component.Screen
 import pl.morning.tower.karbo.core.designsystem.component.SearchField
 import pl.morning.tower.karbo.core.designsystem.component.Ui
 import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
 import pl.morning.tower.karbo.core.designsystem.text.UiArg
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.core.designsystem.text.resolve
@@ -38,6 +40,7 @@ import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnStartScanningClicked
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Empty
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState.Error
@@ -93,7 +96,14 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
                     }
 
                     Empty -> Box(centered, contentAlignment = Alignment.Center) {
-                        EmptyContent()
+                        Ui.EmptyState(
+                            icon = AppIcons.Heart,
+                            title = stringResource(R.string.favourites_empty_title),
+                            body = stringResource(R.string.favourites_empty_body),
+                            modifier = Modifier.padding(horizontal = AppTheme.spacing.xxl),
+                            actionText = stringResource(R.string.favourites_start_scanning),
+                            onAction = { onAction(OnStartScanningClicked) },
+                        )
                     }
 
                     is NoResults -> Box(
@@ -136,28 +146,6 @@ private fun Header() {
             text = stringResource(R.string.favourites_subtitle),
             style = AppTheme.typography.body,
             color = AppTheme.colors.text.muted,
-        )
-    }
-}
-
-@Composable
-private fun EmptyContent() {
-    Column(
-        modifier = Modifier.padding(horizontal = AppTheme.spacing.l),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
-    ) {
-        Text(
-            text = stringResource(R.string.favourites_empty_title),
-            style = AppTheme.typography.bodyStrong,
-            color = AppTheme.colors.text.default,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = stringResource(R.string.favourites_empty_body),
-            style = AppTheme.typography.bodySmall,
-            color = AppTheme.colors.text.muted,
-            textAlign = TextAlign.Center,
         )
     }
 }

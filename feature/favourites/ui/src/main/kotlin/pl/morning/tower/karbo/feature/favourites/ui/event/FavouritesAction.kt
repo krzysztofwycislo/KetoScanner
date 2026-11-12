@@ -7,5 +7,6 @@ internal sealed interface FavouritesAction {
     data object OnSearchSubmitted : FavouritesAction
     data class OnItemClicked(val barcode: String) : FavouritesAction
     data object OnRetryClicked : FavouritesAction
+    data object OnStartScanningClicked : FavouritesAction
     data class OnGroupClicked(val category: ProductCategory) : FavouritesAction
 }

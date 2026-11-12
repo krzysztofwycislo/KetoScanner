@@ -29,6 +29,7 @@ import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
 import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteGroupState
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouriteItemState
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesContentState
@@ -144,6 +145,15 @@ class FavouritesViewModelTest {
 
         assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEventsReceived)
         assertEquals(NavigateToProduct("123"), viewModel.events.first())
+    }
+
+    @Test
+    fun `when start scanning is clicked then navigate to scan is emitted`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(FavouritesAction.OnStartScanningClicked)
+
+        assertEquals(NavigateToScan, viewModel.events.first())
     }
 
     @Test

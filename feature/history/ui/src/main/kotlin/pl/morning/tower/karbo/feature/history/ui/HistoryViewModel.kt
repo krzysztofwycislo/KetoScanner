@@ -31,9 +31,11 @@ import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnQueryChan
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnRetryClicked
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnSearchSubmitted
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnStart
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnStartScanningClicked
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryState
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryStateFactory
@@ -83,6 +85,7 @@ internal class HistoryViewModel(
             OnSearchSubmitted -> appEvents send HideKeyboard
             is OnEntryClicked -> openProduct(action.barcode)
             OnBackClicked -> screenEvents send NavigateBack
+            OnStartScanningClicked -> screenEvents send NavigateToScan
         }
     }
 

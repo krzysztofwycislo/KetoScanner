@@ -31,6 +31,7 @@ import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEn
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateBack
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryStateFactory
@@ -232,6 +233,15 @@ class HistoryViewModelTest {
         viewModel.onAction(HistoryAction.OnBackClicked)
 
         assertEquals(NavigateBack, viewModel.events.first())
+    }
+
+    @Test
+    fun `when start scanning is clicked then navigate to scan is emitted`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(HistoryAction.OnStartScanningClicked)
+
+        assertEquals(NavigateToScan, viewModel.events.first())
     }
 
     private fun TestScope.createViewModel(handle: SavedStateHandle = SavedStateHandle()): HistoryViewModel {

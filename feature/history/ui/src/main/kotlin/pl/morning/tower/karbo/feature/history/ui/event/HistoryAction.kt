@@ -4,6 +4,7 @@ import pl.morning.tower.karbo.feature.history.ui.state.HistoryFilter
 
 internal sealed interface HistoryAction {
     data object OnStart : HistoryAction
+    data object OnStartScanningClicked : HistoryAction
     data object OnRetryClicked : HistoryAction
     data class OnEntryClicked(val barcode: String) : HistoryAction
     data object OnBackClicked : HistoryAction

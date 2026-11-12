@@ -35,6 +35,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.designsystem.component.Chip
 import pl.morning.tower.karbo.core.designsystem.component.CircleIconButton
+import pl.morning.tower.karbo.core.designsystem.component.EmptyState
 import pl.morning.tower.karbo.core.designsystem.component.HeroCard
 import pl.morning.tower.karbo.core.designsystem.component.IconTile
 import pl.morning.tower.karbo.core.designsystem.component.ListRowCard
@@ -254,23 +255,19 @@ private fun LazyListScope.recentContent(
 @Composable
 private fun EmptyCard() {
     val shape = AppTheme.shapes.card
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(AppTheme.colors.background.surface, shape)
             .border(AppTheme.borders.hairline, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.spacing.m),
-        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
+            .padding(vertical = AppTheme.spacing.xl, horizontal = AppTheme.spacing.l),
+        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = stringResource(R.string.home_empty_title),
-            style = AppTheme.typography.bodyStrong,
-            color = AppTheme.colors.text.default,
-        )
-        Text(
-            text = stringResource(R.string.home_empty_body),
-            style = AppTheme.typography.bodySmall,
-            color = AppTheme.colors.text.muted,
+        Ui.EmptyState(
+            icon = AppIcons.Scan,
+            title = stringResource(R.string.home_empty_title),
+            body = stringResource(R.string.home_empty_body),
+            compact = true,
         )
     }
 }

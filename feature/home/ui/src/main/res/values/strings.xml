@@ -16,7 +16,7 @@
     <string name="home_recent_title">Recent scans</string>
     <string name="home_see_all">See all</string>
     <string name="home_empty_title">No scans yet</string>
-    <string name="home_empty_body">Scan a product and it shows up here.</string>
+    <string name="home_empty_body">Your scans show up here. Try something from your kitchen first.</string>
     <string name="home_retry">Try again</string>
     <string name="home_unnamed_product">Unnamed product</string>
     <string name="home_time_today">Today, %1$s</string>

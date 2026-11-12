@@ -32,6 +32,7 @@ import kotlinx.collections.immutable.toPersistentList
 import org.koin.compose.viewmodel.koinViewModel
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.designsystem.component.ContentCrossfade
+import pl.morning.tower.karbo.core.designsystem.component.EmptyState
 import pl.morning.tower.karbo.core.designsystem.component.FilterChip
 import pl.morning.tower.karbo.core.designsystem.component.IconTile
 import pl.morning.tower.karbo.core.designsystem.component.ListRowCard
@@ -58,6 +59,7 @@ import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnQueryChan
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnRetryClicked
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnSearchSubmitted
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnStart
+import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction.OnStartScanningClicked
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryEvent.HistoryNavigation
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.Empty
 import pl.morning.tower.karbo.feature.history.ui.state.HistoryContentState.Error
@@ -116,10 +118,13 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
                     }
 
                     Empty -> Box(centered, contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(R.string.history_empty),
-                            style = AppTheme.typography.body,
-                            color = AppTheme.colors.text.default,
+                        Ui.EmptyState(
+                            icon = AppIcons.Clock,
+                            title = stringResource(R.string.history_empty_title),
+                            body = stringResource(R.string.history_empty_body),
+                            modifier = Modifier.padding(horizontal = AppTheme.spacing.xxl),
+                            actionText = stringResource(R.string.history_start_scanning),
+                            onAction = { onAction(OnStartScanningClicked) },
                         )
                     }
 

@@ -31,8 +31,10 @@ import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnIte
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnQueryChanged
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnRetryClicked
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnSearchSubmitted
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction.OnStartScanningClicked
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToProduct
+import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesEvent.FavouritesNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesState
 import pl.morning.tower.karbo.feature.favourites.ui.state.FavouritesStateFactory
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
@@ -75,6 +77,7 @@ internal class FavouritesViewModel(
             is OnItemClicked -> openProduct(action.barcode)
             OnRetryClicked -> retry()
             is OnGroupClicked -> toggleGroup(action.category)
+            OnStartScanningClicked -> screenEvents send NavigateToScan
         }
     }
 

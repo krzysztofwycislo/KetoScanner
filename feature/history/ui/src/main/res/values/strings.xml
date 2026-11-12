@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="history_title">Scan history</string>
-    <string name="history_empty">No products analysed yet</string>
+    <string name="history_empty_title">No scans yet</string>
+    <string name="history_empty_body">Every product you scan is kept here, so you can find it again.</string>
+    <string name="history_start_scanning">Start scanning</string>
     <string name="history_retry">Try again</string>
     <string name="history_unnamed_product">Unnamed product</string>
     <string name="history_search_placeholder">Search by name</string>

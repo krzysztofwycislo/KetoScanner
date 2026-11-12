@@ -4,7 +4,8 @@
     <string name="favourites_subtitle">Your go-to picks, ready for the next shop.</string>
     <string name="favourites_search_placeholder">Search favourites</string>
     <string name="favourites_empty_title">No favourites yet</string>
-    <string name="favourites_empty_body">Tap the heart on a product to keep it here.</string>
+    <string name="favourites_empty_body">Tap the heart on a product to keep it here for your next shop.</string>
+    <string name="favourites_start_scanning">Start scanning</string>
     <string name="favourites_no_results">No favourites match “%1$s”.</string>
     <string name="favourites_unnamed_product">Unnamed product</string>
     <string name="favourites_retry">Try again</string>
