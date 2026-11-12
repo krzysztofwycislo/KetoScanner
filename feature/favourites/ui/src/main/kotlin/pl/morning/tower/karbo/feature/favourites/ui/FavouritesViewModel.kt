@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
-import pl.morning.tower.karbo.core.common.onFailure
-import pl.morning.tower.karbo.core.common.onSuccess
+import pl.morning.tower.karbo.core.common.catchAppError
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.model.ProductCategory
@@ -85,31 +85,31 @@ internal class FavouritesViewModel(
                 statePrototype.map { it.query.trim() }.distinctUntilChanged(),
                 retryClicks.onStart { emit(Unit) },
             ) { query, _ -> query }
-                .flatMapLatest { query -> favourites.observeFavourites(query).map { query to it } }
-                .collect { (query, outcome) ->
-                    outcome
-                        .onSuccess { list ->
-                            statePrototype.update {
-                                it.copy(favourites = list, favouritesQuery = query, loadError = null)
-                            }
-                        }
-                        .onFailure { error ->
-                            errorReporter.report(TAG, "Loading favourites failed", error)
-                            statePrototype.update { it.copy(loadError = error) }
-                        }
+                .flatMapLatest { query ->
+                    favourites.observeFavourites(query)
+                        .map { query to it }
+                        .catchAppError(::onFavouritesFailed)
+                }
+                .collect { (query, list) ->
+                    statePrototype.update {
+                        it.copy(favourites = list, favouritesQuery = query, loadError = null)
+                    }
                 }
         }
     }
 
+    private fun onFavouritesFailed(error: AppError) {
+        errorReporter.report(TAG, "Loading favourites failed", error)
+        statePrototype.update { it.copy(loadError = error) }
+    }
+
     private fun observePreferences() {
         viewModelScope.launch {
-            preferences.observeDietPreferences().collect { outcome ->
-                outcome
-                    .onSuccess { dietPreferences ->
-                        statePrototype.update { it.copy(dietPreferences = dietPreferences) }
-                    }
-                    .onFailure { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
-            }
+            preferences.observeDietPreferences()
+                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .collect { dietPreferences ->
+                    statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+                }
         }
     }
 

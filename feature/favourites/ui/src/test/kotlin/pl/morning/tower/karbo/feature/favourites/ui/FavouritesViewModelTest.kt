@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -16,13 +17,14 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.getOrThrow
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
-import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
 import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
 import pl.morning.tower.karbo.feature.favourites.ui.event.FavouritesAction
@@ -248,19 +250,17 @@ class FavouritesViewModelTest {
         val queries = mutableListOf<String>()
         val pendingQueries = mutableSetOf<String>()
 
-        override fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>> = flow {
+        override fun observeFavourites(nameQuery: String): Flow<List<FavouriteProduct>> = flow {
             queries += nameQuery
             if (nameQuery in pendingQueries) awaitCancellation()
-            emit(result)
+            emit(result.getOrThrow())
         }
 
-        override suspend fun addToFavourites(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
+        override suspend fun addToFavourites(product: Product): Outcome<Unit> = Outcome.Success(Unit)
 
-        override suspend fun findByBarcode(barcode: String): Outcome<FavouriteProduct?> = Outcome.Success(null)
+        override suspend fun isFavourite(barcode: Barcode): Outcome<Boolean> = Outcome.Success(false)
 
         override suspend fun removeFromFavourites(product: Product): Outcome<Unit> = Outcome.Success(Unit)
-
-        override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
     }
 
     private class FakePreferences : DietPreferencesRepository {
@@ -269,7 +269,7 @@ class FavouritesViewModelTest {
 
         suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
 
-        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 

@@ -8,5 +8,6 @@ dependencies {
     api(platform(libs.koin.bom))
     api(libs.koin.core)
 
+    testImplementation(project(":core:testing"))
     testImplementation(libs.kotlinx.coroutines.test)
 }

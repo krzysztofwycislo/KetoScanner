@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -21,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.getOrThrow
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.component.Rating
@@ -30,6 +32,7 @@ import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
 import pl.morning.tower.karbo.core.designsystem.text.UiArg
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.core.designsystem.text.toUiText
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeAppLogger
 import pl.morning.tower.karbo.core.testing.FakeClock
@@ -575,7 +578,7 @@ class ScanViewModelTest {
             assertTrue(viewModel.state.value.isLookUpEnabled)
             assertEquals(ratedCard, viewModel.state.value.found)
             assertEquals(preview(isPaused = true, frame = ScanFrameMode.Found), viewModel.state.value.camera)
-            assertEquals(listOf<ProductAnalysis>(ratedAnalysis), history.saved)
+            assertEquals(listOf(ratedAnalysis.product), history.saved)
 
             analyzeProduct.emit(ratedAnalysis.copy(product = product.copy(name = "Nutella B-ready")))
 
@@ -1001,6 +1004,9 @@ class ScanViewModelTest {
 
         override fun observeProduct(barcode: String): Flow<Product> = throw NotImplementedError()
 
+        override fun observeProducts(barcodes: Set<Barcode>): Flow<List<Product>> =
+            throw NotImplementedError()
+
         override suspend fun refreshProduct(barcode: String): Outcome<Unit> {
             refreshedBarcodes += barcode
             gate?.await()
@@ -1028,18 +1034,18 @@ class ScanViewModelTest {
     private class FakeHistory : AnalysisHistoryRepository {
 
         var result: Outcome<Unit> = Outcome.Success(Unit)
-        val saved = mutableListOf<ProductAnalysis>()
+        val saved = mutableListOf<Product>()
         val entries = MutableStateFlow<Outcome<List<ProductAnalysisHistoryEntry>>>(Outcome.Success(emptyList()))
         val requestedAmounts = mutableListOf<Int>()
 
-        override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> {
-            saved += analysis
+        override suspend fun save(product: Product): Outcome<Unit> {
+            saved += product
             return result
         }
 
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = flow {
+        override fun observeLastUniqueEntries(amount: Int): Flow<List<ProductAnalysisHistoryEntry>> = flow {
             requestedAmounts += amount
-            emitAll(entries)
+            emitAll(entries.map { it.getOrThrow() })
         }
     }
 
@@ -1049,7 +1055,7 @@ class ScanViewModelTest {
 
         suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
 
-        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 

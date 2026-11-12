@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.AppErrorException
 import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
@@ -328,7 +329,7 @@ class DietPreferencesViewModelTest {
 
     private class FakePreferences : DietPreferencesRepository {
 
-        private val values = MutableSharedFlow<Outcome<DietPreferences>>(replay = 1)
+        private val values = MutableSharedFlow<DietPreferences>(replay = 1)
         var readFailure: AppError? = null
         var saveResult: Outcome<Unit> = Outcome.Success(Unit)
         var saveGate: CompletableDeferred<Unit>? = null
@@ -336,14 +337,16 @@ class DietPreferencesViewModelTest {
         val saved = mutableListOf<DietPreferences>()
 
         fun emit(amount: Int, mode: DietMode = DietMode.KETO) {
-            values.tryEmit(Outcome.Success(DietPreferences(amount, mode)))
+            values.tryEmit(DietPreferences(amount, mode))
         }
 
-        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow {
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow {
             subscriptions++
             val failure = readFailure
-            if (failure != null) emit(Outcome.Failure(failure))
-            else values.collect { emit(it) }
+            if (failure != null) {
+                throw AppErrorException(failure)
+            }
+            values.collect { emit(it) }
         }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()

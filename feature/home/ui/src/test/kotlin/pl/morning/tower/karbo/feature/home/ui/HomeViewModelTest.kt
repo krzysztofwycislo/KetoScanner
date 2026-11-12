@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,11 +16,11 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.getOrThrow
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeClock
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
-import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.home.ui.event.HomeAction
@@ -34,6 +35,7 @@ import pl.morning.tower.karbo.feature.home.ui.state.HomeStatePrototype
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.model.Product
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -208,11 +210,13 @@ class HomeViewModelTest {
 
         suspend fun emit(outcome: Outcome<List<ProductAnalysisHistoryEntry>>) = subscriptions.last().emit(outcome)
 
-        override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
+        override suspend fun save(product: Product): Outcome<Unit> = Outcome.Success(Unit)
 
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = flow {
+        override fun observeLastUniqueEntries(amount: Int): Flow<List<ProductAnalysisHistoryEntry>> = flow {
             requestedAmounts += amount
-            emitAll(MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>().also { subscriptions += it })
+            val subscription = MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>()
+            subscriptions += subscription
+            emitAll(subscription.map { it.getOrThrow() })
         }
     }
 
@@ -222,7 +226,7 @@ class HomeViewModelTest {
 
         suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
 
-        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 

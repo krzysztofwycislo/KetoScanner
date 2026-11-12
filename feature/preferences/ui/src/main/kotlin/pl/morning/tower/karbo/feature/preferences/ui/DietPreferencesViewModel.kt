@@ -17,9 +17,11 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
 import pl.morning.tower.karbo.core.common.ProgressTracker
+import pl.morning.tower.karbo.core.common.catchAppError
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
@@ -91,16 +93,14 @@ internal class DietPreferencesViewModel(
     private fun observePreferences() {
         viewModelScope.launch {
             retryClicks.onStart { emit(Unit) }
-                .flatMapLatest { preferences.observeDietPreferences() }
-                .collect { outcome ->
-                    outcome
-                        .onSuccess(::showPreferences)
-                        .onFailure { error ->
-                            errorReporter.report(TAG, "Loading diet preferences failed", error)
-                            statePrototype.update { it.copy(loadError = error) }
-                        }
-                }
+                .flatMapLatest { preferences.observeDietPreferences().catchAppError(::onLoadFailed) }
+                .collect(::showPreferences)
         }
+    }
+
+    private fun onLoadFailed(error: AppError) {
+        errorReporter.report(TAG, "Loading diet preferences failed", error)
+        statePrototype.update { it.copy(loadError = error) }
     }
 
     private fun showPreferences(dietPreferences: DietPreferences) {

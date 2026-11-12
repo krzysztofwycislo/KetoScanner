@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -18,12 +19,13 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.getOrThrow
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeClock
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
-import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.history.ui.event.HistoryAction
@@ -36,6 +38,7 @@ import pl.morning.tower.karbo.feature.history.ui.state.HistoryStatePrototype
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.product.api.model.Product
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -158,6 +161,18 @@ class HistoryViewModelTest {
     }
 
     @Test
+    fun `when entries are re-rated then the selected filter shows the new matches`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_FILTER to HistoryFilter.GOOD.name)))
+        repository.emit(Outcome.Success(listOf(entry(2, rate = DietRate.NEUTRAL), entry(1, rate = DietRate.GOOD))))
+        assertEquals(listOf(1L), ids(viewModel))
+
+        repository.emit(Outcome.Success(listOf(entry(2, rate = DietRate.GOOD), entry(1, rate = DietRate.NOT_ADVISED))))
+
+        assertEquals(listOf(2L), ids(viewModel))
+        assertEquals(1, repository.requestedAmounts.size)
+    }
+
+    @Test
     fun `when the handle is pre-filled then the view model starts with that query and filter`() = runTest {
         val handle = SavedStateHandle(mapOf(KEY_QUERY to "nut", KEY_FILTER to HistoryFilter.GOOD.name))
 
@@ -248,11 +263,13 @@ class HistoryViewModelTest {
 
         suspend fun emit(outcome: Outcome<List<ProductAnalysisHistoryEntry>>) = subscriptions.last().emit(outcome)
 
-        override suspend fun save(analysis: ProductAnalysis): Outcome<Unit> = Outcome.Success(Unit)
+        override suspend fun save(product: Product): Outcome<Unit> = Outcome.Success(Unit)
 
-        override fun observeLastUniqueEntries(amount: Int): Flow<Outcome<List<ProductAnalysisHistoryEntry>>> = flow {
+        override fun observeLastUniqueEntries(amount: Int): Flow<List<ProductAnalysisHistoryEntry>> = flow {
             requestedAmounts += amount
-            emitAll(MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>().also { subscriptions += it })
+            val subscription = MutableSharedFlow<Outcome<List<ProductAnalysisHistoryEntry>>>()
+            subscriptions += subscription
+            emitAll(subscription.map { it.getOrThrow() })
         }
     }
 
@@ -262,7 +279,7 @@ class HistoryViewModelTest {
 
         suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
 
-        override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> = flow
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 
@@ -275,13 +292,13 @@ class HistoryViewModelTest {
         const val KEY_FILTER = "filter"
         val NOW = Instant.parse("2026-10-12T18:42:00Z")
 
-        fun entry(id: Long, name: String = "Name $id") = ProductAnalysisHistoryEntry(
+        fun entry(id: Long, name: String = "Name $id", rate: DietRate? = null) = ProductAnalysisHistoryEntry(
             id = id,
             productName = name,
             productBarcode = "barcode-$id",
             productBrand = "Brand",
             updateTime = NOW,
-            dietRate = null,
+            dietRate = rate,
             carbsPer100g = null,
             category = ProductCategory.OTHER,
         )

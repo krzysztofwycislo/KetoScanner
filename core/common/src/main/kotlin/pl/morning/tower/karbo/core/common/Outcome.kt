@@ -25,9 +25,16 @@ inline fun <T> Outcome<T>.onFailure(action: (AppError) -> Unit): Outcome<T> = ap
     if (this is Outcome.Failure) action(error)
 }
 
+class AppErrorException(val error: AppError) : Exception(error.toString())
+
 fun <T> Outcome<T>.getOrNull(): T? = when (this) {
     is Outcome.Success -> value
     is Outcome.Failure -> null
+}
+
+fun <T> Outcome<T>.getOrThrow(): T = when (this) {
+    is Outcome.Success -> value
+    is Outcome.Failure -> throw AppErrorException(error)
 }
 
 inline fun <T> outcomeOf(mapError: (Throwable) -> AppError, block: () -> T): Outcome<T> =
@@ -35,6 +42,8 @@ inline fun <T> outcomeOf(mapError: (Throwable) -> AppError, block: () -> T): Out
         Outcome.Success(block())
     } catch (e: CancellationException) {
         throw e
+    } catch (e: AppErrorException) {
+        Outcome.Failure(e.error)
     } catch (e: Throwable) {
         Outcome.Failure(mapError(e))
     }

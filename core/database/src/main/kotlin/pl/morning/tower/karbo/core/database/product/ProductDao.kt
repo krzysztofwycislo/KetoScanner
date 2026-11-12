@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
-
 @Dao
 interface ProductDao {
 
@@ -15,13 +14,9 @@ interface ProductDao {
     @Query("SELECT * FROM ${ProductEntity.TABLE_NAME} WHERE barcode = :barcode LIMIT 1")
     fun observeByBarcode(barcode: String): Flow<ProductEntity?>
 
+    @Query("SELECT * FROM ${ProductEntity.TABLE_NAME} WHERE barcode IN (:barcodes)")
+    fun observeByBarcodes(barcodes: List<String>): Flow<List<ProductEntity>>
+
     @Upsert
     suspend fun upsert(product: ProductEntity)
-
-    @Query(
-        "DELETE FROM ${ProductEntity.TABLE_NAME} WHERE barcode NOT IN " +
-            "(SELECT barcode FROM ${ProductEntity.TABLE_NAME} ORDER BY fetchedAt DESC LIMIT :keep)"
-    )
-    suspend fun deleteAllExceptNewest(keep: Int)
-
 }

@@ -1,7 +1,6 @@
 package pl.morning.tower.karbo.feature.preferences.data
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -10,28 +9,26 @@ import kotlinx.coroutines.withContext
 import pl.morning.tower.karbo.core.common.AppDispatchers
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.mapFailures
 import pl.morning.tower.karbo.core.common.outcomeOf
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
-import kotlin.coroutines.cancellation.CancellationException
 
 internal class DietPreferencesRepositoryImpl(
     private val persistence: DietPreferencesPersistence,
     private val dispatchers: AppDispatchers,
 ) : DietPreferencesRepository {
 
-    override fun observeDietPreferences(): Flow<Outcome<DietPreferences>> =
+    override fun observeDietPreferences(): Flow<DietPreferences> =
         persistence.observe()
-            .map<StoredDietPreferences, Outcome<DietPreferences>> { stored -> Outcome.Success(stored.toDomain()) }
+            .map { stored -> stored.toDomain() }
             .distinctUntilChanged()
-            .catch { error ->
-                if (error is CancellationException) throw error
-                emit(Outcome.Failure(AppError.Storage))
-            }
+            .mapFailures(mapError = { AppError.Storage })
             .flowOn(dispatchers.io)
 
-    override suspend fun getDietPreferences(): Outcome<DietPreferences> = observeDietPreferences().first()
+    override suspend fun getDietPreferences(): Outcome<DietPreferences> =
+        outcomeOf(mapError = { AppError.Storage }) { observeDietPreferences().first() }
 
     override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
         withContext(dispatchers.io) {

@@ -1,6 +1,7 @@
 package pl.morning.tower.karbo.feature.favourites.data
 
 import pl.morning.tower.karbo.core.database.favourite.FavouriteProductEntity
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
@@ -17,8 +18,8 @@ import kotlin.time.Instant
 class EntityMapperTest {
 
     @Test
-    fun `when entity is mapped then all fields are kept`() {
-        val entity = FavouriteProductEntity(BARCODE, NAME, BRAND, IMAGE_URL, "GOOD", CARBS, "CHEESE").apply {
+    fun `when entity is mapped with an analysis then stored fields and live fields are set`() {
+        val entity = FavouriteProductEntity(BARCODE, NAME, BRAND, IMAGE_URL, "YOGURT_AND_CREAM").apply {
             updateTime = UPDATE_TIME
         }
 
@@ -33,88 +34,64 @@ class EntityMapperTest {
                 CARBS,
                 ProductCategory.CHEESE,
             ),
-            entity.toDomain(),
+            entity.toDomain(ProductAnalysis.Rated(product, macronutrients)),
         )
     }
 
     @Test
-    fun `when each diet rate goes through entity and back then the rate is unchanged`() {
+    fun `when each diet rate is analysed then the favourite has that rate`() {
         DietRate.entries.forEach { dietRate ->
-            val mapped = ProductAnalysis.Rated(product, analysis.copy(rate = dietRate)).toFavouriteEntity().toDomain()
+            val mapped = entity().toDomain(ProductAnalysis.Rated(product, macronutrients.copy(rate = dietRate)))
 
             assertEquals(dietRate, mapped.dietRate)
         }
     }
 
     @Test
-    fun `when stored rate is null then domain rate is null`() {
-        val entity = FavouriteProductEntity(BARCODE, NAME, BRAND, null, null, null, null)
+    fun `when there is no analysis then rate and carbs are null and the stored category is kept`() {
+        val mapped = entity(category = "YOGURT_AND_CREAM").toDomain(null)
 
-        assertNull(entity.toDomain().dietRate)
+        assertNull(mapped.dietRate)
+        assertNull(mapped.carbsPer100g)
+        assertEquals(ProductCategory.YOGURT_AND_CREAM, mapped.category)
     }
 
     @Test
-    fun `when stored rate name is unknown then domain rate is null`() {
-        val entity = FavouriteProductEntity(BARCODE, NAME, BRAND, null, "VERY_GOOD", null, null)
+    fun `when analysis is insufficient data then the rate is null and the product carbs are kept`() {
+        val mapped = entity().toDomain(ProductAnalysis.InsufficientData(product))
 
-        assertNull(entity.toDomain().dietRate)
+        assertNull(mapped.dietRate)
+        assertEquals(CARBS, mapped.carbsPer100g)
     }
 
     @Test
-    fun `when entity list is mapped then order is kept`() {
-        val entities = listOf("1", "2", "3").map { FavouriteProductEntity(it, NAME, BRAND, null, null, null, null) }
+    fun `when entity list is mapped then order is kept and each row gets its own analysis`() {
+        val entities = listOf("1", "2", "3").map { FavouriteProductEntity(it, NAME, BRAND, null, null) }
+        val analyses = mapOf(
+            Barcode("2") to ProductAnalysis.Rated(product, macronutrients.copy(rate = DietRate.NEUTRAL)),
+        )
 
-        assertEquals(listOf("1", "2", "3"), entities.toDomain().map { it.productBarcode })
+        val mapped = entities.toDomain(analyses)
+
+        assertEquals(listOf("1", "2", "3"), mapped.map { it.productBarcode })
+        assertEquals(listOf(null, DietRate.NEUTRAL, null), mapped.map { it.dietRate })
     }
 
     @Test
-    fun `when product is mapped to entity then barcode name brand and image are kept and rating is empty`() {
+    fun `when product is mapped to entity then barcode name brand image and category are kept`() {
         val entity = product.toFavouriteEntity()
 
         assertEquals(BARCODE, entity.productBarcode)
         assertEquals(NAME, entity.productName)
         assertEquals(BRAND, entity.productBrand)
         assertEquals(IMAGE_URL, entity.imageUrl)
-        assertNull(entity.dietRate)
-        assertNull(entity.carbsPer100g)
-    }
-
-    @Test
-    fun `when rated analysis is mapped to entity then product fields rate name and carbs are kept`() {
-        val entity = ProductAnalysis.Rated(product, analysis).toFavouriteEntity()
-
-        assertEquals(BARCODE, entity.productBarcode)
-        assertEquals(NAME, entity.productName)
-        assertEquals(BRAND, entity.productBrand)
-        assertEquals(IMAGE_URL, entity.imageUrl)
-        assertEquals("GOOD", entity.dietRate)
-        assertEquals(CARBS, entity.carbsPer100g)
-    }
-
-    @Test
-    fun `when insufficient data analysis is mapped to entity then rate is null and carbs are kept`() {
-        val entity = ProductAnalysis.InsufficientData(product).toFavouriteEntity()
-
-        assertNull(entity.dietRate)
-        assertEquals(CARBS, entity.carbsPer100g)
-    }
-
-    @Test
-    fun `when product goes through entity and back then the category is kept`() {
-        val entity = ProductAnalysis.Rated(product, analysis).toFavouriteEntity()
-
         assertEquals("CHEESE", entity.category)
-        assertEquals(ProductCategory.CHEESE, entity.toDomain().category)
-        assertEquals("CHEESE", product.toFavouriteEntity().category)
     }
 
     @Test
-    fun `when stored category is unknown or null then domain category is other`() {
-        val unknown = FavouriteProductEntity(BARCODE, NAME, BRAND, null, null, null, "SOUPS")
-        val missing = FavouriteProductEntity(BARCODE, NAME, BRAND, null, null, null, null)
-
-        assertEquals(ProductCategory.OTHER, unknown.toDomain().category)
-        assertEquals(ProductCategory.OTHER, missing.toDomain().category)
+    fun `when stored category is unknown or null and there is no analysis then domain category is other`() {
+        assertEquals(ProductCategory.OTHER, entity(category = "SOUPS").toDomain(null).category)
+        assertEquals(ProductCategory.OTHER, entity(category = null).toDomain(null).category)
     }
 
     private companion object {
@@ -125,7 +102,7 @@ class EntityMapperTest {
         const val CARBS = 12.5
         val UPDATE_TIME = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
-        val analysis = MacronutrientAnalysisResult(DietMode.KETO, DietRate.GOOD, emptyList(), CARBS, 800.0, 40)
+        val macronutrients = MacronutrientAnalysisResult(DietMode.KETO, DietRate.GOOD, emptyList(), CARBS, 800.0, 40)
 
         val product = Product(
             name = NAME,
@@ -136,5 +113,7 @@ class EntityMapperTest {
             servingAmount = null,
             category = ProductCategory.CHEESE,
         )
+
+        fun entity(category: String? = null) = FavouriteProductEntity(BARCODE, NAME, BRAND, null, category)
     }
 }

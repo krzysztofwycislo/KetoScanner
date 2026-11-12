@@ -19,7 +19,7 @@ import pl.morning.tower.karbo.core.database.product.ProductEntity
         FavouriteProductEntity::class,
         ProductEntity::class
     ],
-    version = 7
+    version = 8
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

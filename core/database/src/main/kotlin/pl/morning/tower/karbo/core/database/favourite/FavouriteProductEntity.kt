@@ -13,8 +13,6 @@ data class FavouriteProductEntity(
     val productName: String,
     val productBrand: String,
     val imageUrl: String?,
-    val dietRate: String?,
-    val carbsPer100g: Double?,
     val category: String?
 ) {
 

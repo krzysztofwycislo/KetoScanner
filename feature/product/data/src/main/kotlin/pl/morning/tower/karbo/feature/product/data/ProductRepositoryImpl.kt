@@ -15,8 +15,10 @@ import kotlinx.coroutines.flow.updateAndGet
 import pl.morning.tower.karbo.core.common.AppDispatchers
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
+import pl.morning.tower.karbo.core.common.mapFailures
 import pl.morning.tower.karbo.core.common.outcomeOf
 import pl.morning.tower.karbo.core.database.product.ProductEntity
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.openfoodapi.ProductNetworkSource
@@ -25,7 +27,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
 internal val PRODUCT_CACHE_TTL: Duration = 30.days
-internal const val PRODUCT_CACHE_MAX_ENTRIES = 300
 
 internal class ProductRepositoryImpl(
     private val persistence: ProductPersistence,
@@ -42,6 +43,14 @@ internal class ProductRepositoryImpl(
             .filterNotNull()
             .map { it.toDomain() }
             .distinctUntilChanged()
+            .mapFailures(mapError = { AppError.Storage })
+            .flowOn(dispatchers.io)
+
+    override fun observeProducts(barcodes: Set<Barcode>): Flow<List<Product>> =
+        persistence.observe(barcodes.map { it.value })
+            .map { rows -> rows.map { it.toDomain() } }
+            .distinctUntilChanged()
+            .mapFailures(mapError = { AppError.Storage })
             .flowOn(dispatchers.io)
 
     override suspend fun refreshProduct(barcode: String): Outcome<Unit> {
@@ -78,6 +87,5 @@ internal class ProductRepositoryImpl(
     private suspend fun save(product: Product): Outcome<Unit> =
         outcomeOf(mapError = { AppError.Storage }) {
             persistence.save(product.toEntity(fetchedAt = clock.now()))
-            persistence.keepNewest(PRODUCT_CACHE_MAX_ENTRIES)
         }
 }

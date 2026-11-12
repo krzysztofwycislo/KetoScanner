@@ -25,12 +25,10 @@ import pl.morning.tower.karbo.core.common.onSuccess
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.ShowMessage
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
-import pl.morning.tower.karbo.feature.analysis.api.model.carbsPer100g
-import pl.morning.tower.karbo.feature.analysis.api.model.dietRate
 import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
-import pl.morning.tower.karbo.feature.favourites.api.model.FavouriteProduct
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnBackClicked
@@ -115,23 +113,12 @@ internal class ProductViewModel(
     private fun loadFavouriteStatus() {
         viewModelScope.launch {
             val analysis = firstShownAnalysis()
-            favourites.findByBarcode(analysis.product.barcode)
-                .onSuccess { favourite ->
-                    statePrototype.update { it.copy(isFavourite = favourite != null) }
-                    if (favourite != null && favourite.hasDifferentRatingThan(analysis)) updateFavouriteRating(analysis)
+            favourites.isFavourite(Barcode(analysis.product.barcode))
+                .onSuccess { isFavourite ->
+                    statePrototype.update { it.copy(isFavourite = isFavourite) }
                 }
                 .onFailure { error -> log("Loading favourite status failed", error) }
         }
-    }
-
-    private fun FavouriteProduct.hasDifferentRatingThan(analysis: ProductAnalysis): Boolean =
-        dietRate != analysis.dietRate ||
-            carbsPer100g != analysis.carbsPer100g ||
-            category != analysis.product.category
-
-    private suspend fun updateFavouriteRating(analysis: ProductAnalysis) {
-        favourites.updateRating(analysis)
-            .onFailure { error -> log("Updating favourite rating failed", error) }
     }
 
     private fun refresh() {
@@ -179,7 +166,7 @@ internal class ProductViewModel(
 
         viewModelScope.launch {
             val outcome = if (isFavourite) favourites.removeFromFavourites(analysis.product)
-            else favourites.addToFavourites(analysis)
+            else favourites.addToFavourites(analysis.product)
 
             outcome
                 .onSuccess {

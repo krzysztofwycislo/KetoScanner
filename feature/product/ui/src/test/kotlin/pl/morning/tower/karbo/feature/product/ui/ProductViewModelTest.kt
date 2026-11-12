@@ -18,9 +18,11 @@ import kotlinx.coroutines.test.setMain
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
+import pl.morning.tower.karbo.core.designsystem.component.Rating
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeAppLogger
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
@@ -39,6 +41,7 @@ import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
 import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
+import pl.morning.tower.karbo.feature.product.ui.state.VerdictState
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -48,7 +51,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Instant
 import pl.morning.tower.karbo.core.designsystem.R as DesignR
 
 class ProductViewModelTest {
@@ -90,7 +92,7 @@ class ProductViewModelTest {
     @Test
     fun `when created and a product is emitted then product is shown and favourite status loaded`() =
         runTest {
-            favourites.findResult = Outcome.Success(favouriteProduct)
+            favourites.isFavouriteResult = Outcome.Success(true)
             val viewModel = createViewModel()
 
             val content = showProduct(viewModel)
@@ -234,6 +236,22 @@ class ProductViewModelTest {
     }
 
     @Test
+    fun `when the analysis is re-rated after a profile change then the new verdict is shown`() = runTest {
+        val viewModel = createViewModel()
+        assertEquals(Rating.Negative, assertIs<VerdictState.Rated>(showProduct(viewModel).verdict).rating)
+
+        analyzeProduct.updates.emit(
+            analysis.copy(
+                macronutrients = analysis.macronutrients.copy(dietMode = DietMode.LOW_CARB, rate = DietRate.GOOD),
+            ),
+        )
+
+        assertEquals(Rating.Positive, assertIs<VerdictState.Rated>(showProduct(viewModel).verdict).rating)
+        assertEquals(1, analyzeProduct.requestedBarcodes.size)
+        assertEquals(listOf(BARCODE), favourites.foundBarcodes)
+    }
+
+    @Test
     fun `when observing fails before any product then storage error is shown reported and retry observes again`() =
         runTest {
             analyzeProduct.failure = IllegalStateException("disk")
@@ -293,70 +311,12 @@ class ProductViewModelTest {
 
     @Test
     fun `when favourite lookup fails then there is no favourite button and failure is logged`() = runTest {
-        favourites.findResult = Outcome.Failure(AppError.Storage)
+        favourites.isFavouriteResult = Outcome.Failure(AppError.Storage)
         val viewModel = createViewModel()
 
         assertNull(showProduct(viewModel).favourite)
         assertEquals(1, logger.entries.size)
     }
-
-    @Test
-    fun `when stored favourite has a different rating then it is updated once with the shown analysis`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct.copy(dietRate = DietRate.GOOD))
-        val viewModel = createViewModel()
-
-        analyzeProduct.updates.emit(analysis.copy(product = product.copy(name = "Nutella B-ready")))
-
-        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
-        assertEquals(true, showProduct(viewModel).favourite?.isFavourite)
-    }
-
-    @Test
-    fun `when stored favourite has different carbs then it is updated with the shown analysis`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct.copy(carbsPer100g = 12.0))
-        createViewModel()
-
-        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
-    }
-
-    @Test
-    fun `when stored favourite has a different category then it is updated with the shown analysis`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct.copy(category = ProductCategory.OTHER))
-        createViewModel()
-
-        assertEquals(listOf<ProductAnalysis>(analysis), favourites.updatedRatings)
-    }
-
-    @Test
-    fun `when stored favourite has the same rating and carbs then it is not updated`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct)
-        val viewModel = createViewModel()
-
-        showProduct(viewModel)
-        assertTrue(favourites.updatedRatings.isEmpty())
-    }
-
-    @Test
-    fun `when product is not a favourite then no rating is updated`() = runTest {
-        val viewModel = createViewModel()
-
-        showProduct(viewModel)
-        assertTrue(favourites.updatedRatings.isEmpty())
-    }
-
-    @Test
-    fun `when favourite rating update fails then it is logged and the product stays a favourite with no message`() =
-        runTest {
-            favourites.findResult = Outcome.Success(favouriteProduct.copy(dietRate = DietRate.GOOD))
-            favourites.updateRatingResult = Outcome.Failure(AppError.Storage)
-            collectMessages()
-            val viewModel = createViewModel()
-
-            assertEquals(true, showProduct(viewModel).favourite?.isFavourite)
-            assertEquals(1, favourites.updatedRatings.size)
-            assertEquals(1, logger.entries.size)
-            assertTrue(messages.isEmpty())
-        }
 
     @Test
     fun `when favourite is clicked for a non favourite then product is added and message is sent`() = runTest {
@@ -365,7 +325,7 @@ class ProductViewModelTest {
 
         viewModel.onAction(ProductAction.OnFavouriteClicked)
 
-        assertEquals(listOf<ProductAnalysis>(analysis), favourites.added)
+        assertEquals(listOf(product), favourites.added)
         assertTrue(favourites.removed.isEmpty())
         val button = assertNotNull(showProduct(viewModel).favourite)
         assertTrue(button.isFavourite)
@@ -380,7 +340,7 @@ class ProductViewModelTest {
 
     @Test
     fun `when favourite is clicked for a favourite then product is removed and message is sent`() = runTest {
-        favourites.findResult = Outcome.Success(favouriteProduct)
+        favourites.isFavouriteResult = Outcome.Success(true)
         val viewModel = createViewModel()
         collectMessages()
 
@@ -595,6 +555,9 @@ class ProductViewModelTest {
 
         override fun observeProduct(barcode: String): Flow<Product> = throw NotImplementedError()
 
+        override fun observeProducts(barcodes: Set<Barcode>): Flow<List<Product>> =
+            throw NotImplementedError()
+
         override suspend fun refreshProduct(barcode: String): Outcome<Unit> {
             refreshedBarcodes += barcode
             gate?.await()
@@ -604,31 +567,24 @@ class ProductViewModelTest {
 
     private class FakeFavourites : FavouriteProductsRepository {
 
-        var findResult: Outcome<FavouriteProduct?> = Outcome.Success(null)
+        var isFavouriteResult: Outcome<Boolean> = Outcome.Success(false)
         var updateResult: Outcome<Unit> = Outcome.Success(Unit)
         var pendingUpdate: CompletableDeferred<Outcome<Unit>>? = null
         val foundBarcodes = mutableListOf<String>()
-        var updateRatingResult: Outcome<Unit> = Outcome.Success(Unit)
-        val added = mutableListOf<ProductAnalysis>()
+        val added = mutableListOf<Product>()
         val removed = mutableListOf<Product>()
-        val updatedRatings = mutableListOf<ProductAnalysis>()
 
-        override suspend fun addToFavourites(analysis: ProductAnalysis): Outcome<Unit> {
-            added += analysis
+        override suspend fun addToFavourites(product: Product): Outcome<Unit> {
+            added += product
             return pendingUpdate?.await() ?: updateResult
         }
 
-        override suspend fun updateRating(analysis: ProductAnalysis): Outcome<Unit> {
-            updatedRatings += analysis
-            return updateRatingResult
-        }
+        override fun observeFavourites(nameQuery: String): Flow<List<FavouriteProduct>> =
+            flowOf(emptyList())
 
-        override fun observeFavourites(nameQuery: String): Flow<Outcome<List<FavouriteProduct>>> =
-            flowOf(Outcome.Success(emptyList()))
-
-        override suspend fun findByBarcode(barcode: String): Outcome<FavouriteProduct?> {
-            foundBarcodes += barcode
-            return findResult
+        override suspend fun isFavourite(barcode: Barcode): Outcome<Boolean> {
+            foundBarcodes += barcode.value
+            return isFavouriteResult
         }
 
         override suspend fun removeFromFavourites(product: Product): Outcome<Unit> {
@@ -665,17 +621,6 @@ class ProductViewModelTest {
                 69.6,
                 40,
             ),
-        )
-
-        val favouriteProduct = FavouriteProduct(
-            productBarcode = BARCODE,
-            productName = "Nutella",
-            productBrand = "Ferrero",
-            updateTime = Instant.fromEpochMilliseconds(1_700_000_000_000),
-            imageUrl = null,
-            dietRate = DietRate.NOT_ADVISED,
-            carbsPer100g = 57.5,
-            category = ProductCategory.SPREADS,
         )
 
         fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf(*extra))

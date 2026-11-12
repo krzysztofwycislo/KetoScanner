@@ -109,6 +109,35 @@ class OutcomeTest {
     }
 
     @Test
+    fun `when getOrThrow on Success then value is returned`() {
+        assertEquals("x", Outcome.Success("x").getOrThrow())
+    }
+
+    @Test
+    fun `when getOrThrow on Failure then AppErrorException with the error is thrown`() {
+        val failure: Outcome<String> = FAILURE
+
+        val exception = assertFailsWith<AppErrorException> { failure.getOrThrow() }
+
+        assertEquals(AppError.Network, exception.error)
+    }
+
+    @Test
+    fun `when outcomeOf block throws AppErrorException then its error is kept without mapError`() {
+        var mapCalls = 0
+
+        val result = outcomeOf<Int>(
+            mapError = {
+                mapCalls++
+                AppError.Storage
+            },
+        ) { throw AppErrorException(AppError.Parsing) }
+
+        assertEquals(Outcome.Failure(AppError.Parsing), result)
+        assertEquals(0, mapCalls)
+    }
+
+    @Test
     fun `when outcomeOf block returns then Success is returned`() {
         val result = outcomeOf(mapError = { AppError.Unknown(it) }) { 42 }
 

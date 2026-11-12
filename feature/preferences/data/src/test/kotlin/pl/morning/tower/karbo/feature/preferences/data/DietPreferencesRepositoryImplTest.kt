@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.AppErrorException
 import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.testing.TestAppDispatchers
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
@@ -78,19 +79,20 @@ class DietPreferencesRepositoryImplTest {
         )
 
         assertEquals(
-            listOf(Outcome.Success(DietPreferences.Default), Outcome.Success(DietPreferences(25))),
+            listOf(DietPreferences.Default, DietPreferences(25)),
             repository.observeDietPreferences().toList(),
         )
     }
 
     @Test
-    fun `when reading throws then storage failure is emitted`() = runTest {
+    fun `when reading throws then a storage error is thrown and get returns a storage failure`() = runTest {
         val repository = DietPreferencesRepositoryImpl(
             FakePersistence(failure = IllegalStateException("disk")),
             TestAppDispatchers(testScheduler),
         )
 
-        assertEquals(listOf(Outcome.Failure(AppError.Storage)), repository.observeDietPreferences().toList())
+        val exception = assertFailsWith<AppErrorException> { repository.observeDietPreferences().toList() }
+        assertEquals(AppError.Storage, exception.error)
         assertEquals(Outcome.Failure(AppError.Storage), repository.getDietPreferences())
     }
 

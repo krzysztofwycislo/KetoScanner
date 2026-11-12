@@ -25,10 +25,11 @@ import pl.morning.tower.karbo.core.common.AppLogger
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
 import pl.morning.tower.karbo.core.common.ProgressTracker
+import pl.morning.tower.karbo.core.common.catchAppError
 import pl.morning.tower.karbo.core.common.isReportable
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
-import pl.morning.tower.karbo.core.common.retryOnFailure
+import pl.morning.tower.karbo.core.common.retryOnAppError
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.ShowMessage
@@ -128,7 +129,7 @@ internal class ScanViewModel(
     private fun observeTrip() {
         viewModelScope.launch {
             history.observeLastUniqueEntries(Prototype.TRIP_LIMIT)
-                .retryOnFailure(::onTripFailed)
+                .retryOnAppError(::onTripFailed)
                 .collect { entries ->
                     statePrototype.update { it.copy(tripEntries = entries, now = clock.now()) }
                 }
@@ -142,13 +143,11 @@ internal class ScanViewModel(
 
     private fun observePreferences() {
         viewModelScope.launch {
-            preferences.observeDietPreferences().collect { outcome ->
-                outcome
-                    .onSuccess { dietPreferences ->
-                        statePrototype.update { it.copy(dietPreferences = dietPreferences) }
-                    }
-                    .onFailure { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
-            }
+            preferences.observeDietPreferences()
+                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .collect { dietPreferences ->
+                    statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+                }
         }
     }
 
@@ -288,7 +287,7 @@ internal class ScanViewModel(
             .foundAnalysis ?: return
         screenEvents send PerformHapticFeedback(ScanFeedback.Found)
         applicationScope.launch {
-            history.save(analysis).onFailure { error ->
+            history.save(analysis.product).onFailure { error ->
                 logger.error(TAG, "Saving history entry failed: $error", (error as? AppError.Unknown)?.cause)
             }
         }

@@ -7,8 +7,8 @@ import pl.morning.tower.karbo.core.database.product.ProductEntity
 internal interface ProductPersistence {
     suspend fun find(barcode: String): ProductEntity?
     fun observe(barcode: String): Flow<ProductEntity?>
+    fun observe(barcodes: List<String>): Flow<List<ProductEntity>>
     suspend fun save(product: ProductEntity)
-    suspend fun keepNewest(amount: Int)
 }
 
 internal class ProductPersistenceImpl(
@@ -19,7 +19,7 @@ internal class ProductPersistenceImpl(
 
     override fun observe(barcode: String): Flow<ProductEntity?> = dao.observeByBarcode(barcode)
 
-    override suspend fun save(product: ProductEntity) = dao.upsert(product)
+    override fun observe(barcodes: List<String>): Flow<List<ProductEntity>> = dao.observeByBarcodes(barcodes)
 
-    override suspend fun keepNewest(amount: Int) = dao.deleteAllExceptNewest(amount)
+    override suspend fun save(product: ProductEntity) = dao.upsert(product)
 }

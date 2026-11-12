@@ -4,7 +4,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -14,8 +14,10 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.AppErrorException
 import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.database.product.ProductEntity
+import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
 import pl.morning.tower.karbo.core.testing.FakeClock
 import pl.morning.tower.karbo.core.testing.TestAppDispatchers
@@ -26,7 +28,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -73,15 +74,62 @@ class ProductRepositoryImplTest {
     }
 
     @Test
-    fun `when observe throws then the exception reaches the collector unchanged`() = runTest {
-        val failure = IllegalStateException("disk")
-        val persistence = FakePersistence().apply { observeFailure = failure }
-        var caught: Throwable? = null
+    fun `when observe throws then a storage error is thrown`() = runTest {
+        val persistence = FakePersistence().apply { observeFailure = IllegalStateException("disk") }
 
-        createRepository(persistence).observeProduct(BARCODE).catch { caught = it }.toList()
+        val exception = assertFailsWith<AppErrorException> {
+            createRepository(persistence).observeProduct(BARCODE).toList()
+        }
 
-        val thrown = assertIs<IllegalStateException>(caught)
-        assertEquals(failure.message, thrown.message)
+        assertEquals(AppError.Storage, exception.error)
+    }
+
+    @Test
+    fun `when products are observed then the barcodes are passed and present rows are mapped`() = runTest {
+        val persistence = FakePersistence(product.toEntity(NOW))
+        val barcodes = setOf(Barcode(BARCODE), Barcode(OTHER_BARCODE))
+
+        val products = createRepository(persistence).observeProducts(barcodes).first()
+
+        assertEquals(listOf(product), products)
+        assertEquals(listOf(listOf(BARCODE, OTHER_BARCODE)), persistence.observedBarcodes)
+    }
+
+    @Test
+    fun `when observed products are equal then the emission is dropped and a changed one is passed`() = runTest {
+        val persistence = FakePersistence(storedProduct.toEntity(NOW))
+        val emissions = mutableListOf<List<Product>>()
+        backgroundScope.launch {
+            createRepository(persistence).observeProducts(setOf(Barcode(BARCODE))).toList(emissions)
+        }
+        runCurrent()
+
+        persistence.rows.update { it + (OTHER_BARCODE to product.copy(barcode = OTHER_BARCODE).toEntity(NOW)) }
+        runCurrent()
+        persistence.rows.update { it + (BARCODE to product.toEntity(NOW)) }
+        runCurrent()
+
+        assertEquals(listOf(listOf(storedProduct), listOf(product)), emissions)
+    }
+
+    @Test
+    fun `when observing products throws then a storage error is thrown`() = runTest {
+        val persistence = FakePersistence().apply { observeFailure = IllegalStateException("disk") }
+
+        val exception = assertFailsWith<AppErrorException> {
+            createRepository(persistence).observeProducts(setOf(Barcode(BARCODE))).first()
+        }
+
+        assertEquals(AppError.Storage, exception.error)
+    }
+
+    @Test
+    fun `when observing products is cancelled then cancellation is rethrown`() = runTest {
+        val persistence = FakePersistence().apply { observeFailure = CancellationException("cancelled") }
+
+        assertFailsWith<CancellationException> {
+            createRepository(persistence).observeProducts(setOf(Barcode(BARCODE))).first()
+        }
     }
 
     @Test
@@ -95,11 +143,10 @@ class ProductRepositoryImplTest {
         assertEquals(0, network.calls)
         assertEquals(fresh, persistence.rows.value[BARCODE])
         assertEquals(0, persistence.saves)
-        assertTrue(persistence.keptAmounts.isEmpty())
     }
 
     @Test
-    fun `when the row is missing then refresh fetches saves prunes and succeeds`() = runTest {
+    fun `when the row is missing then refresh fetches saves and succeeds`() = runTest {
         val persistence = FakePersistence()
 
         val result = createRepository(persistence).refreshProduct(BARCODE)
@@ -107,8 +154,6 @@ class ProductRepositoryImplTest {
         assertEquals(Outcome.Success(Unit), result)
         assertEquals(1, network.calls)
         assertEquals(product.toEntity(NOW), persistence.rows.value[BARCODE])
-        assertEquals(listOf(PRODUCT_CACHE_MAX_ENTRIES), persistence.keptAmounts)
-        assertEquals(300, PRODUCT_CACHE_MAX_ENTRIES)
     }
 
     @Test
@@ -147,7 +192,6 @@ class ProductRepositoryImplTest {
         assertEquals(Outcome.Failure(AppError.Network), result)
         assertTrue(persistence.rows.value.isEmpty())
         assertEquals(0, persistence.saves)
-        assertTrue(persistence.keptAmounts.isEmpty())
     }
 
     @Test
@@ -243,7 +287,6 @@ class ProductRepositoryImplTest {
         assertEquals(Outcome.Failure(error), result)
         assertEquals(stale, persistence.rows.value[BARCODE])
         assertEquals(0, persistence.saves)
-        assertTrue(persistence.keptAmounts.isEmpty())
     }
 
     private fun TestScope.createRepository(persistence: FakePersistence) =
@@ -259,7 +302,7 @@ class ProductRepositoryImplTest {
     private class FakePersistence(vararg initial: ProductEntity) : ProductPersistence {
 
         val rows = MutableStateFlow(initial.associateBy { it.barcode })
-        val keptAmounts = mutableListOf<Int>()
+        val observedBarcodes = mutableListOf<List<String>>()
         var saves = 0
         var findFailure: Throwable? = null
         var saveFailure: Throwable? = null
@@ -275,14 +318,16 @@ class ProductRepositoryImplTest {
             return flow { throw failure }
         }
 
+        override fun observe(barcodes: List<String>): Flow<List<ProductEntity>> {
+            observedBarcodes += listOf(barcodes)
+            val failure = observeFailure ?: return rows.map { row -> barcodes.mapNotNull(row::get) }
+            return flow { throw failure }
+        }
+
         override suspend fun save(product: ProductEntity) {
             saveFailure?.let { throw it }
             saves++
             rows.update { it + (product.barcode to product) }
-        }
-
-        override suspend fun keepNewest(amount: Int) {
-            keptAmounts += amount
         }
     }
 

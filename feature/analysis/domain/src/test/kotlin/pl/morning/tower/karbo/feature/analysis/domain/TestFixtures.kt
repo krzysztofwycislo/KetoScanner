@@ -1,10 +1,17 @@
 package pl.morning.tower.karbo.feature.analysis.domain
 
+import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.core.testing.FakeErrorReporter
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 
+internal val preferencesFailureReport = FakeErrorReporter.Report(
+    tag = CURRENT_DIET_PREFERENCES_TAG,
+    message = "Loading diet preferences failed",
+    error = AppError.Storage,
+)
 
 private const val PRODUCT_NAME = "test name"
 private const val PRODUCT_BARCODE = "test barcode"

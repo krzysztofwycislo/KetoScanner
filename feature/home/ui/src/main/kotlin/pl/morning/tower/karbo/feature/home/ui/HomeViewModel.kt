@@ -17,9 +17,8 @@ import kotlinx.datetime.TimeZone
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
-import pl.morning.tower.karbo.core.common.onFailure
-import pl.morning.tower.karbo.core.common.onSuccess
-import pl.morning.tower.karbo.core.common.retryOnFailure
+import pl.morning.tower.karbo.core.common.catchAppError
+import pl.morning.tower.karbo.core.common.retryOnAppError
 import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 import pl.morning.tower.karbo.feature.home.ui.event.HomeAction
 import pl.morning.tower.karbo.feature.home.ui.event.HomeAction.OnAboutClicked
@@ -79,7 +78,7 @@ internal class HomeViewModel(
     private fun observeRecentScans() {
         viewModelScope.launch {
             history.observeLastUniqueEntries(Prototype.RECENT_LIMIT)
-                .retryOnFailure(::onRecentScansFailed)
+                .retryOnAppError(::onRecentScansFailed)
                 .collect { entries ->
                     statePrototype.update { it.copy(entries = entries, loadError = null) }
                 }
@@ -98,13 +97,11 @@ internal class HomeViewModel(
 
     private fun observePreferences() {
         viewModelScope.launch {
-            preferences.observeDietPreferences().collect { outcome ->
-                outcome
-                    .onSuccess { dietPreferences ->
-                        statePrototype.update { it.copy(dietPreferences = dietPreferences) }
-                    }
-                    .onFailure { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
-            }
+            preferences.observeDietPreferences()
+                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .collect { dietPreferences ->
+                    statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+                }
         }
     }
 

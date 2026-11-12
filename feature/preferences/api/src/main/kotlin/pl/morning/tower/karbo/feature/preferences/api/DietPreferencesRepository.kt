@@ -7,7 +7,7 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 
 interface DietPreferencesRepository {
 
-    fun observeDietPreferences(): Flow<Outcome<DietPreferences>>
+    fun observeDietPreferences(): Flow<DietPreferences>
 
     suspend fun getDietPreferences(): Outcome<DietPreferences>
 
