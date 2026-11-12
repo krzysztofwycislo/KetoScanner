@@ -44,5 +44,6 @@ include(
     ":feature:preferences:data",
     ":feature:preferences:ui",
     ":feature:about:ui",
+    ":feature:onboarding:ui",
     ":feature:analysis:domain",
 )

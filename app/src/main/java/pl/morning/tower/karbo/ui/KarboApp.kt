@@ -1,7 +1,11 @@
 package pl.morning.tower.karbo.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -17,7 +21,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
@@ -36,7 +42,9 @@ import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
 import pl.morning.tower.karbo.core.designsystem.text.rememberUiTextResolver
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.onboarding.ui.OnboardingRoute
 import pl.morning.tower.karbo.navigation.AppNavHost
+import pl.morning.tower.karbo.navigation.AppStart
 import pl.morning.tower.karbo.navigation.BottomNavSection
 import pl.morning.tower.karbo.navigation.navigateToTab
 import pl.morning.tower.karbo.navigation.toBottomNavSection
@@ -88,23 +96,54 @@ internal fun KarboApp() {
     LaunchedEffect(currentEntry?.destination?.id) { hideKeyboard() }
     LaunchedEffect(currentTab) { viewModel.onAction(OnDestinationChanged(currentTab)) }
 
+    val start by viewModel.start.collectAsStateWithLifecycle()
+    val appStart = start
+    if (appStart == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.background.default),
+        )
+        return
+    }
+
+    val destination = currentEntry?.destination
+    val isBottomBarHidden = if (destination == null) {
+        appStart == AppStart.ONBOARDING
+    } else {
+        destination.hasRoute<OnboardingRoute>()
+    }
+
+    val bottomBarOverlap = if (isBottomBarHidden) {
+        0.dp
+    } else {
+        AppTheme.sizes.scanButtonLift
+    }
+
     Scaffold(
         modifier = Modifier.semantics { testTagsAsResourceId = true },
         containerColor = AppTheme.colors.background.default,
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = if (isBottomBarHidden) {
+            WindowInsets.navigationBars
+        } else {
+            WindowInsets(0)
+        },
         snackbarHost = {
-            Ui.SnackbarHost(snackbarHostState, Modifier.padding(bottom = AppTheme.sizes.scanButtonLift))
+            Ui.SnackbarHost(snackbarHostState, Modifier.padding(bottom = bottomBarOverlap))
         },
         bottomBar = {
-            AppBottomBar(
-                selectedTab = selectedTab,
-                onAction = viewModel::onAction,
-            )
+            if (!isBottomBarHidden) {
+                AppBottomBar(
+                    selectedTab = selectedTab,
+                    onAction = viewModel::onAction,
+                )
+            }
         },
     ) { innerPadding ->
-        CompositionLocalProvider(LocalBottomBarOverlap provides AppTheme.sizes.scanButtonLift) {
+        CompositionLocalProvider(LocalBottomBarOverlap provides bottomBarOverlap) {
             AppNavHost(
                 navController = navController,
+                start = appStart,
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding),

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_app_name">Karbo</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_title">What are you following?</string>
+    <string name="onboarding_intro">We rate every product you scan against this. You can change it any time in your profile.</string>
+    <string name="onboarding_preset_strict_keto">Strict keto</string>
+    <string name="onboarding_preset_strict_keto_note">Under about 20 g carbs a day</string>
+    <string name="onboarding_preset_keto">Keto</string>
+    <string name="onboarding_preset_keto_note">Around 30–50 g carbs a day</string>
+    <string name="onboarding_preset_low_carb">Low carb</string>
+    <string name="onboarding_preset_low_carb_note">Up to about 100 g carbs a day</string>
+    <string name="onboarding_grams">%1$s g</string>
+    <string name="onboarding_suggested">Good start</string>
+    <string name="onboarding_hint">Not sure? Keto is a good start for most people. Custom limits are in your profile.</string>
+    <string name="onboarding_start_scanning">Start scanning</string>
+    <string name="onboarding_disclaimer">Karbo gives guidance, not medical advice.</string>
+</resources>

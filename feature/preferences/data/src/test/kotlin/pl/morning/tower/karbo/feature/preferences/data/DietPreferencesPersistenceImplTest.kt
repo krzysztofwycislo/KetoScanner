@@ -13,6 +13,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class DietPreferencesPersistenceImplTest {
 
@@ -50,6 +51,28 @@ class DietPreferencesPersistenceImplTest {
 
         assertEquals(
             StoredDietPreferences(maxDailyCarbsAmount = 100, dietMode = "LOW_CARB"),
+            persistence.observe().first(),
+        )
+    }
+
+    @Test
+    fun `when store is empty then setup is not done`() = runTest {
+        assertFalse(persistence.observe().first().isSetupDone)
+    }
+
+    @Test
+    fun `when preferences are saved without completing setup then setup is not done`() = runTest {
+        persistence.save(maxDailyCarbsAmount = 25, dietMode = "KETO")
+
+        assertFalse(persistence.observe().first().isSetupDone)
+    }
+
+    @Test
+    fun `when setup is completed then amount, mode and setup done are observed together`() = runTest {
+        persistence.completeSetup(maxDailyCarbsAmount = 20, dietMode = "KETO")
+
+        assertEquals(
+            StoredDietPreferences(maxDailyCarbsAmount = 20, dietMode = "KETO", isSetupDone = true),
             persistence.observe().first(),
         )
     }

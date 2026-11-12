@@ -12,6 +12,7 @@ import pl.morning.tower.karbo.feature.favourites.ui.favouritesUiModule
 import pl.morning.tower.karbo.feature.history.data.historyDataModule
 import pl.morning.tower.karbo.feature.history.ui.historyUiModule
 import pl.morning.tower.karbo.feature.home.ui.homeUiModule
+import pl.morning.tower.karbo.feature.onboarding.ui.onboardingUiModule
 import pl.morning.tower.karbo.feature.preferences.data.preferencesDataModule
 import pl.morning.tower.karbo.feature.preferences.ui.preferencesUiModule
 import pl.morning.tower.karbo.feature.product.data.productDataModule
@@ -44,6 +45,7 @@ class KarboApplication : Application() {
                 favouritesDataModule,
                 favouritesUiModule,
                 aboutUiModule,
+                onboardingUiModule,
             )
         }
     }

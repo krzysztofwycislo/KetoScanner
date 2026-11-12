@@ -24,6 +24,9 @@ import pl.morning.tower.karbo.feature.history.ui.historyDestination
 import pl.morning.tower.karbo.feature.home.ui.HomeRoute
 import pl.morning.tower.karbo.feature.home.ui.event.HomeEvent.HomeNavigation
 import pl.morning.tower.karbo.feature.home.ui.homeDestination
+import pl.morning.tower.karbo.feature.onboarding.ui.OnboardingRoute
+import pl.morning.tower.karbo.feature.onboarding.ui.event.OnboardingEvent.OnboardingNavigation
+import pl.morning.tower.karbo.feature.onboarding.ui.onboardingDestination
 import pl.morning.tower.karbo.feature.preferences.ui.DietPreferencesRoute
 import pl.morning.tower.karbo.feature.preferences.ui.dietPreferencesDestination
 import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation
@@ -39,11 +42,14 @@ private val pushedRoutes: List<KClass<*>> =
     listOf(ProductRoute::class, DietPreferencesRoute::class, AboutRoute::class, HistoryRoute::class)
 
 @Composable
-internal fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
+internal fun AppNavHost(navController: NavHostController, start: AppStart, modifier: Modifier = Modifier) {
     val motion = AppTheme.motion
     NavHost(
         navController = navController,
-        startDestination = HomeRoute,
+        startDestination = when (start) {
+            AppStart.HOME -> HomeRoute
+            AppStart.ONBOARDING -> OnboardingRoute
+        },
         modifier = modifier,
         enterTransition = {
             if (targetState.isPushed()) {
@@ -74,6 +80,18 @@ internal fun AppNavHost(navController: NavHostController, modifier: Modifier = M
             }
         },
     ) {
+        onboardingDestination { navigation ->
+            navController.ifCurrent<OnboardingRoute> {
+                when (navigation) {
+                    OnboardingNavigation.NavigateToScan -> {
+                        navigate(HomeRoute) {
+                            popUpTo<OnboardingRoute> { inclusive = true }
+                        }
+                        navigateToTab(BottomNavSection.SCAN)
+                    }
+                }
+            }
+        }
         homeDestination { navigation ->
             navController.ifCurrent<HomeRoute> {
                 when (navigation) {

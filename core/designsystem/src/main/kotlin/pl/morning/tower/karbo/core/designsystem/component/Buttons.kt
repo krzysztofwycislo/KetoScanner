@@ -3,10 +3,14 @@ package pl.morning.tower.karbo.core.designsystem.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.morning.tower.karbo.core.designsystem.R
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.icon.imageVector
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 
 @Composable
@@ -22,6 +29,7 @@ fun Ui.PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    icon: AppIcon? = null,
 ) {
     Button(
         onClick = onClick,
@@ -33,6 +41,14 @@ fun Ui.PrimaryButton(
             contentColor = AppTheme.colors.text.inverse,
         ),
     ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon.imageVector,
+                contentDescription = null,
+                modifier = Modifier.size(AppTheme.sizes.icon.s),
+            )
+            Spacer(modifier = Modifier.width(AppTheme.spacing.xs))
+        }
         Text(text = text, style = AppTheme.typography.button)
     }
 }
@@ -70,6 +86,7 @@ private fun ButtonsPreview() {
         ) {
             Ui.PrimaryButton(text = text, onClick = {})
             Ui.PrimaryButton(text = text, onClick = {}, enabled = false)
+            Ui.PrimaryButton(text = text, onClick = {}, icon = AppIcons.Scan)
             Ui.SecondaryButton(text = text, onClick = {})
             Ui.SecondaryButton(text = text, onClick = {}, enabled = false)
         }

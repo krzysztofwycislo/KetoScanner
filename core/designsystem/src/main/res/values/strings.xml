@@ -13,6 +13,8 @@
     <string name="designsystem_preview_snackbar_error">Something went wrong. Try again later.</string>
     <string name="designsystem_preview_rating">Sample rating</string>
     <string name="designsystem_preview_button">Sample button</string>
+    <string name="designsystem_preview_badge">Sample badge</string>
+    <string name="designsystem_preview_note">Sample note with a short tip for the user.</string>
     <string name="designsystem_preview_tab_home">Home</string>
     <string name="designsystem_preview_tab_scan">Scan</string>
     <string name="designsystem_preview_tab_favourites">Favourites</string>

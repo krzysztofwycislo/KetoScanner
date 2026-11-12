@@ -29,6 +29,7 @@ fun Ui.RadioCard(
     title: String,
     note: String,
     trailing: String?,
+    badge: String? = null,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -58,11 +59,19 @@ fun Ui.RadioCard(
     ) {
         RadioDot(selected)
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = AppTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                color = AppTheme.colors.text.default,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = title,
+                    style = AppTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = AppTheme.colors.text.default,
+                )
+                if (badge != null) {
+                    Badge(badge)
+                }
+            }
             Text(
                 text = note,
                 style = AppTheme.typography.bodySmall,
@@ -77,6 +86,18 @@ fun Ui.RadioCard(
             )
         }
     }
+}
+
+@Composable
+private fun Badge(text: String) {
+    Text(
+        text = text,
+        style = AppTheme.typography.label,
+        color = AppTheme.colors.verdict.positive.content,
+        modifier = Modifier
+            .background(AppTheme.colors.verdict.positive.container, AppTheme.shapes.pill)
+            .padding(horizontal = AppTheme.spacing.xs, vertical = AppTheme.spacing.xxs),
+    )
 }
 
 @Composable
@@ -124,6 +145,27 @@ private fun RadioCardPreview() {
                 note = stringResource(R.string.designsystem_preview_body),
                 trailing = null,
                 selected = false,
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RadioCardWithBadgePreview() {
+    AppTheme {
+        Column(
+            modifier = Modifier
+                .padding(AppTheme.spacing.m)
+                .selectableGroup(),
+        ) {
+            Ui.RadioCard(
+                title = stringResource(R.string.designsystem_preview_title),
+                note = stringResource(R.string.designsystem_preview_body),
+                trailing = stringResource(R.string.designsystem_preview_carbs, "40"),
+                badge = stringResource(R.string.designsystem_preview_badge),
+                selected = true,
                 onClick = {},
             )
         }

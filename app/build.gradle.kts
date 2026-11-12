@@ -53,6 +53,8 @@ dependencies {
     implementation(project(":feature:preferences:data"))
     implementation(project(":feature:preferences:ui"))
     implementation(project(":feature:about:ui"))
+    implementation(project(":feature:onboarding:ui"))
+    implementation(project(":feature:preferences:api"))
     implementation(project(":core:datastore"))
 
     // kotlin
@@ -61,6 +63,7 @@ dependencies {
 
     // androidx
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)

@@ -3,7 +3,6 @@ package pl.morning.tower.karbo.navigation
 import androidx.annotation.StringRes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
 import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
@@ -29,7 +28,7 @@ internal fun NavDestination.toBottomNavSection(): BottomNavSection? =
 
 internal fun NavHostController.navigateToTab(tab: BottomNavSection) {
     navigate(tab.route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        popUpTo(HomeRoute) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }

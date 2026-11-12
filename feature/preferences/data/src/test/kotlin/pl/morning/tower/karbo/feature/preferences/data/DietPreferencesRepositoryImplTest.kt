@@ -147,5 +147,9 @@ class DietPreferencesRepositoryImplTest {
             failure?.let { throw it }
             saved += maxDailyCarbsAmount to dietMode
         }
+
+        override suspend fun completeSetup(maxDailyCarbsAmount: Int, dietMode: String) {
+            failure?.let { throw it }
+        }
     }
 }

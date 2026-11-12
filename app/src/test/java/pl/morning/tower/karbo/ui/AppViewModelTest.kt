@@ -2,6 +2,7 @@ package pl.morning.tower.karbo.ui
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -10,7 +11,13 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import pl.morning.tower.karbo.core.common.AppError
+import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
+import pl.morning.tower.karbo.core.testing.FakeErrorReporter
+import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.navigation.AppStart
 import pl.morning.tower.karbo.navigation.BottomNavSection
 import pl.morning.tower.karbo.ui.AppAction.OnDestinationChanged
 import pl.morning.tower.karbo.ui.AppAction.OnTabClicked
@@ -20,10 +27,13 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class AppViewModelTest {
 
     private val savedStateHandle = SavedStateHandle()
+    private val onboarding = FakeOnboarding()
+    private val errorReporter = FakeErrorReporter()
 
     @BeforeTest
     fun setUp() {
@@ -153,5 +163,57 @@ class AppViewModelTest {
         assertEquals(PopToTabRoot(BottomNavSection.SCAN), viewModel.navigationEvents.first())
     }
 
-    private fun createViewModel() = AppViewModel(AppEvents(TestScope()), savedStateHandle)
+    @Test
+    fun `when setup is done then the app starts on home`() {
+        onboarding.isSetupDone = { Outcome.Success(true) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.HOME, viewModel.start.value)
+        assertEquals(emptyList(), errorReporter.reports)
+    }
+
+    @Test
+    fun `when setup is not done then the app starts on onboarding`() {
+        onboarding.isSetupDone = { Outcome.Success(false) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.ONBOARDING, viewModel.start.value)
+    }
+
+    @Test
+    fun `when reading the setup state fails then the error is reported and the app starts on home`() {
+        onboarding.isSetupDone = { Outcome.Failure(AppError.Storage) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.HOME, viewModel.start.value)
+        assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
+    }
+
+    @Test
+    fun `when the setup state is not read yet then the start is unknown`() {
+        onboarding.isSetupDone = { awaitCancellation() }
+
+        val viewModel = createViewModel()
+
+        assertNull(viewModel.start.value)
+    }
+
+    private fun createViewModel() = AppViewModel(
+        appEvents = AppEvents(TestScope()),
+        savedStateHandle = savedStateHandle,
+        onboarding = onboarding,
+        errorReporter = errorReporter,
+    )
+
+    private class FakeOnboarding : OnboardingRepository {
+
+        var isSetupDone: suspend () -> Outcome<Boolean> = { Outcome.Success(true) }
+
+        override suspend fun isSetupDone(): Outcome<Boolean> = isSetupDone.invoke()
+
+        override suspend fun completeSetup(preset: DietPreset): Outcome<Unit> = throw NotImplementedError()
+    }
 }
