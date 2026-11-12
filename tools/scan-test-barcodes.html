@@ -5,53 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Karbo test barcodes</title>
 <style>
-  :root { --ink: #15201B; --muted: #56615B; --line: #E3E6E1; --bg: #F6F7F4; }
+  :root { --ink: #15201B; --muted: #56615B; --line: #E3E6E1; --bg: #F6F7F4; --accent: #1E6B47; }
   * { box-sizing: border-box; }
   body { margin: 0; padding: 24px; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
   h1 { margin: 0 0 4px; font-size: 24px; }
-  p.lead { margin: 0 0 24px; color: var(--muted); font-size: 14px; max-width: 760px; line-height: 1.5; }
-  h2 { margin: 28px 0 12px; font-size: 18px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; break-inside: avoid; }
+  p.lead { margin: 0 0 16px; color: var(--muted); font-size: 14px; max-width: 820px; line-height: 1.5; }
+  h2 { margin: 32px 0 12px; font-size: 18px; display: flex; align-items: baseline; gap: 8px; scroll-margin-top: 120px; }
+  h2 .count { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .toolbar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 12px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); }
+  .toolbar input { width: 100%; max-width: 420px; height: 42px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #D5DAD3; background: #fff; font: inherit; font-size: 15px; color: var(--ink); }
+  .toolbar input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30,107,71,.18); }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  nav a { height: 32px; padding: 0 12px; border-radius: 16px; background: #fff; border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  nav a:hover, nav a:focus-visible { border-color: var(--accent); outline: none; }
+  nav a span { color: var(--muted); font-weight: 500; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; break-inside: avoid; }
   .name { font-weight: 700; font-size: 15px; }
   .meta { font-size: 13px; color: var(--muted); }
-  .carbs { font-weight: 700; }
-  .code { display: flex; justify-content: center; padding: 8px 0 0; background: #fff; }
-  svg { display: block; }
+  .facts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .carbs { font-weight: 700; color: var(--ink); }
+  .pill { height: 22px; padding: 0 8px; border-radius: 11px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; }
+  .pill.GOOD { background: #E3F3EA; color: #13663B; }
+  .pill.NEUTRAL { background: #FFF0D1; color: #7A4F00; }
+  .pill.NOT_ADVISED { background: #FDE3E0; color: #9E2318; }
+  .code { display: flex; justify-content: center; padding: 6px 0 0; background: #fff; }
+  svg { display: block; max-width: 100%; height: auto; }
   .bad { color: #9E2318; }
   button.card { font: inherit; color: inherit; text-align: left; cursor: zoom-in; transition: box-shadow .15s, border-color .15s; }
-  button.card:hover, button.card:focus-visible { border-color: #1E6B47; box-shadow: 0 0 0 3px rgba(30,107,71,.18); outline: none; }
-  .hint { font-size: 12px; color: var(--muted); text-align: center; }
+  button.card:hover, button.card:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30,107,71,.18); outline: none; }
+  .hidden { display: none !important; }
+  .empty { color: var(--muted); font-size: 14px; margin-top: 24px; }
   #zoom { position: fixed; inset: 0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; z-index: 10; }
   #zoom.open { display: flex; }
   #zoom .zname { font-size: 28px; font-weight: 800; text-align: center; }
   #zoom .zmeta { font-size: 16px; color: var(--muted); text-align: center; }
-  #zoom .zcode svg { width: min(92vw, 1100px); height: auto; }
-  #zoom .bar { display: flex; gap: 12px; }
+  #zoom .zcode svg { width: min(92vw, 1100px); height: auto; max-height: 60vh; }
+  #zoom .bar { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   #zoom button { font: inherit; font-size: 16px; font-weight: 700; height: 48px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #D5DAD3; background: #F6F7F4; color: var(--ink); cursor: pointer; }
   #zoom button.close { background: #15201B; color: #fff; border-color: #15201B; }
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    .grid { grid-template-columns: 1fr; }
+  }
   @media print {
     body { background: #fff; padding: 0; }
     .card { border-color: #999; }
-    p.lead { display: none; }
+    p.lead, .toolbar, .hint { display: none; }
   }
 </style>
 </head>
 <body>
 <h1>Karbo test barcodes</h1>
-<p class="lead">Real EAN-13 barcodes, each checked against Open Food Facts (world.openfoodfacts.org) on 2026-10-27. Scan them from the screen at full brightness, or print the page. Carb values are total carbohydrates per 100 g as Open Food Facts listed them that day; the verdict the app shows depends on your diet preferences.</p>
+<p class="lead">Real barcodes from the analysis test set (<code>real-products.json</code>), all real Open Food Facts products, plus a few earlier picks and edge cases. Scan them from the screen at full brightness, or print the page. Carbs are per 100 g as Open Food Facts listed them when the set was built (2026-11-12). The pill is the verdict the keto profile is <em>expected</em> to give; some rows are intentional tuning targets, so the app may still disagree.</p>
 
-<h2>Low carb (0–5 g per 100 g)</h2>
-<div class="grid" id="low"></div>
+<div class="toolbar">
+  <input type="search" id="filter" placeholder="Filter by name, brand or barcode" aria-label="Filter products">
+  <nav id="nav" aria-label="Food groups"></nav>
+</div>
 
-<h2>Medium (5–15 g per 100 g)</h2>
-<div class="grid" id="mid"></div>
-
-<h2>High carb (over 15 g per 100 g)</h2>
-<div class="grid" id="high"></div>
-
-<h2>Edge cases</h2>
-<div class="grid" id="edge"></div>
+<div id="groups"></div>
+<p class="empty hidden" id="empty">No products match the filter.</p>
 
 <div id="zoom" role="dialog" aria-modal="true" aria-labelledby="zname">
   <div class="zname" id="zname"></div>
@@ -65,21 +79,234 @@
 </div>
 
 <script>
+var groups = [
+  { id: 'meat', label: 'Meat, fish and eggs' },
+  { id: 'dairy', label: 'Dairy and cheese' },
+  { id: 'fats', label: 'Fats and oils' },
+  { id: 'nuts', label: 'Nuts and seeds' },
+  { id: 'veg', label: 'Vegetables' },
+  { id: 'fruit', label: 'Fruit' },
+  { id: 'legumes', label: 'Legumes' },
+  { id: 'lowcarb', label: 'Low-carb and protein products' },
+  { id: 'grains', label: 'Grains, pasta and rice' },
+  { id: 'bakery', label: 'Bread and bakery' },
+  { id: 'meals', label: 'Ready meals' },
+  { id: 'sauces', label: 'Sauces and spreads' },
+  { id: 'snacks', label: 'Snacks' },
+  { id: 'sweets', label: 'Sweets and desserts' },
+  { id: 'drinks', label: 'Drinks' },
+  { id: 'edge', label: 'Edge cases' }
+];
+
+var verdictLabels = { GOOD: 'Keto-friendly', NEUTRAL: 'In small amounts', NOT_ADVISED: 'Not keto-friendly' };
+
 var products = [
-  { group: 'low', code: '5411188112709', name: 'Alpro roasted almond drink, no sugar', meta: 'Alpro · 1 l', carbs: '0 g' },
-  { group: 'low', code: '5000112548167', name: 'Coca-Cola Light', meta: 'Coca-Cola · 0.5 l', carbs: '0 g' },
-  { group: 'low', code: '3228021170060', name: 'Chaussée aux Moines cheese', meta: 'Lactalis · 340 g', carbs: '0 g' },
-  { group: 'low', code: '5900820000011', name: 'UHT milk 3.2% fat', meta: 'Łaciate · 1 l', carbs: '4.7 g' },
-  { group: 'low', code: '5900512300320', name: 'Milk (name missing in Open Food Facts)', meta: 'Mlekovita · 1 l', carbs: '4.7 g' },
-  { group: 'mid', code: '4002971243703', name: 'High-protein pudding, chocolate', meta: 'Ehrmann · 200 g', carbs: '5.5 g' },
-  { group: 'mid', code: '5901234123457', name: 'Sauce chiltepin', meta: 'La lumbre · 190 ml (also the GS1 sample barcode)', carbs: '6 g' },
-  { group: 'mid', code: '5449000000996', name: 'Coca-Cola Original', meta: 'Coca-Cola · 330 ml', carbs: '10.6 g' },
-  { group: 'high', code: '3017620422003', name: 'Nutella', meta: 'Ferrero · 400 g', carbs: '57.5 g' },
-  { group: 'high', code: '3046920028370', name: 'Lindt Excellence Dark Orange Intense', meta: 'Lindt · 100 g', carbs: '51 g' },
-  { group: 'high', code: '7622210449283', name: 'Prince biscuits', meta: 'Mondelez · 300 g', carbs: '69 g' },
-  { group: 'high', code: '5000159407236', name: 'Mars bar', meta: 'Mars Wrigley · 51 g', carbs: '70 g' },
-  { group: 'high', code: '8076800195057', name: 'Spaghetti Nº5', meta: 'Barilla · 500 g', carbs: '71 g' },
-  { group: 'edge', code: '5900259000002', name: 'Not in Open Food Facts', meta: 'Valid check digit, returns 404: tests the “product not found” path', carbs: '–', bad: true }
+  { group: 'bakery', code: '3029330004233', name: 'Wholegrain rye bread (Jacquet)', meta: 'Jacquet', carbs: '36 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '3029330022428', name: 'Whole wheat bread (Jacquet)', meta: 'Jacquet', carbs: '42 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '4008577006186', name: 'Spelt bread rolls (Coppenrath & Wiese)', meta: 'Coppenrath & Wiese', carbs: '43 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '5025125000006', name: 'White bread (Jason\'s Sourdough)', meta: 'Jason\'s Sourdough', carbs: '44.1 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '7300400481588', name: 'Rye crispbread (Wasa)', meta: 'wasa', carbs: '47 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '3256540000339', name: 'Croissant (Brioche Pasquier)', meta: 'Brioche Pasquier', carbs: '48 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '3256540003378', name: 'Doughnut (Brioche Pasquier)', meta: 'Brioche Pasquier', carbs: '50 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '5020364010113', name: 'Bagel (New York Bakery Co)', meta: 'New York Bakery Co', carbs: '51.5 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '3178530408515', name: 'Chocolate muffin (Bonne Maman)', meta: 'Bonne Maman', carbs: '52.9 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '8717496903990', name: 'Wheat tortilla (Amaizin Organic)', meta: 'Amaizin Organic', carbs: '53.8 g', keto: 'NOT_ADVISED' },
+  { group: 'bakery', code: '3229820794624', name: 'Rice cakes (Bjorg)', meta: 'Bjorg', carbs: '77 g', keto: 'NOT_ADVISED' },
+  { group: 'dairy', code: '8713734033825', name: 'Gouda 48 % (A-ware)', meta: 'Koninklijke A-ware Food Group B.V.', carbs: '0 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3272770015523', name: 'Feta (Islos)', meta: 'ISLOS', carbs: '0 g', keto: 'GOOD' },
+  { group: 'dairy', code: '8010721001509', name: 'Parmesan (Oluf Lorentzen)', meta: 'OLUF LORENTZEN AS', carbs: '0 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3228021170060', name: 'Chaussée aux Moines cheese', meta: 'Lactalis', carbs: '0 g', keto: '' },
+  { group: 'dairy', code: '8000430138719', name: 'Mozzarella (Galbani)', meta: 'Egidio Galbani Srl', carbs: '2 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3560071458720', name: 'Halloumi (Carrefour)', meta: 'Carrefour', carbs: '2.1 g', keto: 'GOOD' },
+  { group: 'dairy', code: '5017838825045', name: 'Cheddar (Kraft)', meta: 'Kraft', carbs: '2.3 g', keto: 'GOOD' },
+  { group: 'dairy', code: '20002183', name: 'Cottage cheese (Milbona)', meta: 'Milbona', carbs: '2.8 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3412290070071', name: 'Cream cheese full fat (Paysan Breton)', meta: 'Paysan Breton', carbs: '3 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3329770077003', name: 'Skyr natural (Yoplait)', meta: 'Yoplait', carbs: '3.6 g', keto: 'GOOD' },
+  { group: 'dairy', code: '5201037709774', name: 'Greek yoghurt 10 % (Delta)', meta: 'Delta', carbs: '3.8 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3155253020644', name: 'Kefir 2 % (Lactel)', meta: 'LACTEL', carbs: '3.8 g', keto: 'GOOD' },
+  { group: 'dairy', code: '8585002520203', name: 'Whipping cream 30 % (Rajo)', meta: 'RAJO', carbs: '3.9 g', keto: 'GOOD' },
+  { group: 'dairy', code: '4061462542046', name: 'Lean quark (Milsani)', meta: 'Milsani', carbs: '3.9 g', keto: 'GOOD' },
+  { group: 'dairy', code: '8000430172010', name: 'Mascarpone (Galbani)', meta: 'Galbani', carbs: '4 g', keto: 'GOOD' },
+  { group: 'dairy', code: '3560070845408', name: 'Natural yoghurt whole milk (Carrefour)', meta: 'Carrefour', carbs: '4.1 g', keto: 'NEUTRAL' },
+  { group: 'dairy', code: '5900820000011', name: 'UHT milk 3.2% (Łaciate)', meta: 'Łaciate', carbs: '4.7 g', keto: '' },
+  { group: 'dairy', code: '5900531001130', name: 'Sour cream 18 % (Piątnica)', meta: 'Piątnica', carbs: '4.8 g', keto: 'GOOD' },
+  { group: 'dairy', code: '6111032008453', name: 'Fruit yoghurt for kids (Danone)', meta: 'Danone', carbs: '12.3 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '5449000131805', name: 'Coca-Cola Zero (can)', meta: 'Coca Cola', carbs: '0 g', keto: 'GOOD' },
+  { group: 'drinks', code: '6111035000430', name: 'Mineral water (Sidi Ali)', meta: 'Sidi Ali', carbs: '0 g', keto: 'GOOD' },
+  { group: 'drinks', code: '5411188112709', name: 'Almond drink unsweetened (Alpro)', meta: 'alpro', carbs: '0 g', keto: 'GOOD' },
+  { group: 'drinks', code: '5000112548167', name: 'Coca-Cola Light', meta: 'Coca-Cola', carbs: '0 g', keto: '' },
+  { group: 'drinks', code: '3229820019604', name: 'Soy drink unsweetened (Bjorg)', meta: 'Bjorg', carbs: '0.7 g', keto: 'GOOD' },
+  { group: 'drinks', code: '5060335635808', name: 'Sugar-free energy drink (Monster)', meta: 'Monster', carbs: '0.9 g', keto: 'GOOD' },
+  { group: 'drinks', code: '3168930159896', name: 'Iced tea (Lipton)', meta: 'Lipton', carbs: '4.4 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '3080216043807', name: 'Alcohol-free beer (Tourtel)', meta: 'TOURTEL', carbs: '6.4 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '5411188124689', name: 'Oat drink (Alpro)', meta: 'Danone Belux nv', carbs: '6.4 g', keto: 'NEUTRAL' },
+  { group: 'drinks', code: '5060108450348', name: 'Lemonade (Fever-Tree)', meta: 'Fever-Tree', carbs: '7.9 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '3254691592086', name: 'Apple juice (Pressade)', meta: 'Pressade', carbs: '8.9 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '3502110009449', name: 'Orange juice (Tropicana)', meta: 'Tropicana', carbs: '9.3 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '3176571744289', name: 'Chocolate milk (Sodima)', meta: 'SODIMA', carbs: '10 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '5449000000996', name: 'Coca-Cola (can)', meta: 'COCA-COLA SERVICES SA/NV', carbs: '10.6 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '9002490205973', name: 'Energy drink (Red Bull)', meta: 'Red Bull GmbH', carbs: '11 g', keto: 'NOT_ADVISED' },
+  { group: 'drinks', code: '5038862234115', name: 'Fruit smoothie (Innocent)', meta: 'innocent', carbs: '13 g', keto: 'NOT_ADVISED' },
+  { group: 'fats', code: '8002470023727', name: 'Olive oil (Carapelli)', meta: 'Carapelli', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '5425600102483', name: 'Coconut oil (Bumble Bee)', meta: 'Bumble bee foods', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '3265474573000', name: 'Rapeseed oil (Lesieur)', meta: 'Lesieur', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '5904215129851', name: 'Lard (Sokołów)', meta: 'Sokołów', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '3155251204343', name: 'Margarine 70 % (Primevere)', meta: 'Primevere', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '6430055210811', name: 'MCT oil (FoodIn)', meta: 'FoodIn', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fats', code: '5905477003880', name: 'Ghee (Pilos)', meta: 'Pilos', carbs: '0.1 g', keto: 'GOOD' },
+  { group: 'fats', code: '8719200012608', name: 'Half-fat spread 39 % (ProActiv)', meta: 'ProActiv', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'fats', code: '3155251205500', name: 'Butter (Président)', meta: 'Président', carbs: '1 g', keto: 'GOOD' },
+  { group: 'fats', code: '3011360030498', name: 'Mayonnaise (Lesieur)', meta: 'Lesieur', carbs: '2.8 g', keto: 'GOOD' },
+  { group: 'fruit', code: '20443375', name: 'Green olives (Baresa)', meta: 'Baresa', carbs: '0 g', keto: 'GOOD' },
+  { group: 'fruit', code: '20229030', name: 'Avocado (Lidl)', meta: 'Lidl', carbs: '1.9 g', keto: 'GOOD' },
+  { group: 'fruit', code: '20241971', name: 'Strawberries (Lidl)', meta: 'Lidl', carbs: '6.03 g', keto: 'NEUTRAL' },
+  { group: 'fruit', code: '3250392070779', name: 'Watermelon (Mon Marché Plaisir)', meta: 'Mon Marché Plaisir', carbs: '8 g', keto: 'NEUTRAL' },
+  { group: 'fruit', code: '20241681', name: 'Orange (Anecoop)', meta: 'Anecoop', carbs: '9 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '8717496041425', name: 'Raspberries (Driscoll\'s)', meta: 'Driscoll\'s', carbs: '9.5 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '8717496041487', name: 'Blackberries (Driscoll\'s)', meta: 'Driscoll\'s', carbs: '9.61 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '3245414620131', name: 'Apple (Lidl)', meta: 'Classic', carbs: '12 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '20250294', name: 'Kiwi (Jingold)', meta: 'Jingold', carbs: '12.1 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '20305819', name: 'Blueberries (Lidl)', meta: 'Lidl', carbs: '14 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '20250263', name: 'Grapes (Lidl)', meta: 'Hortiful GmbH', carbs: '16.6 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '3523680438224', name: 'Banana (Carrefour BIO)', meta: 'Carrefour BIO', carbs: '19.7 g', keto: 'NOT_ADVISED' },
+  { group: 'fruit', code: '20534479', name: 'Dried dates (Alesto)', meta: 'Alesto', carbs: '64 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3564700873304', name: 'Microwave rice (Marque Repère)', meta: 'Marque Repère', carbs: '30 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3229820019307', name: 'Oat flakes (Bjorg)', meta: 'Bjorg', carbs: '58 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3229820129488', name: 'Fruit muesli (Bjorg)', meta: 'Bjorg', carbs: '59 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '7622210601988', name: 'Granola (Lu)', meta: 'LU', carbs: '62 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3068111301246', name: 'Wheat flour (Francine)', meta: 'Francine', carbs: '63.9 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3600900011037', name: 'Quinoa (Tipiak)', meta: 'Tipiak', carbs: '65 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '8076800195057', name: 'Dry pasta (Barilla)', meta: 'Barilla', carbs: '71 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '5906827023152', name: 'Couscous (Plony Natury)', meta: 'Plony Natury', carbs: '72 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3760341070472', name: 'Basmati rice (Taureau Ailé)', meta: 'Taureau Ailé', carbs: '78 g', keto: 'NOT_ADVISED' },
+  { group: 'grains', code: '3159470000120', name: 'Cornflakes (Kellogg\'s)', meta: 'KELLOGG S PRODUITS ALIMENT SAS', carbs: '84 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '3259011142132', name: 'Tempeh (Soy Company)', meta: 'Soy', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'legumes', code: '8586024420106', name: 'Firm tofu (Go Vege)', meta: 'Go Vege', carbs: '1.5 g', keto: 'GOOD' },
+  { group: 'legumes', code: '3017800511091', name: 'Edamame (D\'aucy)', meta: 'd\'aucy', carbs: '4.1 g', keto: 'GOOD' },
+  { group: 'legumes', code: '3292070005161', name: 'Hummus (Labeyrie)', meta: 'LABEYRIE FINE FOODS FRANCE', carbs: '8.7 g', keto: 'GOOD' },
+  { group: 'legumes', code: '3083680613576', name: 'Cooked lentils (Cassegrain)', meta: 'Cassegrain', carbs: '14 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '3083681085860', name: 'Canned chickpeas (Bonduelle)', meta: 'Bonduelle', carbs: '15 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '20166090', name: 'Canned kidney beans (Freshona)', meta: 'Freshona', carbs: '15 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '5000157024671', name: 'Baked beans (Heinz)', meta: 'H J Heinz Foods UK Ltd', carbs: '15.5 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '7613035982116', name: 'Falafel (Garden Gourmet)', meta: 'Garden Gourmet', carbs: '18 g', keto: 'NOT_ADVISED' },
+  { group: 'legumes', code: '3564706731653', name: 'Red lentils (Notre Jardin)', meta: 'Notre Jardin', carbs: '54 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '3229820794570', name: 'Shirataki noodles (Gayelord Hauser)', meta: 'Gayelord Hauser', carbs: '0.12 g', keto: 'GOOD' },
+  { group: 'lowcarb', code: '5430000992510', name: 'Low-sugar granola (Bamboo)', meta: 'Bamboo', carbs: '4.9 g', keto: 'GOOD' },
+  { group: 'lowcarb', code: '4056489216162', name: 'Protein pudding (Lidl)', meta: 'LIDL', carbs: '5.2 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '7350014910820', name: 'Whey protein powder (BioSalma)', meta: 'BioSalma', carbs: '7 g', keto: 'GOOD' },
+  { group: 'lowcarb', code: '5391521691309', name: 'Low-carb tortilla wraps (BFree)', meta: 'BFree', carbs: '8.33 g', keto: 'GOOD' },
+  { group: 'lowcarb', code: '5999884818212', name: 'Coconut flour (Nature Cookta)', meta: 'Nature Cookta', carbs: '9 g', keto: 'NEUTRAL' },
+  { group: 'lowcarb', code: '8718452181124', name: 'Almond flour (Jumbo)', meta: 'Jumbo', carbs: '10 g', keto: 'NEUTRAL' },
+  { group: 'lowcarb', code: '4061458055734', name: 'Low-carb protein bread (Goldähren)', meta: 'Goldähren', carbs: '10.6 g', keto: 'NEUTRAL' },
+  { group: 'lowcarb', code: '4056489961567', name: 'Edamame pasta (Combino)', meta: 'Combino', carbs: '11.6 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '4335619128866', name: 'Protein ice cream (Gelatelli)', meta: 'Gelatelli', carbs: '17.7 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '9400563451324', name: 'Protein nut bar (Nice & Natural)', meta: 'Nice & Natural', carbs: '20.7 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '3609200011174', name: 'Protein bar with polyols (Joyfuel)', meta: 'Joyfuel', carbs: '32 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '4056489189244', name: 'Dark chocolate 70 % no added sugar (Lidl)', meta: 'LIDL', carbs: '34.3 g', keto: 'NOT_ADVISED' },
+  { group: 'lowcarb', code: '7640110709580', name: 'Erythritol sweetener (Canderel)', meta: 'Canderel', carbs: '99 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3302744121025', name: 'Cauliflower cheese (Fleury Michon)', meta: 'Fleury Michon', carbs: '3.93 g', keto: 'NEUTRAL' },
+  { group: 'meals', code: '4056489624455', name: 'Goulash soup (Lidl)', meta: 'Lidl', carbs: '6.6 g', keto: 'NEUTRAL' },
+  { group: 'meals', code: '3242274500054', name: 'Caesar salad (Sodebo)', meta: 'Sodebo', carbs: '7.1 g', keto: 'NEUTRAL' },
+  { group: 'meals', code: '3338310001279', name: 'Lasagne bolognese (Maison Tino)', meta: 'Maison Tino', carbs: '13 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3270160861101', name: 'Spaghetti bolognese (Picard)', meta: 'Picard', carbs: '13 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3302740484100', name: 'Chili con carne (Fleury Michon)', meta: 'Fleury Michon', carbs: '15 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3270160812936', name: 'Chicken curry with rice (Picard)', meta: 'picard', carbs: '16 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3242271001738', name: 'Chicken tikka masala with rice (Sodebo)', meta: 'Sodebo', carbs: '16 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '4088600462899', name: 'Mac and cheese ready meal (Aldi)', meta: 'Aldi Worldwide Foods', carbs: '16.95 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '3181232138451', name: 'Cheeseburger (Charal)', meta: 'Charal', carbs: '20 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '5901398082782', name: 'Pierogi with meat (Nasze Smaki)', meta: 'Nasze Smaki', carbs: '22 g', keto: 'NOT_ADVISED' },
+  { group: 'meals', code: '8015673029861', name: 'Frozen pizza margherita (Italpizza)', meta: 'Italpizza', carbs: '26 g', keto: 'NOT_ADVISED' },
+  { group: 'meat', code: '3154230802280', name: 'Bacon (Herta)', meta: 'Herta', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '3181232534543', name: 'Beef mince 20 % (Charal)', meta: 'Charal', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '20933876', name: 'Salmon', meta: '', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '4056489254683', name: 'Tuna in brine (Lidl)', meta: 'Lidl', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '3019081238643', name: 'Sardines in olive oil (Parmentier)', meta: 'PARMENTIER', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '3336374402247', name: 'Cooked shrimp (Delpierre)', meta: 'Delpierre', carbs: '0 g', keto: 'GOOD' },
+  { group: 'meat', code: '3302740039362', name: 'Chicken breast (Fleury Michon)', meta: 'Fleury Michon', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'meat', code: '20057237', name: 'Eggs (Plein Air)', meta: 'Plein Air', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'meat', code: '20437022', name: 'Salami (Dulano)', meta: 'Dulano', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'meat', code: '3095757648107', name: 'Roast pork slices (Fleury Michon)', meta: 'Fleury Michon', carbs: '0.9 g', keto: 'GOOD' },
+  { group: 'meat', code: '3154230809869', name: 'Cooked ham (Herta)', meta: 'HERTA', carbs: '0.9 g', keto: 'GOOD' },
+  { group: 'meat', code: '3560071508135', name: 'Smoked mackerel (Carrefour)', meta: 'Carrefour', carbs: '1 g', keto: 'GOOD' },
+  { group: 'meat', code: '9001455000592', name: 'Frankfurters (Berger)', meta: 'BERGER', carbs: '2 g', keto: 'GOOD' },
+  { group: 'meat', code: '8006473904830', name: 'Meatballs (Amadori)', meta: 'Amadori', carbs: '2.3 g', keto: 'GOOD' },
+  { group: 'meat', code: '3270160339945', name: 'Chicken nuggets (Picard)', meta: 'Picard', carbs: '13 g', keto: 'NOT_ADVISED' },
+  { group: 'meat', code: '20155087', name: 'Fish fingers (Lidl)', meta: 'Lidl', carbs: '15 g', keto: 'NOT_ADVISED' },
+  { group: 'nuts', code: '4056489757825', name: 'Flaxseed (Alesto)', meta: 'Alesto', carbs: '1.3 g', keto: 'GOOD' },
+  { group: 'nuts', code: '8480000341884', name: 'Pumpkin seeds (Mercadona)', meta: 'MERCADONA', carbs: '3 g', keto: 'GOOD' },
+  { group: 'nuts', code: '4056489033042', name: 'Hazelnuts (Lidl)', meta: 'LIDL', carbs: '3.5 g', keto: 'GOOD' },
+  { group: 'nuts', code: '20005733', name: 'Walnuts (Alesto)', meta: 'Alesto', carbs: '3.7 g', keto: 'GOOD' },
+  { group: 'nuts', code: '20202408', name: 'Pecans (Alesto)', meta: 'Alesto', carbs: '4.2 g', keto: 'GOOD' },
+  { group: 'nuts', code: '20724696', name: 'Almonds (Alesto)', meta: 'Alesto', carbs: '4.8 g', keto: 'GOOD' },
+  { group: 'nuts', code: '4056489163596', name: 'Macadamia nuts (Alesto)', meta: 'Alesto', carbs: '5.4 g', keto: 'GOOD' },
+  { group: 'nuts', code: '8480000340788', name: 'Sunflower seeds (Mercadona)', meta: 'MERCADONA', carbs: '5.7 g', keto: 'GOOD' },
+  { group: 'nuts', code: '8711299021004', name: 'Chia seeds (Natural Happiness)', meta: 'Natural Happiness', carbs: '6.3 g', keto: 'GOOD' },
+  { group: 'nuts', code: '4335619014442', name: 'Pistachios (Lidl)', meta: 'LIDL', carbs: '7.8 g', keto: 'NEUTRAL' },
+  { group: 'nuts', code: '20615420', name: 'Roasted peanuts (Alesto)', meta: 'Alesto', carbs: '11.1 g', keto: 'NEUTRAL' },
+  { group: 'nuts', code: '3327272107969', name: 'Peanut butter 100 % (Menguy\'s)', meta: 'Menguy\'s', carbs: '13 g', keto: 'NEUTRAL' },
+  { group: 'nuts', code: '20267605', name: 'Cashews (Alesto)', meta: 'Alesto', carbs: '19.8 g', keto: 'NEUTRAL' },
+  { group: 'nuts', code: '20815394', name: 'Trail mix with raisins (Alesto)', meta: 'Alesto', carbs: '40.9 g', keto: 'NOT_ADVISED' },
+  { group: 'sauces', code: '4056489190646', name: 'Tahini (Maribel)', meta: 'Maribel', carbs: '1.7 g', keto: 'GOOD' },
+  { group: 'sauces', code: '8480000038524', name: 'Guacamole (Hacendado)', meta: 'Hacendado', carbs: '2 g', keto: 'GOOD' },
+  { group: 'sauces', code: '8720182556738', name: 'Dijon mustard (Maille)', meta: 'Maille', carbs: '2.6 g', keto: 'GOOD' },
+  { group: 'sauces', code: '8715035110106', name: 'Soy sauce (Kikkoman)', meta: 'Kikkoman', carbs: '3.2 g', keto: 'GOOD' },
+  { group: 'sauces', code: '3292070007905', name: 'Tzatziki (Blini)', meta: 'Blini', carbs: '3.3 g', keto: 'GOOD' },
+  { group: 'sauces', code: '8715700112596', name: 'Ketchup no added sugar (Heinz)', meta: 'Heinz', carbs: '5.4 g', keto: 'NEUTRAL' },
+  { group: 'sauces', code: '5901234123457', name: 'Sauce chiltepin (also the GS1 sample barcode)', meta: 'La lumbre', carbs: '6 g', keto: '' },
+  { group: 'sauces', code: '20522605', name: 'Tomato passata (Baresa)', meta: 'Baresa', carbs: '6.1 g', keto: 'NEUTRAL' },
+  { group: 'sauces', code: '8076809513722', name: 'Tomato pasta sauce (Barilla)', meta: 'Barilla', carbs: '7.6 g', keto: 'NEUTRAL' },
+  { group: 'sauces', code: '5906425140947', name: 'Garlic sauce (Develey)', meta: 'Develey', carbs: '8.9 g', keto: 'GOOD' },
+  { group: 'sauces', code: '8076809513753', name: 'Pesto genovese (Barilla)', meta: 'Barilla', carbs: '11 g', keto: 'NEUTRAL' },
+  { group: 'sauces', code: '3104710011831', name: 'Sweet mustard (Kühne)', meta: 'Kühne', carbs: '24.9 g', keto: 'NOT_ADVISED' },
+  { group: 'sauces', code: '8715700407760', name: 'Ketchup (Heinz)', meta: 'H.J. Heinz B.V.', carbs: '25.3 g', keto: 'NOT_ADVISED' },
+  { group: 'sauces', code: '87157154', name: 'BBQ sauce (Heinz)', meta: 'Heinz', carbs: '34 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '8480017004871', name: 'Pork rinds (Dia)', meta: 'Dia', carbs: '0 g', keto: 'GOOD' },
+  { group: 'snacks', code: '8712566246496', name: 'Dill pickles (Maille)', meta: 'Maille', carbs: '0.5 g', keto: 'GOOD' },
+  { group: 'snacks', code: '0193968330132', name: 'Baked cheese crisps (Member\'s Mark)', meta: 'Members mark', carbs: '3.57 g', keto: 'GOOD' },
+  { group: 'snacks', code: '5908230523182', name: 'Cabanossi (SnackIt)', meta: 'SnackIt', carbs: '5.2 g', keto: 'GOOD' },
+  { group: 'snacks', code: '4251097405766', name: 'Beef jerky (Jack Link\'s)', meta: 'Jack Link\'s', carbs: '20 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '3250392480714', name: 'Salted crackers (Chabrior)', meta: 'Chabrior', carbs: '44.65 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '5391527732129', name: 'Potato crisps (Keogh’s)', meta: 'Keogh’s', carbs: '51 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '20045852', name: 'Peanut flips (Snack Day)', meta: 'Snack Day', carbs: '54.5 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '3336972302079', name: 'Salted popcorn (Vico)', meta: 'Vico', carbs: '58 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '4008258274019', name: 'Banana chips (Seeberger)', meta: 'Seeberger', carbs: '59 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '3168930173311', name: 'Tortilla chips (Doritos)', meta: 'Doritos', carbs: '64 g', keto: 'NOT_ADVISED' },
+  { group: 'snacks', code: '7622210449283', name: 'Prince biscuits', meta: 'Mondelez', carbs: '69 g', keto: '' },
+  { group: 'snacks', code: '3027030011810', name: 'Salted pretzels (Dr. Oetker)', meta: 'Dr. Oetker', carbs: '73 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '4002971243703', name: 'High-protein pudding, chocolate (Ehrmann)', meta: 'Ehrmann', carbs: '5.5 g', keto: '' },
+  { group: 'sweets', code: '4056489471264', name: 'Dark chocolate 90 % (J. D. Gross)', meta: 'J. D. GROSS', carbs: '16.6 g', keto: 'NEUTRAL' },
+  { group: 'sweets', code: '3279231500000', name: 'Rice pudding (La Fermière)', meta: 'La Fermière', carbs: '20 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '8435173010501', name: 'Vanilla ice cream (Veritas)', meta: 'Veritas', carbs: '21 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3046920022606', name: 'Dark chocolate 85 % (Lindt)', meta: 'Lindt', carbs: '22 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3046920022651', name: 'Dark chocolate 70 % (Lindt)', meta: 'Lindt', carbs: '35 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3046920028370', name: 'Excellence Dark Orange Intense (Lindt)', meta: 'Lindt', carbs: '51 g', keto: '' },
+  { group: 'sweets', code: '3045140105502', name: 'Milk chocolate (Milka)', meta: 'Milka', carbs: '57 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '80177173', name: 'Chocolate hazelnut spread (Ferrero)', meta: 'Ferrero', carbs: '57.5 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3017620422003', name: 'Nutella 400 g', meta: 'Ferrero', carbs: '57.5 g', keto: '' },
+  { group: 'sweets', code: '3608580758686', name: 'Strawberry jam (Bonne Maman)', meta: 'Bonne Maman', carbs: '59 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '5900951311505', name: 'Caramel chocolate bar (Mars)', meta: 'MARS POLSKA SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ', carbs: '60 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '5000159407236', name: 'Mars bar', meta: 'Mars Wrigley', carbs: '70 g', keto: '' },
+  { group: 'sweets', code: '3017760000062', name: 'Butter biscuits (Lu)', meta: 'lu', carbs: '76 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '9002975301558', name: 'Gummy bears (Haribo)', meta: 'Haribo', carbs: '77 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3088540004440', name: 'Honey (Lune de Miel)', meta: 'Lune de Miel', carbs: '80 g', keto: 'NOT_ADVISED' },
+  { group: 'sweets', code: '3165433714010', name: 'Sugar (Daddy)', meta: 'Daddy', carbs: '100 g', keto: 'NOT_ADVISED' },
+  { group: 'veg', code: '20143855', name: 'Mushrooms (Freshona)', meta: 'Freshona', carbs: '1.4 g', keto: 'GOOD' },
+  { group: 'veg', code: '3083681115970', name: 'Spinach (Bonduelle)', meta: 'Bonduelle', carbs: '1.5 g', keto: 'GOOD' },
+  { group: 'veg', code: '3280223110077', name: 'Iceberg lettuce (Florette)', meta: 'Florette', carbs: '1.63 g', keto: 'GOOD' },
+  { group: 'veg', code: '4008100151611', name: 'Sauerkraut (Hengstenberg)', meta: 'Hengstenberg GmbH & Co. KG', carbs: '1.9 g', keto: 'GOOD' },
+  { group: 'veg', code: '3270160757046', name: 'Cauliflower (Picard)', meta: 'Picard', carbs: '2 g', keto: 'GOOD' },
+  { group: 'veg', code: '3083681094923', name: 'Green beans (Cassegrain)', meta: 'Cassegrain', carbs: '2.3 g', keto: 'GOOD' },
+  { group: 'veg', code: '3276558775128', name: 'Tomato (Azura)', meta: 'Azura', carbs: '2.49 g', keto: 'GOOD' },
+  { group: 'veg', code: '3564700280379', name: 'Zucchini (Marque Repère)', meta: 'Marque Repère', carbs: '2.5 g', keto: 'GOOD' },
+  { group: 'veg', code: '3564706705203', name: 'Broccoli (Notre Jardin)', meta: 'Notre Jardin', carbs: '2.9 g', keto: 'GOOD' },
+  { group: 'veg', code: '3280220201006', name: 'Carrot (Florette)', meta: 'Florette', carbs: '4.4 g', keto: 'NEUTRAL' },
+  { group: 'veg', code: '20039882', name: 'Red bell pepper (Freshona)', meta: 'Freshona', carbs: '6.8 g', keto: 'NEUTRAL' },
+  { group: 'veg', code: '8402001000584', name: 'Onion (Hacendado)', meta: 'Hacendado', carbs: '7.9 g', keto: 'NEUTRAL' },
+  { group: 'veg', code: '8402001014253', name: 'Boiled potatoes (Hacendado)', meta: 'Hacendado', carbs: '11 g', keto: 'NOT_ADVISED' },
+  { group: 'veg', code: '3017800078662', name: 'Frozen peas (D\'aucy)', meta: 'D\'aucy', carbs: '11 g', keto: 'NOT_ADVISED' },
+  { group: 'veg', code: '20153229', name: 'Canned sweetcorn (Freshona)', meta: 'Freshona', carbs: '11.5 g', keto: 'NOT_ADVISED' },
+  { group: 'edge', code: '5900512300320', name: 'Milk with the name missing in Open Food Facts', meta: 'Mlekovita · tests the fallback name', carbs: '4.7 g', keto: '' },
+  { group: 'edge', code: '5900259000002', name: 'Not in Open Food Facts', meta: 'Valid check digit, returns 404: tests the “product not found” path', carbs: '–', keto: '', bad: true }
 ];
 
 var L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
@@ -87,14 +314,27 @@ var G = ['0100111','0110011','0011011','0100001','0011101','0111001','0000101','
 var R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
 var PARITY = ['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
 
-function checkDigit(first12) {
+function isValid(code) {
+  if (!/^(\d{8}|\d{13})$/.test(code)) return false;
+  var d = code.split('').map(Number);
+  var check = d.pop();
   var sum = 0;
-  for (var i = 0; i < 12; i++) sum += Number(first12[i]) * (i % 2 === 0 ? 1 : 3);
-  return (10 - (sum % 10)) % 10;
+  for (var i = 0; i < d.length; i++) {
+    var weight = (d.length - i) % 2 === 1 ? 3 : 1;
+    sum += d[i] * weight;
+  }
+  return (10 - (sum % 10)) % 10 === check;
 }
 
-function ean13Bits(code) {
+function barcodeBits(code) {
   var d = code.split('').map(Number);
+  if (code.length === 8) {
+    var bits8 = '101';
+    for (var a = 0; a < 4; a++) bits8 += L[d[a]];
+    bits8 += '01010';
+    for (var b = 4; b < 8; b++) bits8 += R[d[b]];
+    return bits8 + '101';
+  }
   var parity = PARITY[d[0]];
   var bits = '101';
   for (var i = 1; i <= 6; i++) bits += (parity[i - 1] === 'L' ? L : G)[d[i]];
@@ -103,9 +343,28 @@ function ean13Bits(code) {
   return bits + '101';
 }
 
-function ean13Svg(code) {
+function isGuardBit(i, length) {
+  var middle = (length - 5) / 2;
+  return i < 3 || (i >= middle && i < middle + 5) || i >= length - 3;
+}
+
+function textParts(code, quiet) {
+  if (code.length === 8) {
+    return [
+      { text: code.slice(0, 4), x: quiet + 3 + 14 },
+      { text: code.slice(4), x: quiet + 36 + 14 }
+    ];
+  }
+  return [
+    { text: code[0], x: quiet - 4 },
+    { text: code.slice(1, 7), x: quiet + 3 + 21 },
+    { text: code.slice(7), x: quiet + 50 + 21 }
+  ];
+}
+
+function barcodeSvg(code) {
   var module = 3, quiet = 11, barH = 110, guardExtra = 12, textH = 22;
-  var bits = ean13Bits(code);
+  var bits = barcodeBits(code);
   var width = (bits.length + quiet * 2) * module;
   var height = barH + guardExtra + textH;
   var ns = 'http://www.w3.org/2000/svg';
@@ -114,29 +373,23 @@ function ean13Svg(code) {
   svg.setAttribute('height', height);
   svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', 'EAN-13 barcode ' + code);
+  svg.setAttribute('aria-label', (code.length === 8 ? 'EAN-8' : 'EAN-13') + ' barcode ' + code);
   var bg = document.createElementNS(ns, 'rect');
   bg.setAttribute('width', width); bg.setAttribute('height', height); bg.setAttribute('fill', '#fff');
   svg.appendChild(bg);
   for (var i = 0; i < bits.length; i++) {
     if (bits[i] !== '1') continue;
-    var isGuard = i < 3 || (i >= 45 && i < 50) || i >= 92;
     var bar = document.createElementNS(ns, 'rect');
     bar.setAttribute('x', (quiet + i) * module);
     bar.setAttribute('y', 0);
     bar.setAttribute('width', module);
-    bar.setAttribute('height', barH + (isGuard ? guardExtra : 0));
+    bar.setAttribute('height', barH + (isGuardBit(i, bits.length) ? guardExtra : 0));
     bar.setAttribute('fill', '#000');
     svg.appendChild(bar);
   }
-  var parts = [
-    { text: code[0], x: (quiet - 4) * module },
-    { text: code.slice(1, 7), x: (quiet + 3 + 21) * module },
-    { text: code.slice(7), x: (quiet + 50 + 21) * module }
-  ];
-  parts.forEach(function (p) {
+  textParts(code, quiet).forEach(function (p) {
     var t = document.createElementNS(ns, 'text');
-    t.setAttribute('x', p.x);
+    t.setAttribute('x', p.x * module);
     t.setAttribute('y', height - 4);
     t.setAttribute('text-anchor', 'middle');
     t.setAttribute('font-family', 'monospace');
@@ -148,22 +401,25 @@ function ean13Svg(code) {
   return svg;
 }
 
-function isValid(code) {
-  return /^\d{13}$/.test(code) && checkDigit(code.slice(0, 12)) === Number(code[12]);
+function codeNode(code) {
+  return isValid(code) ? barcodeSvg(code) : document.createTextNode('Invalid check digit: ' + code);
 }
 
 var zoom = document.getElementById('zoom');
+var visible = [];
 var current = -1;
 var opener = null;
 
-function show(index) {
-  current = (index + products.length) % products.length;
-  var p = products[current];
+function show(position) {
+  if (visible.length === 0) return;
+  current = (position + visible.length) % visible.length;
+  var p = products[visible[current]];
   document.getElementById('zname').textContent = p.name;
-  document.getElementById('zmeta').textContent = p.meta + ' · carbs per 100 g: ' + p.carbs;
+  var expected = p.keto ? ' · expected: ' + verdictLabels[p.keto] : '';
+  document.getElementById('zmeta').textContent = p.meta + ' · carbs per 100 g: ' + p.carbs + expected;
   var holder = document.getElementById('zcode');
   holder.textContent = '';
-  holder.appendChild(isValid(p.code) ? ean13Svg(p.code) : document.createTextNode('Invalid check digit: ' + p.code));
+  holder.appendChild(codeNode(p.code));
   zoom.classList.add('open');
   document.getElementById('zclose').focus();
 }
@@ -184,6 +440,28 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'ArrowLeft') show(current - 1);
 });
 
+var container = document.getElementById('groups');
+var nav = document.getElementById('nav');
+var sections = {};
+var cards = [];
+
+groups.forEach(function (g) {
+  var heading = document.createElement('h2');
+  heading.id = 'group-' + g.id;
+  heading.innerHTML = '<span></span><span class="count"></span>';
+  heading.firstChild.textContent = g.label;
+  var grid = document.createElement('div');
+  grid.className = 'grid';
+  container.appendChild(heading);
+  container.appendChild(grid);
+  var link = document.createElement('a');
+  link.href = '#group-' + g.id;
+  link.innerHTML = '<b></b><span></span>';
+  link.firstChild.textContent = g.label;
+  nav.appendChild(link);
+  sections[g.id] = { heading: heading, grid: grid, link: link };
+});
+
 products.forEach(function (p, index) {
   var card = document.createElement('button');
   card.type = 'button';
@@ -192,16 +470,57 @@ products.forEach(function (p, index) {
   card.innerHTML =
     '<span class="name' + (p.bad ? ' bad' : '') + '"></span>' +
     '<span class="meta"></span>' +
-    '<span class="meta">Carbs per 100 g: <span class="carbs"></span></span>' +
-    '<span class="code"></span>' +
-    '<span class="hint">Click to enlarge</span>';
+    '<span class="facts">Carbs per 100 g: <span class="carbs"></span></span>' +
+    '<span class="code"></span>';
   card.querySelector('.name').textContent = p.name;
-  card.querySelectorAll('.meta')[0].textContent = p.meta;
+  card.querySelector('.meta').textContent = p.meta + ' · ' + p.code;
   card.querySelector('.carbs').textContent = p.carbs;
-  card.querySelector('.code').appendChild(isValid(p.code) ? ean13Svg(p.code) : document.createTextNode('Invalid check digit: ' + p.code));
-  card.addEventListener('click', function () { opener = card; show(index); });
-  document.getElementById(p.group).appendChild(card);
+  if (p.keto) {
+    var pill = document.createElement('span');
+    pill.className = 'pill ' + p.keto;
+    pill.textContent = verdictLabels[p.keto];
+    card.querySelector('.facts').appendChild(pill);
+  }
+  card.querySelector('.code').appendChild(codeNode(p.code));
+  card.addEventListener('click', function () {
+    opener = card;
+    show(visible.indexOf(index));
+  });
+  var section = sections[p.group] || sections.edge;
+  section.grid.appendChild(card);
+  cards.push({ card: card, index: index, group: section, text: (p.name + ' ' + p.meta + ' ' + p.code).toLowerCase() });
 });
+
+function applyFilter() {
+  var query = document.getElementById('filter').value.trim().toLowerCase();
+  var counts = new Map();
+  visible = [];
+  cards.forEach(function (c) {
+    var match = query === '' || c.text.indexOf(query) !== -1;
+    c.card.classList.toggle('hidden', !match);
+    if (match) {
+      counts.set(c.group, (counts.get(c.group) || 0) + 1);
+    }
+  });
+  groups.forEach(function (g) {
+    var section = sections[g.id];
+    var count = counts.get(section) || 0;
+    section.heading.classList.toggle('hidden', count === 0);
+    section.grid.classList.toggle('hidden', count === 0);
+    section.link.classList.toggle('hidden', count === 0);
+    section.heading.lastChild.textContent = count + (count === 1 ? ' product' : ' products');
+    section.link.lastChild.textContent = String(count);
+    Array.prototype.forEach.call(section.grid.children, function (card) {
+      if (!card.classList.contains('hidden')) {
+        visible.push(cards.filter(function (c) { return c.card === card; })[0].index);
+      }
+    });
+  });
+  document.getElementById('empty').classList.toggle('hidden', visible.length > 0);
+}
+
+document.getElementById('filter').addEventListener('input', applyFilter);
+applyFilter();
 </script>
 </body>
 </html>
