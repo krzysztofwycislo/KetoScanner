@@ -10,6 +10,7 @@ import pl.morning.tower.karbo.core.designsystem.text.UiArg
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.feature.scanner.ui.R
 import pl.morning.tower.karbo.feature.scanner.ui.ScanResources
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraHintState
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
 import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
 import pl.morning.tower.karbo.feature.scanner.ui.state.NotFoundCardState
@@ -30,6 +31,7 @@ internal fun previewState(
     isTypeSheetOpen: Boolean = false,
     frame: ScanFrameMode = ScanFrameMode.Aiming,
     hint: UiText = previewResources.aimHint(),
+    hintSupportingText: UiText? = null,
     found: FoundCardState? = null,
     notFound: NotFoundCardState? = null,
     trip: ImmutableList<TripItemState> = persistentListOf(),
@@ -43,7 +45,7 @@ internal fun previewState(
         isTypeSheetOpen = isTypeSheetOpen,
         trip = trip,
         frame = frame,
-        hint = hint,
+        hint = CameraHintState(text = hint, supportingText = hintSupportingText),
     ),
     found = found,
     notFound = notFound,
@@ -74,6 +76,7 @@ internal val previewFound = FoundCardState(
     rating = Rating.Negative,
     title = UiText.Res(R.string.scan_verdict_not_advised_keto),
     detail = UiText.Res(R.string.scan_found_reason_carb_energy_share, UiArg.Numeric.Percent(1.0)),
+    showVerdictTip = false,
 )
 
 internal val previewNotFound = NotFoundCardState(

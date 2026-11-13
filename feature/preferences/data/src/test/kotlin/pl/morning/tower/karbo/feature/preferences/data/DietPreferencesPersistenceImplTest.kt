@@ -1,6 +1,8 @@
 package pl.morning.tower.karbo.feature.preferences.data
 
+import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.PreferencesSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -8,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -25,9 +28,13 @@ class DietPreferencesPersistenceImplTest {
 
     @BeforeTest
     fun setUp() {
-        val dataStore = PreferenceDataStoreFactory.createWithPath(
+        val dataStore = PreferenceDataStoreFactory.create(
+            storage = OkioStorage(
+                fileSystem = FileSystem.SYSTEM,
+                serializer = PreferencesSerializer,
+                producePath = { directory / "test.preferences_pb" },
+            ),
             scope = CoroutineScope(Dispatchers.IO + job),
-            produceFile = { directory / "test.preferences_pb" },
         )
         persistence = DietPreferencesPersistenceImpl(dataStore)
     }
@@ -72,8 +79,44 @@ class DietPreferencesPersistenceImplTest {
         persistence.completeSetup(maxDailyCarbsAmount = 20, dietMode = "KETO")
 
         assertEquals(
-            StoredDietPreferences(maxDailyCarbsAmount = 20, dietMode = "KETO", isSetupDone = true),
+            StoredDietPreferences(
+                maxDailyCarbsAmount = 20,
+                dietMode = "KETO",
+                isSetupDone = true,
+                pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT, OnboardingTip.VERDICT_TIP),
+            ),
             persistence.observe().first(),
         )
+    }
+
+    @Test
+    fun `when store is empty then no tips are pending`() = runTest {
+        assertEquals(emptySet(), persistence.observe().first().pendingTips)
+    }
+
+    @Test
+    fun `when setup is completed then both tips are pending`() = runTest {
+        persistence.completeSetup(maxDailyCarbsAmount = 100, dietMode = "LOW_CARB")
+
+        assertEquals(
+            setOf(OnboardingTip.FIRST_SCAN_HINT, OnboardingTip.VERDICT_TIP),
+            persistence.observe().first().pendingTips,
+        )
+    }
+
+    @Test
+    fun `when the first scan hint is marked shown then only the verdict tip stays pending`() = runTest {
+        persistence.completeSetup(maxDailyCarbsAmount = 20, dietMode = "KETO")
+
+        persistence.markTipShown(tip = OnboardingTip.FIRST_SCAN_HINT)
+
+        assertEquals(setOf(OnboardingTip.VERDICT_TIP), persistence.observe().first().pendingTips)
+    }
+
+    @Test
+    fun `when preferences are saved without completing setup then no tips are pending`() = runTest {
+        persistence.save(maxDailyCarbsAmount = 25, dietMode = "KETO")
+
+        assertEquals(emptySet(), persistence.observe().first().pendingTips)
     }
 }

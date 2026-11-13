@@ -11,6 +11,7 @@ import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import pl.morning.tower.karbo.feature.scanner.ui.ScanResources
 import pl.morning.tower.karbo.feature.scanner.ui.state.ScanStatePrototype as Prototype
 
@@ -20,7 +21,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         query = prototype.query,
         isLookUpEnabled = !prototype.showProgress,
         camera = prototype.camera(),
-        found = prototype.foundAnalysis?.toFoundCard(),
+        found = prototype.foundAnalysis?.toFoundCard(showVerdictTip = prototype.isVerdictTipVisible),
         notFound = prototype.notFoundBarcode?.let {
             NotFoundCardState(
                 message = resources.notFoundMessage(it),
@@ -40,7 +41,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
             isTypeSheetOpen = isTypeSheetOpen,
             trip = trip(),
             frame = frame(),
-            hint = if (showProgress) resources.searchingHint() else resources.aimHint(),
+            hint = hint(),
         )
 
         CameraPermission.Rationale -> CameraState.PermissionPanel(
@@ -56,6 +57,17 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         )
 
         CameraPermission.Unchecked, CameraPermission.Requesting -> CameraState.Hidden
+    }
+
+    private fun Prototype.hint(): CameraHintState = when {
+        showProgress -> CameraHintState(text = resources.searchingHint(), supportingText = null)
+
+        OnboardingTip.FIRST_SCAN_HINT in pendingTips -> CameraHintState(
+            text = resources.firstScanHintTitle(),
+            supportingText = resources.firstScanHintBody((dietPreferences ?: DietPreferences.Default).dietMode),
+        )
+
+        else -> CameraHintState(text = resources.aimHint(), supportingText = null)
     }
 
     private fun Prototype.frame(): ScanFrameMode = when {
@@ -74,7 +86,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         )
     }
 
-    private fun ProductAnalysis.toFoundCard(): FoundCardState {
+    private fun ProductAnalysis.toFoundCard(showVerdictTip: Boolean): FoundCardState {
         val name = resources.productName(product.name)
         val brand = resources.brand(product.brand)
         val icon = product.category.icon
@@ -86,6 +98,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
                 rating = macronutrients.rate.toRating(),
                 title = resources.verdictTitle(macronutrients.rate, macronutrients.dietMode),
                 detail = resources.foundDetail(macronutrients),
+                showVerdictTip = showVerdictTip,
             )
 
             is ProductAnalysis.InsufficientData -> FoundCardState(
@@ -95,6 +108,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
                 rating = Rating.Unknown,
                 title = resources.insufficientData(),
                 detail = resources.insufficientDataDetail(),
+                showVerdictTip = showVerdictTip,
             )
         }
     }

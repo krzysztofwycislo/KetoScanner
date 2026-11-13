@@ -23,6 +23,7 @@ import pl.morning.tower.karbo.feature.onboarding.ui.event.OnboardingEvent.Onboar
 import pl.morning.tower.karbo.feature.onboarding.ui.state.OnboardingStateFactory
 import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -181,6 +182,10 @@ class OnboardingViewModelTest {
             gate?.await()
             return result
         }
+
+        override suspend fun pendingTips(): Outcome<Set<OnboardingTip>> = throw NotImplementedError()
+
+        override suspend fun markTipShown(tip: OnboardingTip): Outcome<Unit> = throw NotImplementedError()
     }
 
     private companion object {

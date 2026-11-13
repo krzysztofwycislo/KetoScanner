@@ -10,6 +10,7 @@ data class AppBorders(
     val control: Dp,
     val selected: Dp,
     val scanButtonRing: Dp,
+    val highlightRing: Dp,
 )
 
 val DefaultAppBorders = AppBorders(
@@ -17,4 +18,5 @@ val DefaultAppBorders = AppBorders(
     control = 1.5.dp,
     selected = 2.dp,
     scanButtonRing = 5.dp,
+    highlightRing = 3.dp,
 )

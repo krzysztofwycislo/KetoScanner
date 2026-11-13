@@ -27,6 +27,16 @@ internal class ScanResources {
 
     fun searchingHint(): UiText = UiText.Res(R.string.scan_searching_hint)
 
+    fun firstScanHintTitle(): UiText = UiText.Res(R.string.scan_first_hint_title)
+
+    fun firstScanHintBody(mode: DietMode): UiText {
+        val id = when (mode) {
+            DietMode.KETO -> R.string.scan_first_hint_body_keto
+            DietMode.LOW_CARB -> R.string.scan_first_hint_body_low_carb
+        }
+        return UiText.Res(id)
+    }
+
     fun torchOn(): UiText = UiText.Res(R.string.scan_torch_on)
 
     fun torchOff(): UiText = UiText.Res(R.string.scan_torch_off)

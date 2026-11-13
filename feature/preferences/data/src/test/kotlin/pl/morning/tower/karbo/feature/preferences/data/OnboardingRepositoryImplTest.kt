@@ -9,6 +9,7 @@ import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.testing.TestAppDispatchers
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -82,6 +83,51 @@ class OnboardingRepositoryImplTest {
         assertEquals(Outcome.Failure(AppError.Storage), repository.completeSetup(preset = DietPreset.KETO))
     }
 
+    @Test
+    fun `when tips are pending then they are returned`() = runTest {
+        val tips = setOf(OnboardingTip.FIRST_SCAN_HINT, OnboardingTip.VERDICT_TIP)
+        val repository = createRepository(
+            persistence = FakePersistence(
+                stored = StoredDietPreferences(maxDailyCarbsAmount = 20, dietMode = "KETO", pendingTips = tips),
+            ),
+        )
+
+        assertEquals(Outcome.Success(tips), repository.pendingTips())
+    }
+
+    @Test
+    fun `when store is empty then no tips are pending`() = runTest {
+        val repository = createRepository(persistence = FakePersistence())
+
+        assertEquals(Outcome.Success(emptySet()), repository.pendingTips())
+    }
+
+    @Test
+    fun `when reading pending tips throws then storage failure is returned`() = runTest {
+        val repository = createRepository(persistence = FakePersistence(failure = IllegalStateException("disk")))
+
+        assertEquals(Outcome.Failure(AppError.Storage), repository.pendingTips())
+    }
+
+    @Test
+    fun `when a tip is marked shown then it is forwarded and success is returned`() = runTest {
+        val persistence = FakePersistence()
+        val repository = createRepository(persistence = persistence)
+
+        assertEquals(Outcome.Success(Unit), repository.markTipShown(tip = OnboardingTip.VERDICT_TIP))
+        assertEquals(listOf(OnboardingTip.VERDICT_TIP), persistence.shownTips)
+    }
+
+    @Test
+    fun `when marking a tip shown throws then storage failure is returned`() = runTest {
+        val repository = createRepository(persistence = FakePersistence(failure = IllegalStateException("disk")))
+
+        assertEquals(
+            Outcome.Failure(AppError.Storage),
+            repository.markTipShown(tip = OnboardingTip.FIRST_SCAN_HINT),
+        )
+    }
+
     private fun TestScope.createRepository(persistence: FakePersistence) = OnboardingRepositoryImpl(
         persistence = persistence,
         dispatchers = TestAppDispatchers(testScheduler),
@@ -93,6 +139,7 @@ class OnboardingRepositoryImplTest {
     ) : DietPreferencesPersistence {
 
         val completed = mutableListOf<Pair<Int, String>>()
+        val shownTips = mutableListOf<OnboardingTip>()
 
         override fun observe(): Flow<StoredDietPreferences> {
             val failure = failure ?: return flowOf(stored)
@@ -106,6 +153,11 @@ class OnboardingRepositoryImplTest {
         override suspend fun completeSetup(maxDailyCarbsAmount: Int, dietMode: String) {
             failure?.let { throw it }
             completed += maxDailyCarbsAmount to dietMode
+        }
+
+        override suspend fun markTipShown(tip: OnboardingTip) {
+            failure?.let { throw it }
+            shownTips += tip
         }
     }
 }

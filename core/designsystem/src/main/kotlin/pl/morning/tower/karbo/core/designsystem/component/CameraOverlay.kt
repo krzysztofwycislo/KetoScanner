@@ -1,6 +1,7 @@
 package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -255,17 +257,40 @@ fun Ui.CameraPillButton(
 }
 
 @Composable
-fun Ui.CameraHint(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        style = AppTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-        color = AppTheme.colors.text.inverse,
-        textAlign = TextAlign.Center,
+fun Ui.CameraHint(text: String, modifier: Modifier = Modifier, supportingText: String? = null) {
+    val motion = AppTheme.motion
+    val spacing = AppTheme.spacing
+    val hasSupportingText = supportingText != null
+    Column(
         modifier = modifier
-            .background(AppTheme.colors.camera.hint, AppTheme.shapes.pill)
-            .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.xs),
-    )
+            .animateContentSize(
+                animationSpec = tween(durationMillis = motion.durationMedium, easing = motion.easingStandard),
+            )
+            .then(if (hasSupportingText) Modifier.widthIn(max = AppTheme.sizes.cameraHintMaxWidth) else Modifier)
+            .background(
+                color = AppTheme.colors.camera.hint,
+                shape = if (hasSupportingText) AppTheme.shapes.large else AppTheme.shapes.pill,
+            )
+            .padding(horizontal = spacing.m, vertical = if (hasSupportingText) spacing.s else spacing.xs),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(spacing.xxs),
+    ) {
+        Text(
+            text = text,
+            style = if (hasSupportingText) AppTheme.typography.section else AppTheme.typography.bodyLarge,
+            fontWeight = if (hasSupportingText) FontWeight.ExtraBold else FontWeight.Bold,
+            color = AppTheme.colors.text.inverse,
+            textAlign = TextAlign.Center,
+        )
+        if (supportingText != null) {
+            Text(
+                text = supportingText,
+                style = AppTheme.typography.bodySmall,
+                color = AppTheme.colors.text.onHero,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
 }
 
 @Composable
@@ -352,5 +377,16 @@ private fun CameraPillButtonAndHintPreview() {
             Ui.CameraPillButton(text = text, icon = AppIcons.Keyboard.imageVector, onClick = {})
             Ui.CameraHint(text = text)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun CameraHintWithSupportingTextPreview() {
+    CameraPreviewBox {
+        Ui.CameraHint(
+            text = stringResource(R.string.designsystem_preview_rating),
+            supportingText = stringResource(R.string.designsystem_preview_body),
+        )
     }
 }

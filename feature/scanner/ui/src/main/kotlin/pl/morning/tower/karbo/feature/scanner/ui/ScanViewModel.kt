@@ -37,6 +37,8 @@ import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
 import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.scanner.ui.event.OpenAppSettings
 import pl.morning.tower.karbo.feature.scanner.ui.event.PerformHapticFeedback
@@ -54,6 +56,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTorchClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTripItemClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnVerdictTipDismissed
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanFeedback
@@ -76,6 +79,7 @@ internal class ScanViewModel(
     private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
     private val preferences: DietPreferencesRepository,
+    private val onboarding: OnboardingRepository,
     private val clock: Clock,
     private val applicationScope: CoroutineScope,
     initialQuery: String,
@@ -122,6 +126,7 @@ internal class ScanViewModel(
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
             OnScanNextClicked -> scanNext()
             OnDetailsClicked -> openDetails()
+            OnVerdictTipDismissed -> dismissVerdictTip()
             is OnTripItemClicked -> screenEvents send NavigateToProduct(action.barcode)
         }
     }
@@ -148,6 +153,26 @@ internal class ScanViewModel(
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }
                 }
+        }
+    }
+
+    private fun loadPendingTips() {
+        viewModelScope.launch {
+            onboarding.pendingTips()
+                .onSuccess { tips -> statePrototype.update { it.copy(pendingTips = tips) } }
+                .onFailure { error -> reportOrLog("Loading onboarding tips failed", error) }
+        }
+    }
+
+    private fun dismissVerdictTip() {
+        if (statePrototype.value.isVerdictTipVisible) markTipShown(OnboardingTip.VERDICT_TIP)
+    }
+
+    private fun markTipShown(tip: OnboardingTip) {
+        if (tip !in statePrototype.value.pendingTips) return
+        statePrototype.update { it.copy(pendingTips = it.pendingTips - tip) }
+        applicationScope.launch {
+            onboarding.markTipShown(tip).onFailure { error -> reportOrLog("Saving shown tip failed", error) }
         }
     }
 
@@ -259,12 +284,14 @@ internal class ScanViewModel(
     private fun openDetails() {
         val barcode = statePrototype.value.foundBarcode ?: return
         screenEvents send NavigateToProduct(barcode)
+        dismissVerdictTip()
         setFoundBarcode(null)
         setNotFoundBarcode(null)
         statePrototype.update { it.copy(isScanPaused = true) }
     }
 
     private fun scanNext() {
+        dismissVerdictTip()
         setFoundBarcode(null)
         setNotFoundBarcode(null)
         statePrototype.update { it.copy(isScanPaused = false) }
@@ -283,6 +310,7 @@ internal class ScanViewModel(
                 .onSuccess {
                     setTypeSheetOpen(false)
                     setFoundBarcode(barcode)
+                    markTipShown(OnboardingTip.FIRST_SCAN_HINT)
                     saveFoundAnalysisToHistory()
                 }
                 .onFailure { error -> onSearchFailed(barcode, error) }
@@ -328,6 +356,7 @@ internal class ScanViewModel(
         observeFoundAnalysis()
         observeTrip()
         observePreferences()
+        loadPendingTips()
     }
 
     private companion object {

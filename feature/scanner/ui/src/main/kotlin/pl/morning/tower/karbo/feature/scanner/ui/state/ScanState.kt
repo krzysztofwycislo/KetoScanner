@@ -26,10 +26,13 @@ internal sealed interface CameraState {
         val isTypeSheetOpen: Boolean,
         val trip: ImmutableList<TripItemState>,
         val frame: ScanFrameMode,
-        val hint: UiText,
+        val hint: CameraHintState,
     ) : CameraState
     data class PermissionPanel(val title: UiText, val message: UiText, val buttonLabel: UiText) : CameraState
 }
+
+@Immutable
+internal data class CameraHintState(val text: UiText, val supportingText: UiText?)
 
 @Immutable
 internal data class FoundCardState(
@@ -39,6 +42,7 @@ internal data class FoundCardState(
     val rating: Rating,
     val title: UiText,
     val detail: UiText,
+    val showVerdictTip: Boolean,
 )
 
 @Immutable

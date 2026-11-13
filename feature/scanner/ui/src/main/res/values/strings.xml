@@ -3,6 +3,12 @@
     <string name="scan_title">Scan</string>
     <string name="scan_type_it">Type it</string>
     <string name="scan_aim_hint">Point at the barcode, hold still</string>
+    <string name="scan_first_hint_title">Point at any product\'s barcode</string>
+    <string name="scan_first_hint_body_keto">Try something from your kitchen. You\'ll see right away if it fits keto, and why.</string>
+    <string name="scan_first_hint_body_low_carb">Try something from your kitchen. You\'ll see right away if it fits low carb, and why.</string>
+    <string name="scan_verdict_tip_title">This is why it got this rating</string>
+    <string name="scan_verdict_tip_body">Every verdict comes with the main reason. Tap Details for the full breakdown.</string>
+    <string name="scan_verdict_tip_action">Got it</string>
     <string name="scan_torch_on">Turn torch on</string>
     <string name="scan_torch_off">Turn torch off</string>
     <string name="scan_type_title">Type the barcode</string>

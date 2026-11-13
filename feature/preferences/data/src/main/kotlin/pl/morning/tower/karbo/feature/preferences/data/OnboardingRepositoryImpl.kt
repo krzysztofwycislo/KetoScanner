@@ -8,6 +8,7 @@ import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.common.outcomeOf
 import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 
 internal class OnboardingRepositoryImpl(
     private val persistence: DietPreferencesPersistence,
@@ -29,6 +30,20 @@ internal class OnboardingRepositoryImpl(
                     maxDailyCarbsAmount = preset.preferences.maxDailyCarbsAmount,
                     dietMode = preset.preferences.dietMode.name,
                 )
+            }
+        }
+
+    override suspend fun pendingTips(): Outcome<Set<OnboardingTip>> =
+        withContext(dispatchers.io) {
+            outcomeOf(mapError = { AppError.Storage }) {
+                persistence.observe().first().pendingTips
+            }
+        }
+
+    override suspend fun markTipShown(tip: OnboardingTip): Outcome<Unit> =
+        withContext(dispatchers.io) {
+            outcomeOf(mapError = { AppError.Storage }) {
+                persistence.markTipShown(tip)
             }
         }
 }

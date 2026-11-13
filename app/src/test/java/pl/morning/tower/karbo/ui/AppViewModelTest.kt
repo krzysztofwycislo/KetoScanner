@@ -17,6 +17,7 @@ import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
 import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import pl.morning.tower.karbo.navigation.AppStart
 import pl.morning.tower.karbo.navigation.BottomNavSection
 import pl.morning.tower.karbo.navigation.RoutePresentation
@@ -325,5 +326,9 @@ class AppViewModelTest {
         override suspend fun isSetupDone(): Outcome<Boolean> = isSetupDone.invoke()
 
         override suspend fun completeSetup(preset: DietPreset): Outcome<Unit> = throw NotImplementedError()
+
+        override suspend fun pendingTips(): Outcome<Set<OnboardingTip>> = throw NotImplementedError()
+
+        override suspend fun markTipShown(tip: OnboardingTip): Outcome<Unit> = throw NotImplementedError()
     }
 }

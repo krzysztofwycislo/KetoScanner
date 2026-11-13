@@ -14,8 +14,10 @@ import pl.morning.tower.karbo.feature.analysis.api.model.RatingReason
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraHintState
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermission
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
 import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
@@ -117,6 +119,82 @@ class ScanStateFactoryTest {
     fun `when a search runs or a found barcode waits for its analysis then the hint says it is searching`() {
         assertEquals(SEARCHING_HINT, hint(granted().copy(isSearching = true)))
         assertEquals(SEARCHING_HINT, hint(granted().copy(foundBarcode = BARCODE)))
+    }
+
+    @Test
+    fun `when the first scan hint is pending in keto mode then the hint shows the first scan texts for keto`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
+            dietPreferences = DietPreferences(40, DietMode.KETO),
+        )
+
+        assertEquals(FIRST_HINT_KETO, hint(prototype))
+    }
+
+    @Test
+    fun `when the first scan hint is pending in low carb mode then the subtitle is for low carb`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
+            dietPreferences = DietPreferences(100, DietMode.LOW_CARB),
+        )
+
+        assertEquals(
+            CameraHintState(
+                text = UiText.Res(R.string.scan_first_hint_title),
+                supportingText = UiText.Res(R.string.scan_first_hint_body_low_carb),
+            ),
+            hint(prototype),
+        )
+    }
+
+    @Test
+    fun `when the first scan hint is pending without loaded preferences then the subtitle is for keto`() {
+        assertEquals(FIRST_HINT_KETO, hint(granted().copy(pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT))))
+    }
+
+    @Test
+    fun `when a search runs while the first scan hint is pending then the hint says it is searching`() {
+        val prototype = granted().copy(pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT), isSearching = true)
+
+        assertEquals(SEARCHING_HINT, hint(prototype))
+    }
+
+    @Test
+    fun `when only the verdict tip is pending then the hint asks to aim without supporting text`() {
+        assertEquals(AIM_HINT, hint(granted().copy(pendingTips = setOf(OnboardingTip.VERDICT_TIP))))
+    }
+
+    @Test
+    fun `when the verdict tip is pending and a rated analysis is found then the card shows the tip`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.VERDICT_TIP),
+            foundBarcode = BARCODE,
+            foundAnalysis = rated(DietRate.NOT_ADVISED, DietMode.KETO),
+        )
+
+        assertTrue(assertNotNull(factory.createFor(prototype).found).showVerdictTip)
+    }
+
+    @Test
+    fun `when the verdict tip is pending and an insufficient data analysis is found then the card hides the tip`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.VERDICT_TIP),
+            foundBarcode = BARCODE,
+            foundAnalysis = ProductAnalysis.InsufficientData(product),
+        )
+
+        assertFalse(assertNotNull(factory.createFor(prototype).found).showVerdictTip)
+    }
+
+    @Test
+    fun `when the verdict tip is not pending then a rated card hides the tip`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
+            foundBarcode = BARCODE,
+            foundAnalysis = rated(DietRate.GOOD, DietMode.KETO),
+        )
+
+        assertFalse(assertNotNull(factory.createFor(prototype).found).showVerdictTip)
     }
 
     @Test
@@ -242,6 +320,7 @@ class ScanStateFactoryTest {
                     rating = ratingAndTitle.first,
                     title = UiText.Res(ratingAndTitle.second),
                     detail = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(57.5)),
+                    showVerdictTip = false,
                 ),
                 found(rated(rate, DietMode.KETO)),
             )
@@ -318,6 +397,7 @@ class ScanStateFactoryTest {
                 rating = Rating.Unknown,
                 title = UiText.Res(R.string.scan_verdict_insufficient_data),
                 detail = UiText.Res(R.string.scan_found_insufficient_detail),
+                showVerdictTip = false,
             ),
             found(ProductAnalysis.InsufficientData(product)),
         )
@@ -489,7 +569,7 @@ class ScanStateFactoryTest {
         isTorchOn: Boolean = false,
         isTypeSheetOpen: Boolean = false,
         frame: ScanFrameMode = ScanFrameMode.Aiming,
-        hint: UiText = AIM_HINT,
+        hint: CameraHintState = AIM_HINT,
     ) = CameraState.Preview(
         isPaused = isPaused,
         isTorchOn = isTorchOn,
@@ -504,7 +584,7 @@ class ScanStateFactoryTest {
 
     private fun frame(prototype: Prototype): ScanFrameMode = assertIs<CameraState.Preview>(camera(prototype)).frame
 
-    private fun hint(prototype: Prototype): UiText = assertIs<CameraState.Preview>(camera(prototype)).hint
+    private fun hint(prototype: Prototype): CameraHintState = assertIs<CameraState.Preview>(camera(prototype)).hint
 
     private fun torchButton(prototype: Prototype): TorchButtonState? =
         assertIs<CameraState.Preview>(camera(prototype)).torchButton
@@ -536,8 +616,12 @@ class ScanStateFactoryTest {
     private companion object {
         const val BARCODE = "590"
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
-        val AIM_HINT = UiText.Res(R.string.scan_aim_hint)
-        val SEARCHING_HINT = UiText.Res(R.string.scan_searching_hint)
+        val AIM_HINT = CameraHintState(text = UiText.Res(R.string.scan_aim_hint), supportingText = null)
+        val SEARCHING_HINT = CameraHintState(text = UiText.Res(R.string.scan_searching_hint), supportingText = null)
+        val FIRST_HINT_KETO = CameraHintState(
+            text = UiText.Res(R.string.scan_first_hint_title),
+            supportingText = UiText.Res(R.string.scan_first_hint_body_keto),
+        )
         val TORCH_OFF = TorchButtonState(isActive = false, contentDescription = UiText.Res(R.string.scan_torch_on))
         val TORCH_ON = TorchButtonState(isActive = true, contentDescription = UiText.Res(R.string.scan_torch_off))
 

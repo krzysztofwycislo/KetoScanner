@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
@@ -22,10 +23,14 @@ internal data class ScanStatePrototype(
     val tripEntries: List<ProductAnalysisHistoryEntry> = emptyList(),
     val now: Instant = Instant.fromEpochMilliseconds(0),
     val dietPreferences: DietPreferences? = null,
+    val pendingTips: Set<OnboardingTip> = emptySet(),
 ) {
 
     val isScanBlocked: Boolean
         get() = isScanPaused || isSearching || isTypeSheetOpen || foundBarcode != null || notFoundBarcode != null
+
+    val isVerdictTipVisible: Boolean
+        get() = OnboardingTip.VERDICT_TIP in pendingTips && foundAnalysis is ProductAnalysis.Rated
 
     companion object {
         val Default = ScanStatePrototype()

@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import pl.morning.tower.karbo.core.designsystem.component.CardOverlay
+import pl.morning.tower.karbo.core.designsystem.component.CoachMark
 import pl.morning.tower.karbo.core.designsystem.component.IconTile
 import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
 import pl.morning.tower.karbo.core.designsystem.component.Rating
@@ -41,6 +42,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnDetailsClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnScanNextClicked
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnVerdictTipDismissed
 import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
 
 @Composable
@@ -55,8 +57,24 @@ internal fun BoxScope.FoundOverlay(
         onDismiss = { onAction(OnScanNextClicked) },
         contentPadding = innerPadding,
         modifier = Modifier.matchParentSize(),
-    ) {
-        FoundCard(it, onAction)
+    ) { card ->
+        Column(
+            modifier = Modifier
+                .widthIn(max = AppTheme.sizes.overlayCardMaxWidth)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(AppTheme.spacing.m),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+        ) {
+            Ui.CoachMark(
+                visible = card.showVerdictTip,
+                title = stringResource(R.string.scan_verdict_tip_title),
+                body = stringResource(R.string.scan_verdict_tip_body),
+                actionLabel = stringResource(R.string.scan_verdict_tip_action),
+                onAction = { onAction(OnVerdictTipDismissed) },
+            )
+            FoundCard(card, onAction)
+        }
     }
 }
 
@@ -65,11 +83,8 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
     val title = found.title.resolve()
     Column(
         modifier = Modifier
-            .widthIn(max = AppTheme.sizes.overlayCardMaxWidth)
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .semantics { paneTitle = title }
-            .padding(AppTheme.spacing.m)
             .background(AppTheme.colors.background.surface, AppTheme.shapes.extraLarge)
             .pointerInput(Unit) {}
             .padding(AppTheme.spacing.l)
@@ -98,7 +113,12 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
                 }
             }
         }
-        Ui.VerdictBanner(rating = found.rating, title = found.title, details = listOf(found.detail))
+        Ui.VerdictBanner(
+            rating = found.rating,
+            title = found.title,
+            details = listOf(found.detail),
+            highlighted = found.showVerdictTip,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
             Ui.SecondaryButton(
                 text = stringResource(R.string.scan_next),
@@ -134,6 +154,7 @@ private fun ScanFoundInsufficientDataPreview() {
                 rating = Rating.Unknown,
                 title = UiText.Res(R.string.scan_verdict_insufficient_data),
                 detail = UiText.Res(R.string.scan_found_insufficient_detail),
+                showVerdictTip = false,
             ),
         )
     )
@@ -143,4 +164,18 @@ private fun ScanFoundInsufficientDataPreview() {
 @Composable
 private fun ScanFoundLandscapePreview() {
     ScanFoundRatedPreview()
+}
+
+@Preview
+@Composable
+private fun ScanFoundVerdictTipPreview() {
+    ScanScreenPreview(
+        previewState(isPaused = true, frame = ScanFrameMode.Found, found = previewFound.copy(showVerdictTip = true)),
+    )
+}
+
+@Preview(widthDp = 891, heightDp = 411)
+@Composable
+private fun ScanFoundVerdictTipLandscapePreview() {
+    ScanFoundVerdictTipPreview()
 }

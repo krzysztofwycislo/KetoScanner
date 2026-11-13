@@ -11,6 +11,7 @@ import pl.morning.tower.karbo.core.common.Outcome
 import pl.morning.tower.karbo.core.testing.TestAppDispatchers
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -149,6 +150,10 @@ class DietPreferencesRepositoryImplTest {
         }
 
         override suspend fun completeSetup(maxDailyCarbsAmount: Int, dietMode: String) {
+            failure?.let { throw it }
+        }
+
+        override suspend fun markTipShown(tip: OnboardingTip) {
             failure?.let { throw it }
         }
     }

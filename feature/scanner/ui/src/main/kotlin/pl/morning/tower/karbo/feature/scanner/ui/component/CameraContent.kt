@@ -36,6 +36,7 @@ import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
 import pl.morning.tower.karbo.core.designsystem.icon.imageVector
 import pl.morning.tower.karbo.core.designsystem.text.resolve
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.scanner.ui.R
 import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
 import pl.morning.tower.karbo.feature.scanner.ui.camera.CameraPreview
@@ -44,6 +45,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTorchClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeItClicked
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraHintState
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
 import pl.morning.tower.karbo.feature.scanner.ui.state.ScanState
 import pl.morning.tower.karbo.feature.scanner.ui.state.TorchButtonState
@@ -66,16 +68,15 @@ internal fun CameraContent(state: ScanState, camera: CameraState.Preview, onActi
                     .testTag("cameraPreviewView"),
             )
             val frameModifier = Modifier.onGloballyPositioned { scanArea = it.boundsInWindow() }
-            val hint = camera.hint.resolve()
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
             ) {
                 if (maxWidth > maxHeight) {
-                    WideCameraLayout(camera, hint, frameModifier, onAction)
+                    WideCameraLayout(camera, frameModifier, onAction)
                 } else {
-                    TallCameraLayout(camera, hint, frameModifier, onAction)
+                    TallCameraLayout(camera, frameModifier, onAction)
                 }
             }
             TypeSheet(
@@ -94,7 +95,6 @@ internal fun CameraContent(state: ScanState, camera: CameraState.Preview, onActi
 @Composable
 private fun BoxScope.TallCameraLayout(
     camera: CameraState.Preview,
-    hint: String,
     frameModifier: Modifier,
     onAction: (ScanAction) -> Unit,
 ) {
@@ -108,8 +108,8 @@ private fun BoxScope.TallCameraLayout(
             mode = camera.frame,
             modifier = frameModifier,
         )
-        Ui.CameraHint(
-            text = hint,
+        ScanHint(
+            hint = camera.hint,
             modifier = Modifier.padding(top = AppTheme.spacing.m),
         )
     }
@@ -128,7 +128,6 @@ private fun BoxScope.TallCameraLayout(
 @Composable
 private fun WideCameraLayout(
     camera: CameraState.Preview,
-    hint: String,
     frameModifier: Modifier,
     onAction: (ScanAction) -> Unit,
 ) {
@@ -143,7 +142,7 @@ private fun WideCameraLayout(
         ) {
             TorchButton(camera.torchButton, onAction)
             TypeItButton(onAction)
-            Ui.CameraHint(text = hint)
+            ScanHint(hint = camera.hint)
         }
         Box(
             modifier = Modifier
@@ -171,6 +170,15 @@ private fun WideCameraLayout(
             )
         }
     }
+}
+
+@Composable
+private fun ScanHint(hint: CameraHintState, modifier: Modifier = Modifier) {
+    Ui.CameraHint(
+        text = hint.text.resolve(),
+        supportingText = hint.supportingText?.resolve(),
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -250,4 +258,21 @@ private fun ScanSearchingCameraPreview() {
 @Composable
 private fun ScanAimingLandscapePreview() {
     ScanAimingPreview()
+}
+
+@Preview
+@Composable
+private fun ScanFirstHintPreview() {
+    ScanScreenPreview(
+        previewState(
+            hint = previewResources.firstScanHintTitle(),
+            hintSupportingText = previewResources.firstScanHintBody(DietMode.KETO),
+        ),
+    )
+}
+
+@Preview(widthDp = 891, heightDp = 411)
+@Composable
+private fun ScanFirstHintLandscapePreview() {
+    ScanFirstHintPreview()
 }

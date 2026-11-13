@@ -44,8 +44,11 @@ import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.history.api.AnalysisHistoryRepository
 import pl.morning.tower.karbo.feature.history.api.model.ProductAnalysisHistoryEntry
 import pl.morning.tower.karbo.feature.preferences.api.DietPreferencesRepository
+import pl.morning.tower.karbo.feature.preferences.api.OnboardingRepository
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
+import pl.morning.tower.karbo.feature.preferences.api.model.DietPreset
+import pl.morning.tower.karbo.feature.preferences.api.model.OnboardingTip
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
@@ -56,6 +59,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanFeedback
+import pl.morning.tower.karbo.feature.scanner.ui.state.CameraHintState
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermissionCheck
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraState
 import pl.morning.tower.karbo.feature.scanner.ui.state.FoundCardState
@@ -80,6 +84,7 @@ class ScanViewModelTest {
     private val analyzeProduct = FakeAnalyzeProduct()
     private val history = FakeHistory()
     private val preferences = FakePreferences()
+    private val onboarding = FakeOnboarding()
     private val clock = FakeClock(NOW)
     private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
@@ -717,6 +722,7 @@ class ScanViewModelTest {
                     rating = Rating.Unknown,
                     title = UiText.Res(R.string.scan_verdict_insufficient_data),
                     detail = UiText.Res(R.string.scan_found_insufficient_detail),
+                    showVerdictTip = false,
                 ),
                 viewModel.state.value.found,
             )
@@ -940,6 +946,179 @@ class ScanViewModelTest {
         assertTrue(screenEvents.isEmpty())
     }
 
+    @Test
+    fun `when tips are pending then the first scan hint reaches the state after creation`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.FIRST_SCAN_HINT))
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(FIRST_HINT_KETO, hint(viewModel))
+    }
+
+    @Test
+    fun `when loading tips fails then it is reported once and no tip shows`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Failure(AppError.Storage)
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(AIM_HINT, hint(viewModel))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals("Loading onboarding tips failed", errorReporter.reports.single().message)
+        assertEquals(ratedCard, viewModel.state.value.found)
+        assertTrue(onboarding.shownTips.isEmpty())
+    }
+
+    @Test
+    fun `when the first lookup succeeds then the first scan hint is marked once and the hint asks to aim`() =
+        runTest {
+            onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.FIRST_SCAN_HINT))
+            analyzeProduct.emit(ratedAnalysis)
+            val viewModel = createViewModel()
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+            viewModel.onAction(ScanAction.OnScanNextClicked)
+
+            assertEquals(listOf(OnboardingTip.FIRST_SCAN_HINT), onboarding.shownTips)
+            assertEquals(AIM_HINT, hint(viewModel))
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            assertEquals(listOf(OnboardingTip.FIRST_SCAN_HINT), onboarding.shownTips)
+        }
+
+    @Test
+    fun `when a lookup is not found or fails then the first scan hint stays pending`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.FIRST_SCAN_HINT))
+        products.result = Outcome.Failure(AppError.NotFound)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+        products.result = Outcome.Failure(AppError.Network)
+        viewModel.onAction(ScanAction.OnBarcodeScanned("591"))
+        advanceTimeBy(2_000)
+        runCurrent()
+
+        assertTrue(onboarding.shownTips.isEmpty())
+        assertEquals(FIRST_HINT_KETO, hint(viewModel))
+    }
+
+    @Test
+    fun `when got it is clicked and the card closes then the verdict tip is marked only once`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals(ratedCard.copy(showVerdictTip = true), viewModel.state.value.found)
+
+        viewModel.onAction(ScanAction.OnVerdictTipDismissed)
+        viewModel.onAction(ScanAction.OnVerdictTipDismissed)
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+
+        assertEquals(listOf(OnboardingTip.VERDICT_TIP), onboarding.shownTips)
+        assertNull(viewModel.state.value.found)
+    }
+
+    @Test
+    fun `when got it is clicked then the found card stays with the tip hidden`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnVerdictTipDismissed)
+
+        assertEquals(ratedCard, viewModel.state.value.found)
+    }
+
+    @Test
+    fun `when scan next is clicked with the verdict tip visible then the tip is marked`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals(listOf(OnboardingTip.VERDICT_TIP), onboarding.shownTips)
+        assertEquals(ratedCard, viewModel.state.value.found)
+    }
+
+    @Test
+    fun `when details is clicked with the verdict tip visible then the tip is marked`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnDetailsClicked)
+
+        assertEquals(listOf(OnboardingTip.VERDICT_TIP), onboarding.shownTips)
+    }
+
+    @Test
+    fun `when scan next is clicked on an insufficient data card then the verdict tip stays pending`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        analyzeProduct.emit(ProductAnalysis.InsufficientData(product))
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertFalse(assertIs<FoundCardState>(viewModel.state.value.found).showVerdictTip)
+
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+        analyzeProduct.emit(ratedAnalysis)
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertTrue(onboarding.shownTips.isEmpty())
+        assertEquals(ratedCard.copy(showVerdictTip = true), viewModel.state.value.found)
+    }
+
+    @Test
+    fun `when saving a shown tip fails then it is only reported and the tip stays hidden`() = runTest {
+        onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+        onboarding.markResult = Outcome.Failure(AppError.Storage)
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnVerdictTipDismissed)
+
+        assertEquals("Saving shown tip failed", errorReporter.reports.single().message)
+        assertEquals(ratedCard, viewModel.state.value.found)
+        assertTrue(appEvents.none { it is AppEvent.ShowMessage })
+    }
+
+    @Test
+    fun `when no tips are pending then no tip is ever marked`() = runTest {
+        analyzeProduct.emit(ratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        viewModel.onAction(ScanAction.OnVerdictTipDismissed)
+        viewModel.onAction(ScanAction.OnScanNextClicked)
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        viewModel.onAction(ScanAction.OnDetailsClicked)
+
+        assertTrue(onboarding.shownTips.isEmpty())
+    }
+
+    private fun hint(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).hint
+
     private fun tripItems(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).trip
 
     private fun notFoundCard(barcode: String) =
@@ -959,7 +1138,7 @@ class ScanViewModelTest {
         isTypeSheetOpen = isTypeSheetOpen,
         trip = persistentListOf(),
         frame = frame,
-        hint = hint,
+        hint = CameraHintState(text = hint, supportingText = null),
     )
 
     private fun ScanViewModel.tripBarcodes(): List<String> = tripItems(this).map { it.barcode }
@@ -993,6 +1172,7 @@ class ScanViewModelTest {
             logger = logger,
             errorReporter = errorReporter,
             preferences = preferences,
+            onboarding = onboarding,
             clock = clock,
             applicationScope = CoroutineScope(
                 backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler),
@@ -1074,6 +1254,24 @@ class ScanViewModelTest {
             throw NotImplementedError()
     }
 
+    private class FakeOnboarding : OnboardingRepository {
+
+        var pendingTipsResult: Outcome<Set<OnboardingTip>> = Outcome.Success(emptySet())
+        var markResult: Outcome<Unit> = Outcome.Success(Unit)
+        val shownTips = mutableListOf<OnboardingTip>()
+
+        override suspend fun isSetupDone(): Outcome<Boolean> = throw NotImplementedError()
+
+        override suspend fun completeSetup(preset: DietPreset): Outcome<Unit> = throw NotImplementedError()
+
+        override suspend fun pendingTips(): Outcome<Set<OnboardingTip>> = pendingTipsResult
+
+        override suspend fun markTipShown(tip: OnboardingTip): Outcome<Unit> {
+            shownTips += tip
+            return markResult
+        }
+    }
+
     private companion object {
         const val KEY_QUERY = "query"
         const val KEY_CAMERA_PERMISSION = "cameraPermission"
@@ -1083,6 +1281,11 @@ class ScanViewModelTest {
         const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
         val SEARCHING_HINT = UiText.Res(R.string.scan_searching_hint)
+        val AIM_HINT = CameraHintState(text = UiText.Res(R.string.scan_aim_hint), supportingText = null)
+        val FIRST_HINT_KETO = CameraHintState(
+            text = UiText.Res(R.string.scan_first_hint_title),
+            supportingText = UiText.Res(R.string.scan_first_hint_body_keto),
+        )
         val TORCH_OFF = TorchButtonState(isActive = false, contentDescription = UiText.Res(R.string.scan_torch_on))
         val TORCH_ON = TorchButtonState(isActive = true, contentDescription = UiText.Res(R.string.scan_torch_off))
         val DETECTED_HAPTIC = PerformHapticFeedback(ScanFeedback.Detected)
@@ -1115,6 +1318,7 @@ class ScanViewModelTest {
             rating = Rating.Negative,
             title = UiText.Res(R.string.scan_verdict_not_advised_keto),
             detail = UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(57.5)),
+            showVerdictTip = false,
         )
 
         val GRANTED = CameraPermissionCheck(isGranted = true, shouldShowRationale = false)

@@ -13,6 +13,7 @@ data class AppSizes(
     val iconDiscCompact: Dp,
     val productPhoto: Dp,
     val overlayCardMaxWidth: Dp,
+    val cameraHintMaxWidth: Dp,
     val scanButtonLift: Dp,
 ) {
 
@@ -55,5 +56,6 @@ val DefaultAppSizes = AppSizes(
     iconDiscCompact = 52.dp,
     productPhoto = 92.dp,
     overlayCardMaxWidth = 560.dp,
+    cameraHintMaxWidth = 300.dp,
     scanButtonLift = 24.dp,
 )

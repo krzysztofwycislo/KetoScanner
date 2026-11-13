@@ -14,5 +14,6 @@ internal sealed interface ScanAction {
     data object OnTypeSheetDismissed : ScanAction
     data object OnScanNextClicked : ScanAction
     data object OnDetailsClicked : ScanAction
+    data object OnVerdictTipDismissed : ScanAction
     data class OnTripItemClicked(val barcode: String) : ScanAction
 }
