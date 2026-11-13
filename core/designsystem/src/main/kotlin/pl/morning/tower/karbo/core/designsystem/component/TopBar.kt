@@ -16,11 +16,14 @@ import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.core.designsystem.text.resolve
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 
+enum class TopBarNavigation { Back, Close }
+
 @Composable
 fun Ui.TopBar(
     title: String,
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
+    navigationIcon: TopBarNavigation = TopBarNavigation.Back,
 ) {
     Row(
         modifier = modifier
@@ -35,9 +38,17 @@ fun Ui.TopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBackClick != null) {
+            val icon = when (navigationIcon) {
+                TopBarNavigation.Back -> AppIcons.Back
+                TopBarNavigation.Close -> AppIcons.Close
+            }
+            val description = when (navigationIcon) {
+                TopBarNavigation.Back -> R.string.designsystem_back
+                TopBarNavigation.Close -> R.string.designsystem_close
+            }
             Ui.CircleIconButton(
-                icon = AppIcons.Back.imageVector,
-                contentDescription = UiText.Res(R.string.designsystem_back),
+                icon = icon.imageVector,
+                contentDescription = UiText.Res(description),
                 onClick = onBackClick,
             )
         }
@@ -62,5 +73,17 @@ private fun TopBarPreview() {
 private fun TopBarWithBackPreview() {
     AppTheme {
         Ui.TopBar(title = UiText.Res(R.string.designsystem_preview_title).resolve(), onBackClick = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TopBarWithClosePreview() {
+    AppTheme {
+        Ui.TopBar(
+            title = UiText.Res(R.string.designsystem_preview_title).resolve(),
+            onBackClick = {},
+            navigationIcon = TopBarNavigation.Close,
+        )
     }
 }

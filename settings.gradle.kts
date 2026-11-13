@@ -46,4 +46,7 @@ include(
     ":feature:about:ui",
     ":feature:onboarding:ui",
     ":feature:analysis:domain",
+    ":feature:report:api",
+    ":feature:report:data",
+    ":feature:report:ui",
 )

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="report_title">Report a problem</string>
+    <string name="report_whats_wrong">What\'s wrong?</string>
+    <string name="report_details">Details</string>
+    <string name="report_optional">(optional)</string>
+    <string name="report_expectation">What did you expect?</string>
+    <string name="report_rated_as">We rated it:</string>
+    <string name="report_reason_rating">Rating seems wrong</string>
+    <string name="report_reason_nutrition">Nutrition values are wrong</string>
+    <string name="report_reason_product">It\'s a different product</string>
+    <string name="report_reason_other">Something else</string>
+    <string name="report_placeholder_rating">e.g. plain milk should be fine in small amounts</string>
+    <string name="report_placeholder_nutrition">e.g. the label says 4 g carbs, or the recipe changed</string>
+    <string name="report_placeholder_product">e.g. wrong name, brand or photo</string>
+    <string name="report_placeholder_other">Tell us what is wrong</string>
+    <string name="report_send">Send report</string>
+    <string name="report_pick_reason">Pick a reason</string>
+    <string name="report_verdict_good_keto">Keto-friendly</string>
+    <string name="report_verdict_good_low_carb">Low-carb friendly</string>
+    <string name="report_verdict_neutral">In small amounts</string>
+    <string name="report_verdict_not_advised_keto">Not keto-friendly</string>
+    <string name="report_verdict_not_advised_low_carb">Not low-carb friendly</string>
+    <string name="report_unnamed_product">Unnamed product</string>
+    <string name="report_product_subtitle">%1$s · %2$s</string>
+    <string name="report_sent_title">Thanks for the report</string>
+    <string name="report_sent_body">A person will look at it and correct the product if needed.</string>
+    <string name="report_step_sent">Report sent</string>
+    <string name="report_step_check">A person checks it</string>
+    <string name="report_step_fix">We fix the product</string>
+    <string name="report_home">Home</string>
+    <string name="report_scan_next">Scan next</string>
+    <string name="report_failed_title">Couldn\'t send it</string>
+    <string name="report_failed_body">Check your connection and try again. Your notes are kept until it goes through.</string>
+    <string name="report_try_again">Try again</string>
+    <string name="report_back_to_report">Back to the report</string>
+</resources>

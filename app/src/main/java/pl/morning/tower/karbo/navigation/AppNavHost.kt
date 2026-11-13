@@ -33,6 +33,9 @@ import pl.morning.tower.karbo.feature.preferences.ui.event.DietPreferencesEvent.
 import pl.morning.tower.karbo.feature.product.ui.ProductRoute
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation
 import pl.morning.tower.karbo.feature.product.ui.productDestination
+import pl.morning.tower.karbo.feature.report.ui.ReportRoute
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation
+import pl.morning.tower.karbo.feature.report.ui.reportDestination
 import pl.morning.tower.karbo.feature.scanner.ui.ScanRoute
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import pl.morning.tower.karbo.feature.scanner.ui.scanDestination
@@ -127,6 +130,19 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
             navController.ifCurrent<ProductRoute> {
                 when (navigation) {
                     ProductNavigation.NavigateBack -> navigateUp()
+                    is ProductNavigation.NavigateToReport -> navigate(ReportRoute(navigation.barcode))
+                }
+            }
+        }
+        reportDestination { navigation ->
+            navController.ifCurrent<ReportRoute> {
+                when (navigation) {
+                    ReportNavigation.NavigateBack -> navigateUp()
+                    ReportNavigation.NavigateToHome -> popBackStack<HomeRoute>(inclusive = false)
+                    ReportNavigation.NavigateToScan -> {
+                        popBackStack<HomeRoute>(inclusive = false)
+                        navigateToTab(BottomNavSection.SCAN)
+                    }
                 }
             }
         }

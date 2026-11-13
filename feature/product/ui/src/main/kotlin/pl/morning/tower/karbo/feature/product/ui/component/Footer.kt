@@ -20,7 +20,7 @@ import pl.morning.tower.karbo.core.designsystem.text.resolve
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.product.ui.R
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
-import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnReportClicked
 
 @Composable
 internal fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {
@@ -38,12 +38,12 @@ internal fun Footer(dataSource: UiText, onAction: (ProductAction) -> Unit) {
             modifier = Modifier
                 .defaultMinSize(minHeight = AppTheme.sizes.control.m)
                 .clip(AppTheme.shapes.small)
-                .clickable(role = Role.Button) { onAction(OnOpenFoodFactsClicked) }
+                .clickable(role = Role.Button) { onAction(OnReportClicked) }
                 .padding(horizontal = AppTheme.spacing.s),
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = stringResource(R.string.product_fix_on_open_food_facts),
+                text = stringResource(R.string.product_report_problem),
                 style = AppTheme.typography.label,
                 color = AppTheme.colors.text.accent,
                 textAlign = TextAlign.Center,

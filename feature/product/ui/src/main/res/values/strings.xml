@@ -38,6 +38,6 @@
     <string name="product_basis_serving_with_value">%1$s g/ml</string>
     <string name="product_data_source">Data: Open Food Facts · Barcode %1$s</string>
     <string name="product_add_to_open_food_facts">Add it to Open Food Facts</string>
-    <string name="product_fix_on_open_food_facts">Something wrong? Fix it on Open Food Facts</string>
+    <string name="product_report_problem">Something wrong? Report it</string>
     <string name="product_link_unavailable">No app can open this link</string>
 </resources>

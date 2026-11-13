@@ -7,6 +7,7 @@ import pl.morning.tower.karbo.feature.history.ui.HistoryRoute
 import pl.morning.tower.karbo.feature.onboarding.ui.OnboardingRoute
 import pl.morning.tower.karbo.feature.preferences.ui.DietPreferencesRoute
 import pl.morning.tower.karbo.feature.product.ui.ProductRoute
+import pl.morning.tower.karbo.feature.report.ui.ReportRoute
 import kotlin.reflect.KClass
 
 internal enum class RoutePresentation {
@@ -21,6 +22,7 @@ private val routePresentations: Map<KClass<*>, RoutePresentation> = mapOf(
     AboutRoute::class to RoutePresentation.PUSHED,
     HistoryRoute::class to RoutePresentation.PUSHED,
     OnboardingRoute::class to RoutePresentation.FULL_SCREEN,
+    ReportRoute::class to RoutePresentation.FULL_SCREEN,
 )
 
 internal fun NavDestination.presentation(): RoutePresentation =

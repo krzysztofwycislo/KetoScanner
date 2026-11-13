@@ -38,6 +38,8 @@ fun Ui.TextInput(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
+    enabled: Boolean = true,
+    minLines: Int = 1,
 ) {
     InputField(
         value = value,
@@ -49,6 +51,8 @@ fun Ui.TextInput(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,
+        enabled = enabled,
+        minLines = minLines,
     )
 }
 
@@ -63,18 +67,23 @@ internal fun InputField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
+    enabled: Boolean = true,
+    minLines: Int = 1,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val textStyle = AppTheme.typography.bodyLarge
+    val isMultiLine = minLines > 1
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
+        enabled = enabled,
         textStyle = textStyle.copy(color = AppTheme.colors.text.default),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,
+        minLines = minLines,
         interactionSource = interactionSource,
         cursorBrush = SolidColor(AppTheme.colors.accent),
         decorationBox = { innerTextField ->
@@ -88,7 +97,14 @@ internal fun InputField(
                 )
                 .padding(horizontal = AppTheme.spacing.s)
             val textBox: @Composable (Modifier) -> Unit = { boxModifier ->
-                Box(modifier = boxModifier, contentAlignment = Alignment.CenterStart) {
+                Box(
+                    modifier = if (isMultiLine) {
+                        boxModifier.padding(vertical = AppTheme.spacing.s)
+                    } else {
+                        boxModifier
+                    },
+                    contentAlignment = if (isMultiLine) Alignment.TopStart else Alignment.CenterStart,
+                ) {
                     if (value.isEmpty()) {
                         Text(text = placeholder, style = textStyle, color = AppTheme.colors.text.muted)
                     }
@@ -128,5 +144,20 @@ private fun TextInputPreview() {
             Ui.TextInput(value = "", onValueChange = {}, placeholder = text)
             Ui.TextInput(value = text, onValueChange = {}, placeholder = "")
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TextInputMultiLinePreview() {
+    AppTheme {
+        Ui.TextInput(
+            value = "",
+            onValueChange = {},
+            placeholder = stringResource(R.string.designsystem_preview_body),
+            modifier = Modifier.padding(AppTheme.spacing.m),
+            singleLine = false,
+            minLines = 3,
+        )
     }
 }

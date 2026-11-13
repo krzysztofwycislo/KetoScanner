@@ -54,6 +54,9 @@ dependencies {
     implementation(project(":feature:preferences:ui"))
     implementation(project(":feature:about:ui"))
     implementation(project(":feature:onboarding:ui"))
+    implementation(project(":feature:report:api"))
+    implementation(project(":feature:report:data"))
+    implementation(project(":feature:report:ui"))
     implementation(project(":feature:preferences:api"))
     implementation(project(":core:datastore"))
 

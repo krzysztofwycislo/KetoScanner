@@ -23,6 +23,7 @@
         <item quantity="other">%1$s products</item>
     </plurals>
     <string name="designsystem_back">Back</string>
+    <string name="designsystem_close">Close</string>
     <string name="designsystem_category_spreads">Spreads</string>
     <string name="designsystem_category_oils_and_sauces">Oils and sauces</string>
     <string name="designsystem_category_water">Water</string>

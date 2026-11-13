@@ -10,5 +10,6 @@ internal sealed interface ProductAction {
     data object OnPer100gClicked : ProductAction
     data object OnPerServingClicked : ProductAction
     data object OnOpenFoodFactsClicked : ProductAction
+    data object OnReportClicked : ProductAction
     data object OnWebPageUnavailable : ProductAction
 }

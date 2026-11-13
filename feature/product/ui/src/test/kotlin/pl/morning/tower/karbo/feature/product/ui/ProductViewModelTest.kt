@@ -39,6 +39,7 @@ import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToReport
 import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
 import pl.morning.tower.karbo.feature.product.ui.state.VerdictState
@@ -484,6 +485,15 @@ class ProductViewModelTest {
         viewModel.onAction(ProductAction.OnOpenFoodFactsClicked)
 
         assertEquals(OpenWebPage("https://world.openfoodfacts.org/product/$BARCODE"), viewModel.events.first())
+    }
+
+    @Test
+    fun `when report clicked then navigates to report with the barcode`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ProductAction.OnReportClicked)
+
+        assertEquals(NavigateToReport(BARCODE), viewModel.events.first())
     }
 
     @Test

@@ -46,4 +46,6 @@ object AppIcons {
     val Cookie = AppIcon(R.drawable.ic_cookie)
     val Leaf = AppIcon(R.drawable.ic_leaf)
     val Meat = AppIcon(R.drawable.ic_meat)
+    val Close = AppIcon(R.drawable.ic_close)
+    val WifiOff = AppIcon(R.drawable.ic_wifi_off)
 }

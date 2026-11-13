@@ -39,11 +39,13 @@ import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnNameClick
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPer100gClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPerServingClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnReportClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnRetryClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnWebPageUnavailable
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToReport
 import pl.morning.tower.karbo.feature.product.ui.state.ProductState
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStatePrototype as Prototype
@@ -93,6 +95,7 @@ internal class ProductViewModel(
             OnPer100gClicked -> setPerServingSelected(false)
             OnPerServingClicked -> setPerServingSelected(true)
             OnOpenFoodFactsClicked -> screenEvents send OpenWebPage(PRODUCT_PAGE_URL + statePrototype.value.barcode)
+            OnReportClicked -> screenEvents send NavigateToReport(statePrototype.value.barcode)
             OnWebPageUnavailable -> appEvents send ShowMessage(resources.linkUnavailable(), MessageTone.Error)
         }
     }

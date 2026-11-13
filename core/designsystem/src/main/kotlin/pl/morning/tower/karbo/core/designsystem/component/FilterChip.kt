@@ -31,6 +31,7 @@ fun Ui.FilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val shape = AppTheme.shapes.pill
@@ -43,6 +44,7 @@ fun Ui.FilterChip(
                 selected = selected,
                 interactionSource = interactionSource,
                 indication = null,
+                enabled = enabled,
                 role = Role.RadioButton,
                 onClick = onClick,
             ),

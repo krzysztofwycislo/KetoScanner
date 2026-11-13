@@ -3,6 +3,7 @@ package pl.morning.tower.karbo.core.designsystem.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,11 +11,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.morning.tower.karbo.core.designsystem.R
@@ -30,10 +36,21 @@ fun Ui.PrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     icon: AppIcon? = null,
+    loading: Boolean = false,
 ) {
     Button(
-        onClick = onClick,
-        modifier = modifier.height(AppTheme.sizes.control.m),
+        onClick = {
+            if (!loading) {
+                onClick()
+            }
+        },
+        modifier = modifier
+            .height(AppTheme.sizes.control.m)
+            .semantics {
+                if (loading) {
+                    contentDescription = text
+                }
+            },
         enabled = enabled,
         shape = AppTheme.shapes.control,
         colors = ButtonDefaults.buttonColors(
@@ -41,15 +58,27 @@ fun Ui.PrimaryButton(
             contentColor = AppTheme.colors.text.inverse,
         ),
     ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon.imageVector,
-                contentDescription = null,
-                modifier = Modifier.size(AppTheme.sizes.icon.s),
-            )
-            Spacer(modifier = Modifier.width(AppTheme.spacing.xs))
+        Ui.ContentCrossfade(targetState = loading, contentKey = { it }) { isLoading ->
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(AppTheme.sizes.icon.s),
+                    color = LocalContentColor.current,
+                    strokeWidth = AppTheme.borders.selected,
+                )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon.imageVector,
+                            contentDescription = null,
+                            modifier = Modifier.size(AppTheme.sizes.icon.s),
+                        )
+                        Spacer(modifier = Modifier.width(AppTheme.spacing.xs))
+                    }
+                    Text(text = text, style = AppTheme.typography.button)
+                }
+            }
         }
-        Text(text = text, style = AppTheme.typography.button)
     }
 }
 
@@ -87,6 +116,7 @@ private fun ButtonsPreview() {
             Ui.PrimaryButton(text = text, onClick = {})
             Ui.PrimaryButton(text = text, onClick = {}, enabled = false)
             Ui.PrimaryButton(text = text, onClick = {}, icon = AppIcons.Scan)
+            Ui.PrimaryButton(text = text, onClick = {}, loading = true)
             Ui.SecondaryButton(text = text, onClick = {})
             Ui.SecondaryButton(text = text, onClick = {}, enabled = false)
         }

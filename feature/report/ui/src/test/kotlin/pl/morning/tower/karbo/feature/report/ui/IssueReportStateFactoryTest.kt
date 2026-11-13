@@ -1,0 +1,273 @@
+package pl.morning.tower.karbo.feature.report.ui
+
+import pl.morning.tower.karbo.core.designsystem.component.Rating
+import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
+import pl.morning.tower.karbo.core.designsystem.text.UiArg
+import pl.morning.tower.karbo.core.designsystem.text.UiText
+import pl.morning.tower.karbo.core.model.Barcode
+import pl.morning.tower.karbo.core.model.ProductCategory
+import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
+import pl.morning.tower.karbo.feature.analysis.api.model.MacronutrientAnalysisResult
+import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
+import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
+import pl.morning.tower.karbo.feature.product.api.model.Product
+import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
+import pl.morning.tower.karbo.feature.report.api.model.IssueReason
+import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
+import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
+import pl.morning.tower.karbo.feature.report.ui.state.RatedAsState
+import pl.morning.tower.karbo.feature.report.ui.state.ReportStatus
+import pl.morning.tower.karbo.feature.report.ui.state.SendButtonState
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStatePrototype as Prototype
+
+class IssueReportStateFactoryTest {
+
+    private val factory = IssueReportStateFactory(IssueReportResources())
+
+    @Test
+    fun `when no analysis yet then product summary shows the bag icon and the raw barcode only`() {
+        val form = form(Prototype(barcode = Barcode(BARCODE)))
+
+        assertEquals(AppIcons.Bag, form.product.icon)
+        assertEquals(UiText.Raw(BARCODE), form.product.name)
+        assertNull(form.product.subtitle)
+    }
+
+    @Test
+    fun `when product name is blank then summary shows unnamed product`() {
+        val form = form(prototype(analysis = rated(product.copy(name = " "))))
+
+        assertEquals(UiText.Res(R.string.report_unnamed_product), form.product.name)
+    }
+
+    @Test
+    fun `when brand is blank then subtitle is the raw barcode`() {
+        val form = form(prototype(analysis = rated(product.copy(brand = ""))))
+
+        assertEquals(UiText.Raw(BARCODE), form.product.subtitle)
+    }
+
+    @Test
+    fun `when product has name and brand then summary shows category icon name and brand with barcode`() {
+        val form = form(prototype(analysis = rated(product)))
+
+        assertEquals(AppIcons.Can, form.product.icon)
+        assertEquals(UiText.Raw("Coca-Cola Original Taste"), form.product.name)
+        assertEquals(
+            UiText.Res(R.string.report_product_subtitle, UiArg.Text("Coca-Cola"), UiArg.Text(BARCODE)),
+            form.product.subtitle,
+        )
+    }
+
+    @Test
+    fun `when each reason is picked then the matching placeholder is shown`() {
+        val expected = mapOf(
+            IssueReason.RATING to R.string.report_placeholder_rating,
+            IssueReason.NUTRITION to R.string.report_placeholder_nutrition,
+            IssueReason.PRODUCT to R.string.report_placeholder_product,
+            IssueReason.OTHER to R.string.report_placeholder_other,
+        )
+
+        expected.forEach { (reason, id) ->
+            assertEquals(UiText.Res(id), form(prototype(reason = reason)).detailsPlaceholder)
+        }
+    }
+
+    @Test
+    fun `when no reason is picked then the generic placeholder is shown`() {
+        assertEquals(UiText.Res(R.string.report_placeholder_other), form(prototype()).detailsPlaceholder)
+    }
+
+    @Test
+    fun `when a reason is picked then four chips are shown with only that one selected`() {
+        val reasons = form(prototype(reason = IssueReason.PRODUCT)).reasons
+
+        assertEquals(IssueReason.entries, reasons.map { it.reason })
+        assertEquals(listOf(false, false, true, false), reasons.map { it.isSelected })
+        assertEquals(UiText.Res(R.string.report_reason_product), reasons[2].label)
+    }
+
+    @Test
+    fun `when reason is not rating then expectation is absent`() {
+        listOf(IssueReason.NUTRITION, IssueReason.PRODUCT, IssueReason.OTHER, null).forEach { reason ->
+            assertNull(form(prototype(reason = reason, expectedRate = DietRate.GOOD)).expectation)
+        }
+    }
+
+    @Test
+    fun `when rating reason in keto mode then keto option labels are shown`() {
+        val expectation = assertNotNull(form(prototype(reason = IssueReason.RATING)).expectation)
+
+        assertEquals(DietRate.entries, expectation.options.map { it.rate })
+        assertEquals(
+            listOf(
+                UiText.Res(R.string.report_verdict_good_keto),
+                UiText.Res(R.string.report_verdict_neutral),
+                UiText.Res(R.string.report_verdict_not_advised_keto),
+            ),
+            expectation.options.map { it.label },
+        )
+        assertEquals(listOf(Rating.Positive, Rating.Neutral, Rating.Negative), expectation.options.map { it.rating })
+    }
+
+    @Test
+    fun `when rating reason in low carb mode then low carb option labels are shown`() {
+        val expectation = assertNotNull(
+            form(prototype(reason = IssueReason.RATING, dietMode = DietMode.LOW_CARB)).expectation,
+        )
+
+        assertEquals(
+            listOf(
+                UiText.Res(R.string.report_verdict_good_low_carb),
+                UiText.Res(R.string.report_verdict_neutral),
+                UiText.Res(R.string.report_verdict_not_advised_low_carb),
+            ),
+            expectation.options.map { it.label },
+        )
+    }
+
+    @Test
+    fun `when an expected rate is picked then only that option is selected`() {
+        val expectation = assertNotNull(
+            form(prototype(reason = IssueReason.RATING, expectedRate = DietRate.NEUTRAL)).expectation,
+        )
+
+        assertEquals(listOf(false, true, false), expectation.options.map { it.isSelected })
+    }
+
+    @Test
+    fun `when product was rated then rated as shows its verdict`() {
+        val expectation = assertNotNull(
+            form(prototype(analysis = rated(product), reason = IssueReason.RATING)).expectation,
+        )
+
+        assertEquals(
+            RatedAsState(label = UiText.Res(R.string.report_verdict_not_advised_keto), rating = Rating.Negative),
+            expectation.ratedAs,
+        )
+    }
+
+    @Test
+    fun `when product has insufficient data then rated as is absent`() {
+        val expectation = assertNotNull(
+            form(
+                prototype(analysis = ProductAnalysis.InsufficientData(product), reason = IssueReason.RATING),
+            ).expectation,
+        )
+
+        assertNull(expectation.ratedAs)
+    }
+
+    @Test
+    fun `when no reason is picked then send button asks to pick a reason and is disabled`() {
+        assertEquals(
+            SendButtonState(label = UiText.Res(R.string.report_pick_reason), isEnabled = false, isLoading = false),
+            form(prototype()).sendButton,
+        )
+    }
+
+    @Test
+    fun `when a reason is picked then send button is enabled`() {
+        assertEquals(
+            SendButtonState(label = UiText.Res(R.string.report_send), isEnabled = true, isLoading = false),
+            form(prototype(reason = IssueReason.OTHER)).sendButton,
+        )
+    }
+
+    @Test
+    fun `when sending then send button is loading and the form is not editable`() {
+        val form = form(prototype(reason = IssueReason.OTHER, status = ReportStatus.SENDING))
+
+        assertEquals(
+            SendButtonState(label = UiText.Res(R.string.report_send), isEnabled = true, isLoading = true),
+            form.sendButton,
+        )
+        assertFalse(form.isEditable)
+    }
+
+    @Test
+    fun `when editing then the form is editable and shows the details`() {
+        val form = form(prototype(details = "Recipe changed"))
+
+        assertTrue(form.isEditable)
+        assertEquals("Recipe changed", form.details)
+    }
+
+    @Test
+    fun `when sent then sent content is shown`() {
+        assertEquals(IssueReportContentState.Sent, factory.createFor(prototype(status = ReportStatus.SENT)).content)
+    }
+
+    @Test
+    fun `when failed then failed content is shown`() {
+        assertEquals(
+            IssueReportContentState.Failed,
+            factory.createFor(prototype(status = ReportStatus.FAILED)).content,
+        )
+    }
+
+    private fun form(prototype: Prototype): IssueReportContentState.Form =
+        assertIs<IssueReportContentState.Form>(factory.createFor(prototype).content)
+
+    private companion object {
+        const val BARCODE = "5449000000996"
+
+        val nutriments = ProductNutriments(
+            energyPerServing = null,
+            energyPer100g = null,
+            fatsPerServing = null,
+            fatsPer100g = null,
+            proteinsPerServing = null,
+            proteinsPer100g = null,
+            carbohydratesPerServing = null,
+            carbohydratesPer100g = 10.6,
+            saltPerServing = null,
+            saltPer100g = null,
+        )
+
+        val product = Product(
+            name = "Coca-Cola Original Taste",
+            barcode = BARCODE,
+            brand = "Coca-Cola",
+            nutriments = nutriments,
+            imageUrl = null,
+            servingAmount = null,
+            category = ProductCategory.DRINKS,
+        )
+
+        fun rated(product: Product) = ProductAnalysis.Rated(
+            product = product,
+            macronutrients = MacronutrientAnalysisResult(
+                dietMode = DietMode.KETO,
+                rate = DietRate.NOT_ADVISED,
+                reasons = emptyList(),
+                carbsPer100g = 10.6,
+                dailyCarbConsumption = 40,
+            ),
+        )
+
+        fun prototype(
+            analysis: ProductAnalysis? = null,
+            dietMode: DietMode = DietMode.KETO,
+            reason: IssueReason? = null,
+            details: String = "",
+            expectedRate: DietRate? = null,
+            status: ReportStatus = ReportStatus.EDITING,
+        ) = Prototype(
+            barcode = Barcode(BARCODE),
+            analysis = analysis,
+            dietMode = dietMode,
+            reason = reason,
+            details = details,
+            expectedRate = expectedRate,
+            status = status,
+        )
+    }
+}
