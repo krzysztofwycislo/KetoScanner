@@ -45,7 +45,7 @@ internal class ProductResources {
         is RatingReason.HighCarbEnergyShare ->
             UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(reason.share))
         is RatingReason.LowFatAndProteinToCarbRatio ->
-            UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(reason.ratio))
+            UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio)
         is RatingReason.HighSugars ->
             UiText.Res(R.string.product_reason_high_sugars, UiArg.Numeric.Grams(reason.gramsPer100g))
         is RatingReason.HighCarbsPerServing -> UiText.Res(
@@ -62,9 +62,6 @@ internal class ProductResources {
     fun insufficientDataDetail(): UiText = UiText.Res(R.string.product_verdict_insufficient_data_detail)
 
     fun insufficientDataAdvice(): UiText = UiText.Res(R.string.product_verdict_insufficient_data_advice)
-
-    fun carbsDayShare(share: Double): UiText =
-        UiText.Res(R.string.product_carbs_day_share, UiArg.Numeric.Percent(share))
 
     fun servingLabel(servingAmount: String?): UiText =
         if (servingAmount.isNullOrBlank()) UiText.Res(R.string.product_basis_serving)

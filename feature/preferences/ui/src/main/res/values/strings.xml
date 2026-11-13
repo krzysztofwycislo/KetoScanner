@@ -12,7 +12,7 @@
     <string name="preferences_preset_strict_keto">Strict keto</string>
     <string name="preferences_preset_strict_keto_note">Under about 20 g carbs a day</string>
     <string name="preferences_preset_keto">Keto</string>
-    <string name="preferences_preset_keto_note">Around 30–50 g carbs a day</string>
+    <string name="preferences_preset_keto_note">Around 30-50 g carbs a day</string>
     <string name="preferences_preset_low_carb">Low carb</string>
     <string name="preferences_preset_low_carb_note">Up to about 100 g carbs a day</string>
     <string name="preferences_preset_custom">Custom</string>

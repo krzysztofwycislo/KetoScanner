@@ -1,5 +1,6 @@
 package pl.morning.tower.karbo.feature.home.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -138,11 +139,10 @@ private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
                     .background(AppTheme.colors.accent, AppTheme.shapes.small),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
+                Image(
                     imageVector = AppIcons.Logo.imageVector,
                     contentDescription = null,
-                    tint = AppTheme.colors.text.inverse,
-                    modifier = Modifier.size(AppTheme.sizes.icon.xs),
+                    modifier = Modifier.size(AppTheme.sizes.icon.s),
                 )
             }
             Text(

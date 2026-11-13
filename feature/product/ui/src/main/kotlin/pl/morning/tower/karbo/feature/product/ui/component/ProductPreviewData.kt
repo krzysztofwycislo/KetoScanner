@@ -76,10 +76,6 @@ internal fun GlanceState.Companion.example(
             label = UiText.Res(R.string.product_carbs),
             value = grams(if (isPerServingSelected) 2.0 else 13.0),
             highlight = highlight,
-            detail = UiText.Res(
-                R.string.product_carbs_day_share,
-                UiArg.Numeric.Percent(if (isPerServingSelected) 0.05 else 0.33),
-            ),
         ),
         GlanceTileState(UiText.Res(R.string.product_sugars), grams(if (isPerServingSelected) 1.1 else 7.0), null),
         GlanceTileState(UiText.Res(R.string.product_fibre), grams(if (isPerServingSelected) null else 11.0), null),

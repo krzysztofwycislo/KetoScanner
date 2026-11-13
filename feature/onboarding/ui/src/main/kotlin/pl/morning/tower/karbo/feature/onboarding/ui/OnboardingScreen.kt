@@ -1,5 +1,6 @@
 package pl.morning.tower.karbo.feature.onboarding.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -124,11 +124,10 @@ private fun Header(onAction: (OnboardingAction) -> Unit) {
                     .background(AppTheme.colors.accent, AppTheme.shapes.small),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
+                Image(
                     imageVector = AppIcons.Logo.imageVector,
                     contentDescription = null,
-                    tint = AppTheme.colors.text.inverse,
-                    modifier = Modifier.size(AppTheme.sizes.icon.xs),
+                    modifier = Modifier.size(AppTheme.sizes.icon.s),
                 )
             }
             Text(

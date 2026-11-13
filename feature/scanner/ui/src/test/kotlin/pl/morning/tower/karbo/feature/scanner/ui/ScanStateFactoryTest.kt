@@ -365,7 +365,7 @@ class ScanStateFactoryTest {
             RatingReason.HighCarbEnergyShare(0.8, DietRate.NEUTRAL) to
                 UiText.Res(R.string.scan_found_reason_carb_energy_share, UiArg.Numeric.Percent(0.8)),
             RatingReason.LowFatAndProteinToCarbRatio(0.4, DietRate.NOT_ADVISED) to
-                UiText.Res(R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(0.4)),
+                UiText.Res(R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio),
             RatingReason.HighSugars(10.6, DietRate.NEUTRAL) to
                 UiText.Res(R.string.scan_found_reason_high_sugars, UiArg.Numeric.Grams(10.6)),
             RatingReason.HighCarbsPerServing(330.0, 35.0, DietRate.NOT_ADVISED) to

@@ -92,13 +92,6 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             is ProductAnalysis.Rated -> analysis.macronutrients.rate.toRating()
             is ProductAnalysis.InsufficientData -> Rating.Unknown
         }
-        val carbs = if (perServing) carbohydratesPerServing else carbohydratesPer100g
-        val carbsDayShare = when (analysis) {
-            is ProductAnalysis.Rated -> carbs?.let {
-                resources.carbsDayShare(share = it / analysis.macronutrients.dailyCarbConsumption)
-            }
-            is ProductAnalysis.InsufficientData -> null
-        }
         GlanceState(
             isServingToggleVisible = isServingToggleVisible,
             isPerServingSelected = perServing,
@@ -106,9 +99,8 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             tiles = persistentListOf(
                 GlanceTileState(
                     label = resources.carbs(),
-                    value = resources.grams(carbs),
+                    value = resources.grams(if (perServing) carbohydratesPerServing else carbohydratesPer100g),
                     highlight = carbsHighlight,
-                    detail = carbsDayShare,
                 ),
                 GlanceTileState(
                     resources.sugars(),

@@ -35,7 +35,7 @@
     <string name="scan_found_insufficient_detail">Open Food Facts is missing carbs, fat or protein for it</string>
     <string name="scan_found_carbs_per_100g">%1$s g carbs per 100 g</string>
     <string name="scan_found_reason_carb_energy_share">%1$s of energy from carbs</string>
-    <string name="scan_found_reason_low_fat_and_protein_to_carb_ratio">Few fats and proteins for its carbs (ratio %1$s:1)</string>
+    <string name="scan_found_reason_low_fat_and_protein_to_carb_ratio">Little fat and protein for its carbs</string>
     <string name="scan_found_reason_high_sugars">%1$s g sugars per 100 g</string>
     <string name="scan_found_reason_high_carbs_per_serving">%1$s g carbs in a %2$s g/ml serving</string>
     <string name="scan_next">Scan next</string>

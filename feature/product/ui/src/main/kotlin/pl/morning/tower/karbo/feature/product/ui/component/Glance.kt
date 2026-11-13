@@ -5,11 +5,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,12 +50,9 @@ internal fun Glance(state: GlanceState, onAction: (ProductAction) -> Unit) {
             }
         }
         state.tiles.chunked(GLANCE_COLUMNS).forEach { rowTiles ->
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-            ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
                 rowTiles.forEach {
-                    GlanceTile(it, Modifier.weight(1f).fillMaxHeight())
+                    GlanceTile(it, Modifier.weight(1f))
                 }
                 repeat(GLANCE_COLUMNS - rowTiles.size) {
                     Spacer(Modifier.weight(1f))
@@ -97,15 +91,6 @@ private fun GlanceTile(state: GlanceTileState, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        state.detail?.let { detail ->
-            Text(
-                text = detail.resolve(),
-                style = AppTheme.typography.caption,
-                color = highlight?.color() ?: AppTheme.colors.text.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
     }
 }
 

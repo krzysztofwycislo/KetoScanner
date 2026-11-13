@@ -11,7 +11,7 @@
     <string name="product_retry">Try again</string>
     <string name="product_reason_high_carbs">%1$s g carbs per 100 g</string>
     <string name="product_reason_carb_energy_share">%1$s of energy from carbs</string>
-    <string name="product_reason_low_fat_and_protein_to_carb_ratio">Few fats and proteins for its carbs (ratio %1$s:1)</string>
+    <string name="product_reason_low_fat_and_protein_to_carb_ratio">Little fat and protein for its carbs</string>
     <string name="product_reason_high_sugars">%1$s g sugars per 100 g</string>
     <string name="product_reason_high_carbs_per_serving">%1$s g carbs in a %2$s g/ml serving</string>
     <string name="product_carbs_per_100g">%1$s g carbs per 100 g</string>
@@ -19,7 +19,6 @@
     <string name="product_fats">Fats</string>
     <string name="product_proteins">Proteins</string>
     <string name="product_carbs">Carbs</string>
-    <string name="product_carbs_day_share">%1$s of your day</string>
     <string name="product_sugars">Sugars</string>
     <string name="product_fibre">Fibre</string>
     <string name="product_value_grams">%1$s g</string>
@@ -37,7 +36,7 @@
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>
     <string name="product_basis_serving_with_value">%1$s g/ml</string>
-    <string name="product_data_source">Data: Open Food Facts (ODbL) · Barcode %1$s</string>
+    <string name="product_data_source">Data: Open Food Facts · Barcode %1$s</string>
     <string name="product_add_to_open_food_facts">Add it to Open Food Facts</string>
     <string name="product_fix_on_open_food_facts">Something wrong? Fix it on Open Food Facts</string>
     <string name="product_link_unavailable">No app can open this link</string>

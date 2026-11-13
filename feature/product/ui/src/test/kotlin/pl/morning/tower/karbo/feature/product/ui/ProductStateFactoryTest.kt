@@ -104,7 +104,7 @@ class ProductStateFactoryTest {
         assertEquals(
             listOf<UiText>(
                 UiText.Res(R.string.product_reason_carb_energy_share, UiArg.Numeric.Percent(1.0)),
-                UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio, UiArg.Numeric.Ratio(0.5)),
+                UiText.Res(R.string.product_reason_low_fat_and_protein_to_carb_ratio),
             ),
             verdict.reasons,
         )
@@ -342,68 +342,6 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when per 100 g is selected then the carbs tile shows the share of 100 g in the daily limit`() {
-        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
-
-        assertEquals(dayShare(13.0 / DAILY_CARBS), glance.tiles.first().detail)
-    }
-
-    @Test
-    fun `when per serving is selected then the carbs tile shows the share of one serving in the daily limit`() {
-        val glance = show(
-            Prototype(
-                analysis = rated(dietRate = DietRate.GOOD, product = product(nutriments = fullNutriments)),
-                isPerServingSelected = true,
-            ),
-        ).glance
-
-        assertEquals(dayShare(2.0 / DAILY_CARBS), glance.tiles.first().detail)
-    }
-
-    @Test
-    fun `when the serving toggle is hidden then the carbs tile shows the share of 100 g`() {
-        val glance = show(
-            Prototype(
-                analysis = rated(
-                    dietRate = DietRate.GOOD,
-                    product = product(servingAmount = "1000", nutriments = fullNutriments),
-                ),
-                isPerServingSelected = true,
-            ),
-        ).glance
-
-        assertEquals(dayShare(13.0 / DAILY_CARBS), glance.tiles.first().detail)
-    }
-
-    @Test
-    fun `when the carbs are over the daily limit then the carbs tile shows the real share over 100 percent`() {
-        val nutriments = fullNutriments.copy(carbohydratesPer100g = 50.0)
-        val glance = show(
-            Prototype(analysis = rated(dietRate = DietRate.NOT_ADVISED, product = product(nutriments = nutriments))),
-        ).glance
-
-        assertEquals(dayShare(1.25), glance.tiles.first().detail)
-    }
-
-    @Test
-    fun `when the carbs value is unknown or data is insufficient then the carbs tile has no share`() {
-        val unknownCarbs = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))))
-        val insufficient = show(
-            Prototype(analysis = ProductAnalysis.InsufficientData(product(nutriments = fullNutriments))),
-        )
-
-        assertNull(unknownCarbs.glance.tiles.first().detail)
-        assertNull(insufficient.glance.tiles.first().detail)
-    }
-
-    @Test
-    fun `only the carbs tile has a detail line`() {
-        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
-
-        glance.tiles.drop(1).forEach { assertNull(it.detail) }
-    }
-
-    @Test
     fun `when product is shown then data source has the barcode`() {
         val content = show(Prototype(analysis = rated(DietRate.GOOD)))
 
@@ -537,7 +475,5 @@ class ProductStateFactoryTest {
         fun kcal(value: Double) = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 
         fun grams(value: Double) = UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(value))
-
-        fun dayShare(share: Double) = UiText.Res(R.string.product_carbs_day_share, UiArg.Numeric.Percent(share))
     }
 }

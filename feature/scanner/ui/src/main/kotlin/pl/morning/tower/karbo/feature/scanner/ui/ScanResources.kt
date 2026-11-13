@@ -85,10 +85,7 @@ internal class ScanResources {
             )
 
         is RatingReason.LowFatAndProteinToCarbRatio ->
-            UiText.Res(
-                R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio,
-                UiArg.Numeric.Ratio(reason.ratio),
-            )
+            UiText.Res(R.string.scan_found_reason_low_fat_and_protein_to_carb_ratio)
 
         is RatingReason.HighSugars ->
             UiText.Res(

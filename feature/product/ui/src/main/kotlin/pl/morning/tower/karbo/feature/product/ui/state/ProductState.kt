@@ -87,7 +87,6 @@ internal data class GlanceTileState(
     val label: UiText,
     val value: UiText,
     val highlight: Rating?,
-    val detail: UiText? = null,
 ) {
     companion object
 }
