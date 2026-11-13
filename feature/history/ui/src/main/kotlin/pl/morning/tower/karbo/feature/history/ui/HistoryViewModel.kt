@@ -100,7 +100,7 @@ internal class HistoryViewModel(
     }
 
     private suspend fun onEntriesFailed(error: AppError) {
-        errorReporter.report(TAG, "Loading history failed", error)
+        errorReporter.report(tag = TAG, message = "Loading history failed", error = error)
         if (statePrototype.value.entries == null) {
             statePrototype.update { it.copy(loadError = error) }
             retryClicks.first()
@@ -112,7 +112,13 @@ internal class HistoryViewModel(
     private fun observePreferences() {
         viewModelScope.launch {
             preferences.observeDietPreferences()
-                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Loading diet preferences failed",
+                        error = error,
+                    )
+                }
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }
                 }

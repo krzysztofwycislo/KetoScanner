@@ -12,6 +12,10 @@ internal const val CURRENT_DIET_PREFERENCES_TAG = "CurrentDietPreferences"
 internal fun DietPreferencesRepository.currentDietPreferences(errorReporter: ErrorReporter): Flow<DietPreferences> =
     observeDietPreferences()
         .catchAppError { error ->
-            errorReporter.report(CURRENT_DIET_PREFERENCES_TAG, "Loading diet preferences failed", error)
+            errorReporter.report(
+                tag = CURRENT_DIET_PREFERENCES_TAG,
+                message = "Loading diet preferences failed",
+                error = error,
+            )
         }
         .onEmpty { emit(DietPreferences.Default) }

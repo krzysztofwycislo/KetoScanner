@@ -11,7 +11,7 @@ val reportUiModule = module {
     viewModel {
         IssueReportViewModel(
             get<SavedStateHandle>().toRoute<ReportRoute>(),
-            get(), get(), get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(), get(),
         )
     }
     factoryOf(::IssueReportStateFactory)

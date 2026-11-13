@@ -97,7 +97,7 @@ internal class AppViewModel(
     }
 
     private fun onStartFailed(error: AppError) {
-        errorReporter.report(TAG, "Reading the setup state failed", error)
+        errorReporter.report(tag = TAG, message = "Reading the setup state failed", error = error)
     }
 
     private fun onTabClicked(tab: BottomNavSection) {

@@ -118,7 +118,7 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when refresh fails with network before any product then error is shown and only a warning is logged`() =
+    fun `when refresh fails with network before any product then error is shown and passed to the reporter`() =
         runTest {
             analyzeProduct.clearProduct()
             products.result = Outcome.Failure(AppError.Network)
@@ -128,9 +128,8 @@ class ProductViewModelTest {
                 ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_network)),
                 viewModel.state.value.content,
             )
-            assertEquals(1, logger.entries.size)
-            assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
-            assertTrue(errorReporter.reports.isEmpty())
+            assertEquals(AppError.Network, errorReporter.reports.single().error)
+            assertTrue(logger.entries.isEmpty())
         }
 
     @Test
@@ -201,7 +200,7 @@ class ProductViewModelTest {
         }
 
     @Test
-    fun `when refresh fails with network while a product is shown then state stays and only a warning is logged`() =
+    fun `when refresh fails with network while a product is shown then state stays and it is passed to the reporter`() =
         runTest {
             products.result = Outcome.Failure(AppError.Network)
             val viewModel = createViewModel()
@@ -209,8 +208,8 @@ class ProductViewModelTest {
 
             showProduct(viewModel)
             assertTrue(messages.isEmpty())
-            assertTrue(errorReporter.reports.isEmpty())
-            assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
+            assertEquals(AppError.Network, errorReporter.reports.single().error)
+            assertTrue(logger.entries.isEmpty())
         }
 
     @Test

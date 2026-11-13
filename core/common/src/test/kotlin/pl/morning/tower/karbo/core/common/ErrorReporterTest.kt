@@ -34,6 +34,22 @@ class ErrorReporterTest {
         assertNull(logger.errors.single().cause)
     }
 
+    @Test
+    fun `when network error is reported then only a warning with tag and message is written`() {
+        reporter.report(TAG, "Loading failed", AppError.Network)
+
+        assertEquals(listOf(Entry(TAG, "Loading failed: ${AppError.Network}", null)), logger.warnings)
+        assertTrue(logger.errors.isEmpty())
+    }
+
+    @Test
+    fun `when not found error is reported then only a warning is written`() {
+        reporter.report(TAG, "Loading failed", AppError.NotFound)
+
+        assertEquals(listOf(Entry(TAG, "Loading failed: ${AppError.NotFound}", null)), logger.warnings)
+        assertTrue(logger.errors.isEmpty())
+    }
+
     private data class Entry(val tag: String, val message: String, val cause: Throwable?)
 
     private class RecordingLogger : AppLogger {

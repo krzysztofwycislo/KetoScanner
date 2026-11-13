@@ -99,7 +99,7 @@ internal class DietPreferencesViewModel(
     }
 
     private fun onLoadFailed(error: AppError) {
-        errorReporter.report(TAG, "Loading diet preferences failed", error)
+        errorReporter.report(tag = TAG, message = "Loading diet preferences failed", error = error)
         statePrototype.update { it.copy(loadError = error) }
     }
 
@@ -157,7 +157,7 @@ internal class DietPreferencesViewModel(
                     screenEvents send NavigateBack
                 }
                 .onFailure { error ->
-                    errorReporter.report(TAG, "Saving diet preferences failed", error)
+                    errorReporter.report(tag = TAG, message = "Saving diet preferences failed", error = error)
                     appEvents send ShowMessage(resources.saveFailed(error), MessageTone.Error)
                 }
         }

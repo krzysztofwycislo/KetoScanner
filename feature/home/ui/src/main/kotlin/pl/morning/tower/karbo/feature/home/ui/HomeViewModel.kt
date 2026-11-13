@@ -86,7 +86,7 @@ internal class HomeViewModel(
     }
 
     private suspend fun onRecentScansFailed(error: AppError) {
-        errorReporter.report(TAG, "Loading recent scans failed", error)
+        errorReporter.report(tag = TAG, message = "Loading recent scans failed", error = error)
         if (statePrototype.value.entries == null) {
             statePrototype.update { it.copy(loadError = error) }
             retryClicks.first()
@@ -98,7 +98,13 @@ internal class HomeViewModel(
     private fun observePreferences() {
         viewModelScope.launch {
             preferences.observeDietPreferences()
-                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Loading diet preferences failed",
+                        error = error,
+                    )
+                }
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }
                 }

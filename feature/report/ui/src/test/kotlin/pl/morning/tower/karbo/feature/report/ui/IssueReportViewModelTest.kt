@@ -21,7 +21,6 @@ import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.core.model.ProductCategory
-import pl.morning.tower.karbo.core.testing.FakeAppLogger
 import pl.morning.tower.karbo.core.testing.FakeErrorReporter
 import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
@@ -54,7 +53,6 @@ class IssueReportViewModelTest {
     private val analyzeProduct = FakeAnalyzeProduct()
     private val dietPreferences = FakeDietPreferences()
     private val reports = FakeReportRepository()
-    private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
     private val appEventLog = mutableListOf<AppEvent>()
     private var testAppEvents: AppEvents? = null
@@ -242,11 +240,10 @@ class IssueReportViewModelTest {
         assertEquals(IssueReportContentState.Failed, viewModel.state.value.content)
         assertEquals("FAILED", handle.get<String>(KEY_STATUS))
         assertEquals(AppError.Parsing, errorReporter.reports.single().error)
-        assertTrue(logger.entries.isEmpty())
     }
 
     @Test
-    fun `when sending fails without network then only a warning is logged`() = runTest {
+    fun `when sending fails without network then failed is shown and the error is passed to the reporter`() = runTest {
         reports.result = Outcome.Failure(AppError.Network)
         val viewModel = createViewModel()
 
@@ -254,8 +251,7 @@ class IssueReportViewModelTest {
         viewModel.onAction(IssueReportAction.OnSendClicked)
 
         assertEquals(IssueReportContentState.Failed, viewModel.state.value.content)
-        assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
-        assertTrue(errorReporter.reports.isEmpty())
+        assertEquals(AppError.Network, errorReporter.reports.single().error)
     }
 
     @Test
@@ -339,7 +335,6 @@ class IssueReportViewModelTest {
             reports = reports,
             appEvents = appEvents(),
             stateFactory = IssueReportStateFactory(IssueReportResources()),
-            logger = logger,
             errorReporter = errorReporter,
         )
 

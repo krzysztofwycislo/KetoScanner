@@ -19,7 +19,6 @@ import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.AppLogger
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
-import pl.morning.tower.karbo.core.common.isReportable
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
 import pl.morning.tower.karbo.core.designsystem.component.MessageTone
@@ -147,14 +146,14 @@ internal class ProductViewModel(
     private fun onRefreshFailed(error: AppError) {
         if (statePrototype.value.analysis == null) {
             statePrototype.update { it.copy(loadError = error) }
-            reportOrLog("Loading product failed", error)
+            errorReporter.report(tag = TAG, message = "Loading product failed", error = error)
         } else {
-            reportOrLog("Refreshing product failed", error)
+            errorReporter.report(tag = TAG, message = "Refreshing product failed", error = error)
         }
     }
 
     private fun onObserveFailed() {
-        reportOrLog("Observing product failed", AppError.Storage)
+        errorReporter.report(tag = TAG, message = "Observing product failed", error = AppError.Storage)
         if (statePrototype.value.analysis == null) {
             statePrototype.update { it.copy(loadError = AppError.Storage) }
         }
@@ -207,11 +206,6 @@ internal class ProductViewModel(
 
     private fun log(message: String, error: AppError) {
         logger.error(TAG, "$message: $error", (error as? AppError.Unknown)?.cause)
-    }
-
-    private fun reportOrLog(message: String, error: AppError) {
-        if (error.isReportable) errorReporter.report(TAG, message, error)
-        else logger.warn(TAG, "$message: $error")
     }
 
     init {

@@ -26,7 +26,6 @@ import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
 import pl.morning.tower.karbo.core.common.ProgressTracker
 import pl.morning.tower.karbo.core.common.catchAppError
-import pl.morning.tower.karbo.core.common.isReportable
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
 import pl.morning.tower.karbo.core.common.retryOnAppError
@@ -142,14 +141,20 @@ internal class ScanViewModel(
     }
 
     private suspend fun onTripFailed(error: AppError) {
-        errorReporter.report(TAG, "Loading trip entries failed", error)
+        errorReporter.report(tag = TAG, message = "Loading trip entries failed", error = error)
         delay(TRIP_RETRY_DELAY)
     }
 
     private fun observePreferences() {
         viewModelScope.launch {
             preferences.observeDietPreferences()
-                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Loading diet preferences failed",
+                        error = error,
+                    )
+                }
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }
                 }
@@ -160,7 +165,13 @@ internal class ScanViewModel(
         viewModelScope.launch {
             onboarding.pendingTips()
                 .onSuccess { tips -> statePrototype.update { it.copy(pendingTips = tips) } }
-                .onFailure { error -> reportOrLog("Loading onboarding tips failed", error) }
+                .onFailure { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Loading onboarding tips failed",
+                        error = error,
+                    )
+                }
         }
     }
 
@@ -172,7 +183,9 @@ internal class ScanViewModel(
         if (tip !in statePrototype.value.pendingTips) return
         statePrototype.update { it.copy(pendingTips = it.pendingTips - tip) }
         applicationScope.launch {
-            onboarding.markTipShown(tip).onFailure { error -> reportOrLog("Saving shown tip failed", error) }
+            onboarding.markTipShown(tip).onFailure { error ->
+                errorReporter.report(tag = TAG, message = "Saving shown tip failed", error = error)
+            }
         }
     }
 
@@ -201,7 +214,7 @@ internal class ScanViewModel(
     }
 
     private fun onFoundAnalysisFailed() {
-        reportOrLog("Observing found product failed", AppError.Storage)
+        errorReporter.report(tag = TAG, message = "Observing found product failed", error = AppError.Storage)
         setFoundBarcode(null)
         viewModelScope.launch { showFailureAndResume(AppError.Storage) }
     }
@@ -330,7 +343,7 @@ internal class ScanViewModel(
     }
 
     private suspend fun onSearchFailed(barcode: String, error: AppError) {
-        reportOrLog("Searching product failed", error)
+        errorReporter.report(tag = TAG, message = "Searching product failed", error = error)
         if (error == AppError.NotFound) {
             setTypeSheetOpen(false)
             setNotFoundBarcode(barcode)
@@ -344,11 +357,6 @@ internal class ScanViewModel(
         appEvents send ShowMessage(resources.searchFailed(error), MessageTone.Error)
         delay(SCAN_RESUME_DELAY)
         statePrototype.update { it.copy(isScanPaused = false) }
-    }
-
-    private fun reportOrLog(message: String, error: AppError) {
-        if (error.isReportable) errorReporter.report(TAG, message, error)
-        else logger.warn(TAG, "$message: $error")
     }
 
     init {

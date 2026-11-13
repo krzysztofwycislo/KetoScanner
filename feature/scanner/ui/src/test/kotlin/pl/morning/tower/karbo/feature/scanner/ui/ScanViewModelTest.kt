@@ -310,7 +310,7 @@ class ScanViewModelTest {
     }
 
     @Test
-    fun `when a scanned product is not found then the card shows a warning is logged and the camera stays paused`() =
+    fun `when a scanned product is not found then the card shows it is reported and the camera stays paused`() =
         runTest {
             products.result = Outcome.Failure(AppError.NotFound)
             val handle = SavedStateHandle()
@@ -320,8 +320,8 @@ class ScanViewModelTest {
             viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
             assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
-            assertEquals(FakeAppLogger.Level.Warn, logger.entries.single().level)
-            assertTrue(errorReporter.reports.isEmpty())
+            assertEquals(AppError.NotFound, errorReporter.reports.single().error)
+            assertTrue(logger.entries.isEmpty())
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, NOT_FOUND_HAPTIC), screenEvents)
             assertTrue(viewModel.state.value.isLookUpEnabled)
             assertEquals(notFoundCard("590"), viewModel.state.value.notFound)

@@ -12,11 +12,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.morning.tower.karbo.core.common.AppError
-import pl.morning.tower.karbo.core.common.AppLogger
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
 import pl.morning.tower.karbo.core.common.catchAppError
-import pl.morning.tower.karbo.core.common.isReportable
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
@@ -54,7 +52,6 @@ internal class IssueReportViewModel(
     private val reports: ReportRepository,
     private val appEvents: AppEvents,
     private val stateFactory: IssueReportStateFactory,
-    private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
 ) : ViewModel() {
 
@@ -94,7 +91,13 @@ internal class IssueReportViewModel(
     private fun observeProduct() {
         viewModelScope.launch {
             analyzeProduct(statePrototype.value.barcode.value)
-                .catchAppError { error -> reportOrLog("Observing product failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Observing product failed",
+                        error = error,
+                    )
+                }
                 .collect { analysis ->
                     statePrototype.update { it.copy(analysis = analysis) }
                 }
@@ -104,7 +107,13 @@ internal class IssueReportViewModel(
     private fun observeDietMode() {
         viewModelScope.launch {
             dietPreferences.observeDietPreferences()
-                .catchAppError { error -> reportOrLog("Observing diet preferences failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Observing diet preferences failed",
+                        error = error,
+                    )
+                }
                 .collect { preferences ->
                     statePrototype.update { it.copy(dietMode = preferences.dietMode) }
                 }
@@ -156,7 +165,7 @@ internal class IssueReportViewModel(
                 .onSuccess { setStatus(ReportStatus.SENT) }
                 .onFailure { error ->
                     setStatus(ReportStatus.FAILED)
-                    reportOrLog("Sending report failed", error)
+                    errorReporter.report(tag = TAG, message = "Sending report failed", error = error)
                 }
         }
     }
@@ -173,14 +182,6 @@ internal class IssueReportViewModel(
             null, ReportStatus.SENDING -> ReportStatus.EDITING
             else -> status
         }
-
-    private fun reportOrLog(message: String, error: AppError) {
-        if (error.isReportable) {
-            errorReporter.report(TAG, message, error)
-        } else {
-            logger.warn(TAG, "$message: $error")
-        }
-    }
 
     init {
         observeProduct()

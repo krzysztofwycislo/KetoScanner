@@ -102,14 +102,20 @@ internal class FavouritesViewModel(
     }
 
     private fun onFavouritesFailed(error: AppError) {
-        errorReporter.report(TAG, "Loading favourites failed", error)
+        errorReporter.report(tag = TAG, message = "Loading favourites failed", error = error)
         statePrototype.update { it.copy(loadError = error) }
     }
 
     private fun observePreferences() {
         viewModelScope.launch {
             preferences.observeDietPreferences()
-                .catchAppError { error -> errorReporter.report(TAG, "Loading diet preferences failed", error) }
+                .catchAppError { error ->
+                    errorReporter.report(
+                        tag = TAG,
+                        message = "Loading diet preferences failed",
+                        error = error,
+                    )
+                }
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }
                 }

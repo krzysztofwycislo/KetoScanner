@@ -87,7 +87,7 @@ internal class OnboardingViewModel(
             saving.reportWork { onboarding.completeSetup(preset) }
                 .onSuccess { screenEvents send NavigateToScan }
                 .onFailure { error ->
-                    errorReporter.report(TAG, "Completing setup failed", error)
+                    errorReporter.report(tag = TAG, message = "Completing setup failed", error = error)
                     appEvents send ShowMessage(resources.saveFailed(error), MessageTone.Error)
                 }
         }
