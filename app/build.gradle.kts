@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo"
+    namespace = "app.carbpeek"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "pl.morning.tower.karbo"
+        applicationId = "app.carbpeek"
 
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()

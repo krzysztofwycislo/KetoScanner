@@ -22,9 +22,9 @@
     <string name="scan_add_it">Add it</string>
     <string name="scan_searching_hint">Looking up the product…</string>
     <string name="scan_camera_permission_rationale_title">Scan with your camera</string>
-    <string name="scan_camera_permission_rationale">Karbo needs the camera to read barcodes. Allow it, or type the barcode below.</string>
+    <string name="scan_camera_permission_rationale">CarbPeek needs the camera to read barcodes. Allow it, or type the barcode below.</string>
     <string name="scan_camera_permission_denied_title">Camera access is off</string>
-    <string name="scan_camera_permission_denied">Karbo needs the camera to read barcodes. Turn it on in Settings, or type the barcode below.</string>
+    <string name="scan_camera_permission_denied">CarbPeek needs the camera to read barcodes. Turn it on in Settings, or type the barcode below.</string>
     <string name="scan_camera_permission_allow">Allow camera</string>
     <string name="scan_camera_permission_open_settings">Open settings</string>
     <string name="scan_found_unnamed">Unnamed product</string>

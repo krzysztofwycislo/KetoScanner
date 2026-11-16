@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.core.designsystem"
+    namespace = "app.carbpeek.core.designsystem"
 }
 
 dependencies {

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.core.database"
+    namespace = "app.carbpeek.core.database"
 }
 
 room {

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.core.datastore"
+    namespace = "app.carbpeek.core.datastore"
 }
 
 dependencies {

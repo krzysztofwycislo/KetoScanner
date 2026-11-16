@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.barcodescanner"
+    namespace = "app.carbpeek.barcodescanner"
 }
 
 dependencies {

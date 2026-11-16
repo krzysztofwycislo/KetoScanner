@@ -1,0 +1,334 @@
+package app.carbpeek.ui
+
+import androidx.lifecycle.SavedStateHandle
+import app.carbpeek.core.common.AppError
+import app.carbpeek.core.common.Outcome
+import app.carbpeek.core.designsystem.event.AppEvents
+import app.carbpeek.core.testing.FakeErrorReporter
+import app.carbpeek.feature.preferences.api.OnboardingRepository
+import app.carbpeek.feature.preferences.api.model.DietPreset
+import app.carbpeek.feature.preferences.api.model.OnboardingTip
+import app.carbpeek.navigation.AppStart
+import app.carbpeek.navigation.BottomNavSection
+import app.carbpeek.navigation.RoutePresentation
+import app.carbpeek.ui.AppAction.OnDestinationChanged
+import app.carbpeek.ui.AppAction.OnTabClicked
+import app.carbpeek.ui.AppNavigation.NavigateToTab
+import app.carbpeek.ui.AppNavigation.PopToTabRoot
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+class AppViewModelTest {
+
+    private val savedStateHandle = SavedStateHandle()
+    private val onboarding = FakeOnboarding()
+    private val errorReporter = FakeErrorReporter()
+
+    @BeforeTest
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `when nothing is saved then home is selected`() {
+        val viewModel = createViewModel()
+
+        assertEquals(BottomNavSection.HOME, viewModel.bottomBar.value.selectedTab)
+    }
+
+    @Test
+    fun `when the destination is a top-level tab then it is selected`() {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(tabDestination(BottomNavSection.SCAN))
+
+        assertEquals(BottomNavSection.SCAN, viewModel.bottomBar.value.selectedTab)
+    }
+
+    @Test
+    fun `when the destination has no tab then the last tab stays selected`() {
+        val viewModel = createViewModel()
+        viewModel.onAction(tabDestination(BottomNavSection.FAVOURITES))
+
+        viewModel.onAction(pushedDestination())
+
+        assertEquals(BottomNavSection.FAVOURITES, viewModel.bottomBar.value.selectedTab)
+    }
+
+    @Test
+    fun `when a tab is clicked then it is selected`() {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.FAVOURITES))
+
+        assertEquals(BottomNavSection.FAVOURITES, viewModel.bottomBar.value.selectedTab)
+    }
+
+    @Test
+    fun `when the handle has a saved tab then it is restored`() {
+        savedStateHandle[KEY_SELECTED_TAB] = BottomNavSection.SCAN
+
+        val viewModel = createViewModel()
+
+        assertEquals(BottomNavSection.SCAN, viewModel.bottomBar.value.selectedTab)
+    }
+
+    @Test
+    fun `when a tab is selected then it is written to the handle`() {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.SCAN))
+
+        assertEquals(BottomNavSection.SCAN, savedStateHandle.get<BottomNavSection>(KEY_SELECTED_TAB))
+    }
+
+    @Test
+    fun `when another tab is clicked then navigate to that tab is emitted`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.SCAN))
+
+        assertEquals(NavigateToTab(BottomNavSection.SCAN), viewModel.navigationEvents.first())
+    }
+
+    @Test
+    fun `when the selected tab is clicked then pop to its root is emitted`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.HOME))
+
+        assertEquals(PopToTabRoot(BottomNavSection.HOME), viewModel.navigationEvents.first())
+    }
+
+    @Test
+    fun `when a tab is clicked twice then it navigates and then pops`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.FAVOURITES))
+        viewModel.onAction(OnTabClicked(BottomNavSection.FAVOURITES))
+
+        assertEquals(
+            listOf(
+                NavigateToTab(BottomNavSection.FAVOURITES),
+                PopToTabRoot(BottomNavSection.FAVOURITES),
+            ),
+            viewModel.navigationEvents.take(2).toList(),
+        )
+    }
+
+    @Test
+    fun `when the tab selected by a destination change is clicked then pop to its root is emitted`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(tabDestination(BottomNavSection.SCAN))
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.SCAN))
+
+        assertEquals(PopToTabRoot(BottomNavSection.SCAN), viewModel.navigationEvents.first())
+    }
+
+    @Test
+    fun `when the destination has no tab then clicking the last tab pops to its root`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(tabDestination(BottomNavSection.FAVOURITES))
+        viewModel.onAction(pushedDestination())
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.FAVOURITES))
+
+        assertEquals(PopToTabRoot(BottomNavSection.FAVOURITES), viewModel.navigationEvents.first())
+    }
+
+    @Test
+    fun `when the saved tab is clicked after a restore then pop to its root is emitted`() = runTest {
+        savedStateHandle[KEY_SELECTED_TAB] = BottomNavSection.SCAN
+        val viewModel = createViewModel()
+
+        viewModel.onAction(OnTabClicked(BottomNavSection.SCAN))
+
+        assertEquals(PopToTabRoot(BottomNavSection.SCAN), viewModel.navigationEvents.first())
+    }
+
+    @Test
+    fun `when setup is done then the app starts on home`() {
+        onboarding.isSetupDone = { Outcome.Success(true) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.HOME, viewModel.start.value)
+        assertEquals(emptyList(), errorReporter.reports)
+    }
+
+    @Test
+    fun `when setup is not done then the app starts on onboarding`() {
+        onboarding.isSetupDone = { Outcome.Success(false) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.ONBOARDING, viewModel.start.value)
+    }
+
+    @Test
+    fun `when reading the setup state fails then the error is reported and the app starts on home`() {
+        onboarding.isSetupDone = { Outcome.Failure(AppError.Storage) }
+
+        val viewModel = createViewModel()
+
+        assertEquals(AppStart.HOME, viewModel.start.value)
+        assertEquals(listOf(AppError.Storage), errorReporter.reports.map { it.error })
+    }
+
+    @Test
+    fun `when the setup state is not read yet then the start is unknown`() {
+        onboarding.isSetupDone = { awaitCancellation() }
+
+        val viewModel = createViewModel()
+
+        assertNull(viewModel.start.value)
+    }
+
+    @Test
+    fun `when the start is unknown then the bottom bar is hidden`() {
+        onboarding.isSetupDone = { awaitCancellation() }
+
+        val viewModel = createViewModel()
+
+        assertFalse(viewModel.bottomBar.value.isVisible)
+    }
+
+    @Test
+    fun `when setup is not done and no destination is reported then the bottom bar is hidden`() {
+        onboarding.isSetupDone = { Outcome.Success(false) }
+
+        val viewModel = createViewModel()
+
+        assertFalse(viewModel.bottomBar.value.isVisible)
+    }
+
+    @Test
+    fun `when setup is done and no destination is reported then the bottom bar is visible with home`() {
+        val viewModel = createViewModel()
+
+        assertEquals(
+            BottomBarState(isVisible = true, selectedTab = BottomNavSection.HOME),
+            viewModel.bottomBar.value,
+        )
+    }
+
+    @Test
+    fun `when setup is done and a tab is saved then the bottom bar is visible with that tab`() {
+        savedStateHandle[KEY_SELECTED_TAB] = BottomNavSection.SCAN
+
+        val viewModel = createViewModel()
+
+        assertEquals(
+            BottomBarState(isVisible = true, selectedTab = BottomNavSection.SCAN),
+            viewModel.bottomBar.value,
+        )
+    }
+
+    @Test
+    fun `when a full screen destination is reported then the bottom bar is hidden`() {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(fullScreenDestination())
+
+        assertFalse(viewModel.bottomBar.value.isVisible)
+    }
+
+    @Test
+    fun `when a tab destination follows a full screen one then the bottom bar is visible with that tab`() {
+        val viewModel = createViewModel()
+        viewModel.onAction(fullScreenDestination())
+
+        viewModel.onAction(tabDestination(BottomNavSection.SCAN))
+
+        assertEquals(
+            BottomBarState(isVisible = true, selectedTab = BottomNavSection.SCAN),
+            viewModel.bottomBar.value,
+        )
+    }
+
+    @Test
+    fun `when a pushed destination follows a tab then the bottom bar stays visible with that tab`() {
+        val viewModel = createViewModel()
+        viewModel.onAction(tabDestination(BottomNavSection.FAVOURITES))
+
+        viewModel.onAction(pushedDestination())
+
+        assertEquals(
+            BottomBarState(isVisible = true, selectedTab = BottomNavSection.FAVOURITES),
+            viewModel.bottomBar.value,
+        )
+    }
+
+    @Test
+    fun `when onboarding finishes on home then the bottom bar is visible with home`() {
+        onboarding.isSetupDone = { Outcome.Success(false) }
+        val viewModel = createViewModel()
+        viewModel.onAction(fullScreenDestination())
+
+        viewModel.onAction(tabDestination(BottomNavSection.HOME))
+
+        assertEquals(
+            BottomBarState(isVisible = true, selectedTab = BottomNavSection.HOME),
+            viewModel.bottomBar.value,
+        )
+    }
+
+    @Test
+    fun `when the start is onboarding but a standard destination is reported then the bottom bar is visible`() {
+        onboarding.isSetupDone = { Outcome.Success(false) }
+        val viewModel = createViewModel()
+
+        viewModel.onAction(tabDestination(BottomNavSection.HOME))
+
+        assertTrue(viewModel.bottomBar.value.isVisible)
+    }
+
+    private fun tabDestination(tab: BottomNavSection) =
+        OnDestinationChanged(tab = tab, presentation = RoutePresentation.STANDARD)
+
+    private fun pushedDestination() = OnDestinationChanged(tab = null, presentation = RoutePresentation.PUSHED)
+
+    private fun fullScreenDestination() =
+        OnDestinationChanged(tab = null, presentation = RoutePresentation.FULL_SCREEN)
+
+    private fun createViewModel() = AppViewModel(
+        appEvents = AppEvents(TestScope()),
+        savedStateHandle = savedStateHandle,
+        onboarding = onboarding,
+        errorReporter = errorReporter,
+    )
+
+    private class FakeOnboarding : OnboardingRepository {
+
+        var isSetupDone: suspend () -> Outcome<Boolean> = { Outcome.Success(true) }
+
+        override suspend fun isSetupDone(): Outcome<Boolean> = isSetupDone.invoke()
+
+        override suspend fun completeSetup(preset: DietPreset): Outcome<Unit> = throw NotImplementedError()
+
+        override suspend fun pendingTips(): Outcome<Set<OnboardingTip>> = throw NotImplementedError()
+
+        override suspend fun markTipShown(tip: OnboardingTip): Outcome<Unit> = throw NotImplementedError()
+    }
+}

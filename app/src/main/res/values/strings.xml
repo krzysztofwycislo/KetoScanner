@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Karbo</string>
+    <string name="app_name">CarbPeek</string>
     <string name="bottom_navigation_favourites">Favourites</string>
     <string name="bottom_navigation_scan">Scan</string>
     <string name="bottom_navigation_home">Home</string>

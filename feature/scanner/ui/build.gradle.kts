@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.feature.scanner.ui"
+    namespace = "app.carbpeek.feature.scanner.ui"
 
     buildFeatures {
         buildConfig = true

@@ -22,17 +22,17 @@ abstract class GitCommitCountValueSource : ValueSource<Int, GitCommitCountParams
         return try {
             val shallow = runGit("rev-parse", "--is-shallow-repository")
             if (shallow == null || shallow == "true") {
-                logger.warn("Karbo version: not a usable git repository or shallow clone, $fallback.")
+                logger.warn("CarbPeek version: not a usable git repository or shallow clone, $fallback.")
                 return null
             }
             val count = runGit("rev-list", "--count", "HEAD")?.toIntOrNull()
             if (count == null || count <= 0) {
-                logger.warn("Karbo version: could not read git commit count, $fallback.")
+                logger.warn("CarbPeek version: could not read git commit count, $fallback.")
                 return null
             }
             count
         } catch (e: Exception) {
-            logger.warn("Karbo version: git failed (${e.message}), $fallback.")
+            logger.warn("CarbPeek version: git failed (${e.message}), $fallback.")
             null
         }
     }

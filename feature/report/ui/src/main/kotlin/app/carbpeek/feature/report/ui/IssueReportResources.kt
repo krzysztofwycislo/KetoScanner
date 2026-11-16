@@ -1,0 +1,61 @@
+package app.carbpeek.feature.report.ui
+
+import app.carbpeek.core.designsystem.text.UiArg
+import app.carbpeek.core.designsystem.text.UiText
+import app.carbpeek.feature.analysis.api.model.DietRate
+import app.carbpeek.feature.preferences.api.model.DietMode
+import app.carbpeek.feature.report.api.model.IssueReason
+
+internal class IssueReportResources {
+
+    fun reasonLabel(reason: IssueReason): UiText = UiText.Res(
+        when (reason) {
+            IssueReason.RATING -> R.string.report_reason_rating
+            IssueReason.NUTRITION -> R.string.report_reason_nutrition
+            IssueReason.PRODUCT -> R.string.report_reason_product
+            IssueReason.OTHER -> R.string.report_reason_other
+        },
+    )
+
+    fun detailsPlaceholder(reason: IssueReason?): UiText = UiText.Res(
+        when (reason) {
+            IssueReason.RATING -> R.string.report_placeholder_rating
+            IssueReason.NUTRITION -> R.string.report_placeholder_nutrition
+            IssueReason.PRODUCT -> R.string.report_placeholder_product
+            IssueReason.OTHER, null -> R.string.report_placeholder_other
+        },
+    )
+
+    fun verdictLabel(rate: DietRate, mode: DietMode): UiText {
+        val id = when (rate) {
+            DietRate.GOOD -> when (mode) {
+                DietMode.KETO -> R.string.report_verdict_good_keto
+                DietMode.LOW_CARB -> R.string.report_verdict_good_low_carb
+            }
+            DietRate.NEUTRAL -> R.string.report_verdict_neutral
+            DietRate.NOT_ADVISED -> when (mode) {
+                DietMode.KETO -> R.string.report_verdict_not_advised_keto
+                DietMode.LOW_CARB -> R.string.report_verdict_not_advised_low_carb
+            }
+        }
+        return UiText.Res(id)
+    }
+
+    fun productName(name: String): UiText =
+        if (name.isBlank()) UiText.Res(R.string.report_unnamed_product) else UiText.Raw(name)
+
+    fun barcode(barcode: String): UiText = UiText.Raw(barcode)
+
+    fun productSubtitle(brand: String, barcode: String): UiText =
+        UiText.Res(R.string.report_product_subtitle, UiArg.Text(brand), UiArg.Text(barcode))
+
+    fun sendLabel(): UiText = UiText.Res(R.string.report_send)
+
+    fun pickReasonLabel(): UiText = UiText.Res(R.string.report_pick_reason)
+
+    fun photoAttached(number: Int): UiText =
+        UiText.Res(R.string.report_photo_attached, UiArg.Numeric.Count(number.toLong()))
+
+    fun removePhoto(number: Int): UiText =
+        UiText.Res(R.string.report_remove_photo, UiArg.Numeric.Count(number.toLong()))
+}

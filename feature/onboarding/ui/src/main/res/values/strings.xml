@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="onboarding_app_name">Karbo</string>
+    <string name="onboarding_app_name">CarbPeek</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_title">What are you following?</string>
     <string name="onboarding_intro">We rate every product you scan against this. You can change it any time in your profile.</string>
@@ -14,5 +14,5 @@
     <string name="onboarding_suggested">Good start</string>
     <string name="onboarding_hint">Not sure? Keto is a good start for most people. Custom limits are in your profile.</string>
     <string name="onboarding_start_scanning">Start scanning</string>
-    <string name="onboarding_disclaimer">Karbo gives guidance, not medical advice.</string>
+    <string name="onboarding_disclaimer">CarbPeek gives guidance, not medical advice.</string>
 </resources>

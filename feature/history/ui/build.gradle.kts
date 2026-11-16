@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.feature.history.ui"
+    namespace = "app.carbpeek.feature.history.ui"
 }
 
 dependencies {

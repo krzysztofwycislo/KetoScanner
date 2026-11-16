@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Karbo"
+rootProject.name = "CarbPeek"
 include(
     ":app",
     ":openfoodapi",

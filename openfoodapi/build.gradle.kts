@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "pl.morning.tower.karbo.openfoodapi"
+    namespace = "app.carbpeek.openfoodapi"
 }
 
 dependencies {
