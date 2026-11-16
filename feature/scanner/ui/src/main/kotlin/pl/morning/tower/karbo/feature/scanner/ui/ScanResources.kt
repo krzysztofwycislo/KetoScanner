@@ -43,7 +43,13 @@ internal class ScanResources {
 
     fun searchFailed(error: AppError): UiText = error.toUiText()
 
-    fun notFoundMessage(barcode: String): UiText = UiText.Res(R.string.scan_not_found_message, UiArg.Text(barcode))
+    fun notFoundMessage(): UiText = UiText.Res(R.string.scan_not_found_message)
+
+    fun notFoundBarcode(barcode: String): UiText = UiText.Res(R.string.scan_not_found_barcode, UiArg.Text(barcode))
+
+    fun scanNext(): UiText = UiText.Res(R.string.scan_next)
+
+    fun close(): UiText = UiText.Res(R.string.scan_close)
 
     fun productName(name: String): UiText =
         if (name.isBlank()) UiText.Res(R.string.scan_found_unnamed) else UiText.Raw(name)

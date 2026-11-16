@@ -11,6 +11,7 @@ data class AppColors(
     val accent: Color,
     val favourite: Color,
     val verdict: Verdict,
+    val tag: Tag,
     val border: Border,
     val placeholder: Color,
     val camera: Camera,
@@ -48,6 +49,12 @@ data class AppColors(
         val neutral: Tone,
         val negative: Tone,
         val unknown: Tone,
+    )
+
+    @Immutable
+    data class Tag(
+        val required: Tone,
+        val recommended: Tone,
     )
 
     @Immutable
@@ -103,6 +110,10 @@ val LightAppColors = AppColors(
         neutral = AppColors.Tone(container = Color(0xFFFFF0D1), content = Color(0xFF7A4F00)),
         negative = AppColors.Tone(container = Color(0xFFFDE3E0), content = Color(0xFF9E2318)),
         unknown = AppColors.Tone(container = Color(0xFFEEF1EC), content = Color(0xFF3E4943)),
+    ),
+    tag = AppColors.Tag(
+        required = AppColors.Tone(container = Color(0xFFFFF0D1), content = Color(0xFF7A4F00)),
+        recommended = AppColors.Tone(container = Color(0xFFE8ECFB), content = Color(0xFF2F3F9E)),
     ),
     border = AppColors.Border(
         default = Color(0xFFE3E6E1),

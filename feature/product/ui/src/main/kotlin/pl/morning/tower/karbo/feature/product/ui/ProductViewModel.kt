@@ -30,20 +30,19 @@ import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.favourites.api.FavouriteProductsRepository
 import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnAddPhotosClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnBackClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnFavouriteClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnImageClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnNameClicked
-import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPer100gClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnPerServingClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnReportClicked
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnRetryClicked
-import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnWebPageUnavailable
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent
-import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToAddProduct
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToReport
 import pl.morning.tower.karbo.feature.product.ui.state.ProductState
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
@@ -93,9 +92,8 @@ internal class ProductViewModel(
             OnNameClicked -> setNameExpanded(!statePrototype.value.isNameExpanded)
             OnPer100gClicked -> setPerServingSelected(false)
             OnPerServingClicked -> setPerServingSelected(true)
-            OnOpenFoodFactsClicked -> screenEvents send OpenWebPage(PRODUCT_PAGE_URL + statePrototype.value.barcode)
+            OnAddPhotosClicked -> screenEvents send NavigateToAddProduct(statePrototype.value.barcode)
             OnReportClicked -> screenEvents send NavigateToReport(statePrototype.value.barcode)
-            OnWebPageUnavailable -> appEvents send ShowMessage(resources.linkUnavailable(), MessageTone.Error)
         }
     }
 
@@ -219,6 +217,5 @@ internal class ProductViewModel(
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
         const val KEY_PER_SERVING_SELECTED = "perServingSelected"
-        const val PRODUCT_PAGE_URL = "https://world.openfoodfacts.org/product/"
     }
 }

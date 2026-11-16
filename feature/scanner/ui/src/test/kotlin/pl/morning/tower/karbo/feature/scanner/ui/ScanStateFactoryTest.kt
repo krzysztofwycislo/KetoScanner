@@ -198,17 +198,23 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when the camera is granted then the not found card offers type it`() {
-        assertTrue(assertNotNull(factory.createFor(granted().copy(notFoundBarcode = BARCODE)).notFound).showTypeIt)
+    fun `when the camera is granted then the not found card offers type it and scan next`() {
+        val notFound = assertNotNull(factory.createFor(granted().copy(notFoundBarcode = BARCODE)).notFound)
+
+        assertTrue(notFound.showTypeIt)
+        assertEquals(UiText.Res(R.string.scan_next), notFound.dismissLabel)
     }
 
     @Test
-    fun `when the camera is denied or needs rationale then the not found card offers only close`() {
+    fun `when the camera is denied or needs rationale then the not found card offers close without type it`() {
         val denied = Prototype(cameraPermission = CameraPermission.Denied, notFoundBarcode = BARCODE)
         val rationale = Prototype(cameraPermission = CameraPermission.Rationale, notFoundBarcode = BARCODE)
 
-        assertFalse(assertNotNull(factory.createFor(denied).notFound).showTypeIt)
-        assertFalse(assertNotNull(factory.createFor(rationale).notFound).showTypeIt)
+        listOf(denied, rationale).forEach { prototype ->
+            val notFound = assertNotNull(factory.createFor(prototype).notFound)
+            assertFalse(notFound.showTypeIt)
+            assertEquals(UiText.Res(R.string.scan_close), notFound.dismissLabel)
+        }
     }
 
     @Test
@@ -265,11 +271,16 @@ class ScanStateFactoryTest {
     }
 
     @Test
-    fun `when a barcode is not found then the not found card shows its message and the preview is paused`() {
+    fun `when a barcode is not found then the card shows the barcode and the message and the preview is paused`() {
         val state = factory.createFor(granted().copy(notFoundBarcode = BARCODE))
 
         assertEquals(
-            NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(BARCODE)), showTypeIt = true),
+            NotFoundCardState(
+                barcode = UiText.Res(R.string.scan_not_found_barcode, UiArg.Text(BARCODE)),
+                message = UiText.Res(R.string.scan_not_found_message),
+                showTypeIt = true,
+                dismissLabel = UiText.Res(R.string.scan_next),
+            ),
             state.notFound,
         )
         assertNull(state.found)

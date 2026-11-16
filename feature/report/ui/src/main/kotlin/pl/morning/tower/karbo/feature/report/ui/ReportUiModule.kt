@@ -10,6 +10,7 @@ import pl.morning.tower.karbo.core.common.APPLICATION_SCOPE
 import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureResources
 import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
+import pl.morning.tower.karbo.feature.report.ui.state.MissingProductStateFactory
 
 val reportUiModule = module {
     viewModel {
@@ -28,8 +29,24 @@ val reportUiModule = module {
             applicationScope = get(named(APPLICATION_SCOPE)),
         )
     }
+    viewModel {
+        val savedStateHandle = get<SavedStateHandle>()
+        MissingProductViewModel(
+            route = savedStateHandle.toRoute<ReportRoute>(),
+            savedStateHandle = savedStateHandle,
+            reports = get(),
+            photoStore = get(),
+            appEvents = get(),
+            stateFactory = get(),
+            captureResources = get(),
+            errorReporter = get(),
+            applicationScope = get(named(APPLICATION_SCOPE)),
+        )
+    }
     factoryOf(::IssueReportStateFactory)
     factoryOf(::IssueReportResources)
+    factoryOf(::MissingProductStateFactory)
+    factoryOf(::MissingProductResources)
     factoryOf(::PhotoCaptureStateFactory)
     factoryOf(::PhotoCaptureResources)
 }

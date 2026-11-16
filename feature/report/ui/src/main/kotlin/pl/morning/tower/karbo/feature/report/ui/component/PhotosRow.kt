@@ -15,11 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -113,29 +108,17 @@ private fun PhotoThumbnail(state: PhotoThumbnailState, isEditable: Boolean, onRe
 @Composable
 private fun AddPhotoTile(isEditable: Boolean, onClick: () -> Unit) {
     val shape = AppTheme.shapes.medium
-    val borderColor = AppTheme.colors.border.strong
-    val borderWidth = AppTheme.borders.control
-    val dash = AppTheme.spacing.xxs
     Box(
         modifier = Modifier
             .size(AppTheme.sizes.control.xl)
             .clip(shape)
             .background(AppTheme.colors.background.surface)
-            .drawBehind {
-                val stroke = borderWidth.toPx()
-                inset(stroke / 2) {
-                    drawOutline(
-                        outline = shape.createOutline(size = size, layoutDirection = layoutDirection, density = this),
-                        color = borderColor,
-                        style = Stroke(
-                            width = stroke,
-                            pathEffect = PathEffect.dashPathEffect(
-                                intervals = floatArrayOf(dash.toPx(), dash.toPx()),
-                            ),
-                        ),
-                    )
-                }
-            }
+            .dashedBorder(
+                width = AppTheme.borders.control,
+                color = AppTheme.colors.border.strong,
+                shape = shape,
+                dash = AppTheme.spacing.xxs,
+            )
             .clickable(
                 enabled = isEditable,
                 role = Role.Button,

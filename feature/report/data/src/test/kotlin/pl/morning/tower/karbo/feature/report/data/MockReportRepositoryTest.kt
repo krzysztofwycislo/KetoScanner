@@ -9,6 +9,7 @@ import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.IssueReport
+import pl.morning.tower.karbo.feature.report.api.model.MissingProductReport
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,6 +32,18 @@ class MockReportRepositoryTest {
             assertTrue(entry.message.contains(BARCODE))
         }
 
+    @Test
+    fun `when a missing product is submitted then it succeeds after a second and logs one warning with the barcode`() =
+        runTest {
+            val outcome = repository.submitMissingProduct(missingProduct)
+
+            assertEquals(Outcome.Success(Unit), outcome)
+            assertEquals(1_000L, currentTime)
+            val entry = logger.entries.single()
+            assertEquals(FakeAppLogger.Level.Warn, entry.level)
+            assertTrue(entry.message.contains(BARCODE))
+        }
+
     private companion object {
         const val BARCODE = "5449000000996"
 
@@ -41,6 +54,13 @@ class MockReportRepositoryTest {
             expectedRate = DietRate.NEUTRAL,
             dietMode = DietMode.KETO,
             photos = listOf(ReportPhoto("file:///data/report-photos/1")),
+        )
+
+        val missingProduct = MissingProductReport(
+            barcode = Barcode(BARCODE),
+            front = ReportPhoto("file:///data/report-photos/1"),
+            nutritionTable = ReportPhoto("file:///data/report-photos/2"),
+            ingredients = null,
         )
     }
 }

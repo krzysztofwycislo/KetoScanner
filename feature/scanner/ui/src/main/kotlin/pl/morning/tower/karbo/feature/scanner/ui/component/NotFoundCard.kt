@@ -27,6 +27,7 @@ import pl.morning.tower.karbo.core.designsystem.component.IconTile
 import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
 import pl.morning.tower.karbo.core.designsystem.component.ScanFrameMode
 import pl.morning.tower.karbo.core.designsystem.component.SecondaryButton
+import pl.morning.tower.karbo.core.designsystem.component.TextButton
 import pl.morning.tower.karbo.core.designsystem.component.Ui
 import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
 import pl.morning.tower.karbo.core.designsystem.icon.imageVector
@@ -35,6 +36,7 @@ import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.scanner.ui.R
 import pl.morning.tower.karbo.feature.scanner.ui.ScanScreenPreview
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnAddItClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnScanNextClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeItClicked
 import pl.morning.tower.karbo.feature.scanner.ui.state.NotFoundCardState
@@ -77,38 +79,62 @@ private fun NotFoundCard(notFound: NotFoundCardState, onAction: (ScanAction) -> 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Ui.IconTile(AppIcons.Search.imageVector)
-            Text(
-                text = title,
-                style = AppTheme.typography.section,
-                color = AppTheme.colors.text.default,
-            )
+            Column {
+                Text(
+                    text = title,
+                    style = AppTheme.typography.section,
+                    color = AppTheme.colors.text.default,
+                )
+                Text(
+                    text = notFound.barcode.resolve(),
+                    style = AppTheme.typography.caption,
+                    color = AppTheme.colors.text.muted,
+                )
+            }
         }
         Text(
             text = notFound.message.resolve(),
             style = AppTheme.typography.body,
             color = AppTheme.colors.text.muted,
         )
-        if (notFound.showTypeIt) {
-            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
-                Ui.SecondaryButton(
-                    text = stringResource(R.string.scan_type_it),
-                    onClick = { onAction(OnTypeItClicked) },
-                    modifier = Modifier.weight(1f),
-                )
-                Ui.PrimaryButton(
-                    text = stringResource(R.string.scan_next),
-                    onClick = { onAction(OnScanNextClicked) },
-                    modifier = Modifier.weight(1f),
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (notFound.showTypeIt) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+                ) {
+                    Ui.SecondaryButton(
+                        text = stringResource(R.string.scan_type_it),
+                        onClick = { onAction(OnTypeItClicked) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    AddItButton(
+                        onClick = { onAction(OnAddItClicked) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            } else {
+                AddItButton(
+                    onClick = { onAction(OnAddItClicked) },
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
-        } else {
-            Ui.PrimaryButton(
-                text = stringResource(R.string.scan_close),
+            Ui.TextButton(
+                text = notFound.dismissLabel.resolve(),
                 onClick = { onAction(OnScanNextClicked) },
-                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
+}
+
+@Composable
+private fun AddItButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Ui.PrimaryButton(
+        text = stringResource(R.string.scan_add_it),
+        onClick = onClick,
+        modifier = modifier,
+        icon = AppIcons.Camera,
+    )
 }
 
 @Preview
@@ -126,7 +152,7 @@ private fun ScanNotFoundPermissionPanelPreview() {
             message = R.string.scan_camera_permission_denied,
             buttonLabel = R.string.scan_camera_permission_open_settings,
             query = "5900512300320",
-            notFound = previewNotFound.copy(showTypeIt = false),
+            notFound = previewNotFound.copy(showTypeIt = false, dismissLabel = previewResources.close()),
         )
     )
 }

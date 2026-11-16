@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
 import pl.morning.tower.karbo.core.designsystem.component.ContentCrossfade
 import pl.morning.tower.karbo.core.designsystem.component.FadeVisibility
@@ -32,7 +34,10 @@ import pl.morning.tower.karbo.feature.report.ui.component.exampleForm
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnBackToReportClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCapture
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnHomeClicked
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnScanNextClicked
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnTryAgainClicked
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation
 import pl.morning.tower.karbo.feature.report.ui.state.ExpectationState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Failed
@@ -88,8 +93,25 @@ private fun ScreenContent(
             ) { content ->
                 when (content) {
                     is Form -> IssueForm(content, onAction)
-                    Sent -> SentContent(onAction)
-                    Failed -> FailedContent(onAction)
+                    Sent -> {
+                        SentContent(
+                            title = stringResource(R.string.report_sent_title),
+                            body = stringResource(R.string.report_sent_body),
+                            steps = persistentListOf(
+                                stringResource(R.string.report_step_sent),
+                                stringResource(R.string.report_step_check),
+                                stringResource(R.string.report_step_fix),
+                            ),
+                            onHomeClicked = { onAction(OnHomeClicked) },
+                            onScanNextClicked = { onAction(OnScanNextClicked) },
+                        )
+                    }
+                    Failed -> {
+                        FailedContent(
+                            onTryAgainClicked = { onAction(OnTryAgainClicked) },
+                            onBackToReportClicked = { onAction(OnBackToReportClicked) },
+                        )
+                    }
                 }
             }
         }

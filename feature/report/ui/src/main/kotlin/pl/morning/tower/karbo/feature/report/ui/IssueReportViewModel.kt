@@ -43,10 +43,10 @@ import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnRemove
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnScanNextClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnSendClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnTryAgainClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateBack
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToHome
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToScan
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateToHome
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
 import pl.morning.tower.karbo.feature.report.ui.state.MAX_REPORT_PHOTOS
@@ -103,8 +103,8 @@ internal class IssueReportViewModel(
         ),
     )
 
-    private val screenEvents = EventQueue<IssueReportEvent>(viewModelScope)
-    val events: Flow<IssueReportEvent> = screenEvents.events
+    private val screenEvents = EventQueue<ReportEvent>(viewModelScope)
+    val events: Flow<ReportEvent> = screenEvents.events
 
     val captureEvents: Flow<PhotoCaptureEvent> = capture.events
 

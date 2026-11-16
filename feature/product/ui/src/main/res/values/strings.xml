@@ -31,13 +31,12 @@
     <string name="product_verdict_not_advised_low_carb">Not low-carb friendly</string>
     <string name="product_verdict_insufficient_data">Not enough data yet</string>
     <string name="product_verdict_insufficient_data_detail">Open Food Facts is missing carbs, fat or protein for it</string>
-    <string name="product_verdict_insufficient_data_advice">Check the label on the pack. Adding the values to Open Food Facts helps the next shopper.</string>
+    <string name="product_verdict_insufficient_data_advice">Check the label on the pack, or send us photos of it and we will fill in the values.</string>
     <string name="product_at_a_glance">At a glance</string>
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>
     <string name="product_basis_serving_with_value">%1$s g/ml</string>
     <string name="product_data_source">Data: Open Food Facts · Barcode %1$s</string>
-    <string name="product_add_to_open_food_facts">Add it to Open Food Facts</string>
+    <string name="product_add_photos">Add photos of the label</string>
     <string name="product_report_problem">Something wrong? Report it</string>
-    <string name="product_link_unavailable">No app can open this link</string>
 </resources>

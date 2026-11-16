@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,8 +41,6 @@ import pl.morning.tower.karbo.feature.product.ui.component.exampleInsufficientDa
 import pl.morning.tower.karbo.feature.product.ui.component.exampleShowProduct
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnRetryClicked
-import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnWebPageUnavailable
-import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation
 import pl.morning.tower.karbo.feature.product.ui.state.FavouriteButtonState
 import pl.morning.tower.karbo.feature.product.ui.state.GlanceState
@@ -59,15 +56,9 @@ internal fun ProductScreen(onNavigation: (ProductNavigation) -> Unit) {
     val viewModel: ProductViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val uriHandler = LocalUriHandler.current
     ObserveEvents(viewModel.events) { event ->
         when (event) {
             is ProductNavigation -> onNavigation(event)
-            is OpenWebPage -> try {
-                uriHandler.openUri(event.url)
-            } catch (_: IllegalArgumentException) {
-                viewModel.onAction(OnWebPageUnavailable)
-            }
         }
     }
 

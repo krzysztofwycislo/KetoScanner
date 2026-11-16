@@ -45,6 +45,8 @@ class PhotoCaptureStateFactoryTest {
         val expected = mapOf(
             PhotoSubject.NUTRITION_TABLE to R.string.report_capture_frame_nutrition,
             PhotoSubject.LABEL to R.string.report_capture_frame_label,
+            PhotoSubject.FRONT to R.string.report_capture_frame_front,
+            PhotoSubject.INGREDIENTS to R.string.report_capture_frame_ingredients,
         )
 
         expected.forEach { (subject, id) ->
@@ -115,6 +117,23 @@ class PhotoCaptureStateFactoryTest {
     }
 
     @Test
+    fun `when the subject is the front or the ingredients then the preview asks about that subject`() {
+        val expected = mapOf(
+            PhotoSubject.FRONT to (R.string.report_preview_front_title to R.string.report_preview_front_body),
+            PhotoSubject.INGREDIENTS to
+                (R.string.report_preview_ingredients_title to R.string.report_preview_ingredients_body),
+        )
+
+        expected.forEach { (subject, copy) ->
+            val preview = assertIs<CaptureStepState.Preview>(
+                step(open(previewPhoto = ReportPhoto(PHOTO)), request(subject = subject)),
+            )
+            assertEquals(UiText.Res(copy.first), preview.title)
+            assertEquals(UiText.Res(copy.second), preview.body)
+        }
+    }
+
+    @Test
     fun `when the permission needs a rationale then the blocked step asks to allow the camera`() {
         assertEquals(
             CaptureStepState.Blocked(
@@ -148,6 +167,26 @@ class PhotoCaptureStateFactoryTest {
         )
     }
 
+    @Test
+    fun `when the request names its subject then the counter adds the subject name`() {
+        val state = assertNotNull(
+            factory.createFor(
+                capture = open(),
+                request = request(number = 2, total = 3, subject = PhotoSubject.NUTRITION_TABLE, namesSubject = true),
+            ),
+        )
+
+        assertEquals(
+            UiText.Res(
+                R.string.report_photo_counter_named,
+                UiArg.Numeric.Count(2),
+                UiArg.Numeric.Count(3),
+                UiArg.Nested(UiText.Res(R.string.report_slot_nutrition)),
+            ),
+            state.counter,
+        )
+    }
+
     private fun step(
         capture: PhotoCapturePrototype,
         request: PhotoCaptureRequest = request(),
@@ -175,6 +214,7 @@ class PhotoCaptureStateFactoryTest {
             number: Int = 1,
             total: Int = 3,
             subject: PhotoSubject = PhotoSubject.LABEL,
-        ) = PhotoCaptureRequest(number = number, total = total, subject = subject)
+            namesSubject: Boolean = false,
+        ) = PhotoCaptureRequest(number = number, total = total, subject = subject, namesSubject = namesSubject)
     }
 }

@@ -4,6 +4,7 @@ sealed interface ScanEvent {
 
     sealed interface ScanNavigation : ScanEvent {
         data class NavigateToProduct(val barcode: String) : ScanNavigation
+        data class NavigateToAddProduct(val barcode: String) : ScanNavigation
     }
 }
 

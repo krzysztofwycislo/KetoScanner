@@ -1,11 +1,14 @@
 package pl.morning.tower.karbo.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,9 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import pl.morning.tower.karbo.core.designsystem.R
 import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
@@ -104,6 +110,29 @@ fun Ui.SecondaryButton(
     }
 }
 
+@Composable
+fun Ui.TextButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .heightIn(min = AppTheme.sizes.control.m)
+            .clip(AppTheme.shapes.control)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = AppTheme.spacing.s),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = AppTheme.typography.button,
+            color = AppTheme.colors.text.subtle,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun ButtonsPreview() {
@@ -119,6 +148,7 @@ private fun ButtonsPreview() {
             Ui.PrimaryButton(text = text, onClick = {}, loading = true)
             Ui.SecondaryButton(text = text, onClick = {})
             Ui.SecondaryButton(text = text, onClick = {}, enabled = false)
+            Ui.TextButton(text = text, onClick = {})
         }
     }
 }

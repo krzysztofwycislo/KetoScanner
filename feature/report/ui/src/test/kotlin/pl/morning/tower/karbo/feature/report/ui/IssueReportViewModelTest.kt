@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +34,6 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
-import pl.morning.tower.karbo.feature.report.api.ReportRepository
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.IssueReport
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
@@ -49,10 +47,10 @@ import pl.morning.tower.karbo.feature.report.ui.capture.state.CaptureStepState
 import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCapture
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateBack
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToHome
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToScan
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateToHome
+import pl.morning.tower.karbo.feature.report.ui.event.ReportEvent.ReportNavigation.NavigateToScan
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
 import kotlin.test.AfterTest
@@ -188,7 +186,7 @@ class IssueReportViewModelTest {
             assertEquals(IssueReason.OTHER, form.reasons.single { it.isSelected }.reason)
             assertEquals("Wrong photo", form.details)
             assertEquals("SENDING", handle.get<String>(KEY_STATUS))
-            assertEquals(1, reports.submitted.size)
+            assertEquals(1, reports.submittedIssues.size)
 
             gate.complete(Unit)
             assertEquals(IssueReportContentState.Sent, viewModel.state.value.content)
@@ -201,7 +199,7 @@ class IssueReportViewModelTest {
 
         viewModel.onAction(IssueReportAction.OnSendClicked)
 
-        assertTrue(reports.submitted.isEmpty())
+        assertTrue(reports.submittedIssues.isEmpty())
         assertTrue(appEventLog.isEmpty())
     }
 
@@ -228,7 +226,7 @@ class IssueReportViewModelTest {
                     dietMode = DietMode.LOW_CARB,
                     photos = emptyList(),
                 ),
-                reports.submitted.single(),
+                reports.submittedIssues.single(),
             )
         }
 
@@ -241,7 +239,7 @@ class IssueReportViewModelTest {
         viewModel.onAction(IssueReportAction.OnReasonClicked(IssueReason.NUTRITION))
         viewModel.onAction(IssueReportAction.OnSendClicked)
 
-        val report = reports.submitted.single()
+        val report = reports.submittedIssues.single()
         assertEquals(IssueReason.NUTRITION, report.reason)
         assertNull(report.expectedRate)
         assertEquals(DietMode.KETO, report.dietMode)
@@ -284,8 +282,8 @@ class IssueReportViewModelTest {
         reports.result = Outcome.Success(Unit)
         viewModel.onAction(IssueReportAction.OnTryAgainClicked)
 
-        assertEquals(2, reports.submitted.size)
-        assertEquals(reports.submitted[0], reports.submitted[1])
+        assertEquals(2, reports.submittedIssues.size)
+        assertEquals(reports.submittedIssues[0], reports.submittedIssues[1])
         assertEquals(IssueReportContentState.Sent, viewModel.state.value.content)
     }
 
@@ -314,7 +312,7 @@ class IssueReportViewModelTest {
 
         viewModel.onAction(IssueReportAction.OnTryAgainClicked)
 
-        assertTrue(reports.submitted.isEmpty())
+        assertTrue(reports.submittedIssues.isEmpty())
         assertTrue(form(viewModel).isEditable)
     }
 
@@ -448,7 +446,7 @@ class IssueReportViewModelTest {
             viewModel.onAction(IssueReportAction.OnSendClicked)
             runCurrent()
 
-            assertEquals(listOf(ReportPhoto(PHOTO_1), ReportPhoto(PHOTO_2)), reports.submitted.single().photos)
+            assertEquals(listOf(ReportPhoto(PHOTO_1), ReportPhoto(PHOTO_2)), reports.submittedIssues.single().photos)
             assertEquals(listOf(ReportPhoto(PHOTO_1), ReportPhoto(PHOTO_2)), photoStore.deleted)
             assertEquals(arrayListOf<String>(), handle.get<ArrayList<String>>(KEY_PHOTOS))
         }
@@ -461,7 +459,7 @@ class IssueReportViewModelTest {
 
         viewModel.onAction(IssueReportAction.OnSendClicked)
 
-        assertEquals(emptyList(), reports.submitted.single().photos)
+        assertEquals(emptyList(), reports.submittedIssues.single().photos)
     }
 
     @Test
@@ -479,7 +477,7 @@ class IssueReportViewModelTest {
         reports.result = Outcome.Success(Unit)
         viewModel.onAction(IssueReportAction.OnTryAgainClicked)
 
-        assertEquals(listOf(ReportPhoto(PHOTO_1)), reports.submitted[1].photos)
+        assertEquals(listOf(ReportPhoto(PHOTO_1)), reports.submittedIssues[1].photos)
     }
 
     @Test
@@ -550,7 +548,7 @@ class IssueReportViewModelTest {
 
     private fun TestScope.createViewModel(handle: SavedStateHandle = handle()): IssueReportViewModel =
         IssueReportViewModel(
-            route = ReportRoute(BARCODE),
+            route = ReportRoute(barcode = BARCODE, kind = ReportKind.ISSUE),
             savedStateHandle = handle,
             analyzeProduct = analyzeProduct,
             dietPreferences = dietPreferences,
@@ -566,8 +564,8 @@ class IssueReportViewModelTest {
             applicationScope = this,
         )
 
-    private fun TestScope.collectScreenEvents(viewModel: IssueReportViewModel): List<IssueReportEvent> {
-        val events = mutableListOf<IssueReportEvent>()
+    private fun TestScope.collectScreenEvents(viewModel: IssueReportViewModel): List<ReportEvent> {
+        val events = mutableListOf<ReportEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
         return events
     }
@@ -602,21 +600,6 @@ class IssueReportViewModelTest {
 
         override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
             throw NotImplementedError()
-    }
-
-    private class FakeReportRepository : ReportRepository {
-
-        var result: Outcome<Unit> = Outcome.Success(Unit)
-        val submitted = mutableListOf<IssueReport>()
-        private var gate: CompletableDeferred<Unit>? = null
-
-        fun gate(): CompletableDeferred<Unit> = CompletableDeferred<Unit>().also { gate = it }
-
-        override suspend fun submitIssue(report: IssueReport): Outcome<Unit> {
-            submitted += report
-            gate?.await()
-            return result
-        }
     }
 
     private companion object {

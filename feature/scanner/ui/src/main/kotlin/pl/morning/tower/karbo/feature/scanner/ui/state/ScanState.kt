@@ -46,7 +46,12 @@ internal data class FoundCardState(
 )
 
 @Immutable
-internal data class NotFoundCardState(val message: UiText, val showTypeIt: Boolean)
+internal data class NotFoundCardState(
+    val barcode: UiText,
+    val message: UiText,
+    val showTypeIt: Boolean,
+    val dismissLabel: UiText,
+)
 
 @Immutable
 internal data class TripItemState(

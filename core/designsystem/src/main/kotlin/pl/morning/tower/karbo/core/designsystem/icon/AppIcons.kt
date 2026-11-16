@@ -49,4 +49,6 @@ object AppIcons {
     val Close = AppIcon(R.drawable.ic_close)
     val WifiOff = AppIcon(R.drawable.ic_wifi_off)
     val Plus = AppIcon(R.drawable.ic_plus)
+    val Camera = AppIcon(R.drawable.ic_camera)
+    val Barcode = AppIcon(R.drawable.ic_barcode)
 }

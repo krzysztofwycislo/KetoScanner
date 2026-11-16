@@ -47,10 +47,3 @@ internal data class IssueReportStatePrototype(
 }
 
 internal const val MAX_REPORT_PHOTOS = 3
-
-internal enum class ReportStatus {
-    EDITING,
-    SENDING,
-    SENT,
-    FAILED,
-}

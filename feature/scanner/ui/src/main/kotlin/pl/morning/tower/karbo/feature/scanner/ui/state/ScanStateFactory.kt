@@ -23,9 +23,12 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         camera = prototype.camera(),
         found = prototype.foundAnalysis?.toFoundCard(showVerdictTip = prototype.isVerdictTipVisible),
         notFound = prototype.notFoundBarcode?.let {
+            val isCameraGranted = prototype.cameraPermission == CameraPermission.Granted
             NotFoundCardState(
-                message = resources.notFoundMessage(it),
-                showTypeIt = prototype.cameraPermission == CameraPermission.Granted,
+                barcode = resources.notFoundBarcode(it),
+                message = resources.notFoundMessage(),
+                showTypeIt = isCameraGranted,
+                dismissLabel = if (isCameraGranted) resources.scanNext() else resources.close(),
             )
         },
     )

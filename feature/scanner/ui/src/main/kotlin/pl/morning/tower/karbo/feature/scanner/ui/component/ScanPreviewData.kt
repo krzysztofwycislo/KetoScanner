@@ -80,8 +80,10 @@ internal val previewFound = FoundCardState(
 )
 
 internal val previewNotFound = NotFoundCardState(
-    message = previewResources.notFoundMessage("5900512300320"),
+    barcode = previewResources.notFoundBarcode("5900512300320"),
+    message = previewResources.notFoundMessage(),
     showTypeIt = true,
+    dismissLabel = previewResources.scanNext(),
 )
 
 internal fun previewTripItem(

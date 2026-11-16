@@ -57,6 +57,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.PerformHapticFeedback
 import pl.morning.tower.karbo.feature.scanner.ui.event.RequestCameraPermission
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToAddProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanFeedback
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraHintState
@@ -355,6 +356,34 @@ class ScanViewModelTest {
         viewModel.onAction(ScanAction.OnBarcodeScanned("123"))
 
         assertEquals(listOf("590", "123"), products.refreshedBarcodes)
+    }
+
+    @Test
+    fun `when add it is clicked after not found then navigates to add the product and the card stays`() = runTest {
+        products.result = Outcome.Failure(AppError.NotFound)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        viewModel.onAction(ScanAction.OnAddItClicked)
+
+        assertEquals(
+            listOf<ScanEvent>(DETECTED_HAPTIC, NOT_FOUND_HAPTIC, NavigateToAddProduct("590")),
+            screenEvents,
+        )
+        assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+        assertEquals("590", handle.get<String>(KEY_NOT_FOUND_BARCODE))
+    }
+
+    @Test
+    fun `when add it is clicked without a not found barcode then nothing is sent`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnAddItClicked)
+
+        assertTrue(screenEvents.isEmpty())
     }
 
     @Test
@@ -1121,8 +1150,12 @@ class ScanViewModelTest {
 
     private fun tripItems(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).trip
 
-    private fun notFoundCard(barcode: String) =
-        NotFoundCardState(UiText.Res(R.string.scan_not_found_message, UiArg.Text(barcode)), showTypeIt = true)
+    private fun notFoundCard(barcode: String) = NotFoundCardState(
+        barcode = UiText.Res(R.string.scan_not_found_barcode, UiArg.Text(barcode)),
+        message = UiText.Res(R.string.scan_not_found_message),
+        showTypeIt = true,
+        dismissLabel = UiText.Res(R.string.scan_next),
+    )
 
     private fun preview(
         isPaused: Boolean = false,

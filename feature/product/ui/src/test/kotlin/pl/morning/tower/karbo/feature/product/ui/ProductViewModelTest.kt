@@ -37,8 +37,8 @@ import pl.morning.tower.karbo.feature.product.api.ProductRepository
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
-import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.OpenWebPage
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
+import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToAddProduct
 import pl.morning.tower.karbo.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToReport
 import pl.morning.tower.karbo.feature.product.ui.state.ProductContentState
 import pl.morning.tower.karbo.feature.product.ui.state.ProductStateFactory
@@ -478,12 +478,12 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when open food facts is clicked then the product page is opened`() = runTest {
+    fun `when add photos is clicked then navigates to add the product with the barcode`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.onAction(ProductAction.OnOpenFoodFactsClicked)
+        viewModel.onAction(ProductAction.OnAddPhotosClicked)
 
-        assertEquals(OpenWebPage("https://world.openfoodfacts.org/product/$BARCODE"), viewModel.events.first())
+        assertEquals(NavigateToAddProduct(BARCODE), viewModel.events.first())
     }
 
     @Test
@@ -493,19 +493,6 @@ class ProductViewModelTest {
         viewModel.onAction(ProductAction.OnReportClicked)
 
         assertEquals(NavigateToReport(BARCODE), viewModel.events.first())
-    }
-
-    @Test
-    fun `when the web page is unavailable then a message is sent`() = runTest {
-        val viewModel = createViewModel()
-        collectMessages()
-
-        viewModel.onAction(ProductAction.OnWebPageUnavailable)
-
-        assertEquals(
-            listOf<AppEvent>(AppEvent.ShowMessage(UiText.Res(R.string.product_link_unavailable), MessageTone.Error)),
-            messages,
-        )
     }
 
     private fun TestScope.createViewModel(

@@ -2,7 +2,6 @@ package pl.morning.tower.karbo.feature.report.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -20,13 +18,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import kotlinx.collections.immutable.ImmutableList
 import pl.morning.tower.karbo.core.designsystem.component.PrimaryButton
 import pl.morning.tower.karbo.core.designsystem.component.Rating
 import pl.morning.tower.karbo.core.designsystem.component.SecondaryButton
+import pl.morning.tower.karbo.core.designsystem.component.TextButton
 import pl.morning.tower.karbo.core.designsystem.component.Ui
 import pl.morning.tower.karbo.core.designsystem.component.color
 import pl.morning.tower.karbo.core.designsystem.component.containerColor
@@ -35,30 +33,32 @@ import pl.morning.tower.karbo.core.designsystem.icon.AppIcons
 import pl.morning.tower.karbo.core.designsystem.icon.imageVector
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.report.ui.R
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnBackToReportClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnHomeClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnScanNextClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnTryAgainClicked
 
 @Composable
-internal fun SentContent(onAction: (IssueReportAction) -> Unit, modifier: Modifier = Modifier) {
+internal fun SentContent(
+    title: String,
+    body: String,
+    steps: ImmutableList<String>,
+    onHomeClicked: () -> Unit,
+    onScanNextClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ReportResult(
         icon = AppIcons.Check,
         tone = Rating.Positive,
-        title = stringResource(R.string.report_sent_title),
-        body = stringResource(R.string.report_sent_body),
+        title = title,
+        body = body,
         modifier = modifier,
         buttons = {
             Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
                 Ui.SecondaryButton(
                     text = stringResource(R.string.report_home),
-                    onClick = { onAction(OnHomeClicked) },
+                    onClick = onHomeClicked,
                     modifier = Modifier.weight(1f),
                 )
                 Ui.PrimaryButton(
                     text = stringResource(R.string.report_scan_next),
-                    onClick = { onAction(OnScanNextClicked) },
+                    onClick = onScanNextClicked,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -70,15 +70,19 @@ internal fun SentContent(onAction: (IssueReportAction) -> Unit, modifier: Modifi
                 .padding(top = AppTheme.spacing.xs),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
         ) {
-            Step(number = 1, label = stringResource(R.string.report_step_sent), isDone = true)
-            Step(number = 2, label = stringResource(R.string.report_step_check), isDone = false)
-            Step(number = 3, label = stringResource(R.string.report_step_fix), isDone = false)
+            steps.forEachIndexed { index, step ->
+                Step(number = index + 1, label = step, isDone = index == 0)
+            }
         }
     }
 }
 
 @Composable
-internal fun FailedContent(onAction: (IssueReportAction) -> Unit, modifier: Modifier = Modifier) {
+internal fun FailedContent(
+    onTryAgainClicked: () -> Unit,
+    onBackToReportClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ReportResult(
         icon = AppIcons.WifiOff,
         tone = Rating.Negative,
@@ -89,23 +93,14 @@ internal fun FailedContent(onAction: (IssueReportAction) -> Unit, modifier: Modi
             Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
                 Ui.PrimaryButton(
                     text = stringResource(R.string.report_try_again),
-                    onClick = { onAction(OnTryAgainClicked) },
+                    onClick = onTryAgainClicked,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(AppTheme.sizes.control.m)
-                        .clip(AppTheme.shapes.control)
-                        .clickable(role = Role.Button) { onAction(OnBackToReportClicked) },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.report_back_to_report),
-                        style = AppTheme.typography.button,
-                        color = AppTheme.colors.text.subtle,
-                    )
-                }
+                Ui.TextButton(
+                    text = stringResource(R.string.report_back_to_report),
+                    onClick = onBackToReportClicked,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         },
     )

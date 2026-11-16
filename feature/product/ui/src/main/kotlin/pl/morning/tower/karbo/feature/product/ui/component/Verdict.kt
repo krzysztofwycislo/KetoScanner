@@ -16,7 +16,7 @@ import pl.morning.tower.karbo.core.designsystem.text.resolve
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.product.ui.R
 import pl.morning.tower.karbo.feature.product.ui.event.ProductAction
-import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnOpenFoodFactsClicked
+import pl.morning.tower.karbo.feature.product.ui.event.ProductAction.OnAddPhotosClicked
 import pl.morning.tower.karbo.feature.product.ui.state.VerdictState
 
 @Composable
@@ -35,8 +35,8 @@ internal fun Verdict(state: VerdictState, onAction: (ProductAction) -> Unit) {
         ) {
             Text(text = state.advice.resolve(), style = AppTheme.typography.body)
             Ui.PrimaryButton(
-                text = stringResource(R.string.product_add_to_open_food_facts),
-                onClick = { onAction(OnOpenFoodFactsClicked) },
+                text = stringResource(R.string.product_add_photos),
+                onClick = { onAction(OnAddPhotosClicked) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }

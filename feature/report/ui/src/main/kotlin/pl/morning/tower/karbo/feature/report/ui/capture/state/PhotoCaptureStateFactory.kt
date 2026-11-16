@@ -7,7 +7,7 @@ internal class PhotoCaptureStateFactory(private val resources: PhotoCaptureResou
     fun createFor(capture: PhotoCapturePrototype, request: PhotoCaptureRequest): PhotoCaptureState? {
         if (!capture.isOpen) return null
         return PhotoCaptureState(
-            counter = resources.counter(number = request.number, total = request.total),
+            counter = resources.counter(request),
             step = capture.step(request.subject),
         )
     }

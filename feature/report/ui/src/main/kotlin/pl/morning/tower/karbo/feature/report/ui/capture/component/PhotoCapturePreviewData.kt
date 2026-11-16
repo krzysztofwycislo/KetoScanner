@@ -3,14 +3,25 @@ package pl.morning.tower.karbo.feature.report.ui.capture.component
 import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureResources
 import pl.morning.tower.karbo.feature.report.ui.capture.state.CameraPermission
 import pl.morning.tower.karbo.feature.report.ui.capture.state.CaptureStepState
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureRequest
 import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureState
 import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoSubject
 import pl.morning.tower.karbo.feature.report.ui.capture.state.TorchButtonState
 
 private val resources = PhotoCaptureResources()
 
-internal fun PhotoCaptureState.Companion.example(step: CaptureStepState) = PhotoCaptureState(
-    counter = resources.counter(number = 2, total = 3),
+internal fun PhotoCaptureState.Companion.example(
+    step: CaptureStepState,
+    namesSubject: Boolean = false,
+) = PhotoCaptureState(
+    counter = resources.counter(
+        PhotoCaptureRequest(
+            number = 2,
+            total = 3,
+            subject = PhotoSubject.NUTRITION_TABLE,
+            namesSubject = namesSubject,
+        ),
+    ),
     step = step,
 )
 

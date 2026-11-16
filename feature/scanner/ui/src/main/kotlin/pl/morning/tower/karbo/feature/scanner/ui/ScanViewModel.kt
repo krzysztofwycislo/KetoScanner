@@ -43,6 +43,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.OpenAppSettings
 import pl.morning.tower.karbo.feature.scanner.ui.event.PerformHapticFeedback
 import pl.morning.tower.karbo.feature.scanner.ui.event.RequestCameraPermission
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnAddItClicked
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnBarcodeScanned
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnCameraPermissionResult
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnDetailsClicked
@@ -57,6 +58,7 @@ import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeItClicke
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnTypeSheetDismissed
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanAction.OnVerdictTipDismissed
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent
+import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToAddProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanEvent.ScanNavigation.NavigateToProduct
 import pl.morning.tower.karbo.feature.scanner.ui.event.ScanFeedback
 import pl.morning.tower.karbo.feature.scanner.ui.state.CameraPermission
@@ -124,6 +126,7 @@ internal class ScanViewModel(
             OnTypeItClicked -> openTypeSheet()
             OnTypeSheetDismissed -> setTypeSheetOpen(false)
             OnScanNextClicked -> scanNext()
+            OnAddItClicked -> addNotFoundProduct()
             OnDetailsClicked -> openDetails()
             OnVerdictTipDismissed -> dismissVerdictTip()
             is OnTripItemClicked -> screenEvents send NavigateToProduct(action.barcode)
@@ -308,6 +311,11 @@ internal class ScanViewModel(
         setFoundBarcode(null)
         setNotFoundBarcode(null)
         statePrototype.update { it.copy(isScanPaused = false) }
+    }
+
+    private fun addNotFoundProduct() {
+        val barcode = statePrototype.value.notFoundBarcode ?: return
+        screenEvents send NavigateToAddProduct(barcode)
     }
 
     private fun search(barcode: String, fromCamera: Boolean) {

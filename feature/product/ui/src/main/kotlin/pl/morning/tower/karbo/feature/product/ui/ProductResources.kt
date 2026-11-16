@@ -69,8 +69,6 @@ internal class ProductResources {
 
     fun dataSource(barcode: String): UiText = UiText.Res(R.string.product_data_source, UiArg.Text(barcode))
 
-    fun linkUnavailable(): UiText = UiText.Res(R.string.product_link_unavailable)
-
     fun energy(): UiText = UiText.Res(R.string.product_energy)
 
     fun fats(): UiText = UiText.Res(R.string.product_fats)

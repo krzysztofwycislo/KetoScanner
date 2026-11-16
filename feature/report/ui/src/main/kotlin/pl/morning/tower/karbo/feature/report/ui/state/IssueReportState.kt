@@ -79,15 +79,6 @@ internal data class ExpectedRateOptionState(
 }
 
 @Immutable
-internal data class SendButtonState(
-    val label: UiText,
-    val isEnabled: Boolean,
-    val isLoading: Boolean,
-) {
-    companion object
-}
-
-@Immutable
 internal data class PhotosState(
     val items: PersistentList<PhotoThumbnailState>,
     val showAddTile: Boolean,

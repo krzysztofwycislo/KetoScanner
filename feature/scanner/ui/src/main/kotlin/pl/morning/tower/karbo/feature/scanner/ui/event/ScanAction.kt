@@ -13,6 +13,7 @@ internal sealed interface ScanAction {
     data object OnTypeItClicked : ScanAction
     data object OnTypeSheetDismissed : ScanAction
     data object OnScanNextClicked : ScanAction
+    data object OnAddItClicked : ScanAction
     data object OnDetailsClicked : ScanAction
     data object OnVerdictTipDismissed : ScanAction
     data class OnTripItemClicked(val barcode: String) : ScanAction
