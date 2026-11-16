@@ -87,7 +87,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
                         navigate(HomeRoute) {
                             popUpTo<OnboardingRoute> { inclusive = true }
                         }
-                        navigateToTab(BottomNavSection.SCAN)
+                        startScanning()
                     }
                 }
             }
@@ -99,7 +99,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
                     HomeNavigation.NavigateToDietPreferences -> navigate(DietPreferencesRoute)
                     HomeNavigation.NavigateToAbout -> navigate(AboutRoute)
                     HomeNavigation.NavigateToHistory -> navigate(HistoryRoute)
-                    HomeNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
+                    HomeNavigation.NavigateToScan -> startScanning()
                 }
             }
         }
@@ -108,7 +108,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
                 when (navigation) {
                     is HistoryNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
                     HistoryNavigation.NavigateBack -> navigateUp()
-                    HistoryNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
+                    HistoryNavigation.NavigateToScan -> startScanning()
                 }
             }
         }
@@ -126,7 +126,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
             navController.ifCurrent<FavouritesRoute> {
                 when (navigation) {
                     is FavouritesNavigation.NavigateToProduct -> navigate(ProductRoute(navigation.barcode))
-                    FavouritesNavigation.NavigateToScan -> navigateToTab(BottomNavSection.SCAN)
+                    FavouritesNavigation.NavigateToScan -> startScanning()
                 }
             }
         }
@@ -150,7 +150,7 @@ internal fun AppNavHost(navController: NavHostController, start: AppStart, modif
                     ReportNavigation.NavigateToHome -> popBackStack<HomeRoute>(inclusive = false)
                     ReportNavigation.NavigateToScan -> {
                         popBackStack<HomeRoute>(inclusive = false)
-                        navigateToTab(BottomNavSection.SCAN)
+                        startScanning()
                     }
                 }
             }

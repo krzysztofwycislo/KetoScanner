@@ -33,3 +33,11 @@ internal fun NavHostController.navigateToTab(tab: BottomNavSection) {
         restoreState = true
     }
 }
+
+internal fun NavHostController.startScanning() {
+    clearBackStack<ScanRoute>()
+    navigate(ScanRoute) {
+        popUpTo(HomeRoute) { saveState = true }
+        launchSingleTop = true
+    }
+}
