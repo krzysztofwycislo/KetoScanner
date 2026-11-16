@@ -11,7 +11,7 @@ val productUiModule = module {
     viewModel {
         ProductViewModel(
             get<SavedStateHandle>().toRoute<ProductRoute>(),
-            get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(), get(), get(),
         )
     }
     factoryOf(::ProductStateFactory)

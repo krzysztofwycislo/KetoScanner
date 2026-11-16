@@ -37,7 +37,7 @@ class DietScoringTest {
     }
 
     @Test
-    fun `when Coca-Cola is rated in keto then every failed criterion is listed in table order`() {
+    fun `when Coca-Cola is rated in keto then every failed criterion is listed`() {
         val result = analyze(realProducts.named("Coca-Cola (can)"), DietPreset.KETO)
 
         assertReasons(

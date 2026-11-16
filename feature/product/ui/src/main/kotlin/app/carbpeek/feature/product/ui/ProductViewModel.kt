@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.carbpeek.core.common.AppError
-import app.carbpeek.core.common.AppLogger
 import app.carbpeek.core.common.ErrorReporter
 import app.carbpeek.core.common.EventQueue
 import app.carbpeek.core.common.onFailure
@@ -58,7 +57,6 @@ internal class ProductViewModel(
     private val appEvents: AppEvents,
     private val stateFactory: ProductStateFactory,
     private val resources: ProductResources,
-    private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
 ) : ViewModel() {
 
@@ -117,7 +115,9 @@ internal class ProductViewModel(
                 .onSuccess { isFavourite ->
                     statePrototype.update { it.copy(isFavourite = isFavourite) }
                 }
-                .onFailure { error -> log("Loading favourite status failed", error) }
+                .onFailure { error ->
+                    errorReporter.report(tag = TAG, message = "Loading favourite status failed", error = error)
+                }
         }
     }
 
@@ -175,7 +175,7 @@ internal class ProductViewModel(
                     appEvents send ShowMessage(message, MessageTone.Success)
                 }
                 .onFailure { error ->
-                    log("Updating favourites failed", error)
+                    errorReporter.report(tag = TAG, message = "Updating favourites failed", error = error)
                     statePrototype.update { it.copy(isFavouriteUpdating = false) }
                     appEvents send ShowMessage(resources.error(error), MessageTone.Error)
                 }
@@ -200,10 +200,6 @@ internal class ProductViewModel(
     private fun setPerServingSelected(isSelected: Boolean) {
         savedStateHandle[KEY_PER_SERVING_SELECTED] = isSelected
         statePrototype.update { it.copy(isPerServingSelected = isSelected) }
-    }
-
-    private fun log(message: String, error: AppError) {
-        logger.error(TAG, "$message: $error", (error as? AppError.Unknown)?.cause)
     }
 
     init {

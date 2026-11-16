@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.carbpeek.core.common.AppError
-import app.carbpeek.core.common.AppLogger
 import app.carbpeek.core.common.ErrorReporter
 import app.carbpeek.core.common.EventQueue
 import app.carbpeek.core.common.ProgressTracker
@@ -77,7 +76,6 @@ internal class ScanViewModel(
     private val appEvents: AppEvents,
     private val stateFactory: ScanStateFactory,
     private val resources: ScanResources,
-    private val logger: AppLogger,
     private val errorReporter: ErrorReporter,
     private val preferences: DietPreferencesRepository,
     private val onboarding: OnboardingRepository,
@@ -345,7 +343,7 @@ internal class ScanViewModel(
         screenEvents send PerformHapticFeedback(ScanFeedback.Found)
         applicationScope.launch {
             history.save(analysis.product).onFailure { error ->
-                logger.error(TAG, "Saving history entry failed: $error", (error as? AppError.Unknown)?.cause)
+                errorReporter.report(tag = TAG, message = "Saving history entry failed", error = error)
             }
         }
     }

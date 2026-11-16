@@ -10,7 +10,6 @@ import app.carbpeek.core.designsystem.event.AppEvents
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.model.Barcode
 import app.carbpeek.core.model.ProductCategory
-import app.carbpeek.core.testing.FakeAppLogger
 import app.carbpeek.core.testing.FakeErrorReporter
 import app.carbpeek.feature.analysis.api.AnalyzeProduct
 import app.carbpeek.feature.analysis.api.model.DietRate
@@ -59,7 +58,6 @@ class ProductViewModelTest {
     private val analyzeProduct = FakeAnalyzeProduct()
     private val products = FakeProductRepository()
     private val favourites = FakeFavourites()
-    private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
     private val messages = mutableListOf<AppEvent>()
     private var testAppEvents: AppEvents? = null
@@ -101,7 +99,6 @@ class ProductViewModelTest {
             assertEquals(listOf(BARCODE), products.refreshedBarcodes)
             assertEquals(listOf(BARCODE), favourites.foundBarcodes)
             assertEquals(true, content.favourite?.isFavourite)
-            assertTrue(logger.entries.isEmpty())
         }
 
     @Test
@@ -129,7 +126,6 @@ class ProductViewModelTest {
                 viewModel.state.value.content,
             )
             assertEquals(AppError.Network, errorReporter.reports.single().error)
-            assertTrue(logger.entries.isEmpty())
         }
 
     @Test
@@ -140,7 +136,6 @@ class ProductViewModelTest {
 
         assertIs<ProductContentState.Error>(viewModel.state.value.content)
         assertEquals(AppError.Parsing, errorReporter.reports.single().error)
-        assertTrue(logger.entries.isEmpty())
     }
 
     @Test
@@ -151,7 +146,6 @@ class ProductViewModelTest {
         val viewModel = createViewModel()
 
         assertEquals(AppError.Unknown(cause), errorReporter.reports.single().error)
-        assertTrue(logger.entries.isEmpty())
     }
 
     @Test
@@ -196,7 +190,6 @@ class ProductViewModelTest {
             assertTrue(messages.isEmpty())
             assertEquals(AppError.Parsing, errorReporter.reports.single().error)
             assertEquals("Refreshing product failed", errorReporter.reports.single().message)
-            assertTrue(logger.entries.isEmpty())
         }
 
     @Test
@@ -209,7 +202,6 @@ class ProductViewModelTest {
             showProduct(viewModel)
             assertTrue(messages.isEmpty())
             assertEquals(AppError.Network, errorReporter.reports.single().error)
-            assertTrue(logger.entries.isEmpty())
         }
 
     @Test
@@ -310,12 +302,12 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when favourite lookup fails then there is no favourite button and failure is logged`() = runTest {
+    fun `when favourite lookup fails then there is no favourite button and the failure is reported`() = runTest {
         favourites.isFavouriteResult = Outcome.Failure(AppError.Storage)
         val viewModel = createViewModel()
 
         assertNull(showProduct(viewModel).favourite)
-        assertEquals(1, logger.entries.size)
+        assertEquals(AppError.Storage, errorReporter.reports.single().error)
     }
 
     @Test
@@ -375,7 +367,7 @@ class ProductViewModelTest {
                 ),
                 messages,
             )
-            assertEquals(1, logger.entries.size)
+            assertEquals(AppError.Storage, errorReporter.reports.single().error)
         }
 
     @Test
@@ -509,7 +501,6 @@ class ProductViewModelTest {
             appEvents = appEvents(),
             stateFactory = ProductStateFactory(resources),
             resources = resources,
-            logger = logger,
             errorReporter = errorReporter,
         )
     }

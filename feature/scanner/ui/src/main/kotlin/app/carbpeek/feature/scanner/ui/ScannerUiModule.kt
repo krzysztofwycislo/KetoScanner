@@ -10,7 +10,7 @@ import org.koin.dsl.module
 val scannerUiModule = module {
     viewModel {
         ScanViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
             applicationScope = get(named(APPLICATION_SCOPE)),
             initialQuery = if (BuildConfig.DEBUG) DEBUG_BARCODE else "",
         )

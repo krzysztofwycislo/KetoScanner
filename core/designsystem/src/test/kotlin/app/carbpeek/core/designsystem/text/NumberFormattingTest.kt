@@ -51,12 +51,6 @@ class NumberFormattingTest {
         assertEquals("31%", UiArg.Numeric.Percent(0.31).format(US))
     }
 
-    @Test
-    fun `when Ratio is zero or has more digits then it is shown with one fraction digit`() {
-        assertEquals("0.0", UiArg.Numeric.Ratio(0.0).format(US))
-        assertEquals("1.3", UiArg.Numeric.Ratio(1.25).format(US))
-    }
-
     private companion object {
         val US: Locale = Locale.US
         val GERMANY: Locale = Locale.GERMANY

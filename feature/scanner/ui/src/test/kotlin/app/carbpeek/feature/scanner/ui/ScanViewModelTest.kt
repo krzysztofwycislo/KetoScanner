@@ -15,7 +15,6 @@ import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.model.Barcode
 import app.carbpeek.core.model.ProductCategory
-import app.carbpeek.core.testing.FakeAppLogger
 import app.carbpeek.core.testing.FakeClock
 import app.carbpeek.core.testing.FakeErrorReporter
 import app.carbpeek.feature.analysis.api.AnalyzeProduct
@@ -87,7 +86,6 @@ class ScanViewModelTest {
     private val preferences = FakePreferences()
     private val onboarding = FakeOnboarding()
     private val clock = FakeClock(NOW)
-    private val logger = FakeAppLogger()
     private val errorReporter = FakeErrorReporter()
     private val appEvents = mutableListOf<AppEvent>()
     private val screenEvents = mutableListOf<ScanEvent>()
@@ -322,7 +320,6 @@ class ScanViewModelTest {
 
             assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
             assertEquals(AppError.NotFound, errorReporter.reports.single().error)
-            assertTrue(logger.entries.isEmpty())
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, NOT_FOUND_HAPTIC), screenEvents)
             assertTrue(viewModel.state.value.isLookUpEnabled)
             assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
@@ -446,7 +443,6 @@ class ScanViewModelTest {
 
         assertEquals(AppEvent.ShowMessage(AppError.Parsing.toUiText(), MessageTone.Error), appEvents.last())
         assertEquals(AppError.Parsing, errorReporter.reports.single().error)
-        assertTrue(logger.entries.isEmpty())
     }
 
     @Test
@@ -720,7 +716,7 @@ class ScanViewModelTest {
         }
 
     @Test
-    fun `when the history save fails then it is only logged and the card stays`() = runTest {
+    fun `when the history save fails then it is reported and the card stays`() = runTest {
         history.result = Outcome.Failure(AppError.Storage)
         analyzeProduct.emit(ratedAnalysis)
         val viewModel = createViewModel()
@@ -729,9 +725,8 @@ class ScanViewModelTest {
         viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
 
         assertEquals(ratedCard, viewModel.state.value.found)
-        assertEquals(FakeAppLogger.Level.Error, logger.entries.single().level)
         assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
-        assertTrue(errorReporter.reports.isEmpty())
+        assertEquals("Saving history entry failed", errorReporter.reports.single().message)
     }
 
     @Test
@@ -1202,7 +1197,6 @@ class ScanViewModelTest {
             appEvents = events,
             stateFactory = ScanStateFactory(resources),
             resources = resources,
-            logger = logger,
             errorReporter = errorReporter,
             preferences = preferences,
             onboarding = onboarding,
