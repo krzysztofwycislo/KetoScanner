@@ -32,8 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -69,12 +72,20 @@ fun Ui.BottomBar(
 ) {
     val borderColor = AppTheme.colors.border.default
     val borderWidth = AppTheme.borders.hairline
+    val shape = AppTheme.shapes.bottomBar
     Row(
         modifier = modifier
-            .background(AppTheme.colors.background.surface)
+            .background(AppTheme.colors.background.surface, shape)
             .drawBehind {
-                val y = borderWidth.toPx() / 2
-                drawLine(borderColor, Offset(0f, y), Offset(size.width, y), borderWidth.toPx())
+                val outline = shape.createOutline(size, layoutDirection, this)
+                val cornerHeight = (outline as? Outline.Rounded)?.roundRect?.topLeftCornerRadius?.y ?: 0f
+                clipRect(bottom = maxOf(cornerHeight, borderWidth.toPx())) {
+                    drawOutline(
+                        outline = outline,
+                        color = borderColor,
+                        style = Stroke(width = borderWidth.toPx()),
+                    )
+                }
             }
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(start = AppTheme.spacing.m, end = AppTheme.spacing.m, bottom = AppTheme.spacing.xs),

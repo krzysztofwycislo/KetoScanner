@@ -16,6 +16,7 @@ data class AppShapes(
     val extraLarge: Shape,
     val pill: Shape,
     val circle: Shape,
+    val bottomBar: Shape,
 )
 
 val DefaultAppShapes = AppShapes(
@@ -27,4 +28,5 @@ val DefaultAppShapes = AppShapes(
     extraLarge = RoundedCornerShape(26.dp),
     pill = RoundedCornerShape(percent = 50),
     circle = CircleShape,
+    bottomBar = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
 )
