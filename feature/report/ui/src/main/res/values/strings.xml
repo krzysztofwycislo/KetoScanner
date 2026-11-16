@@ -50,4 +50,18 @@
     <string name="report_retake">Retake</string>
     <string name="report_use_photo">Use photo</string>
     <string name="report_photo_import_failed">Couldn\'t add this photo. Try another one.</string>
+    <string name="report_capture_frame_nutrition">Fit the whole table in the frame</string>
+    <string name="report_capture_frame_label">Fit the whole label in the frame</string>
+    <string name="report_take_photo">Take photo</string>
+    <string name="report_from_gallery">From gallery</string>
+    <string name="report_choose_from_gallery">Choose from gallery</string>
+    <string name="report_torch_on">Turn torch on</string>
+    <string name="report_torch_off">Turn torch off</string>
+    <string name="report_camera_blocked_title">Camera access is off</string>
+    <string name="report_camera_blocked_body">Turn it on in Settings to take the photos, or pick photos you already have.</string>
+    <string name="report_open_settings">Open settings</string>
+    <string name="report_camera_rationale_title">Take photos with your camera</string>
+    <string name="report_camera_rationale_body">Karbo needs the camera to take the photos. Allow it, or pick photos you already have.</string>
+    <string name="report_allow_camera">Allow camera</string>
+    <string name="report_photo_capture_failed">Couldn\'t take the photo. Try again.</string>
 </resources>

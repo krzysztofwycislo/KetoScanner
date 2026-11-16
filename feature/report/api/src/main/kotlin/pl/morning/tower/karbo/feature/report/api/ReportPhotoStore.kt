@@ -6,6 +6,8 @@ import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
 interface ReportPhotoStore {
     suspend fun importPhoto(sourceUri: String): Outcome<ReportPhoto>
 
+    suspend fun newPhoto(): Outcome<ReportPhoto>
+
     suspend fun delete(photos: List<ReportPhoto>): Outcome<Unit>
 
     suspend fun retainOnly(photos: List<ReportPhoto>): Outcome<List<ReportPhoto>>

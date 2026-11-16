@@ -63,6 +63,39 @@ class ReportPhotoStoreImplTest {
     }
 
     @Test
+    fun `when a new photo is created then an empty file is created directly inside the directory`() = runTest {
+        val photo = store().newPhoto().getOrThrow()
+
+        assertTrue(photo.uri.startsWith("file://"))
+        val file = photo.file()
+        assertEquals(directory.absolutePath, file.parentFile?.absolutePath)
+        assertTrue(file.isFile)
+        assertEquals(0L, file.length())
+    }
+
+    @Test
+    fun `when two new photos are created then they are different files`() = runTest {
+        val store = store()
+
+        val first = store.newPhoto().getOrThrow()
+        val second = store.newPhoto().getOrThrow()
+
+        assertNotEquals(first, second)
+        assertEquals(2, directory.listFiles()?.size)
+    }
+
+    @Test
+    fun `when a new photo is not retained then its file is deleted`() = runTest {
+        val store = store()
+        val photo = store.newPhoto().getOrThrow()
+
+        val outcome = store.retainOnly(emptyList())
+
+        assertEquals(Outcome.Success(emptyList()), outcome)
+        assertFalse(photo.file().exists())
+    }
+
+    @Test
     fun `when photos are deleted then their files are removed and other uris and missing files are ignored`() =
         runTest {
             sources[SOURCE] = byteArrayOf(1)

@@ -21,7 +21,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.Outcome
-import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.designsystem.text.UiText
@@ -36,14 +35,21 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.preferences.api.model.DietPreferences
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
-import pl.morning.tower.karbo.feature.report.api.ReportPhotoStore
 import pl.morning.tower.karbo.feature.report.api.ReportRepository
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.IssueReport
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
+import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureResources
+import pl.morning.tower.karbo.feature.report.ui.capture.event.PhotoCaptureAction.OnCameraChecked
+import pl.morning.tower.karbo.feature.report.ui.capture.event.PhotoCaptureAction.OnPictureSaved
+import pl.morning.tower.karbo.feature.report.ui.capture.event.PhotoCaptureAction.OnShutterClicked
+import pl.morning.tower.karbo.feature.report.ui.capture.event.PhotoCaptureAction.OnUsePhotoClicked
+import pl.morning.tower.karbo.feature.report.ui.capture.state.CameraPermissionCheck
+import pl.morning.tower.karbo.feature.report.ui.capture.state.CaptureStepState
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCapture
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.OpenPhotoPicker
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateBack
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToHome
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToScan
@@ -340,15 +346,18 @@ class IssueReportViewModelTest {
     }
 
     @Test
-    fun `when add photo is clicked then the keyboard hides and the photo picker opens`() = runTest {
-        val viewModel = createViewModel()
+    fun `when add photo is clicked then the keyboard hides and the capture opens`() = runTest {
+        val handle = handle()
+        val viewModel = createViewModel(handle)
         collectAppEvents()
         val screenEvents = collectScreenEvents(viewModel)
 
         viewModel.onAction(IssueReportAction.OnAddPhotoClicked)
 
         assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEventLog)
-        assertEquals(listOf<IssueReportEvent>(OpenPhotoPicker), screenEvents)
+        assertTrue(screenEvents.isEmpty())
+        assertEquals(CaptureStepState.Waiting, assertNotNull(viewModel.state.value.photoCapture).step)
+        assertEquals(true, handle.get<Boolean>(KEY_CAPTURE_OPEN))
     }
 
     @Test
@@ -376,99 +385,45 @@ class IssueReportViewModelTest {
     }
 
     @Test
-    fun `when add photo is clicked while a preview is open then nothing happens`() = runTest {
-        val viewModel = createViewModel(handle(KEY_PREVIEW_PHOTO to PHOTO_1))
+    fun `when add photo is clicked while the capture is open then nothing happens`() = runTest {
+        val viewModel = createViewModel(handle(KEY_CAPTURE_OPEN to true))
 
         assertAddPhotoIgnored(viewModel)
     }
 
     @Test
-    fun `when a photo is picked then it is imported, shown as preview and saved to the handle`() = runTest {
-        val handle = handle()
+    fun `when a taken picture is used then it is attached and written to the handle`() = runTest {
+        val handle = handle(KEY_PHOTOS to uris(PHOTO_1))
         val viewModel = createViewModel(handle)
-        viewModel.onAction(IssueReportAction.OnReasonClicked(IssueReason.NUTRITION))
+        viewModel.onAction(IssueReportAction.OnAddPhotoClicked)
+        viewModel.onAction(OnCapture(OnCameraChecked(check = GRANTED, hasTorch = false)))
+        viewModel.onAction(OnCapture(OnShutterClicked))
+        runCurrent()
+        val taken = photoStore.created.single()
 
-        viewModel.onAction(IssueReportAction.OnPhotoPicked(SOURCE))
+        viewModel.onAction(OnCapture(OnPictureSaved(taken.uri)))
+        viewModel.onAction(OnCapture(OnUsePhotoClicked))
 
-        assertEquals(listOf(SOURCE), photoStore.imported)
-        val preview = assertNotNull(viewModel.state.value.photoPreview)
-        assertEquals(PHOTO_1, preview.imageUri)
-        assertEquals(PHOTO_1, handle.get<String>(KEY_PREVIEW_PHOTO))
-    }
-
-    @Test
-    fun `when importing a picked photo fails then an error message is shown, reported and no preview opens`() =
-        runTest {
-            photoStore.importResult = Outcome.Failure(AppError.Storage)
-            val handle = handle()
-            val viewModel = createViewModel(handle)
-            collectAppEvents()
-
-            viewModel.onAction(IssueReportAction.OnPhotoPicked(SOURCE))
-
-            assertEquals(
-                listOf<AppEvent>(
-                    AppEvent.ShowMessage(
-                        text = UiText.Res(R.string.report_photo_import_failed),
-                        tone = MessageTone.Error,
-                    ),
-                ),
-                appEventLog,
-            )
-            assertEquals(AppError.Storage, errorReporter.reports.single().error)
-            assertNull(viewModel.state.value.photoPreview)
-            assertNull(handle.get<String>(KEY_PREVIEW_PHOTO))
-        }
-
-    @Test
-    fun `when a photo is picked for the rating reason then it is not imported`() = runTest {
-        val viewModel = createViewModel(handle(KEY_REASON to IssueReason.RATING.name))
-
-        viewModel.onAction(IssueReportAction.OnPhotoPicked(SOURCE))
-
-        assertTrue(photoStore.imported.isEmpty())
-        assertNull(viewModel.state.value.photoPreview)
-    }
-
-    @Test
-    fun `when use photo is clicked then the preview is attached and cleared in the handle`() = runTest {
-        val handle = handle(KEY_PHOTOS to uris(PHOTO_1), KEY_PREVIEW_PHOTO to PHOTO_2)
-        val viewModel = createViewModel(handle)
-
-        viewModel.onAction(IssueReportAction.OnUsePhotoClicked)
-
-        assertEquals(listOf(PHOTO_1, PHOTO_2), form(viewModel).photos?.items?.map { it.uri })
-        assertNull(viewModel.state.value.photoPreview)
-        assertEquals(uris(PHOTO_1, PHOTO_2), handle.get<ArrayList<String>>(KEY_PHOTOS))
+        assertEquals(listOf(PHOTO_1, taken.uri), form(viewModel).photos?.items?.map { it.uri })
+        assertEquals(uris(PHOTO_1, taken.uri), handle.get<ArrayList<String>>(KEY_PHOTOS))
+        assertNull(viewModel.state.value.photoCapture)
         assertNull(handle.get<String>(KEY_PREVIEW_PHOTO))
     }
 
     @Test
-    fun `when retake is clicked then the preview is deleted and the photo picker opens again`() = runTest {
-        val handle = handle(KEY_PREVIEW_PHOTO to PHOTO_1)
+    fun `when a photo is used with three photos attached then it is deleted instead`() = runTest {
+        val handle = handle(
+            KEY_PHOTOS to uris(PHOTO_1, PHOTO_2, PHOTO_3),
+            KEY_CAPTURE_OPEN to true,
+            KEY_PREVIEW_PHOTO to PHOTO_4,
+        )
         val viewModel = createViewModel(handle)
-        val screenEvents = collectScreenEvents(viewModel)
 
-        viewModel.onAction(IssueReportAction.OnRetakeClicked)
+        viewModel.onAction(OnCapture(OnUsePhotoClicked))
         runCurrent()
 
-        assertEquals(listOf(ReportPhoto(PHOTO_1)), photoStore.deleted)
-        assertNull(viewModel.state.value.photoPreview)
-        assertNull(handle.get<String>(KEY_PREVIEW_PHOTO))
-        assertEquals(listOf<IssueReportEvent>(OpenPhotoPicker), screenEvents)
-    }
-
-    @Test
-    fun `when the preview is cancelled then it is deleted and closed`() = runTest {
-        val handle = handle(KEY_PREVIEW_PHOTO to PHOTO_1)
-        val viewModel = createViewModel(handle)
-
-        viewModel.onAction(IssueReportAction.OnPreviewCancelled)
-        runCurrent()
-
-        assertEquals(listOf(ReportPhoto(PHOTO_1)), photoStore.deleted)
-        assertNull(viewModel.state.value.photoPreview)
-        assertNull(handle.get<String>(KEY_PREVIEW_PHOTO))
+        assertEquals(listOf(PHOTO_1, PHOTO_2, PHOTO_3), form(viewModel).photos?.items?.map { it.uri })
+        assertEquals(listOf(ReportPhoto(PHOTO_4)), photoStore.deleted)
     }
 
     @Test
@@ -530,7 +485,11 @@ class IssueReportViewModelTest {
     @Test
     fun `when started then only the restored photos that still exist are kept`() = runTest {
         photoStore.existing = setOf(ReportPhoto(PHOTO_2))
-        val handle = handle(KEY_PHOTOS to uris(PHOTO_1, PHOTO_2), KEY_PREVIEW_PHOTO to PHOTO_3)
+        val handle = handle(
+            KEY_PHOTOS to uris(PHOTO_1, PHOTO_2),
+            KEY_CAPTURE_OPEN to true,
+            KEY_PREVIEW_PHOTO to PHOTO_3,
+        )
         val viewModel = createViewModel(handle)
 
         assertEquals(
@@ -539,8 +498,16 @@ class IssueReportViewModelTest {
         )
         assertEquals(listOf(PHOTO_2), form(viewModel).photos?.items?.map { it.uri })
         assertEquals(uris(PHOTO_2), handle.get<ArrayList<String>>(KEY_PHOTOS))
-        assertNull(viewModel.state.value.photoPreview)
+        assertEquals(CaptureStepState.Waiting, assertNotNull(viewModel.state.value.photoCapture).step)
         assertNull(handle.get<String>(KEY_PREVIEW_PHOTO))
+    }
+
+    @Test
+    fun `when started with a restored preview that still exists then it is shown again`() = runTest {
+        val viewModel = createViewModel(handle(KEY_CAPTURE_OPEN to true, KEY_PREVIEW_PHOTO to PHOTO_3))
+
+        val preview = assertIs<CaptureStepState.Preview>(assertNotNull(viewModel.state.value.photoCapture).step)
+        assertEquals(PHOTO_3, preview.imageUri)
     }
 
     @Test
@@ -555,7 +522,7 @@ class IssueReportViewModelTest {
     @Test
     fun `when the view model is cleared then the remaining photos and the preview are deleted`() = runTest {
         val testScope = this
-        val handle = handle(KEY_PHOTOS to uris(PHOTO_1), KEY_PREVIEW_PHOTO to PHOTO_2)
+        val handle = handle(KEY_PHOTOS to uris(PHOTO_1), KEY_CAPTURE_OPEN to true, KEY_PREVIEW_PHOTO to PHOTO_2)
         val store = ViewModelStore()
         ViewModelProvider.create(
             store = store,
@@ -572,11 +539,13 @@ class IssueReportViewModelTest {
         collectAppEvents()
         val screenEvents = collectScreenEvents(viewModel)
         appEventLog.clear()
+        val captureBefore = viewModel.state.value.photoCapture
 
         viewModel.onAction(IssueReportAction.OnAddPhotoClicked)
 
         assertTrue(appEventLog.isEmpty())
         assertTrue(screenEvents.isEmpty())
+        assertEquals(captureBefore, viewModel.state.value.photoCapture)
     }
 
     private fun TestScope.createViewModel(handle: SavedStateHandle = handle()): IssueReportViewModel =
@@ -588,8 +557,11 @@ class IssueReportViewModelTest {
             reports = reports,
             photoStore = photoStore,
             appEvents = appEvents(),
-            stateFactory = IssueReportStateFactory(IssueReportResources()),
-            resources = IssueReportResources(),
+            stateFactory = IssueReportStateFactory(
+                resources = IssueReportResources(),
+                captureStateFactory = PhotoCaptureStateFactory(PhotoCaptureResources()),
+            ),
+            captureResources = PhotoCaptureResources(),
             errorReporter = errorReporter,
             applicationScope = this,
         )
@@ -647,31 +619,6 @@ class IssueReportViewModelTest {
         }
     }
 
-    private class FakeReportPhotoStore : ReportPhotoStore {
-
-        var importResult: Outcome<ReportPhoto>? = null
-        var retainResult: Outcome<List<ReportPhoto>>? = null
-        var existing: Set<ReportPhoto>? = null
-        val imported = mutableListOf<String>()
-        val deleted = mutableListOf<ReportPhoto>()
-        val retained = mutableListOf<List<ReportPhoto>>()
-
-        override suspend fun importPhoto(sourceUri: String): Outcome<ReportPhoto> {
-            imported += sourceUri
-            return importResult ?: Outcome.Success(ReportPhoto("file:///photos/${imported.size}"))
-        }
-
-        override suspend fun delete(photos: List<ReportPhoto>): Outcome<Unit> {
-            deleted += photos
-            return Outcome.Success(Unit)
-        }
-
-        override suspend fun retainOnly(photos: List<ReportPhoto>): Outcome<List<ReportPhoto>> {
-            retained += photos
-            return retainResult ?: Outcome.Success(photos.filter { photo -> existing?.contains(photo) ?: true })
-        }
-    }
-
     private companion object {
         const val BARCODE = "5449000000996"
         const val PRODUCT_NAME = "Coca-Cola Original Taste"
@@ -680,11 +627,14 @@ class IssueReportViewModelTest {
         const val KEY_EXPECTED_RATE = "expectedRate"
         const val KEY_STATUS = "status"
         const val KEY_PHOTOS = "photos"
+        const val KEY_CAPTURE_OPEN = "captureOpen"
         const val KEY_PREVIEW_PHOTO = "previewPhoto"
-        const val SOURCE = "content://media/picker/0/42"
         const val PHOTO_1 = "file:///photos/1"
         const val PHOTO_2 = "file:///photos/2"
         const val PHOTO_3 = "file:///photos/3"
+        const val PHOTO_4 = "file:///photos/4"
+
+        val GRANTED = CameraPermissionCheck(isGranted = true, shouldShowRationale = false)
 
         fun uris(vararg uris: String) = arrayListOf(*uris)
 

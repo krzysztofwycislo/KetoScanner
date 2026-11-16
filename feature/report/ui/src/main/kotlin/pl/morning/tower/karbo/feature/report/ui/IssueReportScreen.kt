@@ -19,52 +19,65 @@ import pl.morning.tower.karbo.core.designsystem.event.ObserveEvents
 import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
-import pl.morning.tower.karbo.feature.report.ui.camera.rememberPhotoPicker
+import pl.morning.tower.karbo.feature.report.ui.camera.PhotoCaptureEffects
+import pl.morning.tower.karbo.feature.report.ui.capture.component.PhotoCaptureOverlay
+import pl.morning.tower.karbo.feature.report.ui.capture.component.example
+import pl.morning.tower.karbo.feature.report.ui.capture.state.CaptureStepState
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureState
 import pl.morning.tower.karbo.feature.report.ui.component.FailedContent
 import pl.morning.tower.karbo.feature.report.ui.component.IssueForm
-import pl.morning.tower.karbo.feature.report.ui.component.PhotoPreview
 import pl.morning.tower.karbo.feature.report.ui.component.SentContent
 import pl.morning.tower.karbo.feature.report.ui.component.example
 import pl.morning.tower.karbo.feature.report.ui.component.exampleForm
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnBackToReportClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnPhotoPicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnPreviewCancelled
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.OpenPhotoPicker
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCapture
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation
 import pl.morning.tower.karbo.feature.report.ui.state.ExpectationState
+import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Failed
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Form
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Sent
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportState
-import pl.morning.tower.karbo.feature.report.ui.state.PhotoPreviewState
 import pl.morning.tower.karbo.feature.report.ui.state.PhotosState
 import pl.morning.tower.karbo.feature.report.ui.state.RatedAsState
+import pl.morning.tower.karbo.photocamera.PhotoCameraState
+import pl.morning.tower.karbo.photocamera.rememberPhotoCameraState
 
 @Composable
 internal fun IssueReportScreen(onNavigation: (ReportNavigation) -> Unit) {
     val viewModel: IssueReportViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val photoPicker = rememberPhotoPicker { uri -> viewModel.onAction(OnPhotoPicked(uri)) }
+    val camera = rememberPhotoCameraState()
     ObserveEvents(viewModel.events) { event ->
         when (event) {
             is ReportNavigation -> onNavigation(event)
-            OpenPhotoPicker -> photoPicker.launch()
         }
     }
+    PhotoCaptureEffects(
+        isOpen = state.photoCapture != null,
+        events = viewModel.captureEvents,
+        camera = camera,
+        onAction = { viewModel.onAction(OnCapture(it)) },
+    )
     BackHandler(enabled = state.content is Failed) {
         viewModel.onAction(OnBackToReportClicked)
     }
-    BackHandler(enabled = state.photoPreview != null) {
-        viewModel.onAction(OnPreviewCancelled)
-    }
 
-    ScreenContent(state, viewModel::onAction)
+    ScreenContent(
+        state = state,
+        camera = camera,
+        onAction = viewModel::onAction,
+    )
 }
 
 @Composable
-private fun ScreenContent(state: IssueReportState, onAction: (IssueReportAction) -> Unit) {
+private fun ScreenContent(
+    state: IssueReportState,
+    camera: PhotoCameraState,
+    onAction: (IssueReportAction) -> Unit,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Ui.Screen { innerPadding ->
             Ui.ContentCrossfade(
@@ -80,130 +93,110 @@ private fun ScreenContent(state: IssueReportState, onAction: (IssueReportAction)
                 }
             }
         }
-        Ui.FadeVisibility(value = state.photoPreview) { preview ->
-            PhotoPreview(preview, onAction)
+        Ui.FadeVisibility(value = state.photoCapture) { capture ->
+            PhotoCaptureOverlay(
+                state = capture,
+                camera = camera,
+                onAction = { action -> onAction(OnCapture(action)) },
+            )
         }
+    }
+}
+
+@Composable
+private fun ReportPreview(content: IssueReportContentState, photoCapture: PhotoCaptureState? = null) {
+    AppTheme {
+        ScreenContent(
+            state = IssueReportState(content = content, photoCapture = photoCapture),
+            camera = rememberPhotoCameraState(),
+            onAction = {},
+        )
     }
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportEmptyPreview() {
-    AppTheme {
-        ScreenContent(IssueReportState(content = exampleForm(), photoPreview = null)) {}
-    }
+    ReportPreview(content = exampleForm())
 }
 
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun IssueReportPhotosPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(
-                    reason = IssueReason.NUTRITION,
-                    details = "The label says 4 g carbs per 100 g.",
-                    photos = PhotosState.example(count = 2),
-                ),
-                photoPreview = null,
-            ),
-        ) {}
-    }
+    ReportPreview(
+        content = exampleForm(
+            reason = IssueReason.NUTRITION,
+            details = "The label says 4 g carbs per 100 g.",
+            photos = PhotosState.example(count = 2),
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun IssueReportFullPhotosPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(
-                    reason = IssueReason.PRODUCT,
-                    photos = PhotosState.example(count = 3),
-                ),
-                photoPreview = null,
-            ),
-        ) {}
-    }
+    ReportPreview(
+        content = exampleForm(
+            reason = IssueReason.PRODUCT,
+            photos = PhotosState.example(count = 3),
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
-private fun IssueReportPhotoPreviewPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(reason = IssueReason.NUTRITION),
-                photoPreview = PhotoPreviewState.example(),
-            ),
-        ) {}
-    }
+private fun IssueReportPhotoCapturePreview() {
+    ReportPreview(
+        content = exampleForm(reason = IssueReason.NUTRITION),
+        photoCapture = PhotoCaptureState.example(CaptureStepState.Camera.example()),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun IssueReportRatingPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(
-                    reason = IssueReason.RATING,
-                    expectation = ExpectationState.example(
-                        ratedAs = RatedAsState.example(rate = DietRate.NOT_ADVISED, rating = Rating.Negative),
-                        selected = DietRate.NEUTRAL,
-                    ),
-                ),
-                photoPreview = null,
+    ReportPreview(
+        content = exampleForm(
+            reason = IssueReason.RATING,
+            expectation = ExpectationState.example(
+                ratedAs = RatedAsState.example(rate = DietRate.NOT_ADVISED, rating = Rating.Negative),
+                selected = DietRate.NEUTRAL,
             ),
-        ) {}
-    }
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportNutritionPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(
-                    reason = IssueReason.NUTRITION,
-                    details = "The label says 4 g carbs per 100 g.",
-                ),
-                photoPreview = null,
-            ),
-        ) {}
-    }
+    ReportPreview(
+        content = exampleForm(
+            reason = IssueReason.NUTRITION,
+            details = "The label says 4 g carbs per 100 g.",
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportSendingPreview() {
-    AppTheme {
-        ScreenContent(
-            IssueReportState(
-                content = exampleForm(
-                    reason = IssueReason.NUTRITION,
-                    details = "The label says 4 g carbs per 100 g.",
-                    isSending = true,
-                ),
-                photoPreview = null,
-            ),
-        ) {}
-    }
+    ReportPreview(
+        content = exampleForm(
+            reason = IssueReason.NUTRITION,
+            details = "The label says 4 g carbs per 100 g.",
+            isSending = true,
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportSentPreview() {
-    AppTheme {
-        ScreenContent(IssueReportState(content = Sent, photoPreview = null)) {}
-    }
+    ReportPreview(content = Sent)
 }
 
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportFailedPreview() {
-    AppTheme {
-        ScreenContent(IssueReportState(content = Failed, photoPreview = null)) {}
-    }
+    ReportPreview(content = Failed)
 }

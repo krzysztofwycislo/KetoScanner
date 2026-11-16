@@ -7,11 +7,12 @@ import pl.morning.tower.karbo.core.designsystem.icon.AppIcon
 import pl.morning.tower.karbo.core.designsystem.text.UiText
 import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureState
 
 @Immutable
 internal data class IssueReportState(
     val content: IssueReportContentState,
-    val photoPreview: PhotoPreviewState?,
+    val photoCapture: PhotoCaptureState?,
 )
 
 @Immutable
@@ -99,16 +100,6 @@ internal data class PhotoThumbnailState(
     val uri: String,
     val contentDescription: UiText,
     val removeLabel: UiText,
-) {
-    companion object
-}
-
-@Immutable
-internal data class PhotoPreviewState(
-    val imageUri: String,
-    val counter: UiText,
-    val title: UiText,
-    val body: UiText,
 ) {
     companion object
 }

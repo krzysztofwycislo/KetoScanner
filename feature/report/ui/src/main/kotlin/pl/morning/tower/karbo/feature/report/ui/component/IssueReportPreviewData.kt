@@ -12,7 +12,6 @@ import pl.morning.tower.karbo.feature.report.ui.state.ExpectationState
 import pl.morning.tower.karbo.feature.report.ui.state.ExpectedRateOptionState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Form
 import pl.morning.tower.karbo.feature.report.ui.state.MAX_REPORT_PHOTOS
-import pl.morning.tower.karbo.feature.report.ui.state.PhotoPreviewState
 import pl.morning.tower.karbo.feature.report.ui.state.PhotoThumbnailState
 import pl.morning.tower.karbo.feature.report.ui.state.PhotosState
 import pl.morning.tower.karbo.feature.report.ui.state.ProductSummaryState
@@ -68,13 +67,6 @@ internal fun PhotosState.Companion.example(count: Int) = PhotosState(
         )
     }.toPersistentList(),
     showAddTile = count < MAX_REPORT_PHOTOS,
-)
-
-internal fun PhotoPreviewState.Companion.example() = PhotoPreviewState(
-    imageUri = "",
-    counter = resources.photoCounter(number = 2, total = MAX_REPORT_PHOTOS),
-    title = resources.previewTitle(IssueReason.NUTRITION),
-    body = resources.previewBody(IssueReason.NUTRITION),
 )
 
 internal fun exampleForm(

@@ -8,6 +8,8 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.IssueReport
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureRequest
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoSubject
 
 @Immutable
 internal data class IssueReportStatePrototype(
@@ -19,12 +21,17 @@ internal data class IssueReportStatePrototype(
     val expectedRate: DietRate? = null,
     val status: ReportStatus = ReportStatus.EDITING,
     val photos: List<ReportPhoto> = emptyList(),
-    val previewPhoto: ReportPhoto? = null,
 ) {
 
     val showsPhotos: Boolean get() = reason != IssueReason.RATING
 
     val canAddPhoto: Boolean get() = showsPhotos && photos.size < MAX_REPORT_PHOTOS
+
+    fun captureRequest(): PhotoCaptureRequest = PhotoCaptureRequest(
+        number = photos.size + 1,
+        total = MAX_REPORT_PHOTOS,
+        subject = if (reason == IssueReason.NUTRITION) PhotoSubject.NUTRITION_TABLE else PhotoSubject.LABEL,
+    )
 
     fun toReport(): IssueReport? {
         val reason = reason ?: return null

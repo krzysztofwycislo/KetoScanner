@@ -20,6 +20,7 @@ include(
     ":app",
     ":openfoodapi",
     ":barcodescanner",
+    ":photocamera",
     ":core:common",
     ":core:model",
     ":core:testing",

@@ -37,6 +37,18 @@ internal class ReportPhotoStoreImpl(
             }
         }
 
+    override suspend fun newPhoto(): Outcome<ReportPhoto> =
+        withContext(dispatchers.io) {
+            mutex.withLock {
+                outcomeOf(mapError = { AppError.Storage }) {
+                    directory.mkdirs()
+                    val file = File(directory, Uuid.random().toString())
+                    check(file.createNewFile())
+                    file.toPhoto()
+                }
+            }
+        }
+
     override suspend fun delete(photos: List<ReportPhoto>): Outcome<Unit> =
         withContext(dispatchers.io) {
             mutex.withLock {

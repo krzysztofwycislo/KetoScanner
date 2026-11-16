@@ -8,16 +8,25 @@ import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.analysis.api.model.ProductAnalysis
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.ui.IssueReportResources
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCapturePrototype
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Failed
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Form
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Sent
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStatePrototype as Prototype
 
-internal class IssueReportStateFactory(private val resources: IssueReportResources) {
+internal class IssueReportStateFactory(
+    private val resources: IssueReportResources,
+    private val captureStateFactory: PhotoCaptureStateFactory,
+) {
 
-    fun createFor(prototype: Prototype): IssueReportState = IssueReportState(
+    fun createFor(prototype: Prototype, capture: PhotoCapturePrototype): IssueReportState = IssueReportState(
         content = prototype.content(),
-        photoPreview = prototype.photoPreview(),
+        photoCapture = if (prototype.status == ReportStatus.EDITING) {
+            captureStateFactory.createFor(capture = capture, request = prototype.captureRequest())
+        } else {
+            null
+        },
     )
 
     private fun Prototype.content(): IssueReportContentState = when (status) {
@@ -101,17 +110,6 @@ internal class IssueReportStateFactory(private val resources: IssueReportResourc
                 )
             }.toPersistentList(),
             showAddTile = canAddPhoto,
-        )
-    }
-
-    private fun Prototype.photoPreview(): PhotoPreviewState? {
-        val photo = previewPhoto ?: return null
-        if (status != ReportStatus.EDITING) return null
-        return PhotoPreviewState(
-            imageUri = photo.uri,
-            counter = resources.photoCounter(number = photos.size + 1, total = MAX_REPORT_PHOTOS),
-            title = resources.previewTitle(reason),
-            body = resources.previewBody(reason),
         )
     }
 

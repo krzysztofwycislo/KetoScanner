@@ -14,9 +14,14 @@ import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
+import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureResources
+import pl.morning.tower.karbo.feature.report.ui.capture.state.CameraPermission
+import pl.morning.tower.karbo.feature.report.ui.capture.state.CaptureStepState
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCapturePrototype
+import pl.morning.tower.karbo.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
+import pl.morning.tower.karbo.feature.report.ui.state.IssueReportState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
-import pl.morning.tower.karbo.feature.report.ui.state.PhotoPreviewState
 import pl.morning.tower.karbo.feature.report.ui.state.PhotoThumbnailState
 import pl.morning.tower.karbo.feature.report.ui.state.RatedAsState
 import pl.morning.tower.karbo.feature.report.ui.state.ReportStatus
@@ -32,7 +37,10 @@ import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStatePrototype 
 
 class IssueReportStateFactoryTest {
 
-    private val factory = IssueReportStateFactory(IssueReportResources())
+    private val factory = IssueReportStateFactory(
+        resources = IssueReportResources(),
+        captureStateFactory = PhotoCaptureStateFactory(PhotoCaptureResources()),
+    )
 
     @Test
     fun `when no analysis yet then product summary shows the bag icon and the raw barcode only`() {
@@ -205,14 +213,14 @@ class IssueReportStateFactoryTest {
 
     @Test
     fun `when sent then sent content is shown`() {
-        assertEquals(IssueReportContentState.Sent, factory.createFor(prototype(status = ReportStatus.SENT)).content)
+        assertEquals(IssueReportContentState.Sent, state(prototype(status = ReportStatus.SENT)).content)
     }
 
     @Test
     fun `when failed then failed content is shown`() {
         assertEquals(
             IssueReportContentState.Failed,
-            factory.createFor(prototype(status = ReportStatus.FAILED)).content,
+            state(prototype(status = ReportStatus.FAILED)).content,
         )
     }
 
@@ -258,79 +266,72 @@ class IssueReportStateFactoryTest {
     }
 
     @Test
-    fun `when there is no preview photo then the preview is absent`() {
-        assertNull(factory.createFor(prototype(photos = photos(1))).photoPreview)
+    fun `when the capture is closed then the photo capture is absent`() {
+        assertNull(state(prototype(photos = photos(1))).photoCapture)
     }
 
     @Test
-    fun `when sending with a preview photo then the preview is absent`() {
-        val state = factory.createFor(
-            prototype(
-                reason = IssueReason.OTHER,
-                status = ReportStatus.SENDING,
-                previewPhoto = ReportPhoto(PREVIEW_URI),
-            ),
+    fun `when sending with an open capture then the photo capture is absent`() {
+        val state = state(
+            prototype = prototype(reason = IssueReason.OTHER, status = ReportStatus.SENDING),
+            capture = openCapture,
         )
 
-        assertNull(state.photoPreview)
+        assertNull(state.photoCapture)
     }
 
     @Test
-    fun `when a preview photo is shown then the counter counts it after the attached photos`() {
+    fun `when the capture is open then the counter counts the next photo after the attached photos`() {
         listOf(0, 2).forEach { attached ->
-            val preview = assertNotNull(
-                factory.createFor(prototype(photos = photos(attached), previewPhoto = ReportPhoto(PREVIEW_URI)))
-                    .photoPreview,
+            val capture = assertNotNull(
+                state(prototype = prototype(photos = photos(attached)), capture = openCapture).photoCapture,
             )
 
-            assertEquals(PREVIEW_URI, preview.imageUri)
             assertEquals(
                 UiText.Res(
                     R.string.report_photo_counter,
                     UiArg.Numeric.Count(attached + 1L),
                     UiArg.Numeric.Count(3),
                 ),
-                preview.counter,
+                capture.counter,
             )
         }
     }
 
     @Test
-    fun `when the reason is nutrition then the preview asks about the numbers`() {
-        val preview = assertNotNull(
-            factory.createFor(prototype(reason = IssueReason.NUTRITION, previewPhoto = ReportPhoto(PREVIEW_URI)))
-                .photoPreview,
+    fun `when the reason is nutrition then the frame hint asks for the table`() {
+        val capture = assertNotNull(
+            state(prototype = prototype(reason = IssueReason.NUTRITION), capture = openCapture).photoCapture,
         )
 
-        assertEquals(
-            PhotoPreviewState(
-                imageUri = PREVIEW_URI,
-                counter = UiText.Res(R.string.report_photo_counter, UiArg.Numeric.Count(1), UiArg.Numeric.Count(3)),
-                title = UiText.Res(R.string.report_preview_nutrition_title),
-                body = UiText.Res(R.string.report_preview_nutrition_body),
-            ),
-            preview,
-        )
+        val camera = assertIs<CaptureStepState.Camera>(capture.step)
+        assertEquals(UiText.Res(R.string.report_capture_frame_nutrition), camera.frameHint)
     }
 
     @Test
-    fun `when the reason is product or none then the preview asks about the label`() {
-        listOf(IssueReason.PRODUCT, null).forEach { reason ->
-            val preview = assertNotNull(
-                factory.createFor(prototype(reason = reason, previewPhoto = ReportPhoto(PREVIEW_URI))).photoPreview,
+    fun `when the reason is product, other or none then the frame hint asks for the label`() {
+        listOf(IssueReason.PRODUCT, IssueReason.OTHER, null).forEach { reason ->
+            val capture = assertNotNull(
+                state(prototype = prototype(reason = reason), capture = openCapture).photoCapture,
             )
 
-            assertEquals(UiText.Res(R.string.report_preview_label_title), preview.title)
-            assertEquals(UiText.Res(R.string.report_preview_label_body), preview.body)
+            val camera = assertIs<CaptureStepState.Camera>(capture.step)
+            assertEquals(UiText.Res(R.string.report_capture_frame_label), camera.frameHint)
         }
     }
+
+    private fun state(
+        prototype: Prototype,
+        capture: PhotoCapturePrototype = PhotoCapturePrototype(),
+    ): IssueReportState = factory.createFor(prototype = prototype, capture = capture)
 
     private fun form(prototype: Prototype): IssueReportContentState.Form =
-        assertIs<IssueReportContentState.Form>(factory.createFor(prototype).content)
+        assertIs<IssueReportContentState.Form>(state(prototype).content)
 
     private companion object {
         const val BARCODE = "5449000000996"
-        const val PREVIEW_URI = "file:///photos/preview"
+
+        val openCapture = PhotoCapturePrototype(isOpen = true, cameraPermission = CameraPermission.Granted)
 
         val nutriments = ProductNutriments(
             energyPerServing = null,
@@ -374,7 +375,6 @@ class IssueReportStateFactoryTest {
             expectedRate: DietRate? = null,
             status: ReportStatus = ReportStatus.EDITING,
             photos: List<ReportPhoto> = emptyList(),
-            previewPhoto: ReportPhoto? = null,
         ) = Prototype(
             barcode = Barcode(BARCODE),
             analysis = analysis,
@@ -384,7 +384,6 @@ class IssueReportStateFactoryTest {
             expectedRate = expectedRate,
             status = status,
             photos = photos,
-            previewPhoto = previewPhoto,
         )
 
         fun photos(count: Int) = (1..count).map { ReportPhoto("file:///photos/$it") }

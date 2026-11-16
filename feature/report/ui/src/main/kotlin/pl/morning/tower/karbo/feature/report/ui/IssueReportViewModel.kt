@@ -8,19 +8,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.morning.tower.karbo.core.common.AppError
 import pl.morning.tower.karbo.core.common.ErrorReporter
 import pl.morning.tower.karbo.core.common.EventQueue
 import pl.morning.tower.karbo.core.common.catchAppError
 import pl.morning.tower.karbo.core.common.onFailure
 import pl.morning.tower.karbo.core.common.onSuccess
-import pl.morning.tower.karbo.core.designsystem.component.MessageTone
 import pl.morning.tower.karbo.core.designsystem.event.AppEvent.HideKeyboard
-import pl.morning.tower.karbo.core.designsystem.event.AppEvent.ShowMessage
 import pl.morning.tower.karbo.core.designsystem.event.AppEvents
 import pl.morning.tower.karbo.core.model.Barcode
 import pl.morning.tower.karbo.feature.analysis.api.AnalyzeProduct
@@ -30,24 +27,23 @@ import pl.morning.tower.karbo.feature.report.api.ReportPhotoStore
 import pl.morning.tower.karbo.feature.report.api.ReportRepository
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
+import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureDelegate
+import pl.morning.tower.karbo.feature.report.ui.capture.PhotoCaptureResources
+import pl.morning.tower.karbo.feature.report.ui.capture.event.PhotoCaptureEvent
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnAddPhotoClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnBackToReportClicked
+import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCapture
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnCloseClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnDetailsChanged
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnExpectedRateClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnHomeClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnPhotoPicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnPreviewCancelled
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnReasonClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnRemovePhotoClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnRetakeClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnScanNextClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnSendClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnTryAgainClicked
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportAction.OnUsePhotoClicked
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent
-import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.OpenPhotoPicker
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateBack
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToHome
 import pl.morning.tower.karbo.feature.report.ui.event.IssueReportEvent.ReportNavigation.NavigateToScan
@@ -66,7 +62,7 @@ internal class IssueReportViewModel(
     private val photoStore: ReportPhotoStore,
     private val appEvents: AppEvents,
     private val stateFactory: IssueReportStateFactory,
-    private val resources: IssueReportResources,
+    captureResources: PhotoCaptureResources,
     private val errorReporter: ErrorReporter,
     private val applicationScope: CoroutineScope,
 ) : ViewModel() {
@@ -79,18 +75,38 @@ internal class IssueReportViewModel(
             expectedRate = savedStateHandle.get<String>(KEY_EXPECTED_RATE)?.let(DietRate::valueOf),
             status = restoredStatus(),
             photos = savedStateHandle.get<ArrayList<String>>(KEY_PHOTOS).orEmpty().map(::ReportPhoto),
-            previewPhoto = savedStateHandle.get<String>(KEY_PREVIEW_PHOTO)?.let(::ReportPhoto),
-        )
+        ),
     )
 
-    val state: StateFlow<IssueReportState> = statePrototype.map(stateFactory::createFor).stateIn(
+    private val capture = PhotoCaptureDelegate(
+        savedStateHandle = savedStateHandle,
+        photoStore = photoStore,
+        appEvents = appEvents,
+        resources = captureResources,
+        errorReporter = errorReporter,
+        scope = viewModelScope,
+        applicationScope = applicationScope,
+        onPhotoAccepted = ::attachPhoto,
+    )
+
+    val state: StateFlow<IssueReportState> = combine(
+        statePrototype,
+        capture.state,
+    ) { prototype, captureState ->
+        stateFactory.createFor(prototype = prototype, capture = captureState)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = stateFactory.createFor(statePrototype.value),
+        initialValue = stateFactory.createFor(
+            prototype = statePrototype.value,
+            capture = capture.state.value,
+        ),
     )
 
     private val screenEvents = EventQueue<IssueReportEvent>(viewModelScope)
     val events: Flow<IssueReportEvent> = screenEvents.events
+
+    val captureEvents: Flow<PhotoCaptureEvent> = capture.events
 
     fun onAction(action: IssueReportAction) {
         when (action) {
@@ -104,29 +120,25 @@ internal class IssueReportViewModel(
             OnHomeClicked -> screenEvents send NavigateToHome
             OnScanNextClicked -> screenEvents send NavigateToScan
             OnAddPhotoClicked -> onAddPhotoClicked()
-            is OnPhotoPicked -> importPhoto(action.uri)
             is OnRemovePhotoClicked -> removePhoto(action.uri)
-            OnRetakeClicked -> retakePhoto()
-            OnUsePhotoClicked -> usePreviewPhoto()
-            OnPreviewCancelled -> cancelPreview()
+            is OnCapture -> capture.onAction(action.action)
         }
     }
 
     override fun onCleared() {
-        val prototype = statePrototype.value
-        deletePhotos(prototype.photos + listOfNotNull(prototype.previewPhoto))
+        deletePhotos(statePrototype.value.photos)
+        capture.discard()
     }
 
     private fun cleanUpPhotos() {
-        val restored = statePrototype.value.let { it.photos + listOfNotNull(it.previewPhoto) }
+        val attached = statePrototype.value.photos
+        val restored = attached + capture.photos
         viewModelScope.launch {
             photoStore.retainOnly(restored)
                 .onSuccess { existing ->
-                    val missing = restored - existing.toSet()
+                    val missing = attached - existing.toSet()
                     setPhotos(statePrototype.value.photos - missing.toSet())
-                    if (statePrototype.value.previewPhoto in missing) {
-                        setPreviewPhoto(null)
-                    }
+                    capture.keepOnly(existing)
                 }
                 .onFailure { error ->
                     errorReporter.report(tag = TAG, message = "Cleaning up report photos failed", error = error)
@@ -204,48 +216,18 @@ internal class IssueReportViewModel(
     }
 
     private fun onAddPhotoClicked() {
-        if (!canPickPhoto()) return
+        if (!isEditing() || !statePrototype.value.canAddPhoto || capture.isOpen) return
         appEvents send HideKeyboard
-        screenEvents send OpenPhotoPicker
+        capture.open()
     }
 
-    private fun importPhoto(uri: String) {
-        if (!canPickPhoto()) return
-        viewModelScope.launch {
-            photoStore.importPhoto(uri)
-                .onSuccess { photo ->
-                    if (canPickPhoto()) {
-                        setPreviewPhoto(photo)
-                    } else {
-                        deletePhotos(listOf(photo))
-                    }
-                }
-                .onFailure { error ->
-                    appEvents send ShowMessage(text = resources.photoImportFailed(), tone = MessageTone.Error)
-                    errorReporter.report(tag = TAG, message = "Importing report photo failed", error = error)
-                }
+    private fun attachPhoto(photo: ReportPhoto) {
+        val photos = statePrototype.value.photos
+        if (isEditing() && photos.size < MAX_REPORT_PHOTOS) {
+            setPhotos(photos + photo)
+        } else {
+            deletePhotos(listOf(photo))
         }
-    }
-
-    private fun usePreviewPhoto() {
-        val prototype = statePrototype.value
-        val preview = prototype.previewPhoto ?: return
-        if (prototype.photos.size >= MAX_REPORT_PHOTOS) return
-        setPhotos(prototype.photos + preview)
-        setPreviewPhoto(null)
-    }
-
-    private fun retakePhoto() {
-        val preview = statePrototype.value.previewPhoto ?: return
-        deletePhotos(listOf(preview))
-        setPreviewPhoto(null)
-        screenEvents send OpenPhotoPicker
-    }
-
-    private fun cancelPreview() {
-        val preview = statePrototype.value.previewPhoto ?: return
-        deletePhotos(listOf(preview))
-        setPreviewPhoto(null)
     }
 
     private fun removePhoto(uri: String) {
@@ -253,11 +235,6 @@ internal class IssueReportViewModel(
         val photo = statePrototype.value.photos.find { it.uri == uri } ?: return
         setPhotos(statePrototype.value.photos - photo)
         deletePhotos(listOf(photo))
-    }
-
-    private fun canPickPhoto(): Boolean {
-        val prototype = statePrototype.value
-        return isEditing() && prototype.previewPhoto == null && prototype.canAddPhoto
     }
 
     private fun deletePhotos(photos: List<ReportPhoto>) {
@@ -272,11 +249,6 @@ internal class IssueReportViewModel(
     private fun setPhotos(photos: List<ReportPhoto>) {
         savedStateHandle[KEY_PHOTOS] = ArrayList(photos.map { it.uri })
         statePrototype.update { it.copy(photos = photos) }
-    }
-
-    private fun setPreviewPhoto(photo: ReportPhoto?) {
-        savedStateHandle[KEY_PREVIEW_PHOTO] = photo?.uri
-        statePrototype.update { it.copy(previewPhoto = photo) }
     }
 
     private fun send() {
@@ -323,7 +295,6 @@ internal class IssueReportViewModel(
         const val KEY_EXPECTED_RATE = "expectedRate"
         const val KEY_STATUS = "status"
         const val KEY_PHOTOS = "photos"
-        const val KEY_PREVIEW_PHOTO = "previewPhoto"
         const val MAX_DETAILS_LENGTH = 1000
     }
 }
