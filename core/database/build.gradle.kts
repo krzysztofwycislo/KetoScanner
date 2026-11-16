@@ -1,5 +1,5 @@
 plugins {
-    id("karbo.android.library")
+    id("carbpeek.android.library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
 }

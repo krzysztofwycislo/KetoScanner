@@ -1,6 +1,6 @@
 plugins {
-    id("karbo.android.library")
-    id("karbo.compose")
+    id("carbpeek.android.library")
+    id("carbpeek.compose")
 }
 
 android {

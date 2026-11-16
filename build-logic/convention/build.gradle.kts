@@ -10,19 +10,19 @@ dependencies {
 gradlePlugin {
     plugins {
         register("appVersion") {
-            id = "karbo.app-version"
+            id = "carbpeek.app-version"
             implementationClass = "AppVersionPlugin"
         }
         register("kotlinLibrary") {
-            id = "karbo.kotlin.library"
+            id = "carbpeek.kotlin.library"
             implementationClass = "KotlinLibraryConventionPlugin"
         }
         register("androidLibrary") {
-            id = "karbo.android.library"
+            id = "carbpeek.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("compose") {
-            id = "karbo.compose"
+            id = "carbpeek.compose"
             implementationClass = "ComposeConventionPlugin"
         }
     }

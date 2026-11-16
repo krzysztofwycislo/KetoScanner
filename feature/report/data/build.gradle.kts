@@ -1,5 +1,5 @@
 plugins {
-    id("karbo.android.library")
+    id("carbpeek.android.library")
 }
 
 android {

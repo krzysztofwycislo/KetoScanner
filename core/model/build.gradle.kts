@@ -1,3 +1,3 @@
 plugins {
-    id("karbo.kotlin.library")
+    id("carbpeek.kotlin.library")
 }

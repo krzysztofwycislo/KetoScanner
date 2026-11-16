@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("karbo.app-version")
-    id("karbo.compose")
+    id("carbpeek.app-version")
+    id("carbpeek.compose")
 }
 
 android {
