@@ -76,6 +76,13 @@ internal fun IssueForm(state: Form, onAction: (IssueReportAction) -> Unit, modif
                     onAction = onAction,
                 )
             }
+            if (state.photos != null) {
+                PhotosRow(
+                    state = state.photos,
+                    isEditable = state.isEditable,
+                    onAction = onAction,
+                )
+            }
         }
         Ui.PrimaryButton(
             text = state.sendButton.label.resolve(),

@@ -17,6 +17,7 @@ internal class IssueReportStateFactory(private val resources: IssueReportResourc
 
     fun createFor(prototype: Prototype): IssueReportState = IssueReportState(
         content = prototype.content(),
+        photoPreview = prototype.photoPreview(),
     )
 
     private fun Prototype.content(): IssueReportContentState = when (status) {
@@ -28,6 +29,7 @@ internal class IssueReportStateFactory(private val resources: IssueReportResourc
             details = details,
             detailsPlaceholder = resources.detailsPlaceholder(reason),
             expectation = expectation(),
+            photos = photosRow(),
             isEditable = status == ReportStatus.EDITING,
             sendButton = sendButton(),
         )
@@ -86,6 +88,31 @@ internal class IssueReportStateFactory(private val resources: IssueReportResourc
             rating = analysis.macronutrients.rate.toRating(),
         )
         is ProductAnalysis.InsufficientData, null -> null
+    }
+
+    private fun Prototype.photosRow(): PhotosState? {
+        if (!showsPhotos) return null
+        return PhotosState(
+            items = photos.mapIndexed { index, photo ->
+                PhotoThumbnailState(
+                    uri = photo.uri,
+                    contentDescription = resources.photoAttached(index + 1),
+                    removeLabel = resources.removePhoto(index + 1),
+                )
+            }.toPersistentList(),
+            showAddTile = canAddPhoto,
+        )
+    }
+
+    private fun Prototype.photoPreview(): PhotoPreviewState? {
+        val photo = previewPhoto ?: return null
+        if (status != ReportStatus.EDITING) return null
+        return PhotoPreviewState(
+            imageUri = photo.uri,
+            counter = resources.photoCounter(number = photos.size + 1, total = MAX_REPORT_PHOTOS),
+            title = resources.previewTitle(reason),
+            body = resources.previewBody(reason),
+        )
     }
 
     private fun Prototype.sendButton(): SendButtonState = when {

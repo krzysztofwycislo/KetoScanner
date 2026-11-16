@@ -13,4 +13,10 @@ internal sealed interface IssueReportAction {
     data object OnBackToReportClicked : IssueReportAction
     data object OnHomeClicked : IssueReportAction
     data object OnScanNextClicked : IssueReportAction
+    data object OnAddPhotoClicked : IssueReportAction
+    data class OnPhotoPicked(val uri: String) : IssueReportAction
+    data class OnRemovePhotoClicked(val uri: String) : IssueReportAction
+    data object OnRetakeClicked : IssueReportAction
+    data object OnUsePhotoClicked : IssueReportAction
+    data object OnPreviewCancelled : IssueReportAction
 }

@@ -12,15 +12,18 @@ import pl.morning.tower.karbo.core.designsystem.theme.AppTheme
 import pl.morning.tower.karbo.feature.report.ui.R
 
 @Composable
-internal fun OptionalLabel(text: String, modifier: Modifier = Modifier) {
-    val optional = stringResource(R.string.report_optional)
+internal fun OptionalLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+    suffix: String = stringResource(R.string.report_optional),
+) {
     val mutedColor = AppTheme.colors.text.muted
     Text(
         text = buildAnnotatedString {
             append(text)
             append(" ")
             withStyle(SpanStyle(fontWeight = FontWeight.Medium, color = mutedColor)) {
-                append(optional)
+                append(suffix)
             }
         },
         style = AppTheme.typography.body.copy(fontWeight = FontWeight.Bold),

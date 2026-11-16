@@ -11,6 +11,10 @@ import pl.morning.tower.karbo.feature.report.ui.IssueReportResources
 import pl.morning.tower.karbo.feature.report.ui.state.ExpectationState
 import pl.morning.tower.karbo.feature.report.ui.state.ExpectedRateOptionState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState.Form
+import pl.morning.tower.karbo.feature.report.ui.state.MAX_REPORT_PHOTOS
+import pl.morning.tower.karbo.feature.report.ui.state.PhotoPreviewState
+import pl.morning.tower.karbo.feature.report.ui.state.PhotoThumbnailState
+import pl.morning.tower.karbo.feature.report.ui.state.PhotosState
 import pl.morning.tower.karbo.feature.report.ui.state.ProductSummaryState
 import pl.morning.tower.karbo.feature.report.ui.state.RatedAsState
 import pl.morning.tower.karbo.feature.report.ui.state.ReasonChipState
@@ -55,10 +59,29 @@ internal fun SendButtonState.Companion.example(isReady: Boolean, isLoading: Bool
     isLoading = isLoading,
 )
 
+internal fun PhotosState.Companion.example(count: Int) = PhotosState(
+    items = (1..count).map { number ->
+        PhotoThumbnailState(
+            uri = "",
+            contentDescription = resources.photoAttached(number),
+            removeLabel = resources.removePhoto(number),
+        )
+    }.toPersistentList(),
+    showAddTile = count < MAX_REPORT_PHOTOS,
+)
+
+internal fun PhotoPreviewState.Companion.example() = PhotoPreviewState(
+    imageUri = "",
+    counter = resources.photoCounter(number = 2, total = MAX_REPORT_PHOTOS),
+    title = resources.previewTitle(IssueReason.NUTRITION),
+    body = resources.previewBody(IssueReason.NUTRITION),
+)
+
 internal fun exampleForm(
     reason: IssueReason? = null,
     details: String = "",
     expectation: ExpectationState? = null,
+    photos: PhotosState? = PhotosState.example(count = 0).takeIf { reason != IssueReason.RATING },
     isSending: Boolean = false,
 ) = Form(
     product = ProductSummaryState.example(),
@@ -66,6 +89,7 @@ internal fun exampleForm(
     details = details,
     detailsPlaceholder = resources.detailsPlaceholder(reason),
     expectation = expectation,
+    photos = photos,
     isEditable = !isSending,
     sendButton = SendButtonState.example(isReady = reason != null, isLoading = isSending),
 )

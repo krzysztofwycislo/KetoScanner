@@ -10,4 +10,5 @@ data class IssueReport(
     val details: String,
     val expectedRate: DietRate?,
     val dietMode: DietMode,
+    val photos: List<ReportPhoto>,
 )

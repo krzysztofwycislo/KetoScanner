@@ -31,7 +31,23 @@
     <string name="report_home">Home</string>
     <string name="report_scan_next">Scan next</string>
     <string name="report_failed_title">Couldn\'t send it</string>
-    <string name="report_failed_body">Check your connection and try again. Your notes are kept until it goes through.</string>
+    <string name="report_failed_body">Check your connection and try again. Your photos and notes are kept until it goes through.</string>
     <string name="report_try_again">Try again</string>
     <string name="report_back_to_report">Back to the report</string>
+    <string name="report_photos">Photos</string>
+    <string name="report_photos_limit">(optional, up to 3)</string>
+    <string name="report_photos_hint">A photo of the label helps us fix it faster.</string>
+    <string name="report_add_photo">Add a photo</string>
+    <string name="report_photo_attached">Attached photo %1$s</string>
+    <string name="report_remove_photo">Remove photo %1$s</string>
+    <string name="report_photo_counter">Photo %1$s of %2$s</string>
+    <string name="report_photo_preview">Your photo</string>
+    <string name="report_cancel_photo">Cancel photo</string>
+    <string name="report_preview_nutrition_title">Can you read the numbers?</string>
+    <string name="report_preview_nutrition_body">Check that the whole table is sharp and not cut off. Glare on the carbs line is the most common problem.</string>
+    <string name="report_preview_label_title">Can you read the label?</string>
+    <string name="report_preview_label_body">Check that the photo is sharp and nothing is cut off. Glare is the most common problem.</string>
+    <string name="report_retake">Retake</string>
+    <string name="report_use_photo">Use photo</string>
+    <string name="report_photo_import_failed">Couldn\'t add this photo. Try another one.</string>
 </resources>

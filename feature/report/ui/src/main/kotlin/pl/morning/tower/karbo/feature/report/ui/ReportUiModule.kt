@@ -4,14 +4,26 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import pl.morning.tower.karbo.core.common.APPLICATION_SCOPE
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
 
 val reportUiModule = module {
     viewModel {
+        val savedStateHandle = get<SavedStateHandle>()
         IssueReportViewModel(
-            get<SavedStateHandle>().toRoute<ReportRoute>(),
-            get(), get(), get(), get(), get(), get(), get(),
+            route = savedStateHandle.toRoute<ReportRoute>(),
+            savedStateHandle = savedStateHandle,
+            analyzeProduct = get(),
+            dietPreferences = get(),
+            reports = get(),
+            photoStore = get(),
+            appEvents = get(),
+            stateFactory = get(),
+            resources = get(),
+            errorReporter = get(),
+            applicationScope = get(named(APPLICATION_SCOPE)),
         )
     }
     factoryOf(::IssueReportStateFactory)

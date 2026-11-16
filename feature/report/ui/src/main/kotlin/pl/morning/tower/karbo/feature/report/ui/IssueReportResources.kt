@@ -52,4 +52,32 @@ internal class IssueReportResources {
     fun sendLabel(): UiText = UiText.Res(R.string.report_send)
 
     fun pickReasonLabel(): UiText = UiText.Res(R.string.report_pick_reason)
+
+    fun photoAttached(number: Int): UiText =
+        UiText.Res(R.string.report_photo_attached, UiArg.Numeric.Count(number.toLong()))
+
+    fun removePhoto(number: Int): UiText =
+        UiText.Res(R.string.report_remove_photo, UiArg.Numeric.Count(number.toLong()))
+
+    fun photoCounter(number: Int, total: Int): UiText = UiText.Res(
+        R.string.report_photo_counter,
+        UiArg.Numeric.Count(number.toLong()),
+        UiArg.Numeric.Count(total.toLong()),
+    )
+
+    fun previewTitle(reason: IssueReason?): UiText = UiText.Res(
+        when (reason) {
+            IssueReason.NUTRITION -> R.string.report_preview_nutrition_title
+            else -> R.string.report_preview_label_title
+        },
+    )
+
+    fun previewBody(reason: IssueReason?): UiText = UiText.Res(
+        when (reason) {
+            IssueReason.NUTRITION -> R.string.report_preview_nutrition_body
+            else -> R.string.report_preview_label_body
+        },
+    )
+
+    fun photoImportFailed(): UiText = UiText.Res(R.string.report_photo_import_failed)
 }

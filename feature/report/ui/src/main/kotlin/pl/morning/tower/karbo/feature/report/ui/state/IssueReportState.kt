@@ -11,6 +11,7 @@ import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 @Immutable
 internal data class IssueReportState(
     val content: IssueReportContentState,
+    val photoPreview: PhotoPreviewState?,
 )
 
 @Immutable
@@ -22,6 +23,7 @@ internal sealed interface IssueReportContentState {
         val details: String,
         val detailsPlaceholder: UiText,
         val expectation: ExpectationState?,
+        val photos: PhotosState?,
         val isEditable: Boolean,
         val sendButton: SendButtonState,
     ) : IssueReportContentState
@@ -80,6 +82,33 @@ internal data class SendButtonState(
     val label: UiText,
     val isEnabled: Boolean,
     val isLoading: Boolean,
+) {
+    companion object
+}
+
+@Immutable
+internal data class PhotosState(
+    val items: PersistentList<PhotoThumbnailState>,
+    val showAddTile: Boolean,
+) {
+    companion object
+}
+
+@Immutable
+internal data class PhotoThumbnailState(
+    val uri: String,
+    val contentDescription: UiText,
+    val removeLabel: UiText,
+) {
+    companion object
+}
+
+@Immutable
+internal data class PhotoPreviewState(
+    val imageUri: String,
+    val counter: UiText,
+    val title: UiText,
+    val body: UiText,
 ) {
     companion object
 }

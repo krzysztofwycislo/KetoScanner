@@ -1,12 +1,20 @@
 plugins {
-    id("karbo.kotlin.library")
+    id("karbo.android.library")
+}
+
+android {
+    namespace = "pl.morning.tower.karbo.feature.report.data"
 }
 
 dependencies {
     implementation(project(":feature:report:api"))
-    api(platform(libs.koin.bom))
-    api(libs.koin.core)
+    implementation(project(":core:common"))
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.androidx.core.ktx)
 
     testImplementation(project(":core:testing"))
+    testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 }

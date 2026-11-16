@@ -9,6 +9,7 @@ import pl.morning.tower.karbo.feature.analysis.api.model.DietRate
 import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
 import pl.morning.tower.karbo.feature.report.api.model.IssueReport
+import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,6 +40,7 @@ class MockReportRepositoryTest {
             details = "Plain milk should be fine",
             expectedRate = DietRate.NEUTRAL,
             dietMode = DietMode.KETO,
+            photos = listOf(ReportPhoto("file:///data/report-photos/1")),
         )
     }
 }

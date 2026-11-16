@@ -13,8 +13,11 @@ import pl.morning.tower.karbo.feature.preferences.api.model.DietMode
 import pl.morning.tower.karbo.feature.product.api.model.Product
 import pl.morning.tower.karbo.feature.product.api.model.ProductNutriments
 import pl.morning.tower.karbo.feature.report.api.model.IssueReason
+import pl.morning.tower.karbo.feature.report.api.model.ReportPhoto
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportContentState
 import pl.morning.tower.karbo.feature.report.ui.state.IssueReportStateFactory
+import pl.morning.tower.karbo.feature.report.ui.state.PhotoPreviewState
+import pl.morning.tower.karbo.feature.report.ui.state.PhotoThumbnailState
 import pl.morning.tower.karbo.feature.report.ui.state.RatedAsState
 import pl.morning.tower.karbo.feature.report.ui.state.ReportStatus
 import pl.morning.tower.karbo.feature.report.ui.state.SendButtonState
@@ -213,11 +216,121 @@ class IssueReportStateFactoryTest {
         )
     }
 
+    @Test
+    fun `when reason is rating then the photos row is absent`() {
+        assertNull(form(prototype(reason = IssueReason.RATING, photos = photos(1))).photos)
+    }
+
+    @Test
+    fun `when reason is not rating then the photos row is shown`() {
+        listOf(IssueReason.NUTRITION, IssueReason.PRODUCT, IssueReason.OTHER, null).forEach { reason ->
+            assertNotNull(form(prototype(reason = reason)).photos)
+        }
+    }
+
+    @Test
+    fun `when photos are attached then thumbnails are numbered from one with their labels`() {
+        val row = assertNotNull(form(prototype(reason = IssueReason.NUTRITION, photos = photos(2))).photos)
+
+        assertEquals(
+            listOf(
+                PhotoThumbnailState(
+                    uri = "file:///photos/1",
+                    contentDescription = UiText.Res(R.string.report_photo_attached, UiArg.Numeric.Count(1)),
+                    removeLabel = UiText.Res(R.string.report_remove_photo, UiArg.Numeric.Count(1)),
+                ),
+                PhotoThumbnailState(
+                    uri = "file:///photos/2",
+                    contentDescription = UiText.Res(R.string.report_photo_attached, UiArg.Numeric.Count(2)),
+                    removeLabel = UiText.Res(R.string.report_remove_photo, UiArg.Numeric.Count(2)),
+                ),
+            ),
+            row.items,
+        )
+    }
+
+    @Test
+    fun `when fewer than three photos are attached then the add tile is shown and at three it is hidden`() {
+        listOf(0, 1, 2).forEach { count ->
+            assertEquals(true, form(prototype(photos = photos(count))).photos?.showAddTile)
+        }
+        assertEquals(false, form(prototype(photos = photos(3))).photos?.showAddTile)
+    }
+
+    @Test
+    fun `when there is no preview photo then the preview is absent`() {
+        assertNull(factory.createFor(prototype(photos = photos(1))).photoPreview)
+    }
+
+    @Test
+    fun `when sending with a preview photo then the preview is absent`() {
+        val state = factory.createFor(
+            prototype(
+                reason = IssueReason.OTHER,
+                status = ReportStatus.SENDING,
+                previewPhoto = ReportPhoto(PREVIEW_URI),
+            ),
+        )
+
+        assertNull(state.photoPreview)
+    }
+
+    @Test
+    fun `when a preview photo is shown then the counter counts it after the attached photos`() {
+        listOf(0, 2).forEach { attached ->
+            val preview = assertNotNull(
+                factory.createFor(prototype(photos = photos(attached), previewPhoto = ReportPhoto(PREVIEW_URI)))
+                    .photoPreview,
+            )
+
+            assertEquals(PREVIEW_URI, preview.imageUri)
+            assertEquals(
+                UiText.Res(
+                    R.string.report_photo_counter,
+                    UiArg.Numeric.Count(attached + 1L),
+                    UiArg.Numeric.Count(3),
+                ),
+                preview.counter,
+            )
+        }
+    }
+
+    @Test
+    fun `when the reason is nutrition then the preview asks about the numbers`() {
+        val preview = assertNotNull(
+            factory.createFor(prototype(reason = IssueReason.NUTRITION, previewPhoto = ReportPhoto(PREVIEW_URI)))
+                .photoPreview,
+        )
+
+        assertEquals(
+            PhotoPreviewState(
+                imageUri = PREVIEW_URI,
+                counter = UiText.Res(R.string.report_photo_counter, UiArg.Numeric.Count(1), UiArg.Numeric.Count(3)),
+                title = UiText.Res(R.string.report_preview_nutrition_title),
+                body = UiText.Res(R.string.report_preview_nutrition_body),
+            ),
+            preview,
+        )
+    }
+
+    @Test
+    fun `when the reason is product or none then the preview asks about the label`() {
+        listOf(IssueReason.PRODUCT, null).forEach { reason ->
+            val preview = assertNotNull(
+                factory.createFor(prototype(reason = reason, previewPhoto = ReportPhoto(PREVIEW_URI))).photoPreview,
+            )
+
+            assertEquals(UiText.Res(R.string.report_preview_label_title), preview.title)
+            assertEquals(UiText.Res(R.string.report_preview_label_body), preview.body)
+        }
+    }
+
     private fun form(prototype: Prototype): IssueReportContentState.Form =
         assertIs<IssueReportContentState.Form>(factory.createFor(prototype).content)
 
     private companion object {
         const val BARCODE = "5449000000996"
+        const val PREVIEW_URI = "file:///photos/preview"
 
         val nutriments = ProductNutriments(
             energyPerServing = null,
@@ -260,6 +373,8 @@ class IssueReportStateFactoryTest {
             details: String = "",
             expectedRate: DietRate? = null,
             status: ReportStatus = ReportStatus.EDITING,
+            photos: List<ReportPhoto> = emptyList(),
+            previewPhoto: ReportPhoto? = null,
         ) = Prototype(
             barcode = Barcode(BARCODE),
             analysis = analysis,
@@ -268,6 +383,10 @@ class IssueReportStateFactoryTest {
             details = details,
             expectedRate = expectedRate,
             status = status,
+            photos = photos,
+            previewPhoto = previewPhoto,
         )
+
+        fun photos(count: Int) = (1..count).map { ReportPhoto("file:///photos/$it") }
     }
 }
