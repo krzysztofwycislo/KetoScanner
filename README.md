@@ -32,4 +32,11 @@ incomplete data; the app says so instead of guessing.
 ## Built with
 
 Kotlin and Jetpack Compose on Android, with CameraX and ML Kit for barcode scanning. The core is kept platform-independent
-for a future move to Kotlin Multiplatform.
+for a future move to Kotlin Multiplatform. The repository also holds a Ktor server skeleton.
+
+## Repository layout
+
+- `mobile/` - the Android app, its own Gradle build (`./gradlew -p mobile assembleDebug`).
+- `server/` - the backend, a separate Ktor build (`./gradlew -p server test`).
+- `shared/` - planned, not created yet: code used by both the app and the server.
+- `web/` - the static landing page for carbpeek.app.
