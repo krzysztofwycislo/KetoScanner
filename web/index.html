@@ -24,11 +24,11 @@
     <link rel="preload" href="/fonts/plus_jakarta_sans_extrabold.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body class="home">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
     <div class="wrap">
-        <a class="brand" href="/">Carb<span>Peek</span></a>
+        <a class="brand" href="/"><img src="/favicon.svg" alt="" width="32" height="32"><span>Carb<em>Peek</em></span></a>
         <nav aria-label="Main">
             <a href="#how">How it works</a>
             <a href="#contact">Contact</a>
@@ -36,65 +36,168 @@
     </div>
 </header>
 <div class="hero">
-    <div class="wrap">
-        <h1>Scan a product, <span>see if it fits your diet.</span></h1>
-        <p>
-            CarbPeek is a shopping assistant for keto and low-carb diets. Point your phone at a barcode and get a clear
-            verdict in the shop aisle, without studying the nutrition label.
-        </p>
-        <p class="badge">Coming soon to Android</p>
+    <div class="wrap hero-grid">
+        <div class="hero-copy">
+            <p class="eyebrow">For keto and low-carb shoppers</p>
+            <h1>Scan a product, <span>see if it fits your diet.</span></h1>
+            <p class="lead">
+                Point your phone at a barcode and get a clear verdict in the shop aisle, without studying the
+                nutrition label.
+            </p>
+            <p class="badge">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/>
+                </svg>
+                Coming soon to Android
+            </p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+            <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="screen">
+                    <div class="mock-product">
+                        <div class="mock-thumb"></div>
+                        <div>
+                            <p class="mock-name">Dark chocolate 85%</p>
+                            <p class="mock-meta">100 g bar</p>
+                        </div>
+                    </div>
+                    <div class="mock-verdict">
+                        <p class="mock-verdict-label">In small amounts</p>
+                        <p class="mock-verdict-reason">14 g carbs per 100 g</p>
+                    </div>
+                    <p class="mock-heading">At a glance</p>
+                    <div class="mock-macros">
+                        <div><b>46 g</b><span>Fats</span></div>
+                        <div><b>11 g</b><span>Proteins</span></div>
+                        <div class="is-carbs"><b>14 g</b><span>Carbs</span></div>
+                    </div>
+                    <p class="mock-heading">Ingredients</p>
+                    <p class="mock-chip">A little added sugar</p>
+                    <div class="mock-bar"></div>
+                    <div class="mock-bar is-short"></div>
+                </div>
+            </div>
+            <div class="float float-good">
+                <span class="dot"></span>
+                <div><b>Mozzarella</b><span>Keto-friendly</span></div>
+            </div>
+            <div class="float float-bad">
+                <span class="dot"></span>
+                <div><b>Orange juice</b><span>Not keto-friendly</span></div>
+            </div>
+        </div>
     </div>
 </div>
 <main id="main">
+    <div class="wrap">
+        <ul class="trust" aria-label="Our promises">
+            <li>No account needed</li>
+            <li>No ads</li>
+            <li>No tracking</li>
+            <li>Built for EU labels</li>
+        </ul>
+    </div>
     <section id="how">
         <div class="wrap">
-            <h2>How it works</h2>
+            <p class="eyebrow">How it works</p>
+            <h2>Three steps, one clear answer</h2>
             <ol class="steps">
-                <li>Pick your diet once: Strict keto, Keto or Low-carb, or set your own daily carb limit.</li>
-                <li>Scan the barcode of any packaged food.</li>
-                <li>Get a verdict and the main reason behind it.</li>
+                <li>
+                    <span class="step-num">1</span>
+                    <h3>Pick your diet</h3>
+                    <p>Strict keto, Keto or Low-carb, or set your own daily carb limit. You do it once.</p>
+                </li>
+                <li>
+                    <span class="step-num">2</span>
+                    <h3>Scan the barcode</h3>
+                    <p>Any packaged food in the shop. No typing, no searching.</p>
+                </li>
+                <li>
+                    <span class="step-num">3</span>
+                    <h3>Get the verdict</h3>
+                    <p>See if it fits, and the main reason why, in plain words.</p>
+                </li>
             </ol>
-            <ul class="verdicts" aria-label="Example verdicts">
-                <li class="verdict-good">Keto-friendly</li>
-                <li class="verdict-ok">In small amounts</li>
-                <li class="verdict-bad">Not keto-friendly</li>
+        </div>
+    </section>
+    <section class="verdict-section">
+        <div class="wrap split">
+            <div>
+                <p class="eyebrow">Beyond the carb count</p>
+                <h2>A verdict you can trust</h2>
+                <p>
+                    CarbPeek looks at the carbs, fat and protein of each product and compares them with your diet.
+                    When the ingredient list is known, it also checks for added sugar, starch or flour and polyol
+                    sweeteners, so hidden carbs don't slip into your basket.
+                </p>
+            </div>
+            <ul class="verdict-list" aria-label="Example verdicts">
+                <li class="verdict-good">
+                    <span class="verdict-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                    </span>
+                    <div><b>Keto-friendly</b><span>Fits your diet, enjoy it.</span></div>
+                </li>
+                <li class="verdict-ok">
+                    <span class="verdict-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg>
+                    </span>
+                    <div><b>In small amounts</b><span>Fine as a treat, watch the portion.</span></div>
+                </li>
+                <li class="verdict-bad">
+                    <span class="verdict-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>
+                    </span>
+                    <div><b>Not keto-friendly</b><span>Too many carbs for your plan.</span></div>
+                </li>
             </ul>
-            <p>
-                The verdict looks at the carbs, fat and protein of the product and compares them with your diet. When
-                the ingredient list is known, CarbPeek also checks it for added sugar, starch or flour and polyol
-                sweeteners, so hidden carbs don't slip into your basket.
-            </p>
         </div>
     </section>
     <section>
         <div class="wrap">
-            <h2>Made for everyday shopping</h2>
+            <p class="eyebrow">Made for everyday shopping</p>
+            <h2>Small app, big help</h2>
             <div class="cards">
                 <div class="card">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg>
+                    </span>
                     <h3>Fast verdicts</h3>
                     <p>One scan, one clear answer, with the reason in plain words.</p>
                 </div>
                 <div class="card">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+                    </span>
                     <h3>History and favourites</h3>
                     <p>Find products you scanned before and keep the ones you like close at hand.</p>
                 </div>
                 <div class="card">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8.2-7 9.5-4-1.3-7-5.1-7-9.5V6z"/></svg>
+                    </span>
                     <h3>Private by design</h3>
                     <p>No account, no ads, no tracking. Your diet, history and favourites stay on your phone.</p>
                 </div>
                 <div class="card">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                    </span>
                     <h3>Missing a product?</h3>
                     <p>Send photos of the label from the app and we will add it.</p>
                 </div>
             </div>
         </div>
     </section>
-    <section id="contact">
+    <section id="contact" class="contact-section">
         <div class="wrap">
-            <h2>Contact</h2>
-            <div class="contact">
-                <p>Questions, ideas or a product that looks wrong? Write to us:</p>
-                <a href="mailto:support@carbpeek.app">support@carbpeek.app</a>
+            <div class="cta">
+                <div>
+                    <h2>Questions or ideas?</h2>
+                    <p>A product that looks wrong, a feature you miss, or just hello. We read every message.</p>
+                </div>
+                <a class="cta-button" href="mailto:support@carbpeek.app">support@carbpeek.app</a>
             </div>
         </div>
     </section>
