@@ -15,8 +15,11 @@ import app.carbpeek.shared.contract.HealthResponse
 import app.carbpeek.shared.contract.HealthStatus
 import app.carbpeek.shared.contract.MetaResponse
 import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -91,12 +94,39 @@ class ApplicationTest {
     }
 
     @Test
+    fun `when the method is not allowed then it responds with the 405 envelope`() = testServer {
+        val response = client.post("/v1/meta")
+
+        val requestId = assertNotNull(response.headers[ApiHeaders.REQUEST_ID])
+        assertEquals(expected = HttpStatusCode.MethodNotAllowed, actual = response.status)
+        assertEquals(
+            expected = ErrorEnvelope(
+                error = ApiError(code = ErrorCode.INVALID_REQUEST, message = "Invalid request", requestId = requestId),
+            ),
+            actual = response.decode(ErrorEnvelope.serializer()),
+        )
+    }
+
+    @Test
+    fun `when the response type is not acceptable then it responds with the 406 envelope`() = testServer {
+        val response = client.get("/v1/meta") {
+            headers.append(HttpHeaders.Accept, ContentType.Text.Plain.toString())
+        }
+
+        assertEquals(expected = HttpStatusCode.NotAcceptable, actual = response.status)
+        assertEquals(
+            expected = ErrorCode.INVALID_REQUEST,
+            actual = response.decode(ErrorEnvelope.serializer()).error.code,
+        )
+    }
+
+    @Test
     fun `when a route throws then it responds with the 500 envelope without the exception message`() =
         testServer {
             val response = client.get("/test/boom")
 
             val body = response.bodyAsText()
-            val envelope = ApiJson.decodeFromString(ErrorEnvelope.serializer(), body)
+            val envelope = ApiJson.decodeFromString(deserializer = ErrorEnvelope.serializer(), string = body)
             assertEquals(expected = HttpStatusCode.InternalServerError, actual = response.status)
             assertEquals(expected = ErrorCode.INTERNAL, actual = envelope.error.code)
             assertEquals(expected = response.headers[ApiHeaders.REQUEST_ID], actual = envelope.error.requestId)
@@ -145,7 +175,7 @@ class ApplicationTest {
     }
 
     private suspend fun <T> HttpResponse.decode(serializer: KSerializer<T>): T =
-        ApiJson.decodeFromString(serializer, bodyAsText())
+        ApiJson.decodeFromString(deserializer = serializer, string = bodyAsText())
 }
 
 private class FakeDatabaseHealthCheck(

@@ -38,5 +38,5 @@ for a future move to Kotlin Multiplatform. The repository also holds a Ktor serv
 
 - `mobile/` - the Android app, its own Gradle build (`./gradlew -p mobile assembleDebug`).
 - `server/` - the backend, a separate Ktor build (`./gradlew -p server test`).
-- `shared/` - planned, not created yet: code used by both the app and the server.
+- `shared/` - code used by both the app and the server, today the API contract (`./gradlew -p shared test`).
 - `web/` - the static landing page for carbpeek.app.

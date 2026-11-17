@@ -13,14 +13,17 @@ class MetaResponseTest {
 
     @Test
     fun `when meta is encoded then it matches the golden file`() {
-        val encoded = ApiJson.encodeToString(MetaResponse.serializer(), sample)
+        val encoded = ApiJson.encodeToString(serializer = MetaResponse.serializer(), value = sample)
 
         assertEquals(expected = parseJson(readGolden("meta.json")), actual = parseJson(encoded))
     }
 
     @Test
     fun `when the golden file is decoded then it gives the sample`() {
-        val decoded = ApiJson.decodeFromString(MetaResponse.serializer(), readGolden("meta.json"))
+        val decoded = ApiJson.decodeFromString(
+            deserializer = MetaResponse.serializer(),
+            string = readGolden("meta.json"),
+        )
 
         assertEquals(expected = sample, actual = decoded)
     }

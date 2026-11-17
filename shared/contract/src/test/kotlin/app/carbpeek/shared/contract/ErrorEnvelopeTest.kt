@@ -17,14 +17,17 @@ class ErrorEnvelopeTest {
 
     @Test
     fun `when the envelope is encoded then it matches the golden file`() {
-        val encoded = ApiJson.encodeToString(ErrorEnvelope.serializer(), sample)
+        val encoded = ApiJson.encodeToString(serializer = ErrorEnvelope.serializer(), value = sample)
 
         assertEquals(expected = parseJson(readGolden("error-envelope.json")), actual = parseJson(encoded))
     }
 
     @Test
     fun `when the golden file is decoded then it gives the sample`() {
-        val decoded = ApiJson.decodeFromString(ErrorEnvelope.serializer(), readGolden("error-envelope.json"))
+        val decoded = ApiJson.decodeFromString(
+            deserializer = ErrorEnvelope.serializer(),
+            string = readGolden("error-envelope.json"),
+        )
 
         assertEquals(expected = sample, actual = decoded)
     }
@@ -33,7 +36,7 @@ class ErrorEnvelopeTest {
     fun `when the code is unknown then it decodes to UNKNOWN`() {
         val json = """{"error":{"code":"TEAPOT","message":"Short and stout"}}"""
 
-        val decoded = ApiJson.decodeFromString(ErrorEnvelope.serializer(), json)
+        val decoded = ApiJson.decodeFromString(deserializer = ErrorEnvelope.serializer(), string = json)
 
         assertEquals(expected = ErrorCode.UNKNOWN, actual = decoded.error.code)
     }
@@ -42,7 +45,7 @@ class ErrorEnvelopeTest {
     fun `when an unknown field is present then it is ignored`() {
         val json = """{"error":{"code":"INTERNAL","message":"Internal error","retryIn":5},"extra":true}"""
 
-        val decoded = ApiJson.decodeFromString(ErrorEnvelope.serializer(), json)
+        val decoded = ApiJson.decodeFromString(deserializer = ErrorEnvelope.serializer(), string = json)
 
         assertEquals(
             expected = ErrorEnvelope(error = ApiError(code = ErrorCode.INTERNAL, message = "Internal error")),
@@ -54,7 +57,7 @@ class ErrorEnvelopeTest {
     fun `when the request id is null then it is omitted`() {
         val envelope = ErrorEnvelope(error = ApiError(code = ErrorCode.INTERNAL, message = "Internal error"))
 
-        val encoded = parseJson(ApiJson.encodeToString(ErrorEnvelope.serializer(), envelope))
+        val encoded = parseJson(ApiJson.encodeToString(serializer = ErrorEnvelope.serializer(), value = envelope))
 
         assertFalse(encoded.jsonObject.getValue("error").jsonObject.containsKey("requestId"))
     }

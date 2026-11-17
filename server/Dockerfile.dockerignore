@@ -1,0 +1,9 @@
+*
+!gradlew
+!gradle
+!shared
+!server
+**/build
+**/.gradle
+**/.kotlin
+server/.env

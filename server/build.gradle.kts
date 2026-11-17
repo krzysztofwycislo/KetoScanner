@@ -16,7 +16,14 @@ application {
 
 kotlin {
     jvmToolchain(21)
+    sourceSets.main {
+        kotlin.srcDir("src/generated/jooq")
+    }
 }
+
+val jooqCodegen by sourceSets.creating
+val migrationsDir = layout.projectDirectory.dir("src/main/resources/db/migration")
+val generatedJooqDir = layout.projectDirectory.dir("src/generated/jooq")
 
 dependencies {
     implementation(libs.ktor.server.core)
@@ -37,6 +44,27 @@ dependencies {
     implementation(libs.carbpeek.shared.contract)
     runtimeOnly(libs.postgresql)
     runtimeOnly(libs.logback.classic)
+
+    jooqCodegen.implementationConfigurationName(libs.jooq.codegen)
+    jooqCodegen.implementationConfigurationName(libs.flyway.core)
+    jooqCodegen.implementationConfigurationName(libs.testcontainers.postgresql)
+    jooqCodegen.runtimeOnlyConfigurationName(libs.flyway.database.postgresql)
+    jooqCodegen.runtimeOnlyConfigurationName(libs.postgresql)
+    jooqCodegen.runtimeOnlyConfigurationName(libs.logback.classic)
+}
+
+tasks.register<JavaExec>("generateJooq") {
+    group = "jooq"
+    classpath = jooqCodegen.runtimeClasspath
+    mainClass.set("app.carbpeek.server.codegen.JooqCodegenKt")
+    args(
+        migrationsDir.asFile.absolutePath,
+        generatedJooqDir.asFile.absolutePath,
+        postgresImage,
+    )
+    systemProperties(jooqSystemProperties)
+    inputs.dir(migrationsDir)
+    outputs.dir(generatedJooqDir)
 }
 
 testing {

@@ -12,14 +12,17 @@ class HealthResponseTest {
 
     @Test
     fun `when health is encoded then it matches the golden file`() {
-        val encoded = ApiJson.encodeToString(HealthResponse.serializer(), sample)
+        val encoded = ApiJson.encodeToString(serializer = HealthResponse.serializer(), value = sample)
 
         assertEquals(expected = parseJson(readGolden("health.json")), actual = parseJson(encoded))
     }
 
     @Test
     fun `when the golden file is decoded then it gives the sample`() {
-        val decoded = ApiJson.decodeFromString(HealthResponse.serializer(), readGolden("health.json"))
+        val decoded = ApiJson.decodeFromString(
+            deserializer = HealthResponse.serializer(),
+            string = readGolden("health.json"),
+        )
 
         assertEquals(expected = sample, actual = decoded)
     }

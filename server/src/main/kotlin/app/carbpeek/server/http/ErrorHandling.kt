@@ -1,8 +1,10 @@
 package app.carbpeek.server.http
 
 import app.carbpeek.shared.contract.ApiError
+import app.carbpeek.shared.contract.ApiJson
 import app.carbpeek.shared.contract.ErrorCode
 import app.carbpeek.shared.contract.ErrorEnvelope
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -11,7 +13,7 @@ import io.ktor.server.application.log
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.callid.callId
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 
 fun Application.installErrorHandling() {
     val logger = log
@@ -21,6 +23,17 @@ fun Application.installErrorHandling() {
                 status = status,
                 code = ErrorCode.NOT_FOUND,
                 message = "Not found",
+            )
+        }
+        status(
+            HttpStatusCode.MethodNotAllowed,
+            HttpStatusCode.NotAcceptable,
+            HttpStatusCode.UnsupportedMediaType,
+        ) { call, status ->
+            call.respondError(
+                status = status,
+                code = ErrorCode.INVALID_REQUEST,
+                message = "Invalid request",
             )
         }
         exception<BadRequestException> { call, _ ->
@@ -53,5 +66,9 @@ private suspend fun ApplicationCall.respondError(
             requestId = callId,
         ),
     )
-    respond(status = status, message = envelope)
+    respondText(
+        text = ApiJson.encodeToString(serializer = ErrorEnvelope.serializer(), value = envelope),
+        contentType = ContentType.Application.Json,
+        status = status,
+    )
 }

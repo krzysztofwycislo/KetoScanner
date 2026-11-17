@@ -11,6 +11,7 @@ fun createDataSource(config: DatabaseConfig): HikariDataSource {
         password = config.password
         maximumPoolSize = config.poolSize
         connectionTimeout = 2_000
+        validationTimeout = 1_000
         initializationFailTimeout = -1
     }
     return HikariDataSource(hikariConfig)
