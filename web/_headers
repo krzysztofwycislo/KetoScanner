@@ -1,0 +1,22 @@
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+/fonts/*
+  Cache-Control: public, max-age=2592000
+
+/*.png
+  Cache-Control: public, max-age=604800
+
+/favicon.*
+  Cache-Control: public, max-age=604800
+
+/styles.css
+  Cache-Control: public, max-age=86400
+
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
