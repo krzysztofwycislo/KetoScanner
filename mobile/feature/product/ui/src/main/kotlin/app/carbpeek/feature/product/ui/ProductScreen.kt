@@ -33,6 +33,7 @@ import app.carbpeek.feature.product.ui.component.Glance
 import app.carbpeek.feature.product.ui.component.Header
 import app.carbpeek.feature.product.ui.component.ImagePreview
 import app.carbpeek.feature.product.ui.component.ProductBlock
+import app.carbpeek.feature.product.ui.component.ScoreTiles
 import app.carbpeek.feature.product.ui.component.Verdict
 import app.carbpeek.feature.product.ui.component.example
 import app.carbpeek.feature.product.ui.component.exampleFavourite
@@ -132,6 +133,9 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         ProductBlock(state.header, onAction)
         Verdict(state.verdict, onAction)
         Glance(state.glance, onAction)
+        state.scores?.let {
+            ScoreTiles(it)
+        }
         Footer(state.dataSource, onAction)
     }
     state.imagePreview?.let {

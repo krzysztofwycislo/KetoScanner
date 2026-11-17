@@ -19,7 +19,7 @@ import app.carbpeek.core.database.product.ProductEntity
         FavouriteProductEntity::class,
         ProductEntity::class
     ],
-    version = 8
+    version = 9
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

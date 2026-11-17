@@ -4,6 +4,9 @@ import app.carbpeek.core.common.AppError
 import app.carbpeek.core.common.DefaultAppDispatchers
 import app.carbpeek.core.common.Outcome
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.product.api.model.Ingredient
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import app.carbpeek.openfoodapi.api.OpenFoodFactsApi
@@ -69,6 +72,58 @@ class OpenFoodFactsProductSourceTest {
         assertEquals(0.0, product.nutriments.fibrePer100g)
         assertEquals(0.0, product.nutriments.fibrePerServing)
         assertEquals(ProductCategory.DRINKS, product.category)
+    }
+
+    @Test
+    fun `ingredients nutri score and nova group are parsed`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_with_ingredients.json"))
+
+        val product = successValue(source.getProduct("3017620422003"))
+
+        assertEquals(
+            listOf(
+                ingredient(id = "en:sugar", name = "Sugar"),
+                ingredient(id = "en:palm-oil", name = "Palm oil"),
+                ingredient(id = "en:hazelnut", name = "Hazelnuts", percent = 13.0),
+                ingredient(id = "en:skimmed-milk-powder", name = "Skimmed milk powder", percent = 8.7),
+                ingredient(
+                    id = "en:milk-chocolate",
+                    name = "Milk chocolate",
+                    sub = listOf(
+                        ingredient(id = "en:sugar", name = "sugar"),
+                        ingredient(id = "en:cocoa-butter", name = "cocoa butter"),
+                    ),
+                ),
+                ingredient(id = "en:e322", name = "Lecithins"),
+            ),
+            product.ingredients,
+        )
+        assertEquals(NutriScoreGrade.E, product.nutriScore)
+        assertEquals(NovaGroup.ULTRA_PROCESSED, product.novaGroup)
+    }
+
+    @Test
+    fun `quoted nova group is parsed`() = runTest {
+        respondWith(
+            HttpStatusCode.OK,
+            """{"code":"1","product":{"nova_group":"3","nutriscore_grade":"unknown"},"status":1}""",
+        )
+
+        val product = successValue(source.getProduct("1"))
+
+        assertEquals(NovaGroup.PROCESSED, product.novaGroup)
+        assertNull(product.nutriScore)
+    }
+
+    @Test
+    fun `product without ingredients and scores has them null`() = runTest {
+        respondWith(HttpStatusCode.OK, fixture("product_found.json"))
+
+        val product = successValue(source.getProduct("04963406"))
+
+        assertNull(product.ingredients)
+        assertNull(product.nutriScore)
+        assertNull(product.novaGroup)
     }
 
     @Test
@@ -157,7 +212,8 @@ class OpenFoodFactsProductSourceTest {
         assertEquals("world.openfoodfacts.org", request.url.host)
         assertEquals("/api/v2/product/04963406", request.url.encodedPath)
         assertEquals(
-            "product_name,brands,image_url,serving_quantity,nutriments,categories_tags",
+            "product_name,brands,image_url,serving_quantity,nutriments,categories_tags,ingredients," +
+                "nutriscore_grade,nova_group",
             request.url.parameters["fields"]
         )
         assertEquals("pl", request.url.parameters["lc"])
@@ -223,6 +279,19 @@ class OpenFoodFactsProductSourceTest {
 
     private fun successValue(outcome: Outcome<Product>): Product =
         assertIs<Outcome.Success<Product>>(outcome).value
+
+    private fun ingredient(
+        id: String,
+        name: String,
+        percent: Double? = null,
+        sub: List<Ingredient> = emptyList(),
+    ): Ingredient =
+        Ingredient(
+            id = id,
+            name = name,
+            declaredPercent = percent,
+            subIngredients = sub,
+        )
 
     private fun fixture(name: String): String =
         javaClass.classLoader!!.getResource(name)!!.readText()

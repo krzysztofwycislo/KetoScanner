@@ -5,6 +5,8 @@ import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.icon
 import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.usableServingGrams
 import app.carbpeek.feature.product.ui.ProductResources
@@ -32,6 +34,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 favourite = favourite(),
                 verdict = analysis.verdict(),
                 glance = glance(analysis),
+                scores = scores(analysis.product),
                 imagePreview = imagePreview(analysis.product),
                 dataSource = resources.dataSource(analysis.product.barcode),
             )
@@ -130,6 +133,38 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             ),
         )
     }
+
+    private fun scores(product: Product): ScoresState? {
+        val nutriScore = product.nutriScore
+        val novaGroup = product.novaGroup
+        if (nutriScore == null && novaGroup == null) {
+            return null
+        }
+        return ScoresState(
+            nutriScore = nutriScore?.let { nutriScoreTile(it) },
+            processing = novaGroup?.let { processingTile(it) },
+        )
+    }
+
+    private fun nutriScoreTile(grade: NutriScoreGrade): ScoreTileState = ScoreTileState(
+        badge = resources.nutriScoreBadge(grade),
+        title = resources.nutriScoreTitle(),
+        note = resources.nutriScoreNote(grade),
+        tone = when (grade) {
+            NutriScoreGrade.A -> ScoreTone.NUTRI_SCORE_A
+            NutriScoreGrade.B -> ScoreTone.NUTRI_SCORE_B
+            NutriScoreGrade.C -> ScoreTone.NUTRI_SCORE_C
+            NutriScoreGrade.D -> ScoreTone.NUTRI_SCORE_D
+            NutriScoreGrade.E -> ScoreTone.NUTRI_SCORE_E
+        },
+    )
+
+    private fun processingTile(group: NovaGroup): ScoreTileState = ScoreTileState(
+        badge = resources.processingBadge(group),
+        title = resources.processingTitle(),
+        note = resources.processingNote(group),
+        tone = ScoreTone.PROCESSING,
+    )
 
     private fun DietRate.toRating(): Rating = when (this) {
         DietRate.GOOD -> Rating.Positive

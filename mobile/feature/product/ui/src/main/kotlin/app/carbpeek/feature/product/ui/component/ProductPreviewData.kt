@@ -13,6 +13,9 @@ import app.carbpeek.feature.product.ui.state.GlanceState
 import app.carbpeek.feature.product.ui.state.GlanceTileState
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
 import app.carbpeek.feature.product.ui.state.ProductHeaderState
+import app.carbpeek.feature.product.ui.state.ScoreTileState
+import app.carbpeek.feature.product.ui.state.ScoreTone
+import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
 import kotlinx.collections.immutable.persistentListOf
 
@@ -85,6 +88,30 @@ internal fun GlanceState.Companion.example(
     ),
 )
 
+internal val ScoreTileState.Companion.exampleNutriScore
+    get() = ScoreTileState(
+        badge = UiText.Raw("D"),
+        title = UiText.Res(R.string.product_nutri_score),
+        note = UiText.Res(R.string.product_nutri_score_d),
+        tone = ScoreTone.NUTRI_SCORE_D,
+    )
+
+internal val ScoreTileState.Companion.exampleProcessing
+    get() = ScoreTileState(
+        badge = UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(4.0)),
+        title = UiText.Res(R.string.product_processing),
+        note = UiText.Res(R.string.product_processing_4),
+        tone = ScoreTone.PROCESSING,
+    )
+
+internal fun ScoresState.Companion.example(
+    nutriScore: ScoreTileState? = ScoreTileState.exampleNutriScore,
+    processing: ScoreTileState? = ScoreTileState.exampleProcessing,
+) = ScoresState(
+    nutriScore = nutriScore,
+    processing = processing,
+)
+
 internal val exampleDataSource = UiText.Res(R.string.product_data_source, UiArg.Text("3017620422003"))
 
 internal fun exampleShowProduct(
@@ -92,11 +119,13 @@ internal fun exampleShowProduct(
     favourite: FavouriteButtonState? = FavouriteButtonState.exampleNotFavourite,
     verdict: VerdictState = VerdictState.exampleRated(),
     glance: GlanceState = GlanceState.example(isPerServingSelected = false, highlight = Rating.Neutral),
+    scores: ScoresState? = ScoresState.example(),
 ) = ShowProduct(
     header = header,
     favourite = favourite,
     verdict = verdict,
     glance = glance,
+    scores = scores,
     imagePreview = null,
     dataSource = exampleDataSource,
 )

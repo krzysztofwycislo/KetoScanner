@@ -1,7 +1,10 @@
 package app.carbpeek.openfoodapi
 
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.ProductNutriments
+import app.carbpeek.openfoodapi.data.ApiIngredient
 import app.carbpeek.openfoodapi.data.ApiProduct
 import app.carbpeek.openfoodapi.data.GetProductResponse
 import kotlin.test.Test
@@ -72,6 +75,38 @@ class DataConvertersTest {
         assertTrue(product.name.isEmpty())
         assertEquals(ProductNutriments(null, null, null, null, null, null, null, null, null, null), product.nutriments)
         assertEquals(ProductCategory.OTHER, product.category)
+    }
+
+    @Test
+    fun `nutri score grades a to e are read in any case and anything else is null`() {
+        assertEquals(NutriScoreGrade.A, nutriScoreGradeOf("A"))
+        assertEquals(NutriScoreGrade.C, nutriScoreGradeOf("c"))
+        assertNull(nutriScoreGradeOf("unknown"))
+        assertNull(nutriScoreGradeOf("not-applicable"))
+        assertNull(nutriScoreGradeOf(null))
+    }
+
+    @Test
+    fun `nova groups 1 to 4 are read and anything else is null`() {
+        assertEquals(NovaGroup.ULTRA_PROCESSED, novaGroupOf("4"))
+        assertNull(novaGroupOf("7"))
+        assertNull(novaGroupOf("x"))
+        assertNull(novaGroupOf(null))
+    }
+
+    @Test
+    fun `an empty or textless ingredient list becomes null`() {
+        assertNull(emptyList<ApiIngredient>().toIngredients())
+        assertNull(listOf(ApiIngredient(id = "en:sugar", text = " ")).toIngredients())
+    }
+
+    @Test
+    fun `api product without ingredients and scores converts to nulls`() {
+        val product = assertNotNull(parseGetProductResponse(getProductResponseWithProduct()))
+
+        assertNull(product.ingredients)
+        assertNull(product.nutriScore)
+        assertNull(product.novaGroup)
     }
 
 }

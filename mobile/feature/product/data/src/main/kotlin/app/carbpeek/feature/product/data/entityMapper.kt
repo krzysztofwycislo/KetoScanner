@@ -2,6 +2,8 @@ package app.carbpeek.feature.product.data
 
 import app.carbpeek.core.database.product.ProductEntity
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import kotlin.time.Instant
@@ -30,6 +32,9 @@ internal fun ProductEntity.toDomain(): Product =
         imageUrl = imageUrl,
         servingAmount = servingAmount,
         category = ProductCategory.fromName(category),
+        ingredients = ingredients?.decodeIngredients(),
+        nutriScore = NutriScoreGrade.entries.firstOrNull { it.name == nutriScore },
+        novaGroup = NovaGroup.fromNumber(novaGroup),
     )
 
 internal fun Product.toEntity(fetchedAt: Instant): ProductEntity =
@@ -54,5 +59,8 @@ internal fun Product.toEntity(fetchedAt: Instant): ProductEntity =
         sugarsPer100g = nutriments.sugarsPer100g,
         fibrePerServing = nutriments.fibrePerServing,
         fibrePer100g = nutriments.fibrePer100g,
+        ingredients = ingredients?.encodeIngredients(),
+        nutriScore = nutriScore?.name,
+        novaGroup = novaGroup?.number,
         fetchedAt = fetchedAt,
     )

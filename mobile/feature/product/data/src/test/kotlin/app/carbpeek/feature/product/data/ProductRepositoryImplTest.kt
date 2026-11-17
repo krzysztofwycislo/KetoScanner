@@ -85,6 +85,18 @@ class ProductRepositoryImplTest {
     }
 
     @Test
+    fun `when the stored ingredients column is corrupt then a storage error is thrown`() = runTest {
+        val corrupt = product.toEntity(NOW).copy(ingredients = "not json")
+        val persistence = FakePersistence(corrupt)
+
+        val exception = assertFailsWith<AppErrorException> {
+            createRepository(persistence).observeProduct(BARCODE).toList()
+        }
+
+        assertEquals(AppError.Storage, exception.error)
+    }
+
+    @Test
     fun `when products are observed then the barcodes are passed and present rows are mapped`() = runTest {
         val persistence = FakePersistence(product.toEntity(NOW))
         val barcodes = setOf(Barcode(BARCODE), Barcode(OTHER_BARCODE))

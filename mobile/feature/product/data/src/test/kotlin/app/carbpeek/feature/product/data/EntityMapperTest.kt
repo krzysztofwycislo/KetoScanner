@@ -1,10 +1,14 @@
 package app.carbpeek.feature.product.data
 
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.product.api.model.Ingredient
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.time.Instant
 
 class EntityMapperTest {
@@ -33,6 +37,22 @@ class EntityMapperTest {
         assertEquals(ProductCategory.OTHER, entity.copy(category = null).toDomain().category)
     }
 
+    @Test
+    fun `when stored nutri score is unknown then product nutri score is null`() {
+        val entity = fullProduct.toEntity(FETCHED_AT)
+
+        assertNull(entity.copy(nutriScore = "F").toDomain().nutriScore)
+    }
+
+    @Test
+    fun `when product has no scores or ingredients then the columns are null`() {
+        val entity = emptyProduct.toEntity(FETCHED_AT)
+
+        assertNull(entity.ingredients)
+        assertNull(entity.nutriScore)
+        assertNull(entity.novaGroup)
+    }
+
     private companion object {
         val FETCHED_AT = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
@@ -59,6 +79,35 @@ class EntityMapperTest {
             imageUrl = "https://images.openfoodfacts.org/front.jpg",
             servingAmount = "15",
             category = ProductCategory.SPREADS,
+            ingredients = listOf(
+                Ingredient(
+                    id = "en:sugar",
+                    name = "Sugar",
+                    declaredPercent = null,
+                    subIngredients = emptyList(),
+                ),
+                Ingredient(
+                    id = "en:hazelnut",
+                    name = "Hazelnuts",
+                    declaredPercent = 13.0,
+                    subIngredients = emptyList(),
+                ),
+                Ingredient(
+                    id = "en:milk-chocolate",
+                    name = "Milk chocolate",
+                    declaredPercent = 8.7,
+                    subIngredients = listOf(
+                        Ingredient(
+                            id = "en:sugar",
+                            name = "sugar",
+                            declaredPercent = null,
+                            subIngredients = emptyList(),
+                        ),
+                    ),
+                ),
+            ),
+            nutriScore = NutriScoreGrade.E,
+            novaGroup = NovaGroup.ULTRA_PROCESSED,
         )
 
         val emptyProduct = Product(

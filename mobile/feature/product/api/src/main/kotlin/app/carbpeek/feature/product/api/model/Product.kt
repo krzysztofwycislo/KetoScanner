@@ -9,5 +9,8 @@ data class Product(
     val nutriments: ProductNutriments,
     val imageUrl: String?,
     val servingAmount: String?,
-    val category: ProductCategory
+    val category: ProductCategory,
+    val ingredients: List<Ingredient>? = null,
+    val nutriScore: NutriScoreGrade? = null,
+    val novaGroup: NovaGroup? = null,
 )

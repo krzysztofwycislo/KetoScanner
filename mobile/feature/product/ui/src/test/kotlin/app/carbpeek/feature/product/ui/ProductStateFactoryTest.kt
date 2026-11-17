@@ -11,6 +11,8 @@ import app.carbpeek.feature.analysis.api.model.MacronutrientAnalysisResult
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.analysis.api.model.RatingReason
 import app.carbpeek.feature.preferences.api.model.DietMode
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import app.carbpeek.feature.product.ui.state.CategoryChipState
@@ -18,11 +20,15 @@ import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.ImagePreviewState
 import app.carbpeek.feature.product.ui.state.ProductContentState
 import app.carbpeek.feature.product.ui.state.ProductStateFactory
+import app.carbpeek.feature.product.ui.state.ScoreTileState
+import app.carbpeek.feature.product.ui.state.ScoreTone
+import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import app.carbpeek.core.designsystem.R as DesignR
@@ -413,8 +419,95 @@ class ProductStateFactoryTest {
         assertEquals(grams(13.0), glance.tiles.first().value)
     }
 
+    @Test
+    fun `when the product has no scores then there is no score row`() {
+        val scores = show(Prototype(analysis = rated(DietRate.GOOD))).scores
+
+        assertNull(scores)
+    }
+
+    @Test
+    fun `when only a nutri score exists then only its tile is shown`() {
+        val scores = scoresOf(product(nutriScore = NutriScoreGrade.B))
+
+        assertEquals(
+            ScoreTileState(
+                badge = UiText.Raw("B"),
+                title = UiText.Res(R.string.product_nutri_score),
+                note = UiText.Res(R.string.product_nutri_score_b),
+                tone = ScoreTone.NUTRI_SCORE_B,
+            ),
+            scores.nutriScore,
+        )
+        assertNull(scores.processing)
+    }
+
+    @Test
+    fun `when only a nova group exists then only the processing tile is shown`() {
+        val scores = scoresOf(product(novaGroup = NovaGroup.PROCESSED))
+
+        assertNull(scores.nutriScore)
+        assertEquals(
+            ScoreTileState(
+                badge = UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(3.0)),
+                title = UiText.Res(R.string.product_processing),
+                note = UiText.Res(R.string.product_processing_3),
+                tone = ScoreTone.PROCESSING,
+            ),
+            scores.processing,
+        )
+    }
+
+    @Test
+    fun `every nutri score grade has its badge note and tone`() {
+        val expected = mapOf(
+            NutriScoreGrade.A to (R.string.product_nutri_score_a to ScoreTone.NUTRI_SCORE_A),
+            NutriScoreGrade.B to (R.string.product_nutri_score_b to ScoreTone.NUTRI_SCORE_B),
+            NutriScoreGrade.C to (R.string.product_nutri_score_c to ScoreTone.NUTRI_SCORE_C),
+            NutriScoreGrade.D to (R.string.product_nutri_score_d to ScoreTone.NUTRI_SCORE_D),
+            NutriScoreGrade.E to (R.string.product_nutri_score_e to ScoreTone.NUTRI_SCORE_E),
+        )
+
+        expected.forEach { (grade, noteAndTone) ->
+            val scores = scoresOf(product(nutriScore = grade, novaGroup = NovaGroup.ULTRA_PROCESSED))
+            val tile = assertNotNull(scores.nutriScore)
+
+            assertEquals(UiText.Raw(grade.name), tile.badge, "$grade")
+            assertEquals(UiText.Res(noteAndTone.first), tile.note, "$grade")
+            assertEquals(noteAndTone.second, tile.tone, "$grade")
+            assertNotNull(scores.processing)
+        }
+    }
+
+    @Test
+    fun `every nova group has its number and note`() {
+        val expected = mapOf(
+            NovaGroup.UNPROCESSED to R.string.product_processing_1,
+            NovaGroup.CULINARY_INGREDIENT to R.string.product_processing_2,
+            NovaGroup.PROCESSED to R.string.product_processing_3,
+            NovaGroup.ULTRA_PROCESSED to R.string.product_processing_4,
+        )
+
+        expected.forEach { (group, note) ->
+            val scores = scoresOf(product(nutriScore = NutriScoreGrade.A, novaGroup = group))
+            val tile = assertNotNull(scores.processing)
+
+            assertEquals(
+                UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(group.number.toDouble())),
+                tile.badge,
+                "$group",
+            )
+            assertEquals(UiText.Res(note), tile.note, "$group")
+            assertEquals(ScoreTone.PROCESSING, tile.tone, "$group")
+            assertNotNull(scores.nutriScore)
+        }
+    }
+
     private fun show(prototype: Prototype): ProductContentState.ShowProduct =
         assertIs<ProductContentState.ShowProduct>(factory.createFor(prototype).content)
+
+    private fun scoresOf(product: Product): ScoresState =
+        assertNotNull(show(Prototype(analysis = rated(dietRate = DietRate.GOOD, product = product))).scores)
 
     private companion object {
         const val CARBS = 15.0
@@ -446,6 +539,8 @@ class ProductStateFactoryTest {
             servingAmount: String? = "15",
             nutriments: ProductNutriments = emptyNutriments,
             category: ProductCategory = ProductCategory.OTHER,
+            nutriScore: NutriScoreGrade? = null,
+            novaGroup: NovaGroup? = null,
         ) = Product(
             name = name,
             barcode = "3017620422003",
@@ -454,6 +549,8 @@ class ProductStateFactoryTest {
             imageUrl = imageUrl,
             servingAmount = servingAmount,
             category = category,
+            nutriScore = nutriScore,
+            novaGroup = novaGroup,
         )
 
         fun rated(

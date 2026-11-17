@@ -28,6 +28,9 @@ data class ProductEntity(
     val sugarsPer100g: Double?,
     val fibrePerServing: Double?,
     val fibrePer100g: Double?,
+    val ingredients: String?,
+    val nutriScore: String?,
+    val novaGroup: Int?,
     val fetchedAt: Instant,
 ) {
 

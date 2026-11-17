@@ -101,6 +101,37 @@ class DietAnalysisEngineTest {
         }
     }
 
+    @Test
+    fun `rated and insufficient data results carry the ingredients analysis when there is a list`() {
+        val ingredients = listOf(ingredient("en:sugar"), ingredient("en:hazelnut"))
+        val ratedProduct = exampleProduct.copy(ingredients = ingredients)
+        val incompleteProduct = createProduct(exampleNutrients.copy(fatsPer100g = null)).copy(ingredients = ingredients)
+        val expected = IngredientsAnalyzer.analyze(ingredients)
+
+        val rated = assertIs<ProductAnalysis.Rated>(
+            dietAnalysisEngine.analyze(preferences = exampleDietPreferences, product = ratedProduct),
+        )
+        val insufficient = assertIs<ProductAnalysis.InsufficientData>(
+            dietAnalysisEngine.analyze(preferences = exampleDietPreferences, product = incompleteProduct),
+        )
+
+        assertEquals(2, expected?.ingredients?.size)
+        assertEquals(expected, rated.ingredients)
+        assertEquals(expected, insufficient.ingredients)
+    }
+
+    @Test
+    fun `results carry no ingredients analysis when the product has no list`() {
+        val incompleteProduct = createProduct(exampleNutrients.copy(fatsPer100g = null))
+
+        assertNull(
+            dietAnalysisEngine.analyze(preferences = exampleDietPreferences, product = exampleProduct).ingredients,
+        )
+        assertNull(
+            dietAnalysisEngine.analyze(preferences = exampleDietPreferences, product = incompleteProduct).ingredients,
+        )
+    }
+
     private fun rated(preferences: DietPreferences, product: app.carbpeek.feature.product.api.model.Product) =
         assertIs<ProductAnalysis.Rated>(dietAnalysisEngine.analyze(preferences, product)).macronutrients
 

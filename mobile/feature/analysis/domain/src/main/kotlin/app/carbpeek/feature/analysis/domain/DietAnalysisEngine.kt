@@ -10,10 +10,20 @@ import app.carbpeek.feature.product.api.model.Product
 internal class DietAnalysisEngine {
 
     fun analyze(preferences: DietPreferences, product: Product): ProductAnalysis {
-        val profile = product.toNutritionProfile() ?: return ProductAnalysis.InsufficientData(product)
+        val ingredients = IngredientsAnalyzer.analyze(product.ingredients)
+
+        val profile = product.toNutritionProfile()
+            ?: return ProductAnalysis.InsufficientData(
+                product = product,
+                ingredients = ingredients,
+            )
+
         val dailyCarbs = preferences.maxDailyCarbsAmount
-        val reasons = scorerFor(preferences.dietMode).reasons(profile = profile, dailyCarbs = dailyCarbs)
+
+        val reasons = scorerFor(preferences.dietMode)
+            .reasons(profile = profile, dailyCarbs = dailyCarbs)
             .sortedByDescending(RatingReason::rate)
+
         val rate = reasons.firstOrNull()?.rate ?: DietRate.GOOD
 
         return ProductAnalysis.Rated(
@@ -25,6 +35,7 @@ internal class DietAnalysisEngine {
                 carbsPer100g = profile.carbs,
                 dailyCarbConsumption = dailyCarbs,
             ),
+            ingredients = ingredients,
         )
     }
 }

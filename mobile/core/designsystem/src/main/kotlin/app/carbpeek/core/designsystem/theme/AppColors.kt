@@ -15,6 +15,7 @@ data class AppColors(
     val border: Border,
     val placeholder: Color,
     val camera: Camera,
+    val score: Score,
 ) {
 
     @Immutable
@@ -77,6 +78,16 @@ data class AppColors(
         val ratingNegative: Color,
         val ratingUnknown: Color,
     )
+
+    @Immutable
+    data class Score(
+        val nutriScoreA: Color,
+        val nutriScoreB: Color,
+        val nutriScoreC: Color,
+        val nutriScoreD: Color,
+        val nutriScoreE: Color,
+        val processing: Color,
+    )
 }
 
 internal fun AppColors.Verdict.toneFor(rating: Rating): AppColors.Tone = when (rating) {
@@ -132,5 +143,13 @@ val LightAppColors = AppColors(
         ratingNeutral = Color(0xFFFFD27A),
         ratingNegative = Color(0xFFFFA79E),
         ratingUnknown = Color(0xFFC9D3CD),
+    ),
+    score = AppColors.Score(
+        nutriScoreA = Color(0xFF1E7F45),
+        nutriScoreB = Color(0xFF5AA332),
+        nutriScoreC = Color(0xFFC9A100),
+        nutriScoreD = Color(0xFFD9731C),
+        nutriScoreE = Color(0xFFC2362B),
+        processing = Color(0xFF15201B),
     ),
 )

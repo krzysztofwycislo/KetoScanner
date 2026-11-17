@@ -20,6 +20,7 @@ internal sealed interface ProductContentState {
         val favourite: FavouriteButtonState?,
         val verdict: VerdictState,
         val glance: GlanceState,
+        val scores: ScoresState?,
         val imagePreview: ImagePreviewState?,
         val dataSource: UiText,
     ) : ProductContentState
@@ -89,6 +90,33 @@ internal data class GlanceTileState(
     val highlight: Rating?,
 ) {
     companion object
+}
+
+@Immutable
+internal data class ScoresState(
+    val nutriScore: ScoreTileState?,
+    val processing: ScoreTileState?,
+) {
+    companion object
+}
+
+@Immutable
+internal data class ScoreTileState(
+    val badge: UiText,
+    val title: UiText,
+    val note: UiText,
+    val tone: ScoreTone,
+) {
+    companion object
+}
+
+internal enum class ScoreTone {
+    NUTRI_SCORE_A,
+    NUTRI_SCORE_B,
+    NUTRI_SCORE_C,
+    NUTRI_SCORE_D,
+    NUTRI_SCORE_E,
+    PROCESSING,
 }
 
 @Immutable

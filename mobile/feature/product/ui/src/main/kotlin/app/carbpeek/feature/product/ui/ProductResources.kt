@@ -9,6 +9,8 @@ import app.carbpeek.core.model.ProductCategory
 import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.analysis.api.model.RatingReason
 import app.carbpeek.feature.preferences.api.model.DietMode
+import app.carbpeek.feature.product.api.model.NovaGroup
+import app.carbpeek.feature.product.api.model.NutriScoreGrade
 
 internal class ProductResources {
 
@@ -86,6 +88,36 @@ internal class ProductResources {
 
     fun grams(value: Double?): UiText =
         if (value == null) missingValue() else UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(value))
+
+    fun nutriScoreBadge(grade: NutriScoreGrade): UiText = UiText.Raw(grade.name)
+
+    fun nutriScoreTitle(): UiText = UiText.Res(R.string.product_nutri_score)
+
+    fun nutriScoreNote(grade: NutriScoreGrade): UiText {
+        val id = when (grade) {
+            NutriScoreGrade.A -> R.string.product_nutri_score_a
+            NutriScoreGrade.B -> R.string.product_nutri_score_b
+            NutriScoreGrade.C -> R.string.product_nutri_score_c
+            NutriScoreGrade.D -> R.string.product_nutri_score_d
+            NutriScoreGrade.E -> R.string.product_nutri_score_e
+        }
+        return UiText.Res(id)
+    }
+
+    fun processingBadge(group: NovaGroup): UiText =
+        UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(group.number.toDouble()))
+
+    fun processingTitle(): UiText = UiText.Res(R.string.product_processing)
+
+    fun processingNote(group: NovaGroup): UiText {
+        val id = when (group) {
+            NovaGroup.UNPROCESSED -> R.string.product_processing_1
+            NovaGroup.CULINARY_INGREDIENT -> R.string.product_processing_2
+            NovaGroup.PROCESSED -> R.string.product_processing_3
+            NovaGroup.ULTRA_PROCESSED -> R.string.product_processing_4
+        }
+        return UiText.Res(id)
+    }
 
     fun favouriteDescription(isFavourite: Boolean): UiText =
         if (isFavourite) UiText.Res(R.string.product_remove_from_favourites)

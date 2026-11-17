@@ -1,5 +1,6 @@
 plugins {
     id("carbpeek.android.library")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -14,6 +15,7 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.kotlin.test.junit)
