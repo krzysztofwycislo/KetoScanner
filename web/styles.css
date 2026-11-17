@@ -1,0 +1,339 @@
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    src: url("/fonts/plus_jakarta_sans_regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    src: url("/fonts/plus_jakarta_sans_semibold.ttf") format("truetype");
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    src: url("/fonts/plus_jakarta_sans_bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    src: url("/fonts/plus_jakarta_sans_extrabold.ttf") format("truetype");
+    font-weight: 800;
+    font-display: swap;
+}
+
+:root {
+    --bg: #f6f7f4;
+    --surface: #ffffff;
+    --subtle: #eef1ec;
+    --hero: #0e1411;
+    --text: #15201b;
+    --muted: #56615b;
+    --on-hero: #c9d3cd;
+    --accent: #1e6b47;
+    --highlight: #6ee7a8;
+    --border: #e3e6e1;
+    --positive-bg: #e3f3ea;
+    --positive: #13663b;
+    --neutral-bg: #fff0d1;
+    --neutral: #7a4f00;
+    --negative-bg: #fde3e0;
+    --negative: #9e2318;
+    --radius: 1rem;
+    --width: 44rem;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+}
+
+a {
+    color: var(--accent);
+    text-underline-offset: 0.15em;
+}
+
+a:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+h1,
+h2,
+h3 {
+    line-height: 1.25;
+    font-weight: 800;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem;
+}
+
+h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 1.75rem 0 0.5rem;
+}
+
+.skip {
+    position: absolute;
+    left: -999px;
+}
+
+.skip:focus {
+    left: 1rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--surface);
+    z-index: 10;
+}
+
+.wrap {
+    max-width: var(--width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.site-header {
+    background: var(--hero);
+    color: var(--on-hero);
+}
+
+.site-header .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.brand {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-decoration: none;
+}
+
+.brand span {
+    color: var(--highlight);
+}
+
+.site-header nav a {
+    color: var(--on-hero);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-left: 1rem;
+    text-decoration: none;
+}
+
+.site-header nav a:hover,
+.site-header nav a[aria-current="page"] {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.hero {
+    background: var(--hero);
+    color: var(--on-hero);
+    padding: 2.5rem 0 3.5rem;
+}
+
+.hero h1 {
+    color: #ffffff;
+    font-size: clamp(2rem, 7vw, 3rem);
+    margin: 0 0 1rem;
+}
+
+.hero h1 span {
+    color: var(--highlight);
+}
+
+.hero p {
+    font-size: 1.125rem;
+    max-width: 34rem;
+    margin: 0 0 1.5rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    border-radius: 999px;
+    background: var(--highlight);
+    color: var(--hero);
+    font-weight: 700;
+}
+
+main section {
+    padding: 2.5rem 0;
+}
+
+main section + section {
+    border-top: 1px solid var(--border);
+}
+
+.cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+    margin-top: 1.25rem;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.card p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.steps {
+    padding-left: 1.25rem;
+}
+
+.steps li + li {
+    margin-top: 0.5rem;
+}
+
+.verdicts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.verdicts li {
+    padding: 0.375rem 0.875rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+}
+
+.verdict-good {
+    background: var(--positive-bg);
+    color: var(--positive);
+}
+
+.verdict-ok {
+    background: var(--neutral-bg);
+    color: var(--neutral);
+}
+
+.verdict-bad {
+    background: var(--negative-bg);
+    color: var(--negative);
+}
+
+.contact {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.contact p {
+    margin: 0 0 0.5rem;
+}
+
+.contact a {
+    font-weight: 700;
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+}
+
+.doc {
+    padding: 2rem 0 3rem;
+}
+
+.doc h1 {
+    font-size: clamp(1.75rem, 6vw, 2.25rem);
+    margin: 0 0 0.25rem;
+}
+
+.doc h2 {
+    font-size: 1.25rem;
+    margin-top: 2.25rem;
+}
+
+.doc .updated {
+    color: var(--muted);
+    margin-top: 0;
+}
+
+.doc ul {
+    padding-left: 1.25rem;
+}
+
+.doc li + li {
+    margin-top: 0.375rem;
+}
+
+.doc address {
+    font-style: normal;
+}
+
+.placeholder {
+    background: var(--neutral-bg);
+    color: var(--neutral);
+    padding: 0 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.875rem;
+    padding: 2rem 0;
+}
+
+.site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.site-footer nav a {
+    font-weight: 600;
+}
+
+.site-footer p {
+    margin: 0 0 0.75rem;
+}
+
+@media (max-width: 26rem) {
+    .site-header nav a {
+        margin-left: 0.75rem;
+    }
+}

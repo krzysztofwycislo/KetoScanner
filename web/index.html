@@ -3,67 +3,103 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CarbPeek</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.5;
-            color: #1c1b1f;
-            background: #fafafa;
-        }
-        main, footer {
-            max-width: 40rem;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-        }
-        h1 {
-            margin-bottom: 0.25rem;
-        }
-        .tagline {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-top: 0;
-        }
-        .soon {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            background: #2e7d32;
-            color: #ffffff;
-            font-weight: 600;
-        }
-        footer {
-            font-size: 0.875rem;
-            color: #5f5e63;
-            border-top: 1px solid #e0e0e0;
-        }
-        a {
-            color: #2e7d32;
-        }
-    </style>
+    <title>CarbPeek - scan a product, see if it fits your diet</title>
+    <meta name="description" content="CarbPeek scans product barcodes and tells you if a food fits your keto or low-carb diet, with a clear verdict and the reason behind it.">
+    <meta name="theme-color" content="#0e1411">
+    <link rel="preload" href="/fonts/plus_jakarta_sans_extrabold.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<main>
-    <h1>CarbPeek</h1>
-    <p class="tagline">Scan a product, see if it fits your diet.</p>
-    <p>
-        CarbPeek is a shopping assistant for people on a keto or low-carb diet. Point the camera at a barcode and get
-        a clear verdict, without reading the nutrition label in the shop aisle.
-    </p>
-    <p>
-        Every product gets a clear verdict and the main reason behind it. Choose Strict keto, Keto or Low carb, or set
-        your own daily carb limit.
-    </p>
-    <p class="soon">Coming soon to Android</p>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+    <div class="wrap">
+        <a class="brand" href="/">Carb<span>Peek</span></a>
+        <nav aria-label="Main">
+            <a href="#how">How it works</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </div>
+</header>
+<div class="hero">
+    <div class="wrap">
+        <h1>Scan a product, <span>see if it fits your diet.</span></h1>
+        <p>
+            CarbPeek is a shopping assistant for keto and low-carb diets. Point your phone at a barcode and get a clear
+            verdict in the shop aisle, without studying the nutrition label.
+        </p>
+        <p class="badge">Coming soon to Android</p>
+    </div>
+</div>
+<main id="main">
+    <section id="how">
+        <div class="wrap">
+            <h2>How it works</h2>
+            <ol class="steps">
+                <li>Pick your diet once: Strict keto, Keto or Low-carb, or set your own daily carb limit.</li>
+                <li>Scan the barcode of any packaged food.</li>
+                <li>Get a verdict and the main reason behind it.</li>
+            </ol>
+            <ul class="verdicts" aria-label="Example verdicts">
+                <li class="verdict-good">Keto-friendly</li>
+                <li class="verdict-ok">In small amounts</li>
+                <li class="verdict-bad">Not keto-friendly</li>
+            </ul>
+            <p>
+                The verdict looks at the carbs, fat and protein of the product and compares them with your diet. When
+                the ingredient list is known, CarbPeek also checks it for added sugar, starch or flour and polyol
+                sweeteners, so hidden carbs don't slip into your basket.
+            </p>
+        </div>
+    </section>
+    <section>
+        <div class="wrap">
+            <h2>Made for everyday shopping</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>Fast verdicts</h3>
+                    <p>One scan, one clear answer, with the reason in plain words.</p>
+                </div>
+                <div class="card">
+                    <h3>History and favourites</h3>
+                    <p>Find products you scanned before and keep the ones you like close at hand.</p>
+                </div>
+                <div class="card">
+                    <h3>Private by design</h3>
+                    <p>No account, no ads, no tracking. Your diet, history and favourites stay on your phone.</p>
+                </div>
+                <div class="card">
+                    <h3>Missing a product?</h3>
+                    <p>Send photos of the label from the app and we will add it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact">
+        <div class="wrap">
+            <h2>Contact</h2>
+            <div class="contact">
+                <p>Questions, ideas or a product that looks wrong? Write to us:</p>
+                <a href="mailto:support@carbpeek.app">support@carbpeek.app</a>
+            </div>
+        </div>
+    </section>
 </main>
-<footer>
-    <p>
-        Product information comes from <a href="https://world.openfoodfacts.org">Open Food Facts</a>, a free,
-        collaborative database, available under the
-        <a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License</a>.
-    </p>
-    <p>CarbPeek is a shopping aid, not medical or dietary advice.</p>
+<footer class="site-footer">
+    <div class="wrap">
+        <nav aria-label="Footer">
+            <a href="/">Home</a>
+            <a href="/privacy">Privacy policy</a>
+            <a href="/legal">Legal notice</a>
+            <a href="mailto:support@carbpeek.app">support@carbpeek.app</a>
+        </nav>
+        <p>
+            Product information comes from <a href="https://world.openfoodfacts.org">Open Food Facts</a>, a free,
+            collaborative database, available under the
+            <a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License</a>.
+        </p>
+        <p>CarbPeek is a shopping aid, not medical or dietary advice.</p>
+        <p>&copy; 2026 The Great Owl</p>
+    </div>
 </footer>
 </body>
 </html>
