@@ -22,16 +22,24 @@ internal object IngredientsAnalyzer {
         ingredients
             ?.withoutLabelNotes()
             ?.takeIf { it.isNotEmpty() }
-            ?.let { realIngredients -> IngredientsAnalysis(ingredients = realIngredients.map(::analyzeIngredient)) }
+            ?.let { realIngredients -> IngredientsAnalysis(ingredients = realIngredients.map(::analyzeListed)) }
 
-    private fun analyzeIngredient(ingredient: Ingredient): AnalyzedIngredient = AnalyzedIngredient(
-        name = ingredient.toName(),
-        declaredPercent = ingredient.declaredPercent,
-        kind = ingredientKindOf(ingredient),
+    private fun analyzeListed(ingredient: Ingredient): AnalyzedIngredient = analyzeIngredient(
+        ingredient = ingredient,
         contains = ingredient.subIngredients
             .takeIf { ingredient.isCompound() }
             .orEmpty()
-            .map { it.toName() },
+            .map { content -> analyzeIngredient(ingredient = content, contains = emptyList()) },
+    )
+
+    private fun analyzeIngredient(
+        ingredient: Ingredient,
+        contains: List<AnalyzedIngredient>,
+    ): AnalyzedIngredient = AnalyzedIngredient(
+        name = ingredient.toName(),
+        declaredPercent = ingredient.declaredPercent,
+        kind = ingredientKindOf(ingredient),
+        contains = contains,
     )
 
     private fun Ingredient.isCompound(): Boolean =

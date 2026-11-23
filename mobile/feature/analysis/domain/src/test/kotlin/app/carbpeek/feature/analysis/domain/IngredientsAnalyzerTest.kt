@@ -62,7 +62,58 @@ class IngredientsAnalyzerTest {
         val analyzed = analyze(mustard).ingredients.single()
 
         assertEquals(IngredientKind.PLAIN, analyzed.kind)
-        assertEquals(listOf("water", "mustard", "vinegar", "sugar"), analyzed.contains.map { it.name })
+        assertEquals(listOf("water", "mustard", "vinegar", "sugar"), analyzed.contains.map { it.name.name })
+    }
+
+    @Test
+    fun `when a compound is listed then its contents keep label order percent and own kind`() {
+        val coating = ingredient(
+            id = "en:coating",
+            percent = 34.0,
+            sub = listOf(
+                ingredient("en:salt"),
+                ingredient(id = "en:sugar", percent = 5.0),
+                ingredient("en:wheat-flour"),
+                ingredient("en:e500"),
+                ingredient("en:e101").copy(labelName = "ryboflawina"),
+            ),
+        )
+
+        val analyzed = analyze(coating).ingredients.single()
+
+        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(34.0, analyzed.declaredPercent)
+        assertEquals(
+            listOf("salt", "sugar", "wheat-flour", "e500", "e101"),
+            analyzed.contains.map { it.name.name },
+        )
+        assertEquals(listOf(null, 5.0, null, null, null), analyzed.contains.map { it.declaredPercent })
+        assertEquals(
+            listOf(
+                IngredientKind.PLAIN,
+                IngredientKind.ADDED_SUGAR,
+                IngredientKind.STARCH,
+                IngredientKind.ADDITIVE,
+                IngredientKind.PLAIN,
+            ),
+            analyzed.contains.map { it.kind },
+        )
+        assertEquals(listOf(null, null, null, null, Vitamin.RIBOFLAVIN), analyzed.contains.map { it.name.vitamin })
+    }
+
+    @Test
+    fun `when a content has contents of its own then they are not listed`() {
+        val mustard = ingredient(
+            id = "en:mustard",
+            sub = listOf(ingredient("en:water"), ingredient("en:sugar")),
+        )
+        val sauce = ingredient(id = "en:sauce", sub = listOf(mustard, ingredient("en:salt")))
+
+        val contents = analyze(sauce).ingredients.single().contains
+
+        assertEquals(listOf("mustard", "salt"), contents.map { it.name.name })
+        assertEquals(listOf(emptyList(), emptyList()), contents.map { it.contains })
+        assertEquals(2, analyze(mustard).ingredients.single().contains.size)
     }
 
     @Test
@@ -75,7 +126,7 @@ class IngredientsAnalyzerTest {
         val analyzed = analyze(coating).ingredients.single()
 
         assertEquals(IngredientKind.PLAIN, analyzed.kind)
-        assertEquals(listOf("E965", null), analyzed.contains.map { it.eNumber })
+        assertEquals(listOf("E965", null), analyzed.contains.map { it.name.eNumber })
     }
 
     @Test
@@ -87,7 +138,7 @@ class IngredientsAnalyzerTest {
 
         assertEquals(
             listOf("water", "wheat-flour"),
-            analyze(sourdough).ingredients.single().contains.map { it.name },
+            analyze(sourdough).ingredients.single().contains.map { it.name.name },
         )
     }
 
@@ -100,7 +151,7 @@ class IngredientsAnalyzerTest {
 
         assertEquals(
             listOf("wheat-flour", "salt"),
-            analyze(breadcrumbs).ingredients.single().contains.map { it.name },
+            analyze(breadcrumbs).ingredients.single().contains.map { it.name.name },
         )
     }
 
@@ -169,8 +220,8 @@ class IngredientsAnalyzerTest {
             val analyzed = analyze(vitamins).ingredients.single()
 
             assertEquals(IngredientKind.PLAIN, analyzed.kind)
-            assertEquals(listOf(null, vitamin), analyzed.contains.map { it.vitamin })
-            assertEquals(listOf(null, null), analyzed.contains.map { it.eNumber })
+            assertEquals(listOf(null, vitamin), analyzed.contains.map { it.name.vitamin })
+            assertEquals(listOf(null, null), analyzed.contains.map { it.name.eNumber })
         }
     }
 
@@ -183,8 +234,8 @@ class IngredientsAnalyzerTest {
 
         val contents = analyze(icing).ingredients.single().contains
 
-        assertEquals(listOf("E101", null), contents.map { it.eNumber })
-        assertEquals(listOf(null, null), contents.map { it.vitamin })
+        assertEquals(listOf("E101", null), contents.map { it.name.eNumber })
+        assertEquals(listOf(null, null), contents.map { it.name.vitamin })
     }
 
     private fun analyze(vararg ingredients: Ingredient): IngredientsAnalysis =

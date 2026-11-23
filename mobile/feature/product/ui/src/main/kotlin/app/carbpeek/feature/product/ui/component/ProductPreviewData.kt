@@ -11,13 +11,14 @@ import app.carbpeek.feature.product.ui.state.CategoryChipState
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.GlanceState
 import app.carbpeek.feature.product.ui.state.GlanceTileState
+import app.carbpeek.feature.product.ui.state.IngredientBackState
 import app.carbpeek.feature.product.ui.state.IngredientChipState
-import app.carbpeek.feature.product.ui.state.IngredientDialogState
 import app.carbpeek.feature.product.ui.state.IngredientLegendState
 import app.carbpeek.feature.product.ui.state.IngredientSectionState
+import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.IngredientTone
 import app.carbpeek.feature.product.ui.state.IngredientsCardState
-import app.carbpeek.feature.product.ui.state.IngredientsInfoDialogState
+import app.carbpeek.feature.product.ui.state.IngredientsInfoSheetState
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
 import app.carbpeek.feature.product.ui.state.ProductHeaderState
 import app.carbpeek.feature.product.ui.state.ScoreTileState
@@ -124,23 +125,26 @@ private fun chip(
     tone: IngredientTone = IngredientTone.PLAIN,
     tag: Int? = null,
     percent: Double? = null,
+    count: Int? = null,
 ): IngredientChipState {
     val label = if (percent == null) {
         UiText.Raw(name)
     } else {
         UiText.Res(R.string.product_ingredient_with_percent, UiArg.Text(name), UiArg.Numeric.LabelPercent(percent))
     }
-    val description = if (tag == null) {
-        label
-    } else {
+    val countText = count?.let {
+        UiText.Plural(R.plurals.product_ingredient_inside, it, UiArg.Numeric.Count(it.toLong()))
+    }
+    val description = listOfNotNull(tag?.let { UiText.Res(it) }, countText).fold(label) { description, detail ->
         UiText.Res(
             R.string.product_ingredient_description,
-            UiArg.Nested(label),
-            UiArg.Nested(UiText.Res(tag)),
+            UiArg.Nested(description),
+            UiArg.Nested(detail),
         )
     }
     return IngredientChipState(
         label = label,
+        count = countText,
         description = description,
         tone = tone,
     )
@@ -151,7 +155,7 @@ private fun legendEntry(tone: IngredientTone, label: Int) = IngredientLegendStat
     label = UiText.Res(label),
 )
 
-internal fun IngredientsInfoDialogState.Companion.example() = IngredientsInfoDialogState(
+internal fun IngredientsInfoSheetState.Companion.example() = IngredientsInfoSheetState(
     legend = persistentListOf(
         legendEntry(tone = IngredientTone.ADDED_SUGAR, label = R.string.product_ingredient_tag_added_sugar),
         legendEntry(tone = IngredientTone.SWEETENER, label = R.string.product_ingredient_tag_sweetener),
@@ -182,11 +186,13 @@ internal fun IngredientsCardState.Companion.example() = IngredientsCardState(
             tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
         ),
-        chip(name = "Seasoning with sour cream, onion and a name that wraps to two lines"),
+        chip(name = "Coating", percent = 0.34, count = 10),
+        chip(name = "Seasoning with sour cream, onion and a name that wraps to two lines", count = 12),
     ),
 )
 
-internal fun IngredientDialogState.Companion.example() = IngredientDialogState(
+internal fun IngredientSheetState.Companion.example() = IngredientSheetState(
+    back = null,
     tag = UiText.Res(R.string.product_ingredient_tag_sweetener),
     tone = IngredientTone.SWEETENER,
     title = UiText.Res(
@@ -195,7 +201,7 @@ internal fun IngredientDialogState.Companion.example() = IngredientDialogState(
         UiArg.Text("E968"),
     ),
     labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("eritritol")),
-    contains = null,
+    contents = persistentListOf(),
     sections = persistentListOf(
         IngredientSectionState(
             heading = UiText.Res(R.string.product_ingredient_what),
@@ -209,25 +215,106 @@ internal fun IngredientDialogState.Companion.example() = IngredientDialogState(
     noDescription = null,
 )
 
-internal fun IngredientDialogState.Companion.exampleCompound() = IngredientDialogState(
+internal fun IngredientSheetState.Companion.exampleCompound() = IngredientSheetState(
+    back = null,
     tag = null,
     tone = IngredientTone.PLAIN,
-    title = UiText.Raw("Mustard"),
-    labelName = null,
-    contains = UiText.Res(
-        R.string.product_ingredient_contains,
-        UiArg.Text("water, mustard seed, vinegar, salt and sugar"),
+    title = UiText.Raw("Coating"),
+    labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("enrobage")),
+    contents = persistentListOf(
+        chip(
+            name = "Wheat flour",
+            tone = IngredientTone.STARCH,
+            tag = R.string.product_ingredient_tag_starch,
+            percent = 0.12,
+        ),
+        chip(name = "Rapeseed oil"),
+        chip(name = "Water"),
+        chip(
+            name = "Sugar",
+            tone = IngredientTone.ADDED_SUGAR,
+            tag = R.string.product_ingredient_tag_added_sugar,
+        ),
+        chip(name = "Whey powder", tone = IngredientTone.MILK, tag = R.string.product_ingredient_tag_milk),
+        chip(
+            name = "Lecithins (E322)",
+            tone = IngredientTone.ADDITIVE,
+            tag = R.string.product_ingredient_tag_additive,
+        ),
+        chip(name = "Salt"),
     ),
     sections = persistentListOf(),
-    noDescription = UiText.Res(R.string.product_ingredient_no_description),
+    noDescription = null,
 )
 
-internal fun IngredientDialogState.Companion.exampleNoDescription() = IngredientDialogState(
+internal fun IngredientSheetState.Companion.exampleContent(compound: String = "Coating") = IngredientSheetState(
+    back = IngredientBackState(
+        label = UiText.Raw(compound),
+        description = UiText.Res(R.string.product_ingredient_back, UiArg.Text(compound)),
+    ),
+    tag = UiText.Res(R.string.product_ingredient_tag_starch),
+    tone = IngredientTone.STARCH,
+    title = UiText.Raw("Wheat flour"),
+    labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("farine de blé")),
+    contents = persistentListOf(),
+    sections = persistentListOf(
+        IngredientSectionState(
+            heading = UiText.Res(R.string.product_ingredient_what),
+            text = UiText.Res(R.string.product_ingredient_what_starch),
+        ),
+    ),
+    noDescription = null,
+)
+
+internal fun IngredientSheetState.Companion.exampleManyContents() = exampleCompound().copy(
+    contents = persistentListOf(
+        chip(name = "Wheat flour", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
+        chip(name = "Rapeseed oil"),
+        chip(name = "Water"),
+        chip(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
+        chip(
+            name = "Sugar",
+            tone = IngredientTone.ADDED_SUGAR,
+            tag = R.string.product_ingredient_tag_added_sugar,
+        ),
+        chip(
+            name = "Glucose-fructose syrup",
+            tone = IngredientTone.ADDED_SUGAR,
+            tag = R.string.product_ingredient_tag_added_sugar,
+        ),
+        chip(name = "Whey powder", tone = IngredientTone.MILK, tag = R.string.product_ingredient_tag_milk),
+        chip(
+            name = "Maltitol (E965)",
+            tone = IngredientTone.SWEETENER,
+            tag = R.string.product_ingredient_tag_sweetener,
+        ),
+        chip(
+            name = "Lecithins (E322)",
+            tone = IngredientTone.ADDITIVE,
+            tag = R.string.product_ingredient_tag_additive,
+        ),
+        chip(
+            name = "Mono- and diglycerides of fatty acids (E471)",
+            tone = IngredientTone.ADDITIVE,
+            tag = R.string.product_ingredient_tag_additive,
+        ),
+        chip(name = "Maize starch", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
+        chip(name = "Wheat gluten"),
+        chip(name = "Vitamin B2 (riboflavin)"),
+        chip(name = "Salt"),
+        chip(name = "Yeast"),
+        chip(name = "Natural flavouring"),
+        chip(name = "Black pepper"),
+    ),
+)
+
+internal fun IngredientSheetState.Companion.exampleNoDescription() = IngredientSheetState(
+    back = null,
     tag = null,
     tone = IngredientTone.PLAIN,
     title = UiText.Raw("Basmati rice"),
     labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("riz basmati")),
-    contains = null,
+    contents = persistentListOf(),
     sections = persistentListOf(),
     noDescription = UiText.Res(R.string.product_ingredient_no_description),
 )
@@ -241,8 +328,6 @@ internal fun exampleShowProduct(
     glance: GlanceState = GlanceState.example(isPerServingSelected = false, highlight = Rating.Neutral),
     scores: ScoresState? = ScoresState.example(),
     ingredients: IngredientsCardState? = IngredientsCardState.example(),
-    ingredientDialog: IngredientDialogState? = null,
-    ingredientsInfoDialog: IngredientsInfoDialogState? = null,
 ) = ShowProduct(
     header = header,
     favourite = favourite,
@@ -251,7 +336,7 @@ internal fun exampleShowProduct(
     scores = scores,
     ingredients = ingredients,
     imagePreview = null,
-    ingredientDialog = ingredientDialog,
-    ingredientsInfoDialog = ingredientsInfoDialog,
+    ingredientSheet = null,
+    ingredientsInfoSheet = null,
     dataSource = exampleDataSource,
 )

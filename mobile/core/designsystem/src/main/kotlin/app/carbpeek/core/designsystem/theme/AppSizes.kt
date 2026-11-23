@@ -16,6 +16,7 @@ data class AppSizes(
     val overlayCardMaxWidth: Dp,
     val cameraHintMaxWidth: Dp,
     val scanButtonLift: Dp,
+    val sheetTopGap: Dp,
 ) {
 
     @Immutable
@@ -60,4 +61,5 @@ val DefaultAppSizes = AppSizes(
     overlayCardMaxWidth = 560.dp,
     cameraHintMaxWidth = 300.dp,
     scanButtonLift = 24.dp,
+    sheetTopGap = 72.dp,
 )

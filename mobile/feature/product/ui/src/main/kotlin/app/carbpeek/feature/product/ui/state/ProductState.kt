@@ -23,8 +23,8 @@ internal sealed interface ProductContentState {
         val scores: ScoresState?,
         val ingredients: IngredientsCardState?,
         val imagePreview: ImagePreviewState?,
-        val ingredientDialog: IngredientDialogState?,
-        val ingredientsInfoDialog: IngredientsInfoDialogState?,
+        val ingredientSheet: IngredientSheetState?,
+        val ingredientsInfoSheet: IngredientsInfoSheetState?,
         val dataSource: UiText,
     ) : ProductContentState
 }
@@ -140,6 +140,7 @@ internal data class IngredientsCardState(
 @Immutable
 internal data class IngredientChipState(
     val label: UiText,
+    val count: UiText?,
     val description: UiText,
     val tone: IngredientTone,
 ) {
@@ -147,17 +148,24 @@ internal data class IngredientChipState(
 }
 
 @Immutable
-internal data class IngredientDialogState(
+internal data class IngredientSheetState(
+    val back: IngredientBackState?,
     val tag: UiText?,
     val tone: IngredientTone,
     val title: UiText,
     val labelName: UiText?,
-    val contains: UiText?,
+    val contents: PersistentList<IngredientChipState>,
     val sections: PersistentList<IngredientSectionState>,
     val noDescription: UiText?,
 ) {
     companion object
 }
+
+@Immutable
+internal data class IngredientBackState(
+    val label: UiText,
+    val description: UiText,
+)
 
 @Immutable
 internal data class IngredientSectionState(
@@ -166,7 +174,7 @@ internal data class IngredientSectionState(
 )
 
 @Immutable
-internal data class IngredientsInfoDialogState(
+internal data class IngredientsInfoSheetState(
     val legend: PersistentList<IngredientLegendState>,
 ) {
     companion object

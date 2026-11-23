@@ -29,6 +29,7 @@ import app.carbpeek.feature.product.ui.event.ProductAction
 import app.carbpeek.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateBack
 import app.carbpeek.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToAddProduct
 import app.carbpeek.feature.product.ui.event.ProductEvent.ProductNavigation.NavigateToReport
+import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.ProductContentState
 import app.carbpeek.feature.product.ui.state.ProductStateFactory
 import app.carbpeek.feature.product.ui.state.VerdictState
@@ -474,22 +475,22 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when an ingredient is clicked and the dialog dismissed then dialog state and handle follow`() = runTest {
+    fun `when an ingredient is clicked and the sheet dismissed then sheet state and handle follow`() = runTest {
         analyzeProduct.updates.emit(analysisWithIngredients)
         val handle = handle()
         val viewModel = createViewModel(handle)
 
         viewModel.onAction(ProductAction.OnIngredientClicked(2))
-        assertNotNull(showProduct(viewModel).ingredientDialog)
+        assertNotNull(showProduct(viewModel).ingredientSheet)
         assertEquals(2, handle.get<Int>(KEY_OPEN_INGREDIENT))
 
-        viewModel.onAction(ProductAction.OnIngredientDialogDismissed)
-        assertNull(showProduct(viewModel).ingredientDialog)
+        viewModel.onAction(ProductAction.OnIngredientSheetDismissed)
+        assertNull(showProduct(viewModel).ingredientSheet)
         assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT))
     }
 
     @Test
-    fun `when handle was restored with an open ingredient then the dialog is shown once the product is shown`() =
+    fun `when handle was restored with an open ingredient then the sheet is shown once the product is shown`() =
         runTest {
             analyzeProduct.clearProduct()
             products.gate()
@@ -498,38 +499,118 @@ class ProductViewModelTest {
 
             analyzeProduct.updates.emit(analysisWithIngredients)
 
-            assertNotNull(showProduct(viewModel).ingredientDialog)
+            assertNotNull(showProduct(viewModel).ingredientSheet)
         }
 
     @Test
-    fun `when the ingredients info is clicked and dismissed then dialog state and handle follow`() = runTest {
+    fun `when a content is clicked and left with back then the compound is shown and the handle follows`() = runTest {
         analyzeProduct.updates.emit(analysisWithIngredients)
         val handle = handle()
         val viewModel = createViewModel(handle)
-        assertNull(showProduct(viewModel).ingredientsInfoDialog)
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
+        viewModel.onAction(ProductAction.OnIngredientContentClicked(1))
+        assertEquals(UiText.Raw("Sugar"), ingredientSheet(viewModel).title)
+        assertNotNull(ingredientSheet(viewModel).back)
+        assertEquals(COMPOUND_INDEX, handle.get<Int>(KEY_OPEN_INGREDIENT))
+        assertEquals(1, handle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT))
+
+        viewModel.onAction(ProductAction.OnIngredientBackClicked)
+        assertEquals(UiText.Raw("Cocoa"), ingredientSheet(viewModel).title)
+        assertNull(ingredientSheet(viewModel).back)
+        assertEquals(COMPOUND_INDEX, handle.get<Int>(KEY_OPEN_INGREDIENT))
+        assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT))
+    }
+
+    @Test
+    fun `when back is clicked twice then the compound stays open`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
+        viewModel.onAction(ProductAction.OnIngredientContentClicked(0))
+        viewModel.onAction(ProductAction.OnIngredientBackClicked)
+        viewModel.onAction(ProductAction.OnIngredientBackClicked)
+
+        assertEquals(UiText.Raw("Cocoa"), ingredientSheet(viewModel).title)
+    }
+
+    @Test
+    fun `when the sheet is dismissed with a content open then both are closed`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
+        viewModel.onAction(ProductAction.OnIngredientContentClicked(0))
+        viewModel.onAction(ProductAction.OnIngredientSheetDismissed)
+
+        assertNull(showProduct(viewModel).ingredientSheet)
+        assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT))
+        assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT))
+    }
+
+    @Test
+    fun `when another ingredient is opened then no content is open`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
+        viewModel.onAction(ProductAction.OnIngredientContentClicked(0))
+        viewModel.onAction(ProductAction.OnIngredientClicked(0))
+        assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT))
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
+        assertEquals(UiText.Raw("Cocoa"), ingredientSheet(viewModel).title)
+        assertNull(ingredientSheet(viewModel).back)
+    }
+
+    @Test
+    fun `when handle was restored with an open content then the content is shown once the product is shown`() =
+        runTest {
+            analyzeProduct.clearProduct()
+            products.gate()
+            val viewModel = createViewModel(
+                handle(KEY_OPEN_INGREDIENT to COMPOUND_INDEX, KEY_OPEN_INGREDIENT_CONTENT to 1),
+            )
+            assertEquals(ProductContentState.Loading, viewModel.state.value.content)
+
+            analyzeProduct.updates.emit(analysisWithIngredients)
+
+            assertEquals(UiText.Raw("Sugar"), ingredientSheet(viewModel).title)
+            assertNotNull(ingredientSheet(viewModel).back)
+        }
+
+    @Test
+    fun `when the ingredients info is clicked and dismissed then sheet state and handle follow`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+        assertNull(showProduct(viewModel).ingredientsInfoSheet)
 
         viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
-        assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+        assertNotNull(showProduct(viewModel).ingredientsInfoSheet)
         assertEquals(true, handle.get<Boolean>(KEY_INGREDIENTS_INFO_OPEN))
 
         viewModel.onAction(ProductAction.OnIngredientsInfoDismissed)
-        assertNull(showProduct(viewModel).ingredientsInfoDialog)
+        assertNull(showProduct(viewModel).ingredientsInfoSheet)
         assertEquals(false, handle.get<Boolean>(KEY_INGREDIENTS_INFO_OPEN))
     }
 
     @Test
-    fun `when the ingredients info is clicked twice then its dialog stays open`() = runTest {
+    fun `when the ingredients info is clicked twice then its sheet stays open`() = runTest {
         analyzeProduct.updates.emit(analysisWithIngredients)
         val viewModel = createViewModel()
 
         viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
         viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
 
-        assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+        assertNotNull(showProduct(viewModel).ingredientsInfoSheet)
     }
 
     @Test
-    fun `when handle was restored with the ingredients info open then its dialog is shown with the product`() =
+    fun `when handle was restored with the ingredients info open then its sheet is shown with the product`() =
         runTest {
             analyzeProduct.clearProduct()
             products.gate()
@@ -538,7 +619,7 @@ class ProductViewModelTest {
 
             analyzeProduct.updates.emit(analysisWithIngredients)
 
-            assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+            assertNotNull(showProduct(viewModel).ingredientsInfoSheet)
         }
 
     @Test
@@ -586,6 +667,9 @@ class ProductViewModelTest {
 
     private fun showProduct(viewModel: ProductViewModel): ProductContentState.ShowProduct =
         assertIs<ProductContentState.ShowProduct>(viewModel.state.value.content)
+
+    private fun ingredientSheet(viewModel: ProductViewModel): IngredientSheetState =
+        assertNotNull(showProduct(viewModel).ingredientSheet)
 
     private class FakeAnalyzeProduct : AnalyzeProduct {
 
@@ -659,6 +743,8 @@ class ProductViewModelTest {
         const val KEY_NAME_EXPANDED = "nameExpanded"
         const val KEY_PER_SERVING_SELECTED = "perServingSelected"
         const val KEY_OPEN_INGREDIENT = "openIngredient"
+        const val KEY_OPEN_INGREDIENT_CONTENT = "openIngredientContent"
+        const val COMPOUND_INDEX = 1
         const val KEY_INGREDIENTS_INFO_OPEN = "ingredientsInfoOpen"
         const val CHANGED_IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/back.jpg"
 
@@ -685,15 +771,22 @@ class ProductViewModelTest {
 
         val analysisWithIngredients = analysis.copy(
             ingredients = IngredientsAnalysis(
-                ingredients = listOf("hazelnuts", "cocoa", "salt").map { name ->
-                    AnalyzedIngredient(
-                        name = IngredientName(name = name, labelName = name, eNumber = null, vitamin = null),
-                        declaredPercent = null,
-                        kind = IngredientKind.PLAIN,
-                        contains = emptyList(),
-                    )
-                },
+                ingredients = listOf(
+                    ingredient(name = "hazelnuts"),
+                    ingredient(
+                        name = "cocoa",
+                        contains = listOf(ingredient(name = "cocoa powder"), ingredient(name = "sugar")),
+                    ),
+                    ingredient(name = "salt"),
+                ),
             ),
+        )
+
+        fun ingredient(name: String, contains: List<AnalyzedIngredient> = emptyList()) = AnalyzedIngredient(
+            name = IngredientName(name = name, labelName = name, eNumber = null, vitamin = null),
+            declaredPercent = null,
+            kind = IngredientKind.PLAIN,
+            contains = contains,
         )
 
         fun handle(vararg extra: Pair<String, Any>) = SavedStateHandle(mapOf(*extra))

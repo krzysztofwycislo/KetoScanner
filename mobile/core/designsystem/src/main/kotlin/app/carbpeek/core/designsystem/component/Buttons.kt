@@ -51,7 +51,7 @@ fun Ui.PrimaryButton(
             }
         },
         modifier = modifier
-            .height(AppTheme.sizes.control.m)
+            .heightIn(min = AppTheme.sizes.control.m)
             .semantics {
                 if (loading) {
                     contentDescription = text

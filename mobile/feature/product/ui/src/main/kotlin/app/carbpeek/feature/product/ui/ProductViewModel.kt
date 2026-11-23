@@ -22,8 +22,10 @@ import app.carbpeek.feature.product.ui.event.ProductAction.OnBackClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnFavouriteClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnImageClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
+import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientBackClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientClicked
-import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientDialogDismissed
+import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientContentClicked
+import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientSheetDismissed
 import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientsInfoClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientsInfoDismissed
 import app.carbpeek.feature.product.ui.event.ProductAction.OnNameClicked
@@ -71,6 +73,7 @@ internal class ProductViewModel(
             isNameExpanded = savedStateHandle.get<Boolean>(KEY_NAME_EXPANDED) ?: false,
             isPerServingSelected = savedStateHandle.get<Boolean>(KEY_PER_SERVING_SELECTED) ?: false,
             openIngredientIndex = savedStateHandle.get<Int>(KEY_OPEN_INGREDIENT),
+            openIngredientContentIndex = savedStateHandle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT),
             isIngredientsInfoOpen = savedStateHandle.get<Boolean>(KEY_INGREDIENTS_INFO_OPEN) ?: false,
         )
     )
@@ -98,8 +101,16 @@ internal class ProductViewModel(
             OnPerServingClicked -> setPerServingSelected(true)
             OnAddPhotosClicked -> screenEvents send NavigateToAddProduct(statePrototype.value.barcode)
             OnReportClicked -> screenEvents send NavigateToReport(statePrototype.value.barcode)
-            is OnIngredientClicked -> setOpenIngredient(action.index)
-            OnIngredientDialogDismissed -> setOpenIngredient(null)
+            is OnIngredientClicked -> setOpenIngredient(index = action.index, contentIndex = null)
+            is OnIngredientContentClicked -> setOpenIngredient(
+                index = statePrototype.value.openIngredientIndex,
+                contentIndex = action.index,
+            )
+            OnIngredientBackClicked -> setOpenIngredient(
+                index = statePrototype.value.openIngredientIndex,
+                contentIndex = null,
+            )
+            OnIngredientSheetDismissed -> setOpenIngredient(index = null, contentIndex = null)
             OnIngredientsInfoClicked -> setIngredientsInfoOpen(true)
             OnIngredientsInfoDismissed -> setIngredientsInfoOpen(false)
         }
@@ -212,9 +223,10 @@ internal class ProductViewModel(
         statePrototype.update { it.copy(isPerServingSelected = isSelected) }
     }
 
-    private fun setOpenIngredient(index: Int?) {
+    private fun setOpenIngredient(index: Int?, contentIndex: Int?) {
         savedStateHandle[KEY_OPEN_INGREDIENT] = index
-        statePrototype.update { it.copy(openIngredientIndex = index) }
+        savedStateHandle[KEY_OPEN_INGREDIENT_CONTENT] = contentIndex
+        statePrototype.update { it.copy(openIngredientIndex = index, openIngredientContentIndex = contentIndex) }
     }
 
     private fun setIngredientsInfoOpen(isOpen: Boolean) {
@@ -234,6 +246,7 @@ internal class ProductViewModel(
         const val KEY_NAME_EXPANDED = "nameExpanded"
         const val KEY_PER_SERVING_SELECTED = "perServingSelected"
         const val KEY_OPEN_INGREDIENT = "openIngredient"
+        const val KEY_OPEN_INGREDIENT_CONTENT = "openIngredientContent"
         const val KEY_INGREDIENTS_INFO_OPEN = "ingredientsInfoOpen"
     }
 }

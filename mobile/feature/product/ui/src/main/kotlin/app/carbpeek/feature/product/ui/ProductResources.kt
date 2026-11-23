@@ -123,8 +123,25 @@ internal class ProductResources {
         return UiText.Res(id)
     }
 
-    fun ingredientName(name: IngredientName): UiText =
-        ingredientName(name = name, rawName = { it.replaceFirstChar(Char::uppercase) })
+    fun ingredientName(name: IngredientName): UiText {
+        name.vitamin?.let { return vitaminName(it) }
+        val eNumber = name.eNumber ?: return UiText.Raw(name.name.upperCased())
+        val knownName = name.knownENumberName()
+        return when {
+            knownName != null -> UiText.Res(
+                R.string.product_ingredient_name_with_e_number,
+                UiArg.Nested(knownName),
+                UiArg.Text(eNumber),
+            )
+            name.hasCodeAsLabelName() -> UiText.Raw(eNumber)
+            name.labelName.holdsCode(eNumber) -> UiText.Raw(name.labelName.upperCased())
+            else -> UiText.Res(
+                R.string.product_ingredient_name_with_e_number,
+                UiArg.Text(name.labelName.upperCased()),
+                UiArg.Text(eNumber),
+            )
+        }
+    }
 
     fun ingredientChipLabel(ingredient: AnalyzedIngredient): UiText {
         val name = ingredientName(ingredient.name)
@@ -136,11 +153,24 @@ internal class ProductResources {
         )
     }
 
-    fun ingredientChipDescription(ingredient: AnalyzedIngredient): UiText {
-        val label = ingredientChipLabel(ingredient)
-        val tag = ingredientTag(ingredient.kind) ?: return label
-        return UiText.Res(R.string.product_ingredient_description, UiArg.Nested(label), UiArg.Nested(tag))
+    fun ingredientContentsCount(ingredient: AnalyzedIngredient): UiText? {
+        val count = ingredient.contains.size
+        return if (count == 0) {
+            null
+        } else {
+            UiText.Plural(R.plurals.product_ingredient_inside, count, UiArg.Numeric.Count(count.toLong()))
+        }
     }
+
+    fun ingredientChipDescription(ingredient: AnalyzedIngredient): UiText =
+        listOfNotNull(ingredientTag(ingredient.kind), ingredientContentsCount(ingredient))
+            .fold(ingredientChipLabel(ingredient)) { description, detail ->
+                UiText.Res(
+                    R.string.product_ingredient_description,
+                    UiArg.Nested(description),
+                    UiArg.Nested(detail),
+                )
+            }
 
     fun ingredientTag(kind: IngredientKind): UiText? = when (kind) {
         IngredientKind.ADDED_SUGAR -> UiText.Res(R.string.product_ingredient_tag_added_sugar)
@@ -181,22 +211,8 @@ internal class ProductResources {
 
     fun ingredientNoDescription(): UiText = UiText.Res(R.string.product_ingredient_no_description)
 
-    fun ingredientContains(names: List<IngredientName>): UiText? {
-        if (names.isEmpty()) {
-            return null
-        }
-        val list = names
-            .map { name -> ingredientName(name = name, rawName = { it }) }
-            .reduceIndexed { index, list, name ->
-                val id = if (index == names.lastIndex) {
-                    R.string.product_ingredient_list_last
-                } else {
-                    R.string.product_ingredient_list_more
-                }
-                UiText.Res(id, UiArg.Nested(list), UiArg.Nested(name))
-            }
-        return UiText.Res(R.string.product_ingredient_contains, UiArg.Nested(list))
-    }
+    fun ingredientBackDescription(name: IngredientName): UiText =
+        UiText.Res(R.string.product_ingredient_back, UiArg.Nested(ingredientName(name)))
 
     fun ingredientLabelName(name: IngredientName): UiText? {
         val isRenamed = name.vitamin != null || !name.name.equals(name.labelName, ignoreCase = true)
@@ -221,30 +237,12 @@ internal class ProductResources {
 
     private fun missingValue(): UiText = UiText.Res(R.string.product_value_missing)
 
-    private fun ingredientName(name: IngredientName, rawName: (String) -> String): UiText {
-        name.vitamin?.let { return vitaminName(it) }
-        val eNumber = name.eNumber ?: return UiText.Raw(rawName(name.name))
-        val knownName = name.knownENumberName()
-        return when {
-            knownName != null -> UiText.Res(
-                R.string.product_ingredient_name_with_e_number,
-                UiArg.Nested(knownName),
-                UiArg.Text(eNumber),
-            )
-            name.hasCodeAsLabelName() -> UiText.Raw(eNumber)
-            name.labelName.holdsCode(eNumber) -> UiText.Raw(rawName(name.labelName))
-            else -> UiText.Res(
-                R.string.product_ingredient_name_with_e_number,
-                UiArg.Text(rawName(name.labelName)),
-                UiArg.Text(eNumber),
-            )
-        }
-    }
-
     private fun vitaminName(vitamin: Vitamin): UiText = when (vitamin) {
         Vitamin.RIBOFLAVIN -> UiText.Res(R.string.product_ingredient_vitamin_b2)
         Vitamin.NIACIN -> UiText.Res(R.string.product_ingredient_vitamin_b3)
     }
+
+    private fun String.upperCased(): String = replaceFirstChar(Char::uppercase)
 
     private fun IngredientName.hasCodeAsLabelName(): Boolean = labelName.trim().matches(eNumberCodePattern)
 

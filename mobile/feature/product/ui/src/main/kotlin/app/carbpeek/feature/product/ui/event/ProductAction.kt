@@ -12,7 +12,9 @@ internal sealed interface ProductAction {
     data object OnAddPhotosClicked : ProductAction
     data object OnReportClicked : ProductAction
     data class OnIngredientClicked(val index: Int) : ProductAction
-    data object OnIngredientDialogDismissed : ProductAction
+    data class OnIngredientContentClicked(val index: Int) : ProductAction
+    data object OnIngredientBackClicked : ProductAction
+    data object OnIngredientSheetDismissed : ProductAction
     data object OnIngredientsInfoClicked : ProductAction
     data object OnIngredientsInfoDismissed : ProductAction
 }

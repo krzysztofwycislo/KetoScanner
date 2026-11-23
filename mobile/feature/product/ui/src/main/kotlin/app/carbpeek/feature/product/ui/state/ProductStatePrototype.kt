@@ -15,6 +15,7 @@ internal data class ProductStatePrototype(
     val isNameExpanded: Boolean = false,
     val isPerServingSelected: Boolean = false,
     val openIngredientIndex: Int? = null,
+    val openIngredientContentIndex: Int? = null,
     val isIngredientsInfoOpen: Boolean = false,
 ) {
 

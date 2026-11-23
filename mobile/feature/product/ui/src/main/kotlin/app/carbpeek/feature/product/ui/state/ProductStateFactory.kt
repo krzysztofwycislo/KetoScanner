@@ -3,6 +3,7 @@ package app.carbpeek.feature.product.ui.state
 import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.icon
+import app.carbpeek.feature.analysis.api.model.AnalyzedIngredient
 import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.analysis.api.model.IngredientKind
 import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
@@ -40,8 +41,8 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 scores = scores(analysis.product),
                 ingredients = analysis.ingredients?.let { ingredientsCard(it) },
                 imagePreview = imagePreview(analysis.product),
-                ingredientDialog = analysis.ingredients?.let { ingredientDialog(it) },
-                ingredientsInfoDialog = analysis.ingredients?.let { ingredientsInfoDialog() },
+                ingredientSheet = analysis.ingredients?.let { openIngredientSheet(it) },
+                ingredientsInfoSheet = analysis.ingredients?.let { ingredientsInfoSheet() },
                 dataSource = resources.dataSource(analysis.product.barcode),
             )
         }
@@ -173,34 +174,58 @@ internal class ProductStateFactory(private val resources: ProductResources) {
     )
 
     private fun ingredientsCard(analysis: IngredientsAnalysis): IngredientsCardState = IngredientsCardState(
-        chips = analysis.ingredients.map { ingredient ->
+        chips = ingredientChips(analysis.ingredients),
+    )
+
+    private fun ingredientChips(ingredients: List<AnalyzedIngredient>): PersistentList<IngredientChipState> =
+        ingredients.map { ingredient ->
             IngredientChipState(
                 label = resources.ingredientChipLabel(ingredient),
+                count = resources.ingredientContentsCount(ingredient),
                 description = resources.ingredientChipDescription(ingredient),
                 tone = ingredient.kind.toIngredientTone(),
             )
-        }.toPersistentList(),
-    )
+        }.toPersistentList()
 
-    private fun Prototype.ingredientDialog(analysis: IngredientsAnalysis): IngredientDialogState? {
+    private fun Prototype.openIngredientSheet(analysis: IngredientsAnalysis): IngredientSheetState? {
         val ingredient = openIngredientIndex?.let { analysis.ingredients.getOrNull(it) } ?: return null
+        val content = openIngredientContentIndex?.let { ingredient.contains.getOrNull(it) }
+        return if (content == null) {
+            ingredientSheet(ingredient = ingredient, back = null)
+        } else {
+            ingredientSheet(ingredient = content, back = ingredientBack(ingredient))
+        }
+    }
+
+    private fun ingredientSheet(ingredient: AnalyzedIngredient, back: IngredientBackState?): IngredientSheetState {
+        val contents = ingredientChips(ingredient.contains)
         val sections = ingredientSections(ingredient.kind)
-        return IngredientDialogState(
+        return IngredientSheetState(
+            back = back,
             tag = resources.ingredientTag(ingredient.kind),
             tone = ingredient.kind.toIngredientTone(),
             title = resources.ingredientName(ingredient.name),
             labelName = resources.ingredientLabelName(ingredient.name),
-            contains = resources.ingredientContains(ingredient.contains),
+            contents = contents,
             sections = sections,
-            noDescription = if (sections.isEmpty()) resources.ingredientNoDescription() else null,
+            noDescription = if (sections.isEmpty() && contents.isEmpty()) {
+                resources.ingredientNoDescription()
+            } else {
+                null
+            },
         )
     }
 
-    private fun Prototype.ingredientsInfoDialog(): IngredientsInfoDialogState? {
+    private fun ingredientBack(compound: AnalyzedIngredient): IngredientBackState = IngredientBackState(
+        label = resources.ingredientName(compound.name),
+        description = resources.ingredientBackDescription(compound.name),
+    )
+
+    private fun Prototype.ingredientsInfoSheet(): IngredientsInfoSheetState? {
         if (!isIngredientsInfoOpen) {
             return null
         }
-        return IngredientsInfoDialogState(
+        return IngredientsInfoSheetState(
             legend = legendKinds.mapNotNull { kind ->
                 resources.ingredientTag(kind)?.let { label ->
                     IngredientLegendState(tone = kind.toIngredientTone(), label = label)

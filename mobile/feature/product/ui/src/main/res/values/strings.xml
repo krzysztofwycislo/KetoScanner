@@ -66,9 +66,12 @@
     <string name="product_ingredient_what">What it is</string>
     <string name="product_ingredient_does">What it does</string>
     <string name="product_ingredient_no_description">We don\'t have a description for this one yet.</string>
-    <string name="product_ingredient_contains">Contains %1$s</string>
-    <string name="product_ingredient_list_more">%1$s, %2$s</string>
-    <string name="product_ingredient_list_last">%1$s and %2$s</string>
+    <string name="product_ingredient_contains">Contains</string>
+    <plurals name="product_ingredient_inside">
+        <item quantity="one">%1$s inside</item>
+        <item quantity="other">%1$s inside</item>
+    </plurals>
+    <string name="product_ingredient_back">Back to %1$s</string>
     <string name="product_ingredient_label_name">On the label: %1$s</string>
     <string name="product_ingredient_name_with_e_number">%1$s (%2$s)</string>
     <string name="product_ingredient_got_it">Got it</string>

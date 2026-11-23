@@ -26,7 +26,7 @@ data class AnalyzedIngredient(
     val name: IngredientName,
     val declaredPercent: Double?,
     val kind: IngredientKind,
-    val contains: List<IngredientName>,
+    val contains: List<AnalyzedIngredient>,
 )
 
 data class IngredientsAnalysis(
