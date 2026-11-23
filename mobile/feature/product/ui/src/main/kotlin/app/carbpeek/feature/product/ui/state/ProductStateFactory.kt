@@ -7,7 +7,9 @@ import app.carbpeek.feature.analysis.api.model.AnalyzedIngredient
 import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.analysis.api.model.IngredientKind
 import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
+import app.carbpeek.feature.analysis.api.model.MacronutrientAnalysisResult
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
+import app.carbpeek.feature.analysis.api.model.RatingReason
 import app.carbpeek.feature.product.api.model.NovaGroup
 import app.carbpeek.feature.product.api.model.NutriScoreGrade
 import app.carbpeek.feature.product.api.model.Product
@@ -98,10 +100,6 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         val servingGrams = analysis.product.usableServingGrams
         val isServingToggleVisible = servingGrams != null && servingGrams != BASIS_GRAMS
         val perServing = isServingToggleVisible && isPerServingSelected
-        val carbsHighlight = when (analysis) {
-            is ProductAnalysis.Rated -> analysis.macronutrients.rate.toRating()
-            is ProductAnalysis.InsufficientData -> Rating.Unknown
-        }
         MacrosState(
             isServingToggleVisible = isServingToggleVisible,
             isPerServingSelected = perServing,
@@ -110,12 +108,12 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 MacroValueState(
                     label = resources.carbs(),
                     value = resources.grams(if (perServing) carbohydratesPerServing else carbohydratesPer100g),
-                    highlight = carbsHighlight,
+                    highlight = analysis.highlight(VerdictCause.CARBS),
                 ),
                 MacroValueState(
                     label = resources.sugars(),
                     value = resources.grams(if (perServing) sugarsPerServing else sugarsPer100g),
-                    highlight = null,
+                    highlight = analysis.highlight(VerdictCause.SUGARS),
                 ),
                 MacroValueState(
                     label = resources.fibre(),
@@ -139,6 +137,26 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 ),
             ),
         )
+    }
+
+    private fun ProductAnalysis.highlight(cause: VerdictCause): Rating? = when (this) {
+        is ProductAnalysis.Rated -> macronutrients.rate.toRating().takeIf { cause in macronutrients.verdictCauses() }
+        is ProductAnalysis.InsufficientData -> null
+    }
+
+    private fun MacronutrientAnalysisResult.verdictCauses(): Set<VerdictCause> = if (rate == DietRate.GOOD) {
+        setOf(VerdictCause.CARBS)
+    } else {
+        reasons.filter { it.rate == rate }.map { it.cause() }.toSet()
+    }
+
+    private fun RatingReason.cause(): VerdictCause = when (this) {
+        is RatingReason.HighCarbs,
+        is RatingReason.HighCarbEnergyShare,
+        is RatingReason.LowFatAndProteinToCarbRatio,
+        is RatingReason.HighCarbsPerServing,
+        -> VerdictCause.CARBS
+        is RatingReason.HighSugars -> VerdictCause.SUGARS
     }
 
     private fun scores(product: Product): ScoresState? {
@@ -258,6 +276,11 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         DietRate.GOOD -> Rating.Positive
         DietRate.NEUTRAL -> Rating.Neutral
         DietRate.NOT_ADVISED -> Rating.Negative
+    }
+
+    private enum class VerdictCause {
+        CARBS,
+        SUGARS,
     }
 
     private companion object {

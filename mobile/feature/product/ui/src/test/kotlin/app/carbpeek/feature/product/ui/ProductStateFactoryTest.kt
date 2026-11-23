@@ -350,13 +350,116 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when macros are shown then only the carbs value is highlighted with the verdict rating`() {
-        val rated = show(Prototype(analysis = rated(DietRate.NOT_ADVISED))).macros
-        val insufficient = show(Prototype(analysis = ProductAnalysis.InsufficientData(product()))).macros
+    fun `when one carbs reason caused the verdict then only carbs is highlighted`() {
+        val ratings = mapOf(
+            DietRate.NEUTRAL to Rating.Neutral,
+            DietRate.NOT_ADVISED to Rating.Negative,
+        )
 
-        assertEquals(Rating.Negative, rated.values.first().highlight)
-        assertEquals(Rating.Unknown, insufficient.values.first().highlight)
-        (rated.values.drop(1) + insufficient.values.drop(1)).forEach { assertNull(it.highlight) }
+        ratings.forEach { (rate, rating) ->
+            val reasons = listOf(
+                RatingReason.HighCarbs(gramsPer100g = 15.0, rate = rate),
+                RatingReason.HighCarbEnergyShare(share = 0.6, rate = rate),
+                RatingReason.LowFatAndProteinToCarbRatio(ratio = 0.5, rate = rate),
+                RatingReason.HighCarbsPerServing(servingGrams = 330.0, carbsGrams = 34.98, rate = rate),
+            )
+            reasons.forEach { reason ->
+                assertEquals(
+                    expected = highlights(carbs = rating, sugars = null),
+                    actual = highlightsOf(rated(dietRate = rate, reasons = listOf(reason))),
+                    message = reason.toString(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `when sugars caused the verdict then only sugars is highlighted`() {
+        val analysis = rated(
+            dietRate = DietRate.NOT_ADVISED,
+            reasons = listOf(RatingReason.HighSugars(gramsPer100g = 13.8, rate = DietRate.NOT_ADVISED)),
+        )
+
+        assertEquals(highlights(carbs = null, sugars = Rating.Negative), highlightsOf(analysis))
+    }
+
+    @Test
+    fun `when carbs and sugars caused the verdict then both are highlighted`() {
+        assertEquals(
+            highlights(carbs = Rating.Neutral, sugars = Rating.Neutral),
+            highlightsOf(ratedForCarbsAndSugars()),
+        )
+    }
+
+    @Test
+    fun `when sugars caused the verdict but the reason is not shown then both are highlighted`() {
+        val analysis = rated(
+            dietRate = DietRate.NOT_ADVISED,
+            reasons = listOf(
+                RatingReason.HighCarbs(gramsPer100g = 57.5, rate = DietRate.NOT_ADVISED),
+                RatingReason.HighCarbEnergyShare(share = 0.6, rate = DietRate.NOT_ADVISED),
+                RatingReason.HighSugars(gramsPer100g = 56.3, rate = DietRate.NOT_ADVISED),
+            ),
+        )
+
+        assertEquals(highlights(carbs = Rating.Negative, sugars = Rating.Negative), highlightsOf(analysis))
+    }
+
+    @Test
+    fun `when the carbs reason is weaker than the verdict then only sugars is highlighted`() {
+        val analysis = rated(
+            dietRate = DietRate.NOT_ADVISED,
+            reasons = listOf(
+                RatingReason.HighSugars(gramsPer100g = 13.8, rate = DietRate.NOT_ADVISED),
+                RatingReason.HighCarbs(gramsPer100g = 14.1, rate = DietRate.NEUTRAL),
+            ),
+        )
+
+        assertEquals(highlights(carbs = null, sugars = Rating.Negative), highlightsOf(analysis))
+    }
+
+    @Test
+    fun `when the sugars reason is weaker than the verdict then only carbs is highlighted`() {
+        val analysis = rated(
+            dietRate = DietRate.NOT_ADVISED,
+            reasons = listOf(
+                RatingReason.HighCarbs(gramsPer100g = 57.5, rate = DietRate.NOT_ADVISED),
+                RatingReason.HighSugars(gramsPer100g = 7.0, rate = DietRate.NEUTRAL),
+            ),
+        )
+
+        assertEquals(highlights(carbs = Rating.Negative, sugars = null), highlightsOf(analysis))
+    }
+
+    @Test
+    fun `when the verdict is good then only carbs is highlighted`() {
+        assertEquals(
+            highlights(carbs = Rating.Positive, sugars = null),
+            highlightsOf(rated(DietRate.GOOD)),
+        )
+    }
+
+    @Test
+    fun `when analysis has insufficient data then no value is highlighted`() {
+        assertEquals(
+            highlights(carbs = null, sugars = null),
+            highlightsOf(ProductAnalysis.InsufficientData(product())),
+        )
+    }
+
+    @Test
+    fun `when the serving is switched then the highlights stay the same`() {
+        val analysis = ratedForCarbsAndSugars()
+        val per100g = show(Prototype(analysis = analysis, isPerServingSelected = false)).macros
+        val perServing = show(Prototype(analysis = analysis, isPerServingSelected = true)).macros
+
+        assertFalse(per100g.isPerServingSelected)
+        assertTrue(perServing.isPerServingSelected)
+        assertEquals(
+            highlights(carbs = Rating.Neutral, sugars = Rating.Neutral),
+            per100g.values.map { it.highlight },
+        )
+        assertEquals(per100g.values.map { it.highlight }, perServing.values.map { it.highlight })
     }
 
     @Test
@@ -1100,6 +1203,9 @@ class ProductStateFactoryTest {
     private fun show(prototype: Prototype): ProductContentState.ShowProduct =
         assertIs<ProductContentState.ShowProduct>(factory.createFor(prototype).content)
 
+    private fun highlightsOf(analysis: ProductAnalysis): List<Rating?> =
+        show(Prototype(analysis = analysis)).macros.values.map { it.highlight }
+
     private fun scoresOf(product: Product): ScoresState =
         assertNotNull(show(Prototype(analysis = rated(dietRate = DietRate.GOOD, product = product))).scores)
 
@@ -1162,6 +1268,17 @@ class ProductStateFactoryTest {
                 dailyCarbConsumption = DAILY_CARBS,
             ),
         )
+
+        fun ratedForCarbsAndSugars() = rated(
+            dietRate = DietRate.NEUTRAL,
+            product = product(nutriments = fullNutriments),
+            reasons = listOf(
+                RatingReason.HighCarbs(gramsPer100g = 13.0, rate = DietRate.NEUTRAL),
+                RatingReason.HighSugars(gramsPer100g = 7.0, rate = DietRate.NEUTRAL),
+            ),
+        )
+
+        fun highlights(carbs: Rating?, sugars: Rating?): List<Rating?> = listOf(carbs, sugars, null, null, null, null)
 
         fun ingredient(
             name: String,

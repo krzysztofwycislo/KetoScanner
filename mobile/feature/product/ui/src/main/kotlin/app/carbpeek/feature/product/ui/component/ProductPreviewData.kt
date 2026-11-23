@@ -76,7 +76,7 @@ private fun kcal(value: Double): UiText = UiText.Res(R.string.product_value_kcal
 
 internal fun MacrosState.Companion.example(
     isPerServingSelected: Boolean,
-    highlight: Rating,
+    highlight: Rating?,
     isServingToggleVisible: Boolean = true,
 ) = MacrosState(
     isServingToggleVisible = isServingToggleVisible,
@@ -91,7 +91,7 @@ internal fun MacrosState.Companion.example(
         MacroValueState(
             label = UiText.Res(R.string.product_sugars),
             value = grams(if (isPerServingSelected) 1.1 else 7.0),
-            highlight = null,
+            highlight = highlight,
         ),
         MacroValueState(
             label = UiText.Res(R.string.product_fibre),
@@ -129,7 +129,7 @@ internal fun MacrosState.Companion.exampleWideValues() = MacrosState(
         MacroValueState(
             label = UiText.Res(R.string.product_sugars),
             value = grams(56.3),
-            highlight = null,
+            highlight = Rating.Neutral,
         ),
         MacroValueState(
             label = UiText.Res(R.string.product_fibre),

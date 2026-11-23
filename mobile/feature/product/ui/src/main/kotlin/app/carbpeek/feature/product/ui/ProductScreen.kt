@@ -196,7 +196,7 @@ private fun ProductShowInsufficientDataPreview() {
                 exampleShowProduct(
                     header = ProductHeaderState.example(name = "Mystery bar"),
                     verdict = VerdictState.exampleInsufficientData(),
-                    macros = MacrosState.example(isPerServingSelected = false, highlight = Rating.Unknown),
+                    macros = MacrosState.example(isPerServingSelected = false, highlight = null),
                 )
             )
         ) {}

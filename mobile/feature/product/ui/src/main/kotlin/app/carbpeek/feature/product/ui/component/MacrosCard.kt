@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -27,7 +24,6 @@ import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.SegmentedToggle
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.color
-import app.carbpeek.core.designsystem.component.containerColor
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.theme.AppTheme
 import app.carbpeek.feature.product.ui.R
@@ -73,17 +69,13 @@ private fun MacroValues(state: MacrosState, onAction: (ProductAction) -> Unit) {
         Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
             state.values.chunked(MACRO_COLUMNS).forEach { rowValues ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
                 ) {
                     rowValues.forEach {
                         MacroValue(
                             state = it,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
+                            modifier = Modifier.weight(1f),
                         )
                     }
                     repeat(MACRO_COLUMNS - rowValues.size) {
@@ -126,13 +118,8 @@ private fun MacrosHeading(state: MacrosState, onAction: (ProductAction) -> Unit)
 @Composable
 private fun MacroValue(state: MacroValueState, modifier: Modifier = Modifier) {
     val highlight = state.highlight
-    val cellModifier = if (highlight != null) {
-        modifier.background(color = highlight.containerColor(), shape = AppTheme.shapes.control)
-    } else {
-        modifier
-    }
     Column(
-        modifier = cellModifier
+        modifier = modifier
             .semantics(mergeDescendants = true) {}
             .padding(
                 start = AppTheme.spacing.xs,
@@ -209,7 +196,7 @@ private fun MacrosCardInsufficientDataPreview() {
                 verdict = VerdictState.exampleInsufficientData(),
                 macros = MacrosState.example(
                     isPerServingSelected = false,
-                    highlight = Rating.Unknown,
+                    highlight = null,
                     isServingToggleVisible = false,
                 ),
                 onAction = {},
@@ -241,7 +228,7 @@ private fun MacrosCardInsufficientDataLargeFontPreview() {
                 verdict = VerdictState.exampleInsufficientData(),
                 macros = MacrosState.example(
                     isPerServingSelected = false,
-                    highlight = Rating.Unknown,
+                    highlight = null,
                     isServingToggleVisible = false,
                 ),
                 onAction = {},
