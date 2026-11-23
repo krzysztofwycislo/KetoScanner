@@ -1,6 +1,5 @@
 package app.carbpeek.feature.preferences.ui.component
 
-import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.text.UiArg
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.feature.preferences.api.model.DietMode
@@ -9,8 +8,6 @@ import app.carbpeek.feature.preferences.ui.state.CustomProfileState
 import app.carbpeek.feature.preferences.ui.state.DietModeOptionState
 import app.carbpeek.feature.preferences.ui.state.DietProfileOption
 import app.carbpeek.feature.preferences.ui.state.DietProfileOptionState
-import app.carbpeek.feature.preferences.ui.state.RatingGuideRowState
-import app.carbpeek.feature.preferences.ui.state.RatingGuideState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
@@ -69,36 +66,4 @@ internal val previewInputError = UiText.Res(
     R.string.preferences_input_error,
     UiArg.Numeric.Count(1),
     UiArg.Numeric.Count(999),
-)
-
-private fun RatingGuideRowState.Companion.example(rating: Rating, label: Int, value: Int, grams: Double) =
-    RatingGuideRowState(
-        rating = rating,
-        label = UiText.Res(label),
-        value = UiText.Res(value, UiArg.Numeric.Grams(grams)),
-    )
-
-internal fun previewRatingGuide(dailyCarbs: Int) = RatingGuideState(
-    subtitle = UiText.Res(R.string.preferences_rating_subtitle, UiArg.Numeric.Count(dailyCarbs.toLong())),
-    rows = persistentListOf(
-        RatingGuideRowState.example(
-            Rating.Positive,
-            R.string.preferences_rating_good_keto,
-            R.string.preferences_rating_up_to,
-            dailyCarbs / 3.0,
-        ),
-        RatingGuideRowState.example(
-            Rating.Neutral,
-            R.string.preferences_rating_neutral,
-            R.string.preferences_rating_up_to,
-            dailyCarbs / 2.0,
-        ),
-        RatingGuideRowState.example(
-            Rating.Negative,
-            R.string.preferences_rating_not_advised_keto,
-            R.string.preferences_rating_over,
-            dailyCarbs / 2.0,
-        ),
-    ),
-    footnote = UiText.Res(R.string.preferences_rating_footnote_keto),
 )

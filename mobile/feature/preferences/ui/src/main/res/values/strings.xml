@@ -18,15 +18,4 @@
     <string name="preferences_preset_custom">Custom</string>
     <string name="preferences_preset_custom_note">Your own daily limit and diet</string>
     <string name="preferences_grams">%1$s g</string>
-    <string name="preferences_rating_title">How products are rated</string>
-    <string name="preferences_rating_subtitle">By carbs per 100 g, for a %1$s g daily limit.</string>
-    <string name="preferences_rating_good_keto">Keto-friendly</string>
-    <string name="preferences_rating_good_low_carb">Low-carb friendly</string>
-    <string name="preferences_rating_neutral">In small amounts</string>
-    <string name="preferences_rating_not_advised_keto">Not keto-friendly</string>
-    <string name="preferences_rating_not_advised_low_carb">Not low-carb friendly</string>
-    <string name="preferences_rating_up_to">up to %1$s g</string>
-    <string name="preferences_rating_over">over %1$s g</string>
-    <string name="preferences_rating_footnote_keto">Sugars, carbs per serving, the carb share of energy and the fat and protein balance can lower a rating too.</string>
-    <string name="preferences_rating_footnote_low_carb">Sugars, carbs per serving and the carb share of energy can lower a rating too.</string>
 </resources>

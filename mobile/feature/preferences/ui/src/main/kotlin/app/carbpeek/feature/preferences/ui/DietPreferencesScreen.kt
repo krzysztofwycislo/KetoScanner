@@ -32,11 +32,9 @@ import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.designsystem.theme.AppTheme
 import app.carbpeek.feature.preferences.ui.component.CustomProfile
 import app.carbpeek.feature.preferences.ui.component.OptionList
-import app.carbpeek.feature.preferences.ui.component.RatingGuide
 import app.carbpeek.feature.preferences.ui.component.previewCustom
 import app.carbpeek.feature.preferences.ui.component.previewInputError
 import app.carbpeek.feature.preferences.ui.component.previewOptions
-import app.carbpeek.feature.preferences.ui.component.previewRatingGuide
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
@@ -117,9 +115,6 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
             if (state.custom != null) {
                 CustomProfile(state.custom, onAction)
             }
-            if (state.ratingGuide != null) {
-                RatingGuide(state.ratingGuide)
-            }
         }
         Ui.PrimaryButton(
             text = stringResource(R.string.preferences_save),
@@ -160,7 +155,6 @@ private fun DietPreferencesPresetPreview() {
                 Form(
                     options = previewOptions(DietProfileOption.KETO, customGrams = null),
                     custom = null,
-                    ratingGuide = previewRatingGuide(40),
                     isSaveEnabled = true,
                 ),
             ),
@@ -177,7 +171,6 @@ private fun DietPreferencesCustomPreview() {
                 Form(
                     options = previewOptions(DietProfileOption.CUSTOM, customGrams = 35),
                     custom = previewCustom("35", inputError = null),
-                    ratingGuide = previewRatingGuide(35),
                     isSaveEnabled = true,
                 ),
             ),
@@ -194,7 +187,6 @@ private fun DietPreferencesInvalidInputPreview() {
                 Form(
                     options = previewOptions(DietProfileOption.CUSTOM, customGrams = null),
                     custom = previewCustom(input = "0", inputError = previewInputError),
-                    ratingGuide = null,
                     isSaveEnabled = true,
                 ),
             ),

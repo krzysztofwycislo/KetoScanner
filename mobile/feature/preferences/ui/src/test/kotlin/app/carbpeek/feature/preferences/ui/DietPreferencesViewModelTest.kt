@@ -9,8 +9,6 @@ import app.carbpeek.core.designsystem.event.AppEvent
 import app.carbpeek.core.designsystem.event.AppEvents
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.testing.FakeErrorReporter
-import app.carbpeek.feature.analysis.api.DietRatingLimits
-import app.carbpeek.feature.analysis.api.model.CarbLimits
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
@@ -301,7 +299,7 @@ class DietPreferencesViewModelTest {
             savedStateHandle = handle,
             preferences = preferences,
             appEvents = appEvents,
-            stateFactory = DietPreferencesStateFactory(resources, FakeRatingLimits()),
+            stateFactory = DietPreferencesStateFactory(resources),
             resources = resources,
             errorReporter = errorReporter,
             applicationScope = CoroutineScope(
@@ -321,11 +319,6 @@ class DietPreferencesViewModelTest {
 
     private fun selectedOption(viewModel: DietPreferencesViewModel): DietProfileOption =
         form(viewModel).options.single { it.isSelected }.option
-
-    private class FakeRatingLimits : DietRatingLimits {
-        override fun carbsPer100g(preferences: DietPreferences): CarbLimits =
-            CarbLimits(preferences.maxDailyCarbsAmount / 3.0, preferences.maxDailyCarbsAmount / 2.0)
-    }
 
     private class FakePreferences : DietPreferencesRepository {
 

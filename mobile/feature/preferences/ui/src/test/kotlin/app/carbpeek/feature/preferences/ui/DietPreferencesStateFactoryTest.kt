@@ -1,20 +1,14 @@
 package app.carbpeek.feature.preferences.ui
 
 import app.carbpeek.core.common.AppError
-import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.text.UiArg
 import app.carbpeek.core.designsystem.text.UiText
-import app.carbpeek.feature.analysis.api.DietRatingLimits
-import app.carbpeek.feature.analysis.api.model.CarbLimits
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.DietPreset
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesStateFactory
 import app.carbpeek.feature.preferences.ui.state.DietProfileOption
-import app.carbpeek.feature.preferences.ui.state.RatingGuideRowState
-import app.carbpeek.feature.preferences.ui.state.RatingGuideState
-import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -27,7 +21,7 @@ import app.carbpeek.feature.preferences.ui.state.DietPreferencesStatePrototype a
 
 class DietPreferencesStateFactoryTest {
 
-    private val factory = DietPreferencesStateFactory(DietPreferencesResources(), FakeRatingLimits())
+    private val factory = DietPreferencesStateFactory(DietPreferencesResources())
 
     @Test
     fun `when prototype is default then content is initial load`() {
@@ -129,72 +123,6 @@ class DietPreferencesStateFactoryTest {
     }
 
     @Test
-    fun `rating guide for strict keto shows the carbs limits for 20 g`() {
-        val guide = form(loaded(DietPreferences(20, DietMode.KETO))).ratingGuide
-
-        assertEquals(
-            RatingGuideState(
-                subtitle = UiText.Res(R.string.preferences_rating_subtitle, UiArg.Numeric.Count(20)),
-                rows = persistentListOf(
-                    RatingGuideRowState(
-                        rating = Rating.Positive,
-                        label = UiText.Res(R.string.preferences_rating_good_keto),
-                        value = UiText.Res(R.string.preferences_rating_up_to, UiArg.Numeric.Grams(20 / 3.0)),
-                    ),
-                    RatingGuideRowState(
-                        rating = Rating.Neutral,
-                        label = UiText.Res(R.string.preferences_rating_neutral),
-                        value = UiText.Res(R.string.preferences_rating_up_to, UiArg.Numeric.Grams(10.0)),
-                    ),
-                    RatingGuideRowState(
-                        rating = Rating.Negative,
-                        label = UiText.Res(R.string.preferences_rating_not_advised_keto),
-                        value = UiText.Res(R.string.preferences_rating_over, UiArg.Numeric.Grams(10.0)),
-                    ),
-                ),
-                footnote = UiText.Res(R.string.preferences_rating_footnote_keto),
-            ),
-            guide,
-        )
-    }
-
-    @Test
-    fun `rating guide uses low carb labels for the low carb preset and for custom low carb`() {
-        listOf(
-            loaded(DietPreferences(100, DietMode.LOW_CARB)),
-            loaded(DietPreferences(40)).copy(
-                option = DietProfileOption.CUSTOM,
-                input = "80",
-                customMode = DietMode.LOW_CARB,
-            ),
-        ).forEach { prototype ->
-            val guide = assertNotNull(form(prototype).ratingGuide)
-
-            assertEquals(UiText.Res(R.string.preferences_rating_good_low_carb), guide.rows[0].label)
-            assertEquals(UiText.Res(R.string.preferences_rating_not_advised_low_carb), guide.rows[2].label)
-            assertEquals(UiText.Res(R.string.preferences_rating_footnote_low_carb), guide.footnote)
-        }
-    }
-
-    @Test
-    fun `rating guide follows the option selected in the form`() {
-        val guide = form(loaded(DietPreferences(40)).copy(option = DietProfileOption.LOW_CARB)).ratingGuide
-
-        assertEquals(
-            UiText.Res(R.string.preferences_rating_subtitle, UiArg.Numeric.Count(100)),
-            assertNotNull(guide).subtitle,
-        )
-    }
-
-    @Test
-    fun `rating guide is hidden for custom with an empty or zero input`() {
-        val base = loaded(DietPreferences(40)).copy(option = DietProfileOption.CUSTOM)
-
-        assertNull(form(base.copy(input = "")).ratingGuide)
-        assertNull(form(base.copy(input = "0")).ratingGuide)
-    }
-
-    @Test
     fun `when saving then save is disabled otherwise enabled`() {
         assertFalse(form(loaded(DietPreferences(40)).copy(isSaving = true)).isSaveEnabled)
         assertTrue(form(loaded(DietPreferences(40))).isSaveEnabled)
@@ -211,9 +139,4 @@ class DietPreferencesStateFactoryTest {
         assertIs<DietPreferencesContentState.Form>(factory.createFor(prototype).content)
 
     private fun grams(amount: Long) = UiText.Res(R.string.preferences_grams, UiArg.Numeric.Count(amount))
-
-    private class FakeRatingLimits : DietRatingLimits {
-        override fun carbsPer100g(preferences: DietPreferences): CarbLimits =
-            CarbLimits(preferences.maxDailyCarbsAmount / 3.0, preferences.maxDailyCarbsAmount / 2.0)
-    }
 }
