@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -62,9 +63,16 @@ fun Ui.Screen(
         },
         containerColor = containerColor,
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-        content = { padding -> content(padding.withExtraBottom(LocalBottomBarOverlap.current)) },
+        content = content,
     )
 }
+
+@Composable
+@ReadOnlyComposable
+fun bottomBarClearance(): Dp = LocalBottomBarOverlap.current
+
+@Composable
+fun PaddingValues.withBottomBarClearance(): PaddingValues = withExtraBottom(bottomBarClearance())
 
 @Composable
 private fun PaddingValues.withExtraBottom(extra: Dp): PaddingValues {

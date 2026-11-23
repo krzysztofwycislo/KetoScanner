@@ -3,6 +3,7 @@ package app.carbpeek.feature.product.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,8 @@ import app.carbpeek.core.designsystem.component.PrimaryButton
 import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.bottomBarClearance
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.text.toUiText
@@ -90,7 +93,11 @@ private fun ScreenContent(state: ProductState, onAction: (ProductAction) -> Unit
 
 @Composable
 private fun CenteredContent(onAction: (ProductAction) -> Unit, content: @Composable () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = bottomBarClearance()),
+    ) {
         Header(favourite = null, onAction = onAction, modifier = Modifier.padding(AppTheme.spacing.l))
         Box(
             modifier = Modifier
@@ -126,7 +133,7 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(AppTheme.spacing.l),
+            .padding(PaddingValues(AppTheme.spacing.l).withBottomBarClearance()),
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
         Header(state.favourite, onAction)

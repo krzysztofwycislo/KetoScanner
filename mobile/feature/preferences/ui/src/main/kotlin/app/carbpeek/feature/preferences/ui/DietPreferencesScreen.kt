@@ -26,6 +26,7 @@ import app.carbpeek.core.designsystem.component.PrimaryButton
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.TopBar
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.text.toUiText
@@ -68,7 +69,8 @@ private fun ScreenContent(state: DietPreferencesState, onAction: (DietPreference
                 onBackClick = { onAction(OnBackClicked) },
             )
         },
-    ) { innerPadding ->
+    ) { screenPadding ->
+        val innerPadding = screenPadding.withBottomBarClearance()
         val centered = Modifier
             .padding(innerPadding)
             .fillMaxSize()

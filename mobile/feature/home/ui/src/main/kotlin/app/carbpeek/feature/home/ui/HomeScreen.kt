@@ -42,6 +42,7 @@ import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.VerdictPill
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.icon.AppIcon
 import app.carbpeek.core.designsystem.icon.AppIcons
@@ -98,7 +99,10 @@ private fun ScreenContent(state: HomeState, onAction: (HomeAction) -> Unit) {
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = AppTheme.spacing.l, vertical = AppTheme.spacing.l),
+            contentPadding = PaddingValues(
+                horizontal = AppTheme.spacing.l,
+                vertical = AppTheme.spacing.l,
+            ).withBottomBarClearance(),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
         ) {
             item(key = KEY_HERO) {

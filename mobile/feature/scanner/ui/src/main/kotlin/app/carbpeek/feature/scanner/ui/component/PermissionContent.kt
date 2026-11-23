@@ -30,6 +30,7 @@ import app.carbpeek.core.designsystem.component.PrimaryButton
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.TopBar
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -47,7 +48,8 @@ internal fun PermissionContent(state: ScanState, camera: CameraState.PermissionP
         topBar = {
             Ui.TopBar(stringResource(R.string.scan_title))
         },
-    ) { innerPadding ->
+    ) { screenPadding ->
+        val innerPadding = screenPadding.withBottomBarClearance()
         Box(modifier = Modifier.fillMaxSize()) {
             BoxWithConstraints(
                 modifier = Modifier

@@ -2,6 +2,7 @@ package app.carbpeek.feature.about.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.TopBar
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.theme.AppTheme
 import app.carbpeek.feature.about.ui.event.AboutAction
@@ -47,7 +49,7 @@ private fun ScreenContent(onAction: (AboutAction) -> Unit) {
                 .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(AppTheme.spacing.m),
+                .padding(PaddingValues(AppTheme.spacing.m).withBottomBarClearance()),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
         ) {
             Text(

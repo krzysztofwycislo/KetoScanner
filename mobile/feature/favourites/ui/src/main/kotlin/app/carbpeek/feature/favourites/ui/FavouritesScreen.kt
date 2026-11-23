@@ -25,6 +25,7 @@ import app.carbpeek.core.designsystem.component.EmptyState
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.SearchField
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.bottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.text.UiArg
@@ -89,7 +90,9 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
                 targetState = state.content,
                 modifier = Modifier.weight(1f),
             ) { content ->
-                val centered = Modifier.fillMaxSize()
+                val centered = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = bottomBarClearance())
                 when (content) {
                     InitialLoad -> Box(centered, contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()

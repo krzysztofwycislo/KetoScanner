@@ -32,6 +32,7 @@ import app.carbpeek.core.designsystem.component.ScanFrame
 import app.carbpeek.core.designsystem.component.ScanFrameMode
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -54,7 +55,8 @@ private const val WIDE_FRAME_WIDTH_FRACTION = 0.5f
 
 @Composable
 internal fun CameraContent(state: ScanState, camera: CameraState.Preview, onAction: (ScanAction) -> Unit) {
-    Ui.Screen(containerColor = AppTheme.colors.camera.background) { innerPadding ->
+    Ui.Screen(containerColor = AppTheme.colors.camera.background) { screenPadding ->
+        val innerPadding = screenPadding.withBottomBarClearance()
         LightStatusBarIconsEffect()
         var scanArea by remember { mutableStateOf<Rect?>(null) }
         Box(modifier = Modifier.fillMaxSize()) {

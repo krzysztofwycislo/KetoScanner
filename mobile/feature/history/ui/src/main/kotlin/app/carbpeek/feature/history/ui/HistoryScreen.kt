@@ -38,6 +38,8 @@ import app.carbpeek.core.designsystem.component.SearchField
 import app.carbpeek.core.designsystem.component.TopBar
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.VerdictPill
+import app.carbpeek.core.designsystem.component.bottomBarClearance
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.icon.AppIcon
 import app.carbpeek.core.designsystem.icon.AppIcons
@@ -111,7 +113,9 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
                 targetState = state.content,
                 modifier = Modifier.weight(1f),
             ) { content ->
-                val centered = Modifier.fillMaxSize()
+                val centered = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = bottomBarClearance())
                 when (content) {
                     InitialLoad -> Box(centered, contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
@@ -192,7 +196,7 @@ private fun Controls(
 private fun Groups(groups: PersistentList<HistoryGroupState>, onAction: (HistoryAction) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(AppTheme.spacing.l),
+        contentPadding = PaddingValues(AppTheme.spacing.l).withBottomBarClearance(),
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
     ) {
         groups.forEachIndexed { index, group ->

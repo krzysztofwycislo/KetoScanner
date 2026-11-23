@@ -28,6 +28,7 @@ import app.carbpeek.core.designsystem.component.IconTile
 import app.carbpeek.core.designsystem.component.ListRowCard
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.VerdictPill
+import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -43,7 +44,7 @@ import kotlinx.collections.immutable.PersistentList
 internal fun Groups(groups: PersistentList<FavouriteGroupState>, onAction: (FavouritesAction) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(AppTheme.spacing.l),
+        contentPadding = PaddingValues(AppTheme.spacing.l).withBottomBarClearance(),
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
     ) {
         groups.forEachIndexed { index, group ->
