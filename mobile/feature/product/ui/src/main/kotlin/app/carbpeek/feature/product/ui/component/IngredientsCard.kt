@@ -34,8 +34,12 @@ internal fun IngredientsCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background.surface, AppTheme.shapes.card)
-            .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.card)
+            .background(color = AppTheme.colors.background.surface, shape = AppTheme.shapes.large)
+            .border(
+                width = AppTheme.borders.hairline,
+                color = AppTheme.colors.border.default,
+                shape = AppTheme.shapes.large,
+            )
             .padding(top = AppTheme.spacing.xxs, bottom = AppTheme.spacing.m),
     ) {
         Row(

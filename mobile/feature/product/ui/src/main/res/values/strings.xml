@@ -32,10 +32,12 @@
     <string name="product_verdict_insufficient_data">Not enough data yet</string>
     <string name="product_verdict_insufficient_data_detail">Open Food Facts is missing carbs, fat or protein for it</string>
     <string name="product_verdict_insufficient_data_advice">Check the label on the pack, or send us photos of it and we will fill in the values.</string>
-    <string name="product_at_a_glance">At a glance</string>
+    <string name="product_macros">Macros</string>
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>
     <string name="product_basis_serving_with_value">%1$s g/ml</string>
+    <string name="product_other_ratings">Other ratings</string>
+    <string name="product_other_ratings_note">These don\'t consider your diet.</string>
     <string name="product_nutri_score">Nutri-Score</string>
     <string name="product_nutri_score_a">Very good</string>
     <string name="product_nutri_score_b">Good</string>

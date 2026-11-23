@@ -31,7 +31,7 @@ import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.IngredientTone
 import app.carbpeek.feature.product.ui.state.ProductContentState
 import app.carbpeek.feature.product.ui.state.ProductStateFactory
-import app.carbpeek.feature.product.ui.state.ScoreTileState
+import app.carbpeek.feature.product.ui.state.ScoreState
 import app.carbpeek.feature.product.ui.state.ScoreTone
 import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
@@ -295,24 +295,24 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when serving amount is set or missing then glance serving label matches`() {
+    fun `when serving amount is set or missing then macros serving label matches`() {
         val withServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "15"))))
         val withoutServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = null))))
         val blankServing = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = " "))))
 
         assertEquals(
             UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
-            withServing.glance.servingLabel,
+            withServing.macros.servingLabel,
         )
-        assertEquals(UiText.Res(R.string.product_basis_serving), withoutServing.glance.servingLabel)
-        assertEquals(UiText.Res(R.string.product_basis_serving), blankServing.glance.servingLabel)
+        assertEquals(UiText.Res(R.string.product_basis_serving), withoutServing.macros.servingLabel)
+        assertEquals(UiText.Res(R.string.product_basis_serving), blankServing.macros.servingLabel)
     }
 
     @Test
-    fun `when per 100 g is selected then glance tiles show per 100 g values in order`() {
-        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).glance
+    fun `when per 100 g is selected then macros show per 100 g values in order`() {
+        val macros = show(Prototype(analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)))).macros
 
-        assertFalse(glance.isPerServingSelected)
+        assertFalse(macros.isPerServingSelected)
         assertEquals(
             listOf(
                 UiText.Res(R.string.product_carbs) to grams(13.0),
@@ -322,20 +322,20 @@ class ProductStateFactoryTest {
                 UiText.Res(R.string.product_fats) to grams(50.0),
                 UiText.Res(R.string.product_energy) to kcal(588.0),
             ),
-            glance.tiles.map { it.label to it.value },
+            macros.values.map { it.label to it.value },
         )
     }
 
     @Test
-    fun `when per serving is selected then glance tiles show per serving values in order`() {
-        val glance = show(
+    fun `when per serving is selected then macros show per serving values in order`() {
+        val macros = show(
             Prototype(
                 analysis = rated(DietRate.GOOD, product(nutriments = fullNutriments)),
                 isPerServingSelected = true,
             )
-        ).glance
+        ).macros
 
-        assertTrue(glance.isPerServingSelected)
+        assertTrue(macros.isPerServingSelected)
         assertEquals(
             listOf(
                 UiText.Res(R.string.product_carbs) to grams(2.0),
@@ -345,18 +345,18 @@ class ProductStateFactoryTest {
                 UiText.Res(R.string.product_fats) to grams(7.5),
                 UiText.Res(R.string.product_energy) to kcal(88.0),
             ),
-            glance.tiles.map { it.label to it.value },
+            macros.values.map { it.label to it.value },
         )
     }
 
     @Test
-    fun `when glance is shown then only the carbs tile is highlighted with the verdict rating`() {
-        val rated = show(Prototype(analysis = rated(DietRate.NOT_ADVISED))).glance
-        val insufficient = show(Prototype(analysis = ProductAnalysis.InsufficientData(product()))).glance
+    fun `when macros are shown then only the carbs value is highlighted with the verdict rating`() {
+        val rated = show(Prototype(analysis = rated(DietRate.NOT_ADVISED))).macros
+        val insufficient = show(Prototype(analysis = ProductAnalysis.InsufficientData(product()))).macros
 
-        assertEquals(Rating.Negative, rated.tiles.first().highlight)
-        assertEquals(Rating.Unknown, insufficient.tiles.first().highlight)
-        (rated.tiles.drop(1) + insufficient.tiles.drop(1)).forEach { assertNull(it.highlight) }
+        assertEquals(Rating.Negative, rated.values.first().highlight)
+        assertEquals(Rating.Unknown, insufficient.values.first().highlight)
+        (rated.values.drop(1) + insufficient.values.drop(1)).forEach { assertNull(it.highlight) }
     }
 
     @Test
@@ -367,10 +367,10 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when nutrient values are missing then glance tiles show the missing value text`() {
+    fun `when nutrient values are missing then macros show the missing value text`() {
         val analysis = rated(DietRate.GOOD, product(nutriments = emptyNutriments))
-        val per100g = show(Prototype(analysis = analysis)).glance.tiles
-        val perServing = show(Prototype(analysis = analysis, isPerServingSelected = true)).glance.tiles
+        val per100g = show(Prototype(analysis = analysis)).macros.values
+        val perServing = show(Prototype(analysis = analysis, isPerServingSelected = true)).macros.values
 
         val missing = UiText.Res(R.string.product_value_missing)
         assertEquals(List(6) { missing }, per100g.map { it.value })
@@ -379,14 +379,14 @@ class ProductStateFactoryTest {
 
     @Test
     fun `when the serving is usable then the serving toggle is visible`() {
-        val glance = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "250")))).glance
+        val macros = show(Prototype(analysis = rated(DietRate.GOOD, product(servingAmount = "250")))).macros
 
-        assertTrue(glance.isServingToggleVisible)
+        assertTrue(macros.isServingToggleVisible)
     }
 
     @Test
     fun `when the serving is over 500 then the toggle is hidden and per 100 g values are shown`() {
-        val glance = show(
+        val macros = show(
             Prototype(
                 analysis = rated(
                     dietRate = DietRate.GOOD,
@@ -394,29 +394,29 @@ class ProductStateFactoryTest {
                 ),
                 isPerServingSelected = true,
             )
-        ).glance
+        ).macros
 
-        assertFalse(glance.isServingToggleVisible)
-        assertFalse(glance.isPerServingSelected)
-        assertEquals(grams(13.0), glance.tiles.first().value)
+        assertFalse(macros.isServingToggleVisible)
+        assertFalse(macros.isPerServingSelected)
+        assertEquals(grams(13.0), macros.values.first().value)
     }
 
     @Test
     fun `when there is no serving then the serving toggle is hidden`() {
-        val glance = show(
+        val macros = show(
             Prototype(
                 analysis = rated(dietRate = DietRate.GOOD, product = product(servingAmount = null)),
                 isPerServingSelected = true,
             )
-        ).glance
+        ).macros
 
-        assertFalse(glance.isServingToggleVisible)
-        assertFalse(glance.isPerServingSelected)
+        assertFalse(macros.isServingToggleVisible)
+        assertFalse(macros.isPerServingSelected)
     }
 
     @Test
     fun `when the serving is exactly 100 then the toggle is hidden and per 100 g values are shown`() {
-        val glance = show(
+        val macros = show(
             Prototype(
                 analysis = rated(
                     dietRate = DietRate.GOOD,
@@ -424,11 +424,11 @@ class ProductStateFactoryTest {
                 ),
                 isPerServingSelected = true,
             )
-        ).glance
+        ).macros
 
-        assertFalse(glance.isServingToggleVisible)
-        assertFalse(glance.isPerServingSelected)
-        assertEquals(grams(13.0), glance.tiles.first().value)
+        assertFalse(macros.isServingToggleVisible)
+        assertFalse(macros.isPerServingSelected)
+        assertEquals(grams(13.0), macros.values.first().value)
     }
 
     @Test
@@ -439,11 +439,11 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when only a nutri score exists then only its tile is shown`() {
+    fun `when only a nutri score exists then only its score is shown`() {
         val scores = scoresOf(product(nutriScore = NutriScoreGrade.B))
 
         assertEquals(
-            ScoreTileState(
+            ScoreState(
                 badge = UiText.Raw("B"),
                 title = UiText.Res(R.string.product_nutri_score),
                 note = UiText.Res(R.string.product_nutri_score_b),
@@ -455,12 +455,12 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when only a nova group exists then only the processing tile is shown`() {
+    fun `when only a nova group exists then only the processing score is shown`() {
         val scores = scoresOf(product(novaGroup = NovaGroup.PROCESSED))
 
         assertNull(scores.nutriScore)
         assertEquals(
-            ScoreTileState(
+            ScoreState(
                 badge = UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(3.0)),
                 title = UiText.Res(R.string.product_processing),
                 note = UiText.Res(R.string.product_processing_3),
@@ -482,11 +482,11 @@ class ProductStateFactoryTest {
 
         expected.forEach { (grade, noteAndTone) ->
             val scores = scoresOf(product(nutriScore = grade, novaGroup = NovaGroup.ULTRA_PROCESSED))
-            val tile = assertNotNull(scores.nutriScore)
+            val score = assertNotNull(scores.nutriScore)
 
-            assertEquals(UiText.Raw(grade.name), tile.badge, "$grade")
-            assertEquals(UiText.Res(noteAndTone.first), tile.note, "$grade")
-            assertEquals(noteAndTone.second, tile.tone, "$grade")
+            assertEquals(UiText.Raw(grade.name), score.badge, "$grade")
+            assertEquals(UiText.Res(noteAndTone.first), score.note, "$grade")
+            assertEquals(noteAndTone.second, score.tone, "$grade")
             assertNotNull(scores.processing)
         }
     }
@@ -502,15 +502,15 @@ class ProductStateFactoryTest {
 
         expected.forEach { (group, note) ->
             val scores = scoresOf(product(nutriScore = NutriScoreGrade.A, novaGroup = group))
-            val tile = assertNotNull(scores.processing)
+            val score = assertNotNull(scores.processing)
 
             assertEquals(
                 UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(group.number.toDouble())),
-                tile.badge,
+                score.badge,
                 "$group",
             )
-            assertEquals(UiText.Res(note), tile.note, "$group")
-            assertEquals(ScoreTone.PROCESSING, tile.tone, "$group")
+            assertEquals(UiText.Res(note), score.note, "$group")
+            assertEquals(ScoreTone.PROCESSING, score.tone, "$group")
             assertNotNull(scores.nutriScore)
         }
     }

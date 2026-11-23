@@ -37,7 +37,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 header = header(analysis.product),
                 favourite = favourite(),
                 verdict = analysis.verdict(),
-                glance = glance(analysis),
+                macros = macros(analysis),
                 scores = scores(analysis.product),
                 ingredients = analysis.ingredients?.let { ingredientsCard(it) },
                 imagePreview = imagePreview(analysis.product),
@@ -94,7 +94,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         )
     }
 
-    private fun Prototype.glance(analysis: ProductAnalysis): GlanceState = with(analysis.product.nutriments) {
+    private fun Prototype.macros(analysis: ProductAnalysis): MacrosState = with(analysis.product.nutriments) {
         val servingGrams = analysis.product.usableServingGrams
         val isServingToggleVisible = servingGrams != null && servingGrams != BASIS_GRAMS
         val perServing = isServingToggleVisible && isPerServingSelected
@@ -102,40 +102,40 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             is ProductAnalysis.Rated -> analysis.macronutrients.rate.toRating()
             is ProductAnalysis.InsufficientData -> Rating.Unknown
         }
-        GlanceState(
+        MacrosState(
             isServingToggleVisible = isServingToggleVisible,
             isPerServingSelected = perServing,
             servingLabel = resources.servingLabel(analysis.product.servingAmount),
-            tiles = persistentListOf(
-                GlanceTileState(
+            values = persistentListOf(
+                MacroValueState(
                     label = resources.carbs(),
                     value = resources.grams(if (perServing) carbohydratesPerServing else carbohydratesPer100g),
                     highlight = carbsHighlight,
                 ),
-                GlanceTileState(
-                    resources.sugars(),
-                    resources.grams(if (perServing) sugarsPerServing else sugarsPer100g),
-                    null,
+                MacroValueState(
+                    label = resources.sugars(),
+                    value = resources.grams(if (perServing) sugarsPerServing else sugarsPer100g),
+                    highlight = null,
                 ),
-                GlanceTileState(
-                    resources.fibre(),
-                    resources.grams(if (perServing) fibrePerServing else fibrePer100g),
-                    null,
+                MacroValueState(
+                    label = resources.fibre(),
+                    value = resources.grams(if (perServing) fibrePerServing else fibrePer100g),
+                    highlight = null,
                 ),
-                GlanceTileState(
-                    resources.proteins(),
-                    resources.grams(if (perServing) proteinsPerServing else proteinsPer100g),
-                    null,
+                MacroValueState(
+                    label = resources.proteins(),
+                    value = resources.grams(if (perServing) proteinsPerServing else proteinsPer100g),
+                    highlight = null,
                 ),
-                GlanceTileState(
-                    resources.fats(),
-                    resources.grams(if (perServing) fatsPerServing else fatsPer100g),
-                    null,
+                MacroValueState(
+                    label = resources.fats(),
+                    value = resources.grams(if (perServing) fatsPerServing else fatsPer100g),
+                    highlight = null,
                 ),
-                GlanceTileState(
-                    resources.energy(),
-                    resources.kcal(if (perServing) energyPerServing else energyPer100g),
-                    null,
+                MacroValueState(
+                    label = resources.energy(),
+                    value = resources.kcal(if (perServing) energyPerServing else energyPer100g),
+                    highlight = null,
                 ),
             ),
         )
@@ -148,12 +148,12 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             return null
         }
         return ScoresState(
-            nutriScore = nutriScore?.let { nutriScoreTile(it) },
-            processing = novaGroup?.let { processingTile(it) },
+            nutriScore = nutriScore?.let { nutriScore(it) },
+            processing = novaGroup?.let { processing(it) },
         )
     }
 
-    private fun nutriScoreTile(grade: NutriScoreGrade): ScoreTileState = ScoreTileState(
+    private fun nutriScore(grade: NutriScoreGrade): ScoreState = ScoreState(
         badge = resources.nutriScoreBadge(grade),
         title = resources.nutriScoreTitle(),
         note = resources.nutriScoreNote(grade),
@@ -166,7 +166,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         },
     )
 
-    private fun processingTile(group: NovaGroup): ScoreTileState = ScoreTileState(
+    private fun processing(group: NovaGroup): ScoreState = ScoreState(
         badge = resources.processingBadge(group),
         title = resources.processingTitle(),
         note = resources.processingNote(group),

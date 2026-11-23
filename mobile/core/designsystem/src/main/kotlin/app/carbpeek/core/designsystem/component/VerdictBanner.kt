@@ -42,6 +42,7 @@ fun Ui.VerdictBanner(
     details: List<UiText>,
     modifier: Modifier = Modifier,
     highlighted: Boolean = false,
+    shape: Shape = AppTheme.shapes.large,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     val color = rating.color()
@@ -59,9 +60,9 @@ fun Ui.VerdictBanner(
                 .highlightRing(
                     color = { ringColor },
                     ringWidth = AppTheme.borders.highlightRing,
-                    shape = AppTheme.shapes.large,
+                    shape = shape,
                 )
-                .background(rating.containerColor(), AppTheme.shapes.large)
+                .background(color = rating.containerColor(), shape = shape)
                 .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.l),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
         ) {

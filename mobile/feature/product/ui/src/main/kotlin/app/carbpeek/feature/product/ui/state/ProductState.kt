@@ -19,7 +19,7 @@ internal sealed interface ProductContentState {
         val header: ProductHeaderState,
         val favourite: FavouriteButtonState?,
         val verdict: VerdictState,
-        val glance: GlanceState,
+        val macros: MacrosState,
         val scores: ScoresState?,
         val ingredients: IngredientsCardState?,
         val imagePreview: ImagePreviewState?,
@@ -77,17 +77,17 @@ internal sealed interface VerdictState {
 }
 
 @Immutable
-internal data class GlanceState(
+internal data class MacrosState(
     val isServingToggleVisible: Boolean,
     val isPerServingSelected: Boolean,
     val servingLabel: UiText,
-    val tiles: PersistentList<GlanceTileState>,
+    val values: PersistentList<MacroValueState>,
 ) {
     companion object
 }
 
 @Immutable
-internal data class GlanceTileState(
+internal data class MacroValueState(
     val label: UiText,
     val value: UiText,
     val highlight: Rating?,
@@ -97,14 +97,14 @@ internal data class GlanceTileState(
 
 @Immutable
 internal data class ScoresState(
-    val nutriScore: ScoreTileState?,
-    val processing: ScoreTileState?,
+    val nutriScore: ScoreState?,
+    val processing: ScoreState?,
 ) {
     companion object
 }
 
 @Immutable
-internal data class ScoreTileState(
+internal data class ScoreState(
     val badge: UiText,
     val title: UiText,
     val note: UiText,

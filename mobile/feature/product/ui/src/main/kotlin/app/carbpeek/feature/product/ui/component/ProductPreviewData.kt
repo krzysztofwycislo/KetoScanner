@@ -9,8 +9,6 @@ import app.carbpeek.core.model.ProductCategory
 import app.carbpeek.feature.product.ui.R
 import app.carbpeek.feature.product.ui.state.CategoryChipState
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
-import app.carbpeek.feature.product.ui.state.GlanceState
-import app.carbpeek.feature.product.ui.state.GlanceTileState
 import app.carbpeek.feature.product.ui.state.IngredientBackState
 import app.carbpeek.feature.product.ui.state.IngredientChipState
 import app.carbpeek.feature.product.ui.state.IngredientLegendState
@@ -19,9 +17,11 @@ import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.IngredientTone
 import app.carbpeek.feature.product.ui.state.IngredientsCardState
 import app.carbpeek.feature.product.ui.state.IngredientsInfoSheetState
+import app.carbpeek.feature.product.ui.state.MacroValueState
+import app.carbpeek.feature.product.ui.state.MacrosState
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
 import app.carbpeek.feature.product.ui.state.ProductHeaderState
-import app.carbpeek.feature.product.ui.state.ScoreTileState
+import app.carbpeek.feature.product.ui.state.ScoreState
 import app.carbpeek.feature.product.ui.state.ScoreTone
 import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
@@ -74,38 +74,96 @@ private fun grams(value: Double?): UiText =
 
 private fun kcal(value: Double): UiText = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 
-internal fun GlanceState.Companion.example(
+internal fun MacrosState.Companion.example(
     isPerServingSelected: Boolean,
     highlight: Rating,
     isServingToggleVisible: Boolean = true,
-) = GlanceState(
+) = MacrosState(
     isServingToggleVisible = isServingToggleVisible,
     isPerServingSelected = isPerServingSelected,
     servingLabel = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
-    tiles = persistentListOf(
-        GlanceTileState(
+    values = persistentListOf(
+        MacroValueState(
             label = UiText.Res(R.string.product_carbs),
             value = grams(if (isPerServingSelected) 2.0 else 13.0),
             highlight = highlight,
         ),
-        GlanceTileState(UiText.Res(R.string.product_sugars), grams(if (isPerServingSelected) 1.1 else 7.0), null),
-        GlanceTileState(UiText.Res(R.string.product_fibre), grams(if (isPerServingSelected) null else 11.0), null),
-        GlanceTileState(UiText.Res(R.string.product_proteins), grams(if (isPerServingSelected) 3.8 else 25.0), null),
-        GlanceTileState(UiText.Res(R.string.product_fats), grams(if (isPerServingSelected) 7.5 else 50.0), null),
-        GlanceTileState(UiText.Res(R.string.product_energy), kcal(if (isPerServingSelected) 88.0 else 588.0), null),
+        MacroValueState(
+            label = UiText.Res(R.string.product_sugars),
+            value = grams(if (isPerServingSelected) 1.1 else 7.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_fibre),
+            value = grams(if (isPerServingSelected) null else 11.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_proteins),
+            value = grams(if (isPerServingSelected) 3.8 else 25.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_fats),
+            value = grams(if (isPerServingSelected) 7.5 else 50.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_energy),
+            value = kcal(if (isPerServingSelected) 88.0 else 588.0),
+            highlight = null,
+        ),
     ),
 )
 
-internal val ScoreTileState.Companion.exampleNutriScore
-    get() = ScoreTileState(
+internal fun MacrosState.Companion.exampleWideValues() = MacrosState(
+    isServingToggleVisible = true,
+    isPerServingSelected = false,
+    servingLabel = UiText.Res(R.string.product_basis_serving_with_value, UiArg.Text("15")),
+    values = persistentListOf(
+        MacroValueState(
+            label = UiText.Res(R.string.product_carbs),
+            value = grams(57.5),
+            highlight = Rating.Neutral,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_sugars),
+            value = grams(56.3),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_fibre),
+            value = grams(30.9),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_proteins),
+            value = grams(100.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_fats),
+            value = grams(100.0),
+            highlight = null,
+        ),
+        MacroValueState(
+            label = UiText.Res(R.string.product_energy),
+            value = kcal(1035.0),
+            highlight = null,
+        ),
+    ),
+)
+
+internal val ScoreState.Companion.exampleNutriScore
+    get() = ScoreState(
         badge = UiText.Raw("D"),
         title = UiText.Res(R.string.product_nutri_score),
         note = UiText.Res(R.string.product_nutri_score_d),
         tone = ScoreTone.NUTRI_SCORE_D,
     )
 
-internal val ScoreTileState.Companion.exampleProcessing
-    get() = ScoreTileState(
+internal val ScoreState.Companion.exampleProcessing
+    get() = ScoreState(
         badge = UiText.Res(R.string.product_processing_badge, UiArg.Numeric.WholeNumber(4.0)),
         title = UiText.Res(R.string.product_processing),
         note = UiText.Res(R.string.product_processing_4),
@@ -113,8 +171,8 @@ internal val ScoreTileState.Companion.exampleProcessing
     )
 
 internal fun ScoresState.Companion.example(
-    nutriScore: ScoreTileState? = ScoreTileState.exampleNutriScore,
-    processing: ScoreTileState? = ScoreTileState.exampleProcessing,
+    nutriScore: ScoreState? = ScoreState.exampleNutriScore,
+    processing: ScoreState? = ScoreState.exampleProcessing,
 ) = ScoresState(
     nutriScore = nutriScore,
     processing = processing,
@@ -325,14 +383,14 @@ internal fun exampleShowProduct(
     header: ProductHeaderState = ProductHeaderState.example(),
     favourite: FavouriteButtonState? = FavouriteButtonState.exampleNotFavourite,
     verdict: VerdictState = VerdictState.exampleRated(),
-    glance: GlanceState = GlanceState.example(isPerServingSelected = false, highlight = Rating.Neutral),
+    macros: MacrosState = MacrosState.example(isPerServingSelected = false, highlight = Rating.Neutral),
     scores: ScoresState? = ScoresState.example(),
     ingredients: IngredientsCardState? = IngredientsCardState.example(),
 ) = ShowProduct(
     header = header,
     favourite = favourite,
     verdict = verdict,
-    glance = glance,
+    macros = macros,
     scores = scores,
     ingredients = ingredients,
     imagePreview = null,

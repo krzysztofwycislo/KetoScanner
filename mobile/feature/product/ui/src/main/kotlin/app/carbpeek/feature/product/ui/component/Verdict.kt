@@ -1,13 +1,11 @@
 package app.carbpeek.feature.product.ui.component
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.PrimaryButton
 import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.Ui
@@ -26,12 +24,14 @@ internal fun Verdict(state: VerdictState, onAction: (ProductAction) -> Unit) {
             rating = state.rating,
             title = state.summary,
             details = state.reasons,
+            shape = RectangleShape,
         )
 
         is VerdictState.InsufficientData -> Ui.VerdictBanner(
             rating = Rating.Unknown,
             title = state.summary,
             details = listOf(state.detail),
+            shape = RectangleShape,
         ) {
             Text(text = state.advice.resolve(), style = AppTheme.typography.body)
             Ui.PrimaryButton(
@@ -39,26 +39,6 @@ internal fun Verdict(state: VerdictState, onAction: (ProductAction) -> Unit) {
                 onClick = { onAction(OnAddPhotosClicked) },
                 modifier = Modifier.fillMaxWidth(),
             )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun VerdictRatedPreview() {
-    AppTheme {
-        Box(modifier = Modifier.padding(AppTheme.spacing.l)) {
-            Verdict(VerdictState.exampleRated()) {}
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun VerdictInsufficientDataPreview() {
-    AppTheme {
-        Box(modifier = Modifier.padding(AppTheme.spacing.l)) {
-            Verdict(VerdictState.exampleInsufficientData()) {}
         }
     }
 }

@@ -32,15 +32,14 @@ import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.designsystem.theme.AppTheme
 import app.carbpeek.feature.product.ui.component.Footer
-import app.carbpeek.feature.product.ui.component.Glance
 import app.carbpeek.feature.product.ui.component.Header
 import app.carbpeek.feature.product.ui.component.ImagePreview
 import app.carbpeek.feature.product.ui.component.IngredientSheet
 import app.carbpeek.feature.product.ui.component.IngredientsCard
 import app.carbpeek.feature.product.ui.component.IngredientsInfoSheet
+import app.carbpeek.feature.product.ui.component.MacrosCard
 import app.carbpeek.feature.product.ui.component.ProductBlock
-import app.carbpeek.feature.product.ui.component.ScoreTiles
-import app.carbpeek.feature.product.ui.component.Verdict
+import app.carbpeek.feature.product.ui.component.RatingsCard
 import app.carbpeek.feature.product.ui.component.example
 import app.carbpeek.feature.product.ui.component.exampleFavourite
 import app.carbpeek.feature.product.ui.component.exampleInsufficientData
@@ -49,7 +48,7 @@ import app.carbpeek.feature.product.ui.event.ProductAction
 import app.carbpeek.feature.product.ui.event.ProductAction.OnRetryClicked
 import app.carbpeek.feature.product.ui.event.ProductEvent.ProductNavigation
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
-import app.carbpeek.feature.product.ui.state.GlanceState
+import app.carbpeek.feature.product.ui.state.MacrosState
 import app.carbpeek.feature.product.ui.state.ProductContentState.Error
 import app.carbpeek.feature.product.ui.state.ProductContentState.Loading
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
@@ -141,10 +140,13 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
     ) {
         Header(state.favourite, onAction)
         ProductBlock(state.header, onAction)
-        Verdict(state.verdict, onAction)
-        Glance(state.glance, onAction)
+        MacrosCard(
+            verdict = state.verdict,
+            macros = state.macros,
+            onAction = onAction,
+        )
         state.scores?.let {
-            ScoreTiles(it)
+            RatingsCard(it)
         }
         state.ingredients?.let {
             IngredientsCard(it, onAction)
@@ -178,7 +180,7 @@ private fun ProductShowRatedPerServingPreview() {
             ProductState(
                 exampleShowProduct(
                     favourite = FavouriteButtonState.exampleFavourite,
-                    glance = GlanceState.example(isPerServingSelected = true, highlight = Rating.Neutral),
+                    macros = MacrosState.example(isPerServingSelected = true, highlight = Rating.Neutral),
                 )
             )
         ) {}
@@ -194,7 +196,7 @@ private fun ProductShowInsufficientDataPreview() {
                 exampleShowProduct(
                     header = ProductHeaderState.example(name = "Mystery bar"),
                     verdict = VerdictState.exampleInsufficientData(),
-                    glance = GlanceState.example(isPerServingSelected = false, highlight = Rating.Unknown),
+                    macros = MacrosState.example(isPerServingSelected = false, highlight = Rating.Unknown),
                 )
             )
         ) {}
@@ -206,6 +208,22 @@ private fun ProductShowInsufficientDataPreview() {
 private fun ProductShowWithoutIngredientsPreview() {
     AppTheme {
         ScreenContent(ProductState(exampleShowProduct(ingredients = null))) {}
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1400)
+@Composable
+private fun ProductShowWithoutScoresPreview() {
+    AppTheme {
+        ScreenContent(ProductState(exampleShowProduct(scores = null))) {}
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 2600, fontScale = 1.5f)
+@Composable
+private fun ProductShowRatedLargeFontPreview() {
+    AppTheme {
+        ScreenContent(ProductState(exampleShowProduct())) {}
     }
 }
 

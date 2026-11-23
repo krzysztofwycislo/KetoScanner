@@ -454,16 +454,16 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `when basis is switched then glance selection and the handle follow`() = runTest {
+    fun `when basis is switched then macros selection and the handle follow`() = runTest {
         val handle = handle()
         val viewModel = createViewModel(handle)
 
         viewModel.onAction(ProductAction.OnPerServingClicked)
-        assertTrue(showProduct(viewModel).glance.isPerServingSelected)
+        assertTrue(showProduct(viewModel).macros.isPerServingSelected)
         assertEquals(true, handle.get<Boolean>(KEY_PER_SERVING_SELECTED))
 
         viewModel.onAction(ProductAction.OnPer100gClicked)
-        assertFalse(showProduct(viewModel).glance.isPerServingSelected)
+        assertFalse(showProduct(viewModel).macros.isPerServingSelected)
         assertEquals(false, handle.get<Boolean>(KEY_PER_SERVING_SELECTED))
     }
 
@@ -471,7 +471,7 @@ class ProductViewModelTest {
     fun `when handle was restored with per serving selected then per serving is shown after load`() = runTest {
         val viewModel = createViewModel(handle(KEY_PER_SERVING_SELECTED to true))
 
-        assertTrue(showProduct(viewModel).glance.isPerServingSelected)
+        assertTrue(showProduct(viewModel).macros.isPerServingSelected)
     }
 
     @Test
