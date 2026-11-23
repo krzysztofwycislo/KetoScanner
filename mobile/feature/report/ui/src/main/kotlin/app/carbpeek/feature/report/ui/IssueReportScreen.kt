@@ -188,6 +188,12 @@ private fun IssueReportRatingPreview() {
     )
 }
 
+@Preview(showBackground = true, widthDp = 360, heightDp = 1600, fontScale = 1.5f)
+@Composable
+private fun IssueReportRatingLargeFontPreview() {
+    IssueReportRatingPreview()
+}
+
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun IssueReportNutritionPreview() {
@@ -215,6 +221,12 @@ private fun IssueReportSendingPreview() {
 @Composable
 private fun IssueReportSentPreview() {
     ReportPreview(content = Sent)
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, fontScale = 1.5f)
+@Composable
+private fun IssueReportSentLargeFontPreview() {
+    IssueReportSentPreview()
 }
 
 @Preview(showBackground = true, heightDp = 800)

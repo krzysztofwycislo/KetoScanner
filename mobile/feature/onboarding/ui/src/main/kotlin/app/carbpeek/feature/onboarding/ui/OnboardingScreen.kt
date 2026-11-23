@@ -212,6 +212,12 @@ private fun OnboardingKetoPreview() {
     }
 }
 
+@Preview(showBackground = true, widthDp = 360, heightDp = 1200, fontScale = 1.5f)
+@Composable
+private fun OnboardingKetoLargeFontPreview() {
+    OnboardingKetoPreview()
+}
+
 @Preview(showBackground = true, heightDp = 844)
 @Composable
 private fun OnboardingStrictKetoPreview() {

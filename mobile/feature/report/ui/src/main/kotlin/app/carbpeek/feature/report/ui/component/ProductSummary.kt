@@ -45,8 +45,6 @@ internal fun ProductSummary(state: ProductSummaryState, modifier: Modifier = Mod
                     text = state.subtitle.resolve(),
                     style = AppTheme.typography.caption,
                     color = AppTheme.colors.text.muted,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

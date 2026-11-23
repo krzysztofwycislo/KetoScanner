@@ -108,11 +108,17 @@ private fun BoxScope.TallCameraLayout(
         Spacer(Modifier.height(AppTheme.spacing.xl * 2))
         Ui.ScanFrame(
             mode = camera.frame,
-            modifier = frameModifier,
+            modifier = Modifier
+                .weight(weight = 1f, fill = false)
+                .then(frameModifier),
         )
         ScanHint(
             hint = camera.hint,
-            modifier = Modifier.padding(top = AppTheme.spacing.m),
+            modifier = Modifier.padding(
+                start = AppTheme.spacing.m,
+                top = AppTheme.spacing.m,
+                end = AppTheme.spacing.m,
+            ),
         )
     }
     TripOverlay(
@@ -271,6 +277,12 @@ private fun ScanFirstHintPreview() {
             hintSupportingText = previewResources.firstScanHintBody(DietMode.KETO),
         ),
     )
+}
+
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanFirstHintLargeFontPreview() {
+    ScanFirstHintPreview()
 }
 
 @Preview(widthDp = 891, heightDp = 411)

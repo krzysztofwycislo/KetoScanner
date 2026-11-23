@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.R
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
+import app.carbpeek.core.designsystem.text.UiArg
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.theme.AppTheme
@@ -29,10 +31,12 @@ fun Ui.ListRowCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: UiText? = null,
+    subtitleMaxLines: Int = 1,
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val shape = AppTheme.shapes.card
+    val isTight = isTextSpaceTight()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -51,7 +55,7 @@ fun Ui.ListRowCard(
                 text = title.resolve(),
                 style = AppTheme.typography.bodyStrong,
                 color = AppTheme.colors.text.default,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             if (subtitle != null) {
@@ -59,12 +63,19 @@ fun Ui.ListRowCard(
                     text = subtitle.resolve(),
                     style = AppTheme.typography.bodySmall,
                     color = AppTheme.colors.text.muted,
-                    maxLines = 1,
+                    maxLines = subtitleMaxLines,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            if (isTight && trailing != null) {
+                Box(modifier = Modifier.padding(top = AppTheme.spacing.xxs)) {
+                    trailing()
+                }
+            }
         }
-        trailing?.invoke()
+        if (!isTight) {
+            trailing?.invoke()
+        }
     }
 }
 
@@ -82,6 +93,28 @@ private fun ListRowCardPreview() {
             },
             trailing = {
                 Ui.VerdictPill(Rating.Positive, UiText.Res(R.string.designsystem_preview_rating))
+            },
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ListRowCardLargeFontPreview() {
+    AppTheme {
+        Ui.ListRowCard(
+            title = UiText.Res(R.string.designsystem_preview_note),
+            subtitle = UiText.Res(R.string.designsystem_preview_body),
+            onClick = {},
+            modifier = Modifier.padding(AppTheme.spacing.m),
+            leading = {
+                Ui.IconTile(AppIcons.Scan.imageVector)
+            },
+            trailing = {
+                Ui.VerdictPill(
+                    rating = Rating.Positive,
+                    text = UiText.Res(R.string.designsystem_preview_carbs, UiArg.Numeric.Grams(57.5)),
+                )
             },
         )
     }

@@ -4,10 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,16 +76,23 @@ private fun PreviewCard(step: CaptureStepState.Preview, onAction: (PhotoCaptureA
             style = AppTheme.typography.body,
             color = AppTheme.colors.text.muted,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+        ) {
             Ui.SecondaryButton(
                 text = stringResource(R.string.report_retake),
                 onClick = { onAction(OnRetakeClicked) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
             )
             Ui.PrimaryButton(
                 text = stringResource(R.string.report_use_photo),
                 onClick = { onAction(OnUsePhotoClicked) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
             )
         }
     }

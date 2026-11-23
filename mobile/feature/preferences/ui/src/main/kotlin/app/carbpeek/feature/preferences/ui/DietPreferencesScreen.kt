@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.carbpeek.core.common.AppError
@@ -139,11 +140,12 @@ private fun ErrorContent(state: Error, onAction: (DietPreferencesAction) -> Unit
     ) {
         Text(
             text = state.message.resolve(),
-            style = AppTheme.typography.body,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
+            textAlign = TextAlign.Center,
         )
         TextButton(onClick = { onAction(OnRetryClicked) }) {
-            Text(text = stringResource(R.string.preferences_retry), style = AppTheme.typography.body)
+            Text(text = stringResource(R.string.preferences_retry), style = AppTheme.typography.bodyLarge)
         }
     }
 }
@@ -162,6 +164,12 @@ private fun DietPreferencesPresetPreview() {
             ),
         ) {}
     }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 1200, fontScale = 1.5f)
+@Composable
+private fun DietPreferencesPresetLargeFontPreview() {
+    DietPreferencesPresetPreview()
 }
 
 @Preview(showBackground = true, heightDp = 1000)

@@ -77,7 +77,7 @@ private fun IngredientSheetContent(
             state.tag?.let {
                 Text(
                     text = it.resolve(),
-                    style = AppTheme.typography.body,
+                    style = AppTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     color = colors.content,
                     modifier = Modifier

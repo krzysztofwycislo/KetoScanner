@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -19,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.CameraIconButton
 import app.carbpeek.core.designsystem.component.Screen
@@ -96,11 +99,16 @@ private fun TopRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.l),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CancelButton(onClick = { onAction(OnCancelClicked) })
-        CounterChip(counter)
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            CounterChip(counter)
+        }
         if (torchButton == null) {
             Spacer(modifier = Modifier.size(AppTheme.sizes.control.m))
         } else {
@@ -118,16 +126,18 @@ private fun TopRow(
 private fun CounterChip(counter: UiText) {
     Box(
         modifier = Modifier
-            .height(AppTheme.sizes.icon.xl)
-            .clip(AppTheme.shapes.pill)
+            .heightIn(min = AppTheme.sizes.icon.xl)
+            .clip(AppTheme.shapes.large)
             .background(AppTheme.colors.camera.chip)
-            .padding(horizontal = AppTheme.spacing.s),
+            .padding(horizontal = AppTheme.spacing.s, vertical = AppTheme.spacing.xxs),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = counter.resolve(),
-            style = AppTheme.typography.bodyStrong,
+            style = AppTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
             color = AppTheme.colors.text.inverse,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -152,10 +162,10 @@ private fun CancelButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun OverlayPreview(step: CaptureStepState) {
+private fun OverlayPreview(step: CaptureStepState, namesSubject: Boolean = false) {
     AppTheme {
         PhotoCaptureOverlay(
-            state = PhotoCaptureState.example(step),
+            state = PhotoCaptureState.example(step = step, namesSubject = namesSubject),
             camera = rememberPhotoCameraState(),
             onAction = {},
         )
@@ -172,6 +182,12 @@ private fun PhotoCaptureWaitingPreview() {
 @Composable
 private fun PhotoCaptureCameraPreview() {
     OverlayPreview(CaptureStepState.Camera.example())
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, fontScale = 1.5f)
+@Composable
+private fun PhotoCaptureCameraLargeFontPreview() {
+    OverlayPreview(step = CaptureStepState.Camera.example(), namesSubject = true)
 }
 
 @Preview(showBackground = true, heightDp = 800)
@@ -196,6 +212,12 @@ private fun PhotoCaptureCapturingPreview() {
 @Composable
 private fun PhotoCapturePreviewStepPreview() {
     OverlayPreview(CaptureStepState.Preview.example())
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, fontScale = 1.5f)
+@Composable
+private fun PhotoCapturePreviewStepLargeFontPreview() {
+    OverlayPreview(step = CaptureStepState.Preview.example(), namesSubject = true)
 }
 
 @Preview(showBackground = true, heightDp = 800)

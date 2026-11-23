@@ -115,7 +115,7 @@ private fun ScreenContent(state: FavouritesState, onAction: (FavouritesAction) -
                     ) {
                         Text(
                             text = content.message.resolve(),
-                            style = AppTheme.typography.body,
+                            style = AppTheme.typography.bodyLarge,
                             color = AppTheme.colors.text.muted,
                             textAlign = TextAlign.Center,
                         )
@@ -161,13 +161,13 @@ private fun ErrorContent(state: Error, onAction: (FavouritesAction) -> Unit) {
     ) {
         Text(
             text = state.message.resolve(),
-            style = AppTheme.typography.body,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = AppTheme.spacing.l),
         )
         TextButton(onClick = { onAction(OnRetryClicked) }) {
-            Text(text = stringResource(R.string.favourites_retry), style = AppTheme.typography.body)
+            Text(text = stringResource(R.string.favourites_retry), style = AppTheme.typography.bodyLarge)
         }
     }
 }

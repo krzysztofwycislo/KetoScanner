@@ -136,6 +136,12 @@ private fun MissingProductEmptyPreview() {
     MissingProductPreview(content = exampleMissingProductForm())
 }
 
+@Preview(showBackground = true, widthDp = 360, heightDp = 1200, fontScale = 1.5f)
+@Composable
+private fun MissingProductEmptyLargeFontPreview() {
+    MissingProductEmptyPreview()
+}
+
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun MissingProductFrontOnlyPreview() {

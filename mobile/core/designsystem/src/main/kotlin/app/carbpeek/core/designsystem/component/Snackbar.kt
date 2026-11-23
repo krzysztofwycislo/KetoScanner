@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.carbpeek.core.designsystem.R
@@ -86,7 +87,8 @@ fun Ui.Snackbar(
         }
         Text(
             text = message,
-            style = AppTheme.typography.bodyStrong,
+            style = AppTheme.typography.body,
+            fontWeight = FontWeight.SemiBold,
             color = AppTheme.colors.text.default,
             modifier = Modifier.weight(1f),
         )

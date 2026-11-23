@@ -121,7 +121,7 @@ private fun ErrorContent(state: Error, onAction: (ProductAction) -> Unit) {
     ) {
         Text(
             text = state.message.resolve(),
-            style = AppTheme.typography.body,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
             textAlign = TextAlign.Center,
         )

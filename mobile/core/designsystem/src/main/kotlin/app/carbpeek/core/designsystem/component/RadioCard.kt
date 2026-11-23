@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,9 +60,10 @@ fun Ui.RadioCard(
     ) {
         RadioDot(selected)
         Column(modifier = Modifier.weight(1f)) {
-            Row(
+            FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
+                itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = title,
@@ -92,7 +94,8 @@ fun Ui.RadioCard(
 private fun Badge(text: String) {
     Text(
         text = text,
-        style = AppTheme.typography.label,
+        style = AppTheme.typography.caption,
+        fontWeight = FontWeight.Bold,
         color = AppTheme.colors.verdict.positive.content,
         modifier = Modifier
             .background(AppTheme.colors.verdict.positive.container, AppTheme.shapes.pill)
@@ -149,6 +152,12 @@ private fun RadioCardPreview() {
             )
         }
     }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun RadioCardWithBadgeLargeFontPreview() {
+    RadioCardWithBadgePreview()
 }
 
 @Preview(showBackground = true)

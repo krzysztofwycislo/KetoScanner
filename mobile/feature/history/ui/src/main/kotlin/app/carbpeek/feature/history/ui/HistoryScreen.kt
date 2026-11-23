@@ -138,7 +138,7 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
                     ) {
                         Text(
                             text = stringResource(R.string.history_no_results),
-                            style = AppTheme.typography.body,
+                            style = AppTheme.typography.bodyLarge,
                             color = AppTheme.colors.text.muted,
                             textAlign = TextAlign.Center,
                         )
@@ -232,16 +232,18 @@ private fun Groups(groups: PersistentList<HistoryGroupState>, onAction: (History
 @Composable
 private fun ErrorContent(state: Error, onAction: (HistoryAction) -> Unit) {
     Column(
+        modifier = Modifier.padding(horizontal = AppTheme.spacing.l),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
     ) {
         Text(
             text = state.message.resolve(),
-            style = AppTheme.typography.body,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
+            textAlign = TextAlign.Center,
         )
         TextButton(onClick = { onAction(OnRetryClicked) }) {
-            Text(text = stringResource(R.string.history_retry), style = AppTheme.typography.body)
+            Text(text = stringResource(R.string.history_retry), style = AppTheme.typography.bodyLarge)
         }
     }
 }
@@ -302,6 +304,12 @@ private fun HistoryShowGroupsPreview() {
     AppTheme {
         ScreenContent(HistoryState("", true, previewFilters, ShowGroups(groups))) {}
     }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun HistoryShowGroupsLargeFontPreview() {
+    HistoryShowGroupsPreview()
 }
 
 @Preview(showBackground = true)

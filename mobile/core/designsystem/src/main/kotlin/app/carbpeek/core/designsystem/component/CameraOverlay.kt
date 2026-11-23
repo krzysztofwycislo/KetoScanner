@@ -249,7 +249,7 @@ fun Ui.CameraPillButton(
         )
         Text(
             text = text,
-            style = AppTheme.typography.bodyStrong,
+            style = AppTheme.typography.body,
             fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text.inverse,
         )
@@ -269,7 +269,7 @@ fun Ui.CameraHint(text: String, modifier: Modifier = Modifier, supportingText: S
             .then(if (hasSupportingText) Modifier.widthIn(max = AppTheme.sizes.cameraHintMaxWidth) else Modifier)
             .background(
                 color = AppTheme.colors.camera.hint,
-                shape = if (hasSupportingText) AppTheme.shapes.large else AppTheme.shapes.pill,
+                shape = if (hasSupportingText) AppTheme.shapes.large else AppTheme.shapes.extraLarge,
             )
             .padding(horizontal = spacing.m, vertical = if (hasSupportingText) spacing.s else spacing.xs),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -377,6 +377,14 @@ private fun CameraPillButtonAndHintPreview() {
             Ui.CameraPillButton(text = text, icon = AppIcons.Keyboard.imageVector, onClick = {})
             Ui.CameraHint(text = text)
         }
+    }
+}
+
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun CameraHintLargeFontPreview() {
+    CameraPreviewBox {
+        Ui.CameraHint(text = stringResource(R.string.designsystem_error_network))
     }
 }
 

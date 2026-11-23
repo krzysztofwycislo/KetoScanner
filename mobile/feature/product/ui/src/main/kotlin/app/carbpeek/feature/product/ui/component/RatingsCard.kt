@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.designsystem.text.resolve
@@ -81,7 +82,8 @@ private fun ScoreRow(state: ScoreState) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = state.title.resolve(),
-                style = AppTheme.typography.bodyStrong,
+                style = AppTheme.typography.body,
+                fontWeight = FontWeight.SemiBold,
                 color = AppTheme.colors.text.default,
             )
             Text(

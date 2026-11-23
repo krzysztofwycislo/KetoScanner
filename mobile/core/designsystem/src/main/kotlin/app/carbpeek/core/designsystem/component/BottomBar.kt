@@ -195,7 +195,7 @@ private fun RegularItem(item: BottomBarItem, selected: Boolean, modifier: Modifi
         )
         Text(
             text = item.label,
-            style = AppTheme.typography.caption,
+            style = AppTheme.typography.micro,
             color = color,
             fontWeight = if (selected) FontWeight.Bold else null,
             maxLines = 1,
@@ -242,7 +242,7 @@ private fun ProminentItem(
         }
         Text(
             text = item.label,
-            style = AppTheme.typography.caption,
+            style = AppTheme.typography.micro,
             color = if (selected) AppTheme.colors.accent else AppTheme.colors.text.default,
             fontWeight = FontWeight.Bold,
             maxLines = 1,

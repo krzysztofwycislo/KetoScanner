@@ -5,9 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.CardOverlay
 import app.carbpeek.core.designsystem.component.IconTile
@@ -87,7 +91,8 @@ private fun NotFoundCard(notFound: NotFoundCardState, onAction: (ScanAction) -> 
                 )
                 Text(
                     text = notFound.barcode.resolve(),
-                    style = AppTheme.typography.caption,
+                    style = AppTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
                     color = AppTheme.colors.text.muted,
                 )
             }
@@ -100,17 +105,23 @@ private fun NotFoundCard(notFound: NotFoundCardState, onAction: (ScanAction) -> 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (notFound.showTypeIt) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
                 ) {
                     Ui.SecondaryButton(
                         text = stringResource(R.string.scan_type_it),
                         onClick = { onAction(OnTypeItClicked) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
                     )
                     AddItButton(
                         onClick = { onAction(OnAddItClicked) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
                     )
                 }
             } else {
@@ -155,6 +166,12 @@ private fun ScanNotFoundPermissionPanelPreview() {
             notFound = previewNotFound.copy(showTypeIt = false, dismissLabel = previewResources.close()),
         )
     )
+}
+
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanNotFoundLargeFontPreview() {
+    ScanNotFoundPreview()
 }
 
 @Preview(widthDp = 891, heightDp = 411)

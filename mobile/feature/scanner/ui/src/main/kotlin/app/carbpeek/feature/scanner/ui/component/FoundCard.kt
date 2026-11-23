@@ -5,9 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -107,7 +110,7 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
                 found.brand?.let {
                     Text(
                         text = it.resolve(),
-                        style = AppTheme.typography.body,
+                        style = AppTheme.typography.bodySmall,
                         color = AppTheme.colors.text.muted,
                     )
                 }
@@ -119,16 +122,23 @@ private fun FoundCard(found: FoundCardState, onAction: (ScanAction) -> Unit) {
             details = listOf(found.detail),
             highlighted = found.showVerdictTip,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
+        ) {
             Ui.SecondaryButton(
                 text = stringResource(R.string.scan_next),
                 onClick = { onAction(OnScanNextClicked) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
             )
             Ui.PrimaryButton(
                 text = stringResource(R.string.scan_details),
                 onClick = { onAction(OnDetailsClicked) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
             )
         }
     }
@@ -160,6 +170,12 @@ private fun ScanFoundInsufficientDataPreview() {
     )
 }
 
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanFoundRatedLargeFontPreview() {
+    ScanFoundRatedPreview()
+}
+
 @Preview(widthDp = 891, heightDp = 411)
 @Composable
 private fun ScanFoundLandscapePreview() {
@@ -172,6 +188,12 @@ private fun ScanFoundVerdictTipPreview() {
     ScanScreenPreview(
         previewState(isPaused = true, frame = ScanFrameMode.Found, found = previewFound.copy(showVerdictTip = true)),
     )
+}
+
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanFoundVerdictTipLargeFontPreview() {
+    ScanFoundVerdictTipPreview()
 }
 
 @Preview(widthDp = 891, heightDp = 411)

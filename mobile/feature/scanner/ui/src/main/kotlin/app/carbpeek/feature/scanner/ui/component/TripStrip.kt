@@ -28,6 +28,7 @@ import app.carbpeek.core.designsystem.component.FadeVisibility
 import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.cameraColor
+import app.carbpeek.core.designsystem.component.isTextSpaceTight
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -76,7 +77,8 @@ private fun TripStrip(
     ) {
         Text(
             text = stringResource(R.string.scan_trip_title).uppercase(),
-            style = AppTheme.typography.label,
+            style = AppTheme.typography.caption,
+            fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text.onHero,
         )
         if (vertical) {
@@ -109,16 +111,18 @@ private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifi
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = item.icon.imageVector,
-            contentDescription = null,
-            tint = AppTheme.colors.text.inverse,
-            modifier = Modifier.size(AppTheme.sizes.icon.s),
-        )
+        if (!isTextSpaceTight()) {
+            Icon(
+                imageVector = item.icon.imageVector,
+                contentDescription = null,
+                tint = AppTheme.colors.text.inverse,
+                modifier = Modifier.size(AppTheme.sizes.icon.s),
+            )
+        }
         Column {
             Text(
                 text = item.name.resolve(),
-                style = AppTheme.typography.caption,
+                style = AppTheme.typography.micro,
                 color = AppTheme.colors.text.inverse,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -157,6 +161,12 @@ private fun ScanTripSingleItemPreview() {
             ),
         )
     )
+}
+
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanTripLargeFontPreview() {
+    ScanTripPreview()
 }
 
 @Preview(widthDp = 891, heightDp = 411)

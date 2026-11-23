@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -62,21 +62,25 @@ fun Ui.HeroCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(HERO_CARD_HEIGHT)
+            .heightIn(min = HERO_CARD_HEIGHT)
             .clip(AppTheme.shapes.extraLarge)
             .background(colors.background.hero)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(AppTheme.spacing.l),
     ) {
-        HeroIllustration(
-            frameColor = colors.text.highlight,
-            barsColor = colors.text.inverse,
-            width = HERO_ILLUSTRATION_WIDTH,
-            height = HERO_ILLUSTRATION_HEIGHT,
-            modifier = Modifier.align(Alignment.TopEnd),
-        )
+        if (!isTextSpaceTight()) {
+            HeroIllustration(
+                frameColor = colors.text.highlight,
+                barsColor = colors.text.inverse,
+                width = HERO_ILLUSTRATION_WIDTH,
+                height = HERO_ILLUSTRATION_HEIGHT,
+                modifier = Modifier.align(Alignment.TopEnd),
+            )
+        }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = HERO_CARD_HEIGHT - AppTheme.spacing.l * 2),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
@@ -84,7 +88,10 @@ fun Ui.HeroCard(
                 style = AppTheme.typography.label,
                 color = colors.text.highlight,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
+            Column(
+                modifier = Modifier.padding(vertical = AppTheme.spacing.s),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
+            ) {
                 Text(
                     text = title,
                     style = AppTheme.typography.headline,
@@ -168,6 +175,22 @@ private fun HeroCardPreview() {
             eyebrow = stringResource(R.string.designsystem_preview_rating),
             title = stringResource(R.string.designsystem_preview_title),
             body = stringResource(R.string.designsystem_preview_body),
+            actionText = stringResource(R.string.designsystem_preview_button),
+            actionIcon = AppIcons.Scan.imageVector,
+            onClick = {},
+            modifier = Modifier.padding(AppTheme.spacing.m),
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun HeroCardLargeFontPreview() {
+    AppTheme {
+        Ui.HeroCard(
+            eyebrow = stringResource(R.string.designsystem_preview_rating),
+            title = stringResource(R.string.designsystem_preview_note),
+            body = stringResource(R.string.designsystem_error_network),
             actionText = stringResource(R.string.designsystem_preview_button),
             actionIcon = AppIcons.Scan.imageVector,
             onClick = {},

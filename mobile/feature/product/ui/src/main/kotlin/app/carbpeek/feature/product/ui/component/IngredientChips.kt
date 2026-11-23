@@ -86,7 +86,7 @@ private fun IngredientChip(state: IngredientChipState, onClick: () -> Unit) {
                 state.count?.let {
                     Text(
                         text = it.resolve(),
-                        style = AppTheme.typography.body,
+                        style = AppTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
                         color = AppTheme.colors.text.muted,
                         maxLines = 1,
@@ -135,7 +135,7 @@ private fun MarkIcon(icon: AppIcon) {
 private fun MarkText(text: String) {
     Text(
         text = text,
-        style = AppTheme.typography.bodySmall,
+        style = AppTheme.typography.caption,
         fontWeight = FontWeight.ExtraBold,
         color = AppTheme.colors.text.inverse,
     )

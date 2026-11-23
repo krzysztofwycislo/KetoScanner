@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,11 +21,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.ProductImage
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.isTextSpaceTight
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
+import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.theme.AppColors
 import app.carbpeek.core.designsystem.theme.AppTheme
@@ -40,6 +44,7 @@ internal fun PhotoSlotCard(
     modifier: Modifier = Modifier,
 ) {
     val shape = AppTheme.shapes.card
+    val isTight = isTextSpaceTight()
     val outline = if (state.photoUri == null) {
         Modifier.dashedBorder(
             width = AppTheme.borders.control,
@@ -76,9 +81,10 @@ internal fun PhotoSlotCard(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
         ) {
-            Row(
+            FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
+                itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = state.label.resolve(),
@@ -92,13 +98,23 @@ internal fun PhotoSlotCard(
                 style = AppTheme.typography.bodySmall,
                 color = AppTheme.colors.text.muted,
             )
+            if (isTight) {
+                ActionText(state.actionLabel)
+            }
         }
-        Text(
-            text = state.actionLabel.resolve(),
-            style = AppTheme.typography.label,
-            color = AppTheme.colors.text.accent,
-        )
+        if (!isTight) {
+            ActionText(state.actionLabel)
+        }
     }
+}
+
+@Composable
+private fun ActionText(text: UiText) {
+    Text(
+        text = text.resolve(),
+        style = AppTheme.typography.label,
+        color = AppTheme.colors.text.accent,
+    )
 }
 
 @Composable
@@ -133,7 +149,8 @@ private fun TagPill(text: String, tone: SlotTagTone) {
     val colors = tone.colors()
     Text(
         text = text,
-        style = AppTheme.typography.label,
+        style = AppTheme.typography.caption,
+        fontWeight = FontWeight.Bold,
         color = colors.content,
         modifier = Modifier
             .background(colors.container, AppTheme.shapes.pill)
@@ -169,6 +186,12 @@ private fun PhotoSlotCardEmptyRequiredPreview() {
 @Composable
 private fun PhotoSlotCardEmptyRecommendedPreview() {
     PhotoSlotCardPreview(state = PhotoSlotState.example(slot = PhotoSlot.INGREDIENTS))
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun PhotoSlotCardEmptyRecommendedLargeFontPreview() {
+    PhotoSlotCardEmptyRecommendedPreview()
 }
 
 @Preview(showBackground = true)

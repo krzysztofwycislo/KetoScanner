@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.ProductImage
 import app.carbpeek.core.designsystem.component.Ui
@@ -64,7 +65,8 @@ internal fun PhotosRow(
         }
         Text(
             text = stringResource(R.string.report_photos_hint),
-            style = AppTheme.typography.bodySmall,
+            style = AppTheme.typography.caption,
+            fontWeight = FontWeight.Medium,
             color = AppTheme.colors.text.muted,
         )
     }

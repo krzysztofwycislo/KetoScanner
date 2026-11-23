@@ -1,14 +1,17 @@
 package app.carbpeek.feature.scanner.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -23,6 +26,8 @@ import app.carbpeek.feature.scanner.ui.event.ScanAction
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnQueryChanged
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 
+private const val INPUT_MIN_WIDTH_IN_FONT_SIZES = 10
+
 @Composable
 internal fun BarcodeEntry(
     query: String,
@@ -30,10 +35,12 @@ internal fun BarcodeEntry(
     onAction: (ScanAction) -> Unit,
     inputModifier: Modifier = Modifier,
 ) {
-    Row(
+    val fontSize = with(LocalDensity.current) { AppTheme.typography.bodyLarge.fontSize.toDp() }
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        itemVerticalAlignment = Alignment.CenterVertically,
     ) {
         Ui.TextInput(
             value = query,
@@ -41,6 +48,7 @@ internal fun BarcodeEntry(
             placeholder = stringResource(R.string.scan_barcode_placeholder),
             modifier = inputModifier
                 .weight(1f)
+                .width(fontSize * INPUT_MIN_WIDTH_IN_FONT_SIZES)
                 .testTag("searchInput"),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { onAction(OnSearchSubmitted) }),

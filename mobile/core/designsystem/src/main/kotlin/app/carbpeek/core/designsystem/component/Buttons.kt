@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -81,7 +80,7 @@ fun Ui.PrimaryButton(
                         )
                         Spacer(modifier = Modifier.width(AppTheme.spacing.xs))
                     }
-                    Text(text = text, style = AppTheme.typography.button)
+                    Text(text = text, style = AppTheme.typography.button, textAlign = TextAlign.Center)
                 }
             }
         }
@@ -97,7 +96,7 @@ fun Ui.SecondaryButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(AppTheme.sizes.control.m),
+        modifier = modifier.heightIn(min = AppTheme.sizes.control.m),
         enabled = enabled,
         shape = AppTheme.shapes.control,
         border = BorderStroke(AppTheme.borders.control, AppTheme.colors.border.strong),
@@ -106,7 +105,7 @@ fun Ui.SecondaryButton(
             contentColor = AppTheme.colors.text.default,
         ),
     ) {
-        Text(text = text, style = AppTheme.typography.button)
+        Text(text = text, style = AppTheme.typography.button, textAlign = TextAlign.Center)
     }
 }
 
@@ -148,6 +147,23 @@ private fun ButtonsPreview() {
             Ui.PrimaryButton(text = text, onClick = {}, loading = true)
             Ui.SecondaryButton(text = text, onClick = {})
             Ui.SecondaryButton(text = text, onClick = {}, enabled = false)
+            Ui.TextButton(text = text, onClick = {})
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ButtonsLargeFontPreview() {
+    AppTheme {
+        val text = stringResource(R.string.designsystem_preview_note)
+        Column(
+            modifier = Modifier.padding(AppTheme.spacing.m),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        ) {
+            Ui.PrimaryButton(text = text, onClick = {})
+            Ui.PrimaryButton(text = text, onClick = {}, icon = AppIcons.Scan)
+            Ui.SecondaryButton(text = text, onClick = {})
             Ui.TextButton(text = text, onClick = {})
         }
     }

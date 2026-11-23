@@ -170,6 +170,7 @@ private fun AppThemePreview() {
                     button,
                     label,
                     caption,
+                    micro,
                 )
             }.forEach {
                 Text(sample, style = it, color = colors.text.default)

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +33,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import app.carbpeek.core.designsystem.component.CameraHint
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.text.resolve
@@ -114,46 +118,51 @@ private fun CaptureFrame(modifier: Modifier) {
 
 @Composable
 private fun BottomRow(isShutterEnabled: Boolean, onAction: (PhotoCaptureAction) -> Unit) {
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = AppTheme.spacing.l, vertical = AppTheme.spacing.xl),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        GalleryButton(
-            onClick = { onAction(OnGalleryClicked) },
-            modifier = Modifier.align(Alignment.CenterStart),
-        )
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            GalleryButton(onClick = { onAction(OnGalleryClicked) })
+        }
         ShutterButton(
             isEnabled = isShutterEnabled,
             onClick = { onAction(OnShutterClicked) },
-            modifier = Modifier.align(Alignment.Center),
         )
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun GalleryButton(onClick: () -> Unit, modifier: Modifier) {
+private fun GalleryButton(onClick: () -> Unit) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .defaultMinSize(minHeight = AppTheme.sizes.control.m)
-            .clip(AppTheme.shapes.pill)
+            .clip(AppTheme.shapes.large)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = AppTheme.spacing.s),
+            .padding(horizontal = AppTheme.spacing.s, vertical = AppTheme.spacing.xxs),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = stringResource(R.string.report_from_gallery),
-            style = AppTheme.typography.bodyStrong,
+            style = AppTheme.typography.body,
+            fontWeight = FontWeight.SemiBold,
             color = AppTheme.colors.text.inverse,
+            textAlign = TextAlign.Center,
         )
     }
 }
 
 @Composable
-private fun ShutterButton(isEnabled: Boolean, onClick: () -> Unit, modifier: Modifier) {
+private fun ShutterButton(isEnabled: Boolean, onClick: () -> Unit) {
     val label = stringResource(R.string.report_take_photo)
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(AppTheme.sizes.control.xl)
             .clip(AppTheme.shapes.circle)
             .border(

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.R
 import app.carbpeek.core.designsystem.icon.AppIcons
@@ -31,8 +31,13 @@ fun Ui.InfoChip(
     Row(
         modifier = modifier
             .defaultMinSize(minHeight = AppTheme.sizes.control.xs)
-            .background(AppTheme.colors.background.subtle, AppTheme.shapes.pill)
-            .padding(start = AppTheme.spacing.xs, end = AppTheme.spacing.s),
+            .background(AppTheme.colors.background.subtle, AppTheme.shapes.extraLarge)
+            .padding(
+                start = AppTheme.spacing.xs,
+                top = AppTheme.spacing.xxs,
+                end = AppTheme.spacing.s,
+                bottom = AppTheme.spacing.xxs,
+            ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -47,8 +52,6 @@ fun Ui.InfoChip(
             style = AppTheme.typography.caption,
             fontWeight = FontWeight.Bold,
             color = color,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -61,6 +64,20 @@ private fun InfoChipPreview() {
             text = stringResource(R.string.designsystem_preview_title),
             icon = AppIcons.Cheese.imageVector,
             modifier = Modifier.padding(AppTheme.spacing.m),
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun InfoChipLargeFontPreview() {
+    AppTheme {
+        Ui.InfoChip(
+            text = stringResource(R.string.designsystem_category_tea_and_greens),
+            icon = AppIcons.Leaf.imageVector,
+            modifier = Modifier
+                .padding(AppTheme.spacing.m)
+                .widthIn(max = AppTheme.sizes.control.xl * 3),
         )
     }
 }

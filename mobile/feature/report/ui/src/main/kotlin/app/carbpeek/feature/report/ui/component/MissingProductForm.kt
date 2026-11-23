@@ -51,7 +51,7 @@ internal fun MissingProductForm(
         ) {
             Text(
                 text = stringResource(R.string.report_missing_intro),
-                style = AppTheme.typography.body,
+                style = AppTheme.typography.bodyLarge,
                 color = AppTheme.colors.text.subtle,
             )
             Ui.InfoChip(

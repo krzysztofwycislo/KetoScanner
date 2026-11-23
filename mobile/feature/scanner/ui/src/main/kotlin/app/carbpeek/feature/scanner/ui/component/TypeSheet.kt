@@ -128,6 +128,12 @@ private fun ScanSearchingPreview() {
     )
 }
 
+@Preview(widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun ScanTypeSheetLargeFontPreview() {
+    ScanTypeSheetPreview()
+}
+
 @Preview(widthDp = 891, heightDp = 411)
 @Composable
 private fun ScanTypeSheetLandscapePreview() {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -28,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -126,14 +129,16 @@ private fun ScreenContent(state: HomeState, onAction: (HomeAction) -> Unit) {
 
 @Composable
 private fun Header(profileLabel: UiText, onAction: (HomeAction) -> Unit) {
-    Row(
+    FlowRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = AppTheme.spacing.l, end = AppTheme.spacing.l, top = AppTheme.spacing.xxl),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        itemVerticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
+            modifier = Modifier.padding(end = AppTheme.spacing.xs),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -198,7 +203,8 @@ private fun RecentTitle(showSeeAll: Boolean, onAction: (HomeAction) -> Unit) {
             ) {
                 Text(
                     text = stringResource(R.string.home_see_all),
-                    style = AppTheme.typography.label,
+                    style = AppTheme.typography.body,
+                    fontWeight = FontWeight.Bold,
                     color = AppTheme.colors.text.accent,
                 )
                 Icon(
@@ -240,6 +246,7 @@ private fun LazyListScope.recentContent(
             Ui.ListRowCard(
                 title = item.name,
                 subtitle = item.time,
+                subtitleMaxLines = 2,
                 onClick = { onAction(OnEntryClicked(item.barcode)) },
                 leading = {
                     Ui.IconTile(item.icon.imageVector)
@@ -285,11 +292,12 @@ private fun ErrorContent(state: Error, onAction: (HomeAction) -> Unit) {
     ) {
         Text(
             text = state.message.resolve(),
-            style = AppTheme.typography.body,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
+            textAlign = TextAlign.Center,
         )
         TextButton(onClick = { onAction(OnRetryClicked) }) {
-            Text(text = stringResource(R.string.home_retry), style = AppTheme.typography.body)
+            Text(text = stringResource(R.string.home_retry), style = AppTheme.typography.bodyLarge)
         }
     }
 }
@@ -334,6 +342,18 @@ private fun HomeShowItemsPreview() {
     AppTheme {
         ScreenContent(HomeState(previewProfile, ShowItems(items), showSeeAll = true)) {}
     }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.15f)
+@Composable
+private fun HomeShowItemsMediumFontPreview() {
+    HomeShowItemsPreview()
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun HomeShowItemsLargeFontPreview() {
+    HomeShowItemsPreview()
 }
 
 @Preview(showBackground = true)

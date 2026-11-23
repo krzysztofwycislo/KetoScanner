@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.component.IconTile
 import app.carbpeek.core.designsystem.component.ListRowCard
@@ -101,7 +102,8 @@ private fun GroupHeader(group: FavouriteGroupState, onAction: (FavouritesAction)
         )
         Text(
             text = group.count.resolve(),
-            style = AppTheme.typography.label,
+            style = AppTheme.typography.caption,
+            fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text.muted,
             modifier = Modifier
                 .background(AppTheme.colors.background.subtle, AppTheme.shapes.pill)
@@ -146,6 +148,12 @@ private fun FavouriteGroupsPreview() {
     AppTheme {
         Groups(previewGroups) {}
     }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun FavouriteGroupsLargeFontPreview() {
+    FavouriteGroupsPreview()
 }
 
 @Preview(showBackground = true)
