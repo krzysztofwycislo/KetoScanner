@@ -14,6 +14,8 @@ internal data class ProductStatePrototype(
     val isImagePreviewOpen: Boolean = false,
     val isNameExpanded: Boolean = false,
     val isPerServingSelected: Boolean = false,
+    val openIngredientIndex: Int? = null,
+    val isIngredientsInfoOpen: Boolean = false,
 ) {
 
     companion object {

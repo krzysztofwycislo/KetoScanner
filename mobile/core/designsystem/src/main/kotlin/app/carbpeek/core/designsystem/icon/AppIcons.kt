@@ -51,4 +51,8 @@ object AppIcons {
     val Plus = AppIcon(R.drawable.ic_plus)
     val Camera = AppIcon(R.drawable.ic_camera)
     val Barcode = AppIcon(R.drawable.ic_barcode)
+    val SugarCube = AppIcon(R.drawable.ic_sugar_cube)
+    val Drop = AppIcon(R.drawable.ic_drop)
+    val WheatEar = AppIcon(R.drawable.ic_wheat_ear)
+    val Glass = AppIcon(R.drawable.ic_glass)
 }

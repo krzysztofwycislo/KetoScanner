@@ -12,6 +12,8 @@ data class ApiProduct(
     @SerialName("serving_quantity") val servingQuantity: String? = null,
     @SerialName("categories_tags") val categoriesTags: List<String>? = null,
     @SerialName("ingredients") val ingredients: List<ApiIngredient>? = null,
+    @SerialName("ingredients_text") val ingredientsText: String? = null,
     @SerialName("nutriscore_grade") val nutriScoreGrade: String? = null,
     @SerialName("nova_group") val novaGroup: String? = null,
+    @SerialName("lang") val language: String? = null,
 )

@@ -6,8 +6,12 @@ import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.designsystem.text.label
 import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.analysis.api.model.AnalyzedIngredient
 import app.carbpeek.feature.analysis.api.model.DietRate
+import app.carbpeek.feature.analysis.api.model.IngredientKind
+import app.carbpeek.feature.analysis.api.model.IngredientName
 import app.carbpeek.feature.analysis.api.model.RatingReason
+import app.carbpeek.feature.analysis.api.model.Vitamin
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.product.api.model.NovaGroup
 import app.carbpeek.feature.product.api.model.NutriScoreGrade
@@ -119,6 +123,92 @@ internal class ProductResources {
         return UiText.Res(id)
     }
 
+    fun ingredientName(name: IngredientName): UiText =
+        ingredientName(name = name, rawName = { it.replaceFirstChar(Char::uppercase) })
+
+    fun ingredientChipLabel(ingredient: AnalyzedIngredient): UiText {
+        val name = ingredientName(ingredient.name)
+        val percent = ingredient.declaredPercent ?: return name
+        return UiText.Res(
+            R.string.product_ingredient_with_percent,
+            UiArg.Nested(name),
+            UiArg.Numeric.LabelPercent(percent / PERCENT),
+        )
+    }
+
+    fun ingredientChipDescription(ingredient: AnalyzedIngredient): UiText {
+        val label = ingredientChipLabel(ingredient)
+        val tag = ingredientTag(ingredient.kind) ?: return label
+        return UiText.Res(R.string.product_ingredient_description, UiArg.Nested(label), UiArg.Nested(tag))
+    }
+
+    fun ingredientTag(kind: IngredientKind): UiText? = when (kind) {
+        IngredientKind.ADDED_SUGAR -> UiText.Res(R.string.product_ingredient_tag_added_sugar)
+        IngredientKind.POLYOL,
+        IngredientKind.SWEETENER,
+        -> UiText.Res(R.string.product_ingredient_tag_sweetener)
+        IngredientKind.STARCH -> UiText.Res(R.string.product_ingredient_tag_starch)
+        IngredientKind.MILK -> UiText.Res(R.string.product_ingredient_tag_milk)
+        IngredientKind.ADDITIVE -> UiText.Res(R.string.product_ingredient_tag_additive)
+        IngredientKind.PLAIN -> null
+    }
+
+    fun ingredientWhatHeading(): UiText = UiText.Res(R.string.product_ingredient_what)
+
+    fun ingredientWhat(kind: IngredientKind): UiText? = when (kind) {
+        IngredientKind.ADDED_SUGAR -> UiText.Res(R.string.product_ingredient_what_added_sugar)
+        IngredientKind.POLYOL -> UiText.Res(R.string.product_ingredient_what_polyol)
+        IngredientKind.SWEETENER -> UiText.Res(R.string.product_ingredient_what_sweetener)
+        IngredientKind.STARCH -> UiText.Res(R.string.product_ingredient_what_starch)
+        IngredientKind.MILK -> UiText.Res(R.string.product_ingredient_what_milk)
+        IngredientKind.ADDITIVE -> UiText.Res(R.string.product_ingredient_what_additive)
+        IngredientKind.PLAIN -> null
+    }
+
+    fun ingredientDoesHeading(): UiText = UiText.Res(R.string.product_ingredient_does)
+
+    fun ingredientDoes(kind: IngredientKind): UiText? = when (kind) {
+        IngredientKind.POLYOL,
+        IngredientKind.SWEETENER,
+        -> UiText.Res(R.string.product_ingredient_does_sweetener)
+        IngredientKind.ADDED_SUGAR,
+        IngredientKind.STARCH,
+        IngredientKind.MILK,
+        IngredientKind.ADDITIVE,
+        IngredientKind.PLAIN,
+        -> null
+    }
+
+    fun ingredientNoDescription(): UiText = UiText.Res(R.string.product_ingredient_no_description)
+
+    fun ingredientContains(names: List<IngredientName>): UiText? {
+        if (names.isEmpty()) {
+            return null
+        }
+        val list = names
+            .map { name -> ingredientName(name = name, rawName = { it }) }
+            .reduceIndexed { index, list, name ->
+                val id = if (index == names.lastIndex) {
+                    R.string.product_ingredient_list_last
+                } else {
+                    R.string.product_ingredient_list_more
+                }
+                UiText.Res(id, UiArg.Nested(list), UiArg.Nested(name))
+            }
+        return UiText.Res(R.string.product_ingredient_contains, UiArg.Nested(list))
+    }
+
+    fun ingredientLabelName(name: IngredientName): UiText? {
+        val isRenamed = name.vitamin != null || !name.name.equals(name.labelName, ignoreCase = true)
+        val isReplacedInTitle = name.eNumber == null ||
+            (name.knownENumberName() != null && !name.hasCodeAsLabelName())
+        return if (isRenamed && isReplacedInTitle) {
+            UiText.Res(R.string.product_ingredient_label_name, UiArg.Text(name.labelName))
+        } else {
+            null
+        }
+    }
+
     fun favouriteDescription(isFavourite: Boolean): UiText =
         if (isFavourite) UiText.Res(R.string.product_remove_from_favourites)
         else UiText.Res(R.string.product_add_to_favourites)
@@ -130,4 +220,62 @@ internal class ProductResources {
     fun error(error: AppError): UiText = error.toUiText()
 
     private fun missingValue(): UiText = UiText.Res(R.string.product_value_missing)
+
+    private fun ingredientName(name: IngredientName, rawName: (String) -> String): UiText {
+        name.vitamin?.let { return vitaminName(it) }
+        val eNumber = name.eNumber ?: return UiText.Raw(rawName(name.name))
+        val knownName = name.knownENumberName()
+        return when {
+            knownName != null -> UiText.Res(
+                R.string.product_ingredient_name_with_e_number,
+                UiArg.Nested(knownName),
+                UiArg.Text(eNumber),
+            )
+            name.hasCodeAsLabelName() -> UiText.Raw(eNumber)
+            name.labelName.holdsCode(eNumber) -> UiText.Raw(rawName(name.labelName))
+            else -> UiText.Res(
+                R.string.product_ingredient_name_with_e_number,
+                UiArg.Text(rawName(name.labelName)),
+                UiArg.Text(eNumber),
+            )
+        }
+    }
+
+    private fun vitaminName(vitamin: Vitamin): UiText = when (vitamin) {
+        Vitamin.RIBOFLAVIN -> UiText.Res(R.string.product_ingredient_vitamin_b2)
+        Vitamin.NIACIN -> UiText.Res(R.string.product_ingredient_vitamin_b3)
+    }
+
+    private fun IngredientName.hasCodeAsLabelName(): Boolean = labelName.trim().matches(eNumberCodePattern)
+
+    private fun String.holdsCode(eNumber: String): Boolean =
+        filter(Char::isLetterOrDigit).contains(eNumber, ignoreCase = true)
+
+    private fun IngredientName.knownENumberName(): UiText? = when (eNumber?.filter(Char::isDigit)) {
+        "420" -> UiText.Res(R.string.product_ingredient_e420)
+        "421" -> UiText.Res(R.string.product_ingredient_e421)
+        "950" -> UiText.Res(R.string.product_ingredient_e950)
+        "951" -> UiText.Res(R.string.product_ingredient_e951)
+        "952" -> UiText.Res(R.string.product_ingredient_e952)
+        "953" -> UiText.Res(R.string.product_ingredient_e953)
+        "954" -> UiText.Res(R.string.product_ingredient_e954)
+        "955" -> UiText.Res(R.string.product_ingredient_e955)
+        "957" -> UiText.Res(R.string.product_ingredient_e957)
+        "959" -> UiText.Res(R.string.product_ingredient_e959)
+        "960" -> UiText.Res(R.string.product_ingredient_e960)
+        "961" -> UiText.Res(R.string.product_ingredient_e961)
+        "962" -> UiText.Res(R.string.product_ingredient_e962)
+        "964" -> UiText.Res(R.string.product_ingredient_e964)
+        "965" -> UiText.Res(R.string.product_ingredient_e965)
+        "966" -> UiText.Res(R.string.product_ingredient_e966)
+        "967" -> UiText.Res(R.string.product_ingredient_e967)
+        "968" -> UiText.Res(R.string.product_ingredient_e968)
+        "969" -> UiText.Res(R.string.product_ingredient_e969)
+        else -> null
+    }
+
+    private companion object {
+        const val PERCENT = 100.0
+        val eNumberCodePattern = Regex("e[\\s-]*\\d{3,4}\\s*\\(?[a-z]*\\)?", RegexOption.IGNORE_CASE)
+    }
 }

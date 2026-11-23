@@ -51,6 +51,28 @@ class NumberFormattingTest {
         assertEquals("31%", UiArg.Numeric.Percent(0.31).format(US))
     }
 
+    @Test
+    fun `when LabelPercent has one fraction digit then one is shown`() {
+        assertEquals("8.7%", UiArg.Numeric.LabelPercent(0.087).format(US))
+    }
+
+    @Test
+    fun `when LabelPercent is a whole percent then no fraction digit is shown`() {
+        assertEquals("13%", UiArg.Numeric.LabelPercent(0.13).format(US))
+    }
+
+    @Test
+    fun `when LabelPercent has up to three fraction digits then they are all shown`() {
+        assertEquals("8.75%", UiArg.Numeric.LabelPercent(0.0875).format(US))
+        assertEquals("0.18%", UiArg.Numeric.LabelPercent(0.0018).format(US))
+        assertEquals("0.002%", UiArg.Numeric.LabelPercent(0.00002).format(US))
+    }
+
+    @Test
+    fun `when LabelPercent is formatted in German then the decimal separator is a comma`() {
+        assertEquals("8,7", UiArg.Numeric.LabelPercent(0.087).format(GERMANY).substringBefore('%').trim())
+    }
+
     private companion object {
         val US: Locale = Locale.US
         val GERMANY: Locale = Locale.GERMANY

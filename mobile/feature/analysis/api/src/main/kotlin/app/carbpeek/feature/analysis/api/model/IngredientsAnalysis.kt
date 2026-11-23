@@ -5,38 +5,30 @@ enum class IngredientKind {
     POLYOL,
     STARCH,
     SWEETENER,
-    LACTOSE,
+    MILK,
     ADDITIVE,
     PLAIN,
 }
 
-data class AnalyzedIngredient(
-    val name: String,
-    val declaredPercent: Double?,
-    val position: Int,
-    val kind: IngredientKind,
-    val foundIn: String?,
-    val isMajor: Boolean,
-)
-
-data class IngredientCounts(
-    val addedSugars: Int,
-    val sweeteners: Int,
-    val starches: Int,
-    val additives: Int,
-)
-
-sealed interface IngredientFinding {
-
-    data object NothingAdded : IngredientFinding
-
-    data class NoCarbSweetener(val ingredient: AnalyzedIngredient) : IngredientFinding
-
-    data class CarbSource(val ingredient: AnalyzedIngredient) : IngredientFinding
+enum class Vitamin {
+    RIBOFLAVIN,
+    NIACIN,
 }
 
+data class IngredientName(
+    val name: String,
+    val labelName: String,
+    val eNumber: String?,
+    val vitamin: Vitamin?,
+)
+
+data class AnalyzedIngredient(
+    val name: IngredientName,
+    val declaredPercent: Double?,
+    val kind: IngredientKind,
+    val contains: List<IngredientName>,
+)
+
 data class IngredientsAnalysis(
-    val finding: IngredientFinding,
     val ingredients: List<AnalyzedIngredient>,
-    val counts: IngredientCounts,
 )

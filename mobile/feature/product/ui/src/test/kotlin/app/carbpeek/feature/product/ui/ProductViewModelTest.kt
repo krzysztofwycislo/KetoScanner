@@ -12,7 +12,11 @@ import app.carbpeek.core.model.Barcode
 import app.carbpeek.core.model.ProductCategory
 import app.carbpeek.core.testing.FakeErrorReporter
 import app.carbpeek.feature.analysis.api.AnalyzeProduct
+import app.carbpeek.feature.analysis.api.model.AnalyzedIngredient
 import app.carbpeek.feature.analysis.api.model.DietRate
+import app.carbpeek.feature.analysis.api.model.IngredientKind
+import app.carbpeek.feature.analysis.api.model.IngredientName
+import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
 import app.carbpeek.feature.analysis.api.model.MacronutrientAnalysisResult
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.favourites.api.FavouriteProductsRepository
@@ -470,6 +474,74 @@ class ProductViewModelTest {
     }
 
     @Test
+    fun `when an ingredient is clicked and the dialog dismissed then dialog state and handle follow`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+
+        viewModel.onAction(ProductAction.OnIngredientClicked(2))
+        assertNotNull(showProduct(viewModel).ingredientDialog)
+        assertEquals(2, handle.get<Int>(KEY_OPEN_INGREDIENT))
+
+        viewModel.onAction(ProductAction.OnIngredientDialogDismissed)
+        assertNull(showProduct(viewModel).ingredientDialog)
+        assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT))
+    }
+
+    @Test
+    fun `when handle was restored with an open ingredient then the dialog is shown once the product is shown`() =
+        runTest {
+            analyzeProduct.clearProduct()
+            products.gate()
+            val viewModel = createViewModel(handle(KEY_OPEN_INGREDIENT to 1))
+            assertEquals(ProductContentState.Loading, viewModel.state.value.content)
+
+            analyzeProduct.updates.emit(analysisWithIngredients)
+
+            assertNotNull(showProduct(viewModel).ingredientDialog)
+        }
+
+    @Test
+    fun `when the ingredients info is clicked and dismissed then dialog state and handle follow`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val handle = handle()
+        val viewModel = createViewModel(handle)
+        assertNull(showProduct(viewModel).ingredientsInfoDialog)
+
+        viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
+        assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+        assertEquals(true, handle.get<Boolean>(KEY_INGREDIENTS_INFO_OPEN))
+
+        viewModel.onAction(ProductAction.OnIngredientsInfoDismissed)
+        assertNull(showProduct(viewModel).ingredientsInfoDialog)
+        assertEquals(false, handle.get<Boolean>(KEY_INGREDIENTS_INFO_OPEN))
+    }
+
+    @Test
+    fun `when the ingredients info is clicked twice then its dialog stays open`() = runTest {
+        analyzeProduct.updates.emit(analysisWithIngredients)
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
+        viewModel.onAction(ProductAction.OnIngredientsInfoClicked)
+
+        assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+    }
+
+    @Test
+    fun `when handle was restored with the ingredients info open then its dialog is shown with the product`() =
+        runTest {
+            analyzeProduct.clearProduct()
+            products.gate()
+            val viewModel = createViewModel(handle(KEY_INGREDIENTS_INFO_OPEN to true))
+            assertEquals(ProductContentState.Loading, viewModel.state.value.content)
+
+            analyzeProduct.updates.emit(analysisWithIngredients)
+
+            assertNotNull(showProduct(viewModel).ingredientsInfoDialog)
+        }
+
+    @Test
     fun `when add photos is clicked then navigates to add the product with the barcode`() = runTest {
         val viewModel = createViewModel()
 
@@ -586,6 +658,8 @@ class ProductViewModelTest {
         const val KEY_IMAGE_PREVIEW_OPEN = "imagePreviewOpen"
         const val KEY_NAME_EXPANDED = "nameExpanded"
         const val KEY_PER_SERVING_SELECTED = "perServingSelected"
+        const val KEY_OPEN_INGREDIENT = "openIngredient"
+        const val KEY_INGREDIENTS_INFO_OPEN = "ingredientsInfoOpen"
         const val CHANGED_IMAGE_URL = "https://images.openfoodfacts.org/images/products/301/762/042/2003/back.jpg"
 
         val product = Product(
@@ -606,6 +680,19 @@ class ProductViewModelTest {
                 reasons = emptyList(),
                 carbsPer100g = 57.5,
                 dailyCarbConsumption = 40,
+            ),
+        )
+
+        val analysisWithIngredients = analysis.copy(
+            ingredients = IngredientsAnalysis(
+                ingredients = listOf("hazelnuts", "cocoa", "salt").map { name ->
+                    AnalyzedIngredient(
+                        name = IngredientName(name = name, labelName = name, eNumber = null, vitamin = null),
+                        declaredPercent = null,
+                        kind = IngredientKind.PLAIN,
+                        contains = emptyList(),
+                    )
+                },
             ),
         )
 

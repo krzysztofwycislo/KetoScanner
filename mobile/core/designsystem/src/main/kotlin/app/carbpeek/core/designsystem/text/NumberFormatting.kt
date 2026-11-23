@@ -10,6 +10,11 @@ internal fun UiArg.Numeric.format(locale: Locale): String = when (this) {
     is UiArg.Numeric.Count -> numberFormat(locale, fractionDigits = 0).format(value)
     is UiArg.Numeric.WholeNumber -> numberFormat(locale, fractionDigits = 0).format(value)
     is UiArg.Numeric.Percent -> NumberFormat.getPercentInstance(locale).withFractionDigits(0).format(fraction)
+    is UiArg.Numeric.LabelPercent -> NumberFormat.getPercentInstance(locale).apply {
+        minimumFractionDigits = 0
+        maximumFractionDigits = 3
+        roundingMode = RoundingMode.HALF_UP
+    }.format(fraction)
 }
 
 private fun numberFormat(locale: Locale, fractionDigits: Int): NumberFormat =

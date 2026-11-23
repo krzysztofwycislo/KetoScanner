@@ -6,7 +6,8 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.appendPathSegments
 
 private const val PRODUCT_FIELDS =
-    "product_name,brands,image_url,serving_quantity,nutriments,categories_tags,ingredients,nutriscore_grade,nova_group"
+    "product_name,brands,image_url,serving_quantity,nutriments,categories_tags," +
+        "ingredients,ingredients_text,nutriscore_grade,nova_group,lang"
 private const val PRODUCT_LANGUAGE = "pl"
 
 class OpenFoodFactsApi(private val client: HttpClient) {

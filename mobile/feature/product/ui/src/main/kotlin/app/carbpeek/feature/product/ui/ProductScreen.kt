@@ -35,6 +35,9 @@ import app.carbpeek.feature.product.ui.component.Footer
 import app.carbpeek.feature.product.ui.component.Glance
 import app.carbpeek.feature.product.ui.component.Header
 import app.carbpeek.feature.product.ui.component.ImagePreview
+import app.carbpeek.feature.product.ui.component.IngredientDialog
+import app.carbpeek.feature.product.ui.component.IngredientsCard
+import app.carbpeek.feature.product.ui.component.IngredientsInfoDialog
 import app.carbpeek.feature.product.ui.component.ProductBlock
 import app.carbpeek.feature.product.ui.component.ScoreTiles
 import app.carbpeek.feature.product.ui.component.Verdict
@@ -47,6 +50,8 @@ import app.carbpeek.feature.product.ui.event.ProductAction.OnRetryClicked
 import app.carbpeek.feature.product.ui.event.ProductEvent.ProductNavigation
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.GlanceState
+import app.carbpeek.feature.product.ui.state.IngredientDialogState
+import app.carbpeek.feature.product.ui.state.IngredientsInfoDialogState
 import app.carbpeek.feature.product.ui.state.ProductContentState.Error
 import app.carbpeek.feature.product.ui.state.ProductContentState.Loading
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
@@ -143,14 +148,23 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         state.scores?.let {
             ScoreTiles(it)
         }
+        state.ingredients?.let {
+            IngredientsCard(it, onAction)
+        }
         Footer(state.dataSource, onAction)
     }
     state.imagePreview?.let {
         ImagePreview(it, onAction)
     }
+    state.ingredientDialog?.let {
+        IngredientDialog(it, onAction)
+    }
+    state.ingredientsInfoDialog?.let {
+        IngredientsInfoDialog(it, onAction)
+    }
 }
 
-@Preview(showBackground = true, heightDp = 1400)
+@Preview(showBackground = true, heightDp = 2200)
 @Composable
 private fun ProductShowRatedPreview() {
     AppTheme {
@@ -185,6 +199,32 @@ private fun ProductShowInsufficientDataPreview() {
                     glance = GlanceState.example(isPerServingSelected = false, highlight = Rating.Unknown),
                 )
             )
+        ) {}
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1400)
+@Composable
+private fun ProductShowWithoutIngredientsPreview() {
+    AppTheme {
+        ScreenContent(ProductState(exampleShowProduct(ingredients = null))) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProductIngredientDialogPreview() {
+    AppTheme {
+        ScreenContent(ProductState(exampleShowProduct(ingredientDialog = IngredientDialogState.example()))) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProductIngredientsInfoDialogPreview() {
+    AppTheme {
+        ScreenContent(
+            ProductState(exampleShowProduct(ingredientsInfoDialog = IngredientsInfoDialogState.example()))
         ) {}
     }
 }

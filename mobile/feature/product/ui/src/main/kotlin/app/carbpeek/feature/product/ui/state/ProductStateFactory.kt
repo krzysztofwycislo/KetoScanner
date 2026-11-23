@@ -4,6 +4,8 @@ import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.icon
 import app.carbpeek.feature.analysis.api.model.DietRate
+import app.carbpeek.feature.analysis.api.model.IngredientKind
+import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.product.api.model.NovaGroup
 import app.carbpeek.feature.product.api.model.NutriScoreGrade
@@ -13,6 +15,7 @@ import app.carbpeek.feature.product.ui.ProductResources
 import app.carbpeek.feature.product.ui.state.ProductContentState.Error
 import app.carbpeek.feature.product.ui.state.ProductContentState.Loading
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import app.carbpeek.feature.product.ui.state.ProductStatePrototype as Prototype
@@ -35,7 +38,10 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 verdict = analysis.verdict(),
                 glance = glance(analysis),
                 scores = scores(analysis.product),
+                ingredients = analysis.ingredients?.let { ingredientsCard(it) },
                 imagePreview = imagePreview(analysis.product),
+                ingredientDialog = analysis.ingredients?.let { ingredientDialog(it) },
+                ingredientsInfoDialog = analysis.ingredients?.let { ingredientsInfoDialog() },
                 dataSource = resources.dataSource(analysis.product.barcode),
             )
         }
@@ -166,6 +172,63 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         tone = ScoreTone.PROCESSING,
     )
 
+    private fun ingredientsCard(analysis: IngredientsAnalysis): IngredientsCardState = IngredientsCardState(
+        chips = analysis.ingredients.map { ingredient ->
+            IngredientChipState(
+                label = resources.ingredientChipLabel(ingredient),
+                description = resources.ingredientChipDescription(ingredient),
+                tone = ingredient.kind.toIngredientTone(),
+            )
+        }.toPersistentList(),
+    )
+
+    private fun Prototype.ingredientDialog(analysis: IngredientsAnalysis): IngredientDialogState? {
+        val ingredient = openIngredientIndex?.let { analysis.ingredients.getOrNull(it) } ?: return null
+        val sections = ingredientSections(ingredient.kind)
+        return IngredientDialogState(
+            tag = resources.ingredientTag(ingredient.kind),
+            tone = ingredient.kind.toIngredientTone(),
+            title = resources.ingredientName(ingredient.name),
+            labelName = resources.ingredientLabelName(ingredient.name),
+            contains = resources.ingredientContains(ingredient.contains),
+            sections = sections,
+            noDescription = if (sections.isEmpty()) resources.ingredientNoDescription() else null,
+        )
+    }
+
+    private fun Prototype.ingredientsInfoDialog(): IngredientsInfoDialogState? {
+        if (!isIngredientsInfoOpen) {
+            return null
+        }
+        return IngredientsInfoDialogState(
+            legend = legendKinds.mapNotNull { kind ->
+                resources.ingredientTag(kind)?.let { label ->
+                    IngredientLegendState(tone = kind.toIngredientTone(), label = label)
+                }
+            }.toPersistentList(),
+        )
+    }
+
+    private fun ingredientSections(kind: IngredientKind): PersistentList<IngredientSectionState> = listOfNotNull(
+        resources.ingredientWhat(kind)?.let { text ->
+            IngredientSectionState(heading = resources.ingredientWhatHeading(), text = text)
+        },
+        resources.ingredientDoes(kind)?.let { text ->
+            IngredientSectionState(heading = resources.ingredientDoesHeading(), text = text)
+        },
+    ).toPersistentList()
+
+    private fun IngredientKind.toIngredientTone(): IngredientTone = when (this) {
+        IngredientKind.ADDED_SUGAR -> IngredientTone.ADDED_SUGAR
+        IngredientKind.POLYOL,
+        IngredientKind.SWEETENER,
+        -> IngredientTone.SWEETENER
+        IngredientKind.STARCH -> IngredientTone.STARCH
+        IngredientKind.MILK -> IngredientTone.MILK
+        IngredientKind.ADDITIVE -> IngredientTone.ADDITIVE
+        IngredientKind.PLAIN -> IngredientTone.PLAIN
+    }
+
     private fun DietRate.toRating(): Rating = when (this) {
         DietRate.GOOD -> Rating.Positive
         DietRate.NEUTRAL -> Rating.Neutral
@@ -177,5 +240,12 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         const val EXPANDED_NAME_LINES = 10
         const val MAX_REASONS = 2
         const val BASIS_GRAMS = 100.0
+        val legendKinds = listOf(
+            IngredientKind.ADDED_SUGAR,
+            IngredientKind.SWEETENER,
+            IngredientKind.STARCH,
+            IngredientKind.MILK,
+            IngredientKind.ADDITIVE,
+        )
     }
 }

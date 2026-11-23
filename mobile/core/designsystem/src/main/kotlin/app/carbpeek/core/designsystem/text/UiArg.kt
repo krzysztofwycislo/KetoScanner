@@ -27,5 +27,7 @@ sealed interface UiArg {
         data class WholeNumber(val value: Double) : Numeric
 
         data class Percent(val fraction: Double) : Numeric
+
+        data class LabelPercent(val fraction: Double) : Numeric
     }
 }

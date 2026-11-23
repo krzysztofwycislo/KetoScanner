@@ -213,7 +213,7 @@ class OpenFoodFactsProductSourceTest {
         assertEquals("/api/v2/product/04963406", request.url.encodedPath)
         assertEquals(
             "product_name,brands,image_url,serving_quantity,nutriments,categories_tags,ingredients," +
-                "nutriscore_grade,nova_group",
+                "ingredients_text,nutriscore_grade,nova_group,lang",
             request.url.parameters["fields"]
         )
         assertEquals("pl", request.url.parameters["lc"])
@@ -289,6 +289,7 @@ class OpenFoodFactsProductSourceTest {
         Ingredient(
             id = id,
             name = name,
+            labelName = name,
             declaredPercent = percent,
             subIngredients = sub,
         )

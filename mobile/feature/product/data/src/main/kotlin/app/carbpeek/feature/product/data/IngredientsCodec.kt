@@ -8,8 +8,9 @@ import kotlinx.serialization.json.Json
 internal data class CachedIngredient(
     val id: String,
     val name: String,
+    val label: String? = null,
     val percent: Double? = null,
-    val sub: List<CachedIngredient> = emptyList(),
+    val contents: List<CachedIngredient> = emptyList(),
 )
 
 private val ingredientsJson = Json { ignoreUnknownKeys = true }
@@ -23,14 +24,16 @@ private fun Ingredient.toCached(): CachedIngredient =
     CachedIngredient(
         id = id,
         name = name,
+        label = labelName.takeIf { it != name },
         percent = declaredPercent,
-        sub = subIngredients.map { it.toCached() },
+        contents = subIngredients.map { it.toCached() },
     )
 
 private fun CachedIngredient.toIngredient(): Ingredient =
     Ingredient(
         id = id,
         name = name,
+        labelName = label ?: name,
         declaredPercent = percent,
-        subIngredients = sub.map { it.toIngredient() },
+        subIngredients = contents.map { it.toIngredient() },
     )

@@ -53,6 +53,16 @@ class EntityMapperTest {
         assertNull(entity.novaGroup)
     }
 
+    @Test
+    fun `when stored ingredients use the old nested key then they are read without nested ingredients`() {
+        val json = """[{"id":"en:onion","name":"onion","sub":[{"id":"en:sugar","name":"sugar"}]}]"""
+
+        val ingredient = json.decodeIngredients().single()
+
+        assertEquals("onion", ingredient.name)
+        assertEquals(emptyList(), ingredient.subIngredients)
+    }
+
     private companion object {
         val FETCHED_AT = Instant.fromEpochMilliseconds(1_700_000_000_000)
 
@@ -83,23 +93,27 @@ class EntityMapperTest {
                 Ingredient(
                     id = "en:sugar",
                     name = "Sugar",
+                    labelName = "Sugar",
                     declaredPercent = null,
                     subIngredients = emptyList(),
                 ),
                 Ingredient(
                     id = "en:hazelnut",
                     name = "Hazelnuts",
+                    labelName = "Hazelnuts",
                     declaredPercent = 13.0,
                     subIngredients = emptyList(),
                 ),
                 Ingredient(
                     id = "en:milk-chocolate",
                     name = "Milk chocolate",
+                    labelName = "czekolada mleczna",
                     declaredPercent = 8.7,
                     subIngredients = listOf(
                         Ingredient(
                             id = "en:sugar",
                             name = "sugar",
+                            labelName = "sugar",
                             declaredPercent = null,
                             subIngredients = emptyList(),
                         ),

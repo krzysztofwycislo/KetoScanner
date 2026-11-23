@@ -1,17 +1,14 @@
 package app.carbpeek.feature.analysis.domain
 
-import app.carbpeek.feature.analysis.api.model.IngredientCounts
-import app.carbpeek.feature.analysis.api.model.IngredientFinding
 import app.carbpeek.feature.analysis.api.model.IngredientKind
+import app.carbpeek.feature.analysis.api.model.IngredientName
 import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
+import app.carbpeek.feature.analysis.api.model.Vitamin
 import app.carbpeek.feature.product.api.model.Ingredient
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class IngredientsAnalyzerTest {
 
@@ -22,161 +19,172 @@ class IngredientsAnalyzerTest {
     }
 
     @Test
-    fun `when sugar is listed first then it is a major carb source and named in the finding`() {
-        val analysis = analyze(ingredient("en:sugar"), ingredient("en:palm-oil"), ingredient("en:hazelnut"))
+    fun `when only label notes are listed then there is no analysis`() {
+        val note = ingredient("en:may-contain-nuts").copy(labelName = "May contain nuts")
 
-        val finding = assertIs<IngredientFinding.CarbSource>(analysis.finding)
-        assertEquals("sugar", finding.ingredient.name)
-        assertEquals(1, finding.ingredient.position)
-        assertTrue(finding.ingredient.isMajor)
+        assertNull(IngredientsAnalyzer.analyze(listOf(note)))
     }
 
     @Test
-    fun `when sugar is fourth without a declared percent then it is a minor carb source`() {
+    fun `when ingredients are listed then label order percent and own kind are kept`() {
         val analysis = analyze(
-            ingredient("en:hazelnut"),
-            ingredient("en:palm-oil"),
-            ingredient("en:cocoa"),
+            ingredient(id = "en:hazelnut", percent = 13.0),
             ingredient("en:sugar"),
+            ingredient("en:erythritol"),
+            ingredient("en:milk"),
         )
 
-        val finding = assertIs<IngredientFinding.CarbSource>(analysis.finding)
-        assertEquals("sugar", finding.ingredient.name)
-        assertFalse(finding.ingredient.isMajor)
-    }
-
-    @Test
-    fun `when a declared percent is below the threshold then a top ingredient is minor`() {
-        val analysis = analyze(ingredient("en:hazelnut"), ingredient(id = "en:sugar", percent = 5.0))
-
-        assertFalse(analysis.ingredients[1].isMajor)
-    }
-
-    @Test
-    fun `when a declared percent reaches the threshold then a late ingredient is major`() {
-        val analysis = analyze(
-            ingredient("en:hazelnut"),
-            ingredient("en:palm-oil"),
-            ingredient("en:cocoa"),
-            ingredient("en:salt"),
-            ingredient("en:vanilla"),
-            ingredient(id = "en:sugar", percent = 12.0),
-        )
-
-        assertTrue(analysis.ingredients[5].isMajor)
-    }
-
-    @Test
-    fun `when only a no carb sweetener is added then the sweetener is named`() {
-        val analysis = analyze(ingredient("en:water"), ingredient("en:erythritol"))
-
-        val finding = assertIs<IngredientFinding.NoCarbSweetener>(analysis.finding)
-        assertEquals("erythritol", finding.ingredient.name)
-    }
-
-    @Test
-    fun `when only milk and cream are listed then nothing is added`() {
-        val analysis = analyze(ingredient("en:milk"), ingredient("en:cream"))
-
-        assertEquals(IngredientFinding.NothingAdded, analysis.finding)
-        assertEquals(IngredientKind.LACTOSE, analysis.ingredients[0].kind)
-    }
-
-    @Test
-    fun `when a compound ingredient contains sugar then it is an added sugar found in that sugar`() {
-        val chocolate = ingredient(
-            id = "en:milk-chocolate",
-            sub = listOf(
-                ingredient("en:cocoa-butter"),
-                ingredient(id = "en:filling", sub = listOf(ingredient("en:sugar"))),
-                ingredient("en:e322"),
+        assertEquals(listOf("hazelnut", "sugar", "erythritol", "milk"), analysis.ingredients.map { it.name.name })
+        assertEquals(listOf(13.0, null, null, null), analysis.ingredients.map { it.declaredPercent })
+        assertEquals(
+            listOf(
+                IngredientKind.PLAIN,
+                IngredientKind.ADDED_SUGAR,
+                IngredientKind.POLYOL,
+                IngredientKind.MILK,
             ),
+            analysis.ingredients.map { it.kind },
         )
-
-        val analyzed = analyze(chocolate).ingredients.single()
-
-        assertEquals(IngredientKind.ADDED_SUGAR, analyzed.kind)
-        assertEquals("sugar", analyzed.foundIn)
-        assertEquals("milk-chocolate", analyzed.name)
     }
 
     @Test
-    fun `when weaker kinds are nested before sugar then the sugar still decides the kind`() {
-        val coating = ingredient(
-            id = "en:coating",
+    fun `when a compound ingredient contains sugar then it keeps its own kind and lists its contents`() {
+        val mustard = ingredient(
+            id = "en:mustard",
             sub = listOf(
-                ingredient("en:e322"),
-                ingredient("en:milk"),
+                ingredient("en:water"),
+                ingredient("en:mustard"),
+                ingredient("en:vinegar"),
                 ingredient("en:sugar"),
             ),
         )
 
+        val analyzed = analyze(mustard).ingredients.single()
+
+        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(listOf("water", "mustard", "vinegar", "sugar"), analyzed.contains.map { it.name })
+    }
+
+    @Test
+    fun `when the parent id is not known then its contents are still listed`() {
+        val coating = ingredient(
+            id = "fr:chocolat au LAIT avec édulcorant",
+            sub = listOf(ingredient("en:e965"), ingredient("en:cocoa-butter")),
+        )
+
         val analyzed = analyze(coating).ingredients.single()
 
-        assertEquals(IngredientKind.ADDED_SUGAR, analyzed.kind)
-        assertEquals("sugar", analyzed.foundIn)
+        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(listOf("E965", null), analyzed.contains.map { it.eNumber })
     }
 
     @Test
-    fun `when an ingredient has its own kind then nested ingredients are ignored`() {
-        val syrup = ingredient(id = "en:glucose-syrup", sub = listOf(ingredient("en:e955")))
-
-        val analyzed = analyze(syrup).ingredients.single()
-
-        assertEquals(IngredientKind.ADDED_SUGAR, analyzed.kind)
-        assertNull(analyzed.foundIn)
-    }
-
-    @Test
-    fun `the finding is the first major carb source even when a minor one is listed earlier`() {
-        val analysis = analyze(
-            ingredient("en:pork"),
-            ingredient(id = "en:potato-starch", percent = 2.0),
-            ingredient("en:palm-oil"),
-            ingredient(id = "en:glucose-syrup", percent = 15.0),
-            ingredient(id = "en:sugar", percent = 11.0),
-        )
-
-        val finding = assertIs<IngredientFinding.CarbSource>(analysis.finding)
-        assertEquals("glucose-syrup", finding.ingredient.name)
-        assertEquals(4, finding.ingredient.position)
-    }
-
-    @Test
-    fun `a carb source wins over a no carb sweetener listed before it`() {
-        val analysis = analyze(
-            ingredient("en:water"),
-            ingredient("en:e955"),
-            ingredient(id = "en:maltitol", percent = 1.0),
-        )
-
-        val finding = assertIs<IngredientFinding.CarbSource>(analysis.finding)
-        assertEquals("maltitol", finding.ingredient.name)
-    }
-
-    @Test
-    fun `counts group added sugars sweeteners starches and additives`() {
-        val analysis = analyze(
-            ingredient("en:sugar"),
-            ingredient("en:glucose-syrup"),
-            ingredient("en:maltitol"),
-            ingredient("en:e955"),
-            ingredient("en:wheat-flour"),
-            ingredient("en:e322"),
-            ingredient("en:e330"),
-            ingredient("en:e471"),
-            ingredient("en:milk"),
+    fun `when water is nested next to a flour then the contents are listed`() {
+        val sourdough = ingredient(
+            id = "en:sourdough",
+            sub = listOf(ingredient("en:water"), ingredient("en:wheat-flour")),
         )
 
         assertEquals(
-            IngredientCounts(
-                addedSugars = 2,
-                sweeteners = 2,
-                starches = 1,
-                additives = 3,
-            ),
-            analysis.counts,
+            listOf("water", "wheat-flour"),
+            analyze(sourdough).ingredients.single().contains.map { it.name },
         )
+    }
+
+    @Test
+    fun `when salt is nested next to a flour then the contents are listed`() {
+        val breadcrumbs = ingredient(
+            id = "en:breadcrumbs",
+            sub = listOf(ingredient("en:wheat-flour"), ingredient("en:salt")),
+        )
+
+        assertEquals(
+            listOf("wheat-flour", "salt"),
+            analyze(breadcrumbs).ingredients.single().contains.map { it.name },
+        )
+    }
+
+    @Test
+    fun `when an ingredient has one nested ingredient then it contains nothing`() {
+        val preservative = ingredient(id = "en:preservative", sub = listOf(ingredient("en:e202")))
+
+        assertEquals(emptyList(), analyze(preservative).ingredients.single().contains)
+    }
+
+    @Test
+    fun `when an oil or fat lists its sources then it contains nothing`() {
+        val sources = listOf(ingredient("en:sunflower-oil"), ingredient("en:corn"), ingredient("en:e306"))
+
+        listOf("en:vegetable-oil", "en:vegetable-oils", "en:palm-fat", "en:vegetable-fats").forEach { id ->
+            assertEquals(
+                emptyList(),
+                analyze(ingredient(id = id, sub = sources)).ingredients.single().contains,
+                id,
+            )
+        }
+    }
+
+    @Test
+    fun `when the nested ingredients are sources only then it contains nothing`() {
+        val fibre = ingredient(id = "en:fiber", sub = listOf(ingredient("en:corn"), ingredient("en:wheat")))
+
+        assertEquals(emptyList(), analyze(fibre).ingredients.single().contains)
+    }
+
+    @Test
+    fun `when an ingredient has an e number id then the name carries the e number and the label name`() {
+        val analysis = analyze(
+            ingredient("en:e968").copy(name = "E968", labelName = "eritritol"),
+            ingredient("en:e500ii"),
+            ingredient("en:salt"),
+        )
+
+        assertEquals(
+            IngredientName(name = "E968", labelName = "eritritol", eNumber = "E968", vitamin = null),
+            analysis.ingredients[0].name,
+        )
+        assertEquals("E500ii", analysis.ingredients[1].name.eNumber)
+        assertNull(analysis.ingredients[2].name.eNumber)
+    }
+
+    @Test
+    fun `when an ingredient is a vitamin then it is plain and its name has no e number`() {
+        val analyzed = analyze(ingredient("en:e375").copy(name = "E375", labelName = "niacyna")).ingredients.single()
+
+        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(
+            IngredientName(name = "E375", labelName = "niacyna", eNumber = null, vitamin = Vitamin.NIACIN),
+            analyzed.name,
+        )
+    }
+
+    @Test
+    fun `when vitamins are nested then they count as contents and are named as vitamins`() {
+        listOf(
+            ingredient("en:e375").copy(labelName = "niacyna") to Vitamin.NIACIN,
+            ingredient("en:e101i").copy(labelName = "ryboflawina") to Vitamin.RIBOFLAVIN,
+        ).forEach { (nested, vitamin) ->
+            val vitamins = ingredient(id = "en:vitamins", sub = listOf(ingredient("en:vitamin-b6"), nested))
+
+            val analyzed = analyze(vitamins).ingredients.single()
+
+            assertEquals(IngredientKind.PLAIN, analyzed.kind)
+            assertEquals(listOf(null, vitamin), analyzed.contains.map { it.vitamin })
+            assertEquals(listOf(null, null), analyzed.contains.map { it.eNumber })
+        }
+    }
+
+    @Test
+    fun `when nested riboflavin prints its e number then it is named as an additive`() {
+        val icing = ingredient(
+            id = "en:icing",
+            sub = listOf(ingredient("en:e101").copy(labelName = "E 101"), ingredient("en:cocoa-butter")),
+        )
+
+        val contents = analyze(icing).ingredients.single().contains
+
+        assertEquals(listOf("E101", null), contents.map { it.eNumber })
+        assertEquals(listOf(null, null), contents.map { it.vitamin })
     }
 
     private fun analyze(vararg ingredients: Ingredient): IngredientsAnalysis =
@@ -191,6 +199,7 @@ internal fun ingredient(
     Ingredient(
         id = id,
         name = id.substringAfter(":"),
+        labelName = id.substringAfter(":"),
         declaredPercent = percent,
         subIngredients = sub,
     )

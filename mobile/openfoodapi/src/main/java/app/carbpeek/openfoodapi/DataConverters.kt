@@ -9,6 +9,11 @@ import app.carbpeek.openfoodapi.data.ApiIngredient
 import app.carbpeek.openfoodapi.data.ApiNutriments
 import app.carbpeek.openfoodapi.data.GetProductResponse
 
+private const val ENGLISH = "en"
+internal const val ENGLISH_TAG_PREFIX = "en:"
+internal const val IN_TAXONOMY = 1
+private const val E_NUMBER_PREFIX = "E"
+private val E_NUMBER = Regex("e\\d+[a-z]*")
 
 internal fun parseGetProductResponse(response: GetProductResponse): Product? {
     val apiProduct = response.apiProduct ?: return null
@@ -24,29 +29,55 @@ internal fun parseGetProductResponse(response: GetProductResponse): Product? {
             imageUrl = frontImage,
             servingAmount = servingQuantity,
             category = productCategoryOf(categoriesTags),
-            ingredients = ingredients.toIngredients(),
+            ingredients = ingredients.toIngredients(language = language, labelText = ingredientsText),
             nutriScore = nutriScoreGradeOf(nutriScoreGrade),
             novaGroup = novaGroupOf(novaGroup),
         )
     }
 }
 
-internal fun List<ApiIngredient>?.toIngredients(): List<Ingredient>? =
+internal fun List<ApiIngredient>?.toIngredients(language: String?, labelText: String?): List<Ingredient>? =
     this
-        ?.mapNotNull { it.toIngredient() }
+        ?.mapNotNull { ingredient ->
+            val trustedNested = ingredient.ingredients
+                ?.takeIf { isNestingTrusted(ingredient = ingredient, labelText = labelText) }
+                .orEmpty()
+            ingredient.toIngredient(
+                language = language,
+                subIngredients = trustedNested.mapNotNull {
+                    it.toIngredient(language = language, subIngredients = emptyList())
+                },
+            )
+        }
         ?.takeIf { it.isNotEmpty() }
 
-private fun ApiIngredient.toIngredient(): Ingredient? {
-    val name = text?.trim()
-    if (name.isNullOrBlank()) {
+private fun ApiIngredient.toIngredient(language: String?, subIngredients: List<Ingredient>): Ingredient? {
+    val labelName = text?.trim()
+    if (labelName.isNullOrBlank()) {
         return null
     }
+    val englishName = id
+        ?.let(::englishIngredientNameOf)
+        ?.takeIf { language != ENGLISH && isInTaxonomy == IN_TAXONOMY }
     return Ingredient(
         id = id ?: "",
-        name = name,
+        name = englishName ?: labelName,
+        labelName = labelName,
         declaredPercent = percent?.trim()?.toDoubleOrNull(),
-        subIngredients = ingredients.toIngredients().orEmpty(),
+        subIngredients = subIngredients,
     )
+}
+
+internal fun englishIngredientNameOf(id: String): String? {
+    if (!id.startsWith(ENGLISH_TAG_PREFIX)) {
+        return null
+    }
+    val tag = id.removePrefix(ENGLISH_TAG_PREFIX).trim()
+    return when {
+        tag.isBlank() -> null
+        tag.matches(E_NUMBER) -> E_NUMBER_PREFIX + tag.drop(1)
+        else -> tag.replace('-', ' ')
+    }
 }
 
 internal fun nutriScoreGradeOf(value: String?): NutriScoreGrade? =

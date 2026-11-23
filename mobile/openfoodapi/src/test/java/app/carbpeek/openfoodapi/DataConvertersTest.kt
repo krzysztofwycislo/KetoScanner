@@ -96,8 +96,112 @@ class DataConvertersTest {
 
     @Test
     fun `an empty or textless ingredient list becomes null`() {
-        assertNull(emptyList<ApiIngredient>().toIngredients())
-        assertNull(listOf(ApiIngredient(id = "en:sugar", text = " ")).toIngredients())
+        assertNull(emptyList<ApiIngredient>().toIngredients(language = "pl", labelText = null))
+        assertNull(listOf(ApiIngredient(id = "en:sugar", text = " ")).toIngredients(language = "pl", labelText = null))
+    }
+
+    @Test
+    fun `a recognised ingredient on a foreign label gets its English name and keeps the label text`() {
+        val chocolate = ApiIngredient(
+            id = "en:milk-chocolate",
+            text = "czekolada mleczna",
+            isInTaxonomy = 1,
+            ingredients = listOf(ApiIngredient(id = "en:e322", text = "lecytyny", isInTaxonomy = 1)),
+        )
+
+        val ingredient = assertNotNull(
+            listOf(chocolate).toIngredients(language = "pl", labelText = "kakao, czekolada mleczna (lecytyny)"),
+        ).single()
+
+        assertEquals("milk chocolate", ingredient.name)
+        assertEquals("czekolada mleczna", ingredient.labelName)
+        assertEquals("E322", ingredient.subIngredients.single().name)
+        assertEquals("lecytyny", ingredient.subIngredients.single().labelName)
+    }
+
+    @Test
+    fun `an unrecognised ingredient or an English label keeps the label text`() {
+        val unknown = ApiIngredient(id = "pl:mieszanka-przypraw", text = "mieszanka przypraw", isInTaxonomy = 0)
+        val untagged = ApiIngredient(id = "en:spice-mix", text = "przyprawy")
+        val english = ApiIngredient(id = "en:e338", text = "phosphoric acid", isInTaxonomy = 1)
+
+        assertEquals(
+            listOf("mieszanka przypraw", "przyprawy"),
+            listOf(unknown, untagged).toIngredients(language = "pl", labelText = null)?.map { it.name },
+        )
+        assertEquals(
+            "phosphoric acid",
+            listOf(english).toIngredients(language = "en", labelText = null)?.single()?.name,
+        )
+    }
+
+    @Test
+    fun `nested ingredients are kept when the label opens a bracket right after the name`() {
+        listOf(
+            "canola oil, egg yolk 6,0%, vinegar, mustard (water, salt), sugar",
+            "mustard (water, salt)",
+            "27% mustard (water, salt), sugar",
+            "27,5 % mustard (water, salt), sugar",
+            "sugar, (27 %) mustard (water, salt)",
+            "sugar, mustard 27% (water, salt)",
+            "sugar, mustard (27 %) [water, salt]",
+            "sugar, _mustard_* {water, salt}",
+            "filling: mustard (water, salt)",
+            "sugar, mustard (water, mustard, salt)",
+        ).forEach { labelText ->
+            assertEquals(listOf("water", "salt"), nestedNames(mustard, labelText), labelText)
+        }
+    }
+
+    @Test
+    fun `nested ingredients are dropped when the label does not clearly open them after the name`() {
+        listOf(
+            null,
+            "",
+            "sugar, cream and mustard (water, salt)",
+            "crème acidulée et mustard (water, salt)",
+            "crème et 27,5% mustard (water, salt)",
+            "sugar, mustard: water, salt",
+            "sugar, mustard (27%): water, salt",
+            "sugar, hot mustard (water, salt)",
+            "mustard (water, salt), cream and mustard (pepper)",
+        ).forEach { labelText ->
+            assertEquals(emptyList(), nestedNames(mustard, labelText), labelText)
+        }
+    }
+
+    @Test
+    fun `nested ingredients are dropped when one of them is not in the English taxonomy`() {
+        val labelText = "mustard (water, salt)"
+        val water = ApiIngredient(id = "en:water", text = "water", isInTaxonomy = 1)
+
+        listOf(
+            ApiIngredient(id = "en:salt", text = "salt", isInTaxonomy = 0),
+            ApiIngredient(id = "en:salt", text = "salt"),
+            ApiIngredient(id = "pl:sól", text = "salt", isInTaxonomy = 1),
+            ApiIngredient(text = "salt", isInTaxonomy = 1),
+        ).forEach { salt ->
+            assertEquals(emptyList(), nestedNames(mustard.copy(ingredients = listOf(water, salt)), labelText), "$salt")
+        }
+    }
+
+    @Test
+    fun `nested ingredients never have nested ingredients of their own`() {
+        val sauce = ApiIngredient(id = "en:sauce", text = "sauce", isInTaxonomy = 1, ingredients = listOf(mustard))
+
+        val ingredient = assertNotNull(
+            listOf(sauce).toIngredients(language = "en", labelText = "sauce (mustard (water, salt))"),
+        ).single()
+
+        assertEquals(emptyList(), ingredient.subIngredients.single().subIngredients)
+    }
+
+    @Test
+    fun `English names come from the tag with spaces and E-numbers capitalised`() {
+        assertEquals("soluble corn fiber", englishIngredientNameOf("en:soluble-corn-fiber"))
+        assertEquals("E150d", englishIngredientNameOf("en:e150d"))
+        assertNull(englishIngredientNameOf("pl:cukier"))
+        assertNull(englishIngredientNameOf("en:"))
     }
 
     @Test
@@ -107,6 +211,24 @@ class DataConvertersTest {
         assertNull(product.ingredients)
         assertNull(product.nutriScore)
         assertNull(product.novaGroup)
+    }
+
+    private fun nestedNames(ingredient: ApiIngredient, labelText: String?): List<String> =
+        assertNotNull(listOf(ingredient).toIngredients(language = "en", labelText = labelText))
+            .single()
+            .subIngredients
+            .map { it.name }
+
+    private companion object {
+        val mustard = ApiIngredient(
+            id = "en:mustard",
+            text = "mustard",
+            isInTaxonomy = 1,
+            ingredients = listOf(
+                ApiIngredient(id = "en:water", text = "water", isInTaxonomy = 1),
+                ApiIngredient(id = "en:salt", text = "salt", isInTaxonomy = 1),
+            ),
+        )
     }
 
 }

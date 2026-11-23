@@ -21,7 +21,10 @@ internal sealed interface ProductContentState {
         val verdict: VerdictState,
         val glance: GlanceState,
         val scores: ScoresState?,
+        val ingredients: IngredientsCardState?,
         val imagePreview: ImagePreviewState?,
+        val ingredientDialog: IngredientDialogState?,
+        val ingredientsInfoDialog: IngredientsInfoDialogState?,
         val dataSource: UiText,
     ) : ProductContentState
 }
@@ -125,4 +128,61 @@ internal data class ImagePreviewState(
     val description: UiText,
 ) {
     companion object
+}
+
+@Immutable
+internal data class IngredientsCardState(
+    val chips: PersistentList<IngredientChipState>,
+) {
+    companion object
+}
+
+@Immutable
+internal data class IngredientChipState(
+    val label: UiText,
+    val description: UiText,
+    val tone: IngredientTone,
+) {
+    companion object
+}
+
+@Immutable
+internal data class IngredientDialogState(
+    val tag: UiText?,
+    val tone: IngredientTone,
+    val title: UiText,
+    val labelName: UiText?,
+    val contains: UiText?,
+    val sections: PersistentList<IngredientSectionState>,
+    val noDescription: UiText?,
+) {
+    companion object
+}
+
+@Immutable
+internal data class IngredientSectionState(
+    val heading: UiText,
+    val text: UiText,
+)
+
+@Immutable
+internal data class IngredientsInfoDialogState(
+    val legend: PersistentList<IngredientLegendState>,
+) {
+    companion object
+}
+
+@Immutable
+internal data class IngredientLegendState(
+    val tone: IngredientTone,
+    val label: UiText,
+)
+
+internal enum class IngredientTone {
+    ADDED_SUGAR,
+    SWEETENER,
+    STARCH,
+    MILK,
+    ADDITIVE,
+    PLAIN,
 }

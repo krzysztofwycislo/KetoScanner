@@ -6,10 +6,15 @@ import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.text.UiArg
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.model.ProductCategory
+import app.carbpeek.feature.analysis.api.model.AnalyzedIngredient
 import app.carbpeek.feature.analysis.api.model.DietRate
+import app.carbpeek.feature.analysis.api.model.IngredientKind
+import app.carbpeek.feature.analysis.api.model.IngredientName
+import app.carbpeek.feature.analysis.api.model.IngredientsAnalysis
 import app.carbpeek.feature.analysis.api.model.MacronutrientAnalysisResult
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.analysis.api.model.RatingReason
+import app.carbpeek.feature.analysis.api.model.Vitamin
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.product.api.model.NovaGroup
 import app.carbpeek.feature.product.api.model.NutriScoreGrade
@@ -18,12 +23,18 @@ import app.carbpeek.feature.product.api.model.ProductNutriments
 import app.carbpeek.feature.product.ui.state.CategoryChipState
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.ImagePreviewState
+import app.carbpeek.feature.product.ui.state.IngredientChipState
+import app.carbpeek.feature.product.ui.state.IngredientDialogState
+import app.carbpeek.feature.product.ui.state.IngredientLegendState
+import app.carbpeek.feature.product.ui.state.IngredientSectionState
+import app.carbpeek.feature.product.ui.state.IngredientTone
 import app.carbpeek.feature.product.ui.state.ProductContentState
 import app.carbpeek.feature.product.ui.state.ProductStateFactory
 import app.carbpeek.feature.product.ui.state.ScoreTileState
 import app.carbpeek.feature.product.ui.state.ScoreTone
 import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
+import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -503,6 +514,466 @@ class ProductStateFactoryTest {
         }
     }
 
+    @Test
+    fun `when the analysis has no ingredients then no ingredients block or dialog is shown`() {
+        val content = show(Prototype(analysis = rated(DietRate.GOOD), openIngredientIndex = 0))
+
+        assertNull(content.ingredients)
+        assertNull(content.ingredientDialog)
+    }
+
+    @Test
+    fun `when an analysis with insufficient data has ingredients then the card is shown`() {
+        val sugar = ingredient(name = "sugar", kind = IngredientKind.ADDED_SUGAR)
+        val analysis = ProductAnalysis.InsufficientData(
+            product = product(),
+            ingredients = IngredientsAnalysis(ingredients = listOf(sugar)),
+        )
+
+        val content = show(Prototype(analysis = analysis))
+
+        assertEquals(
+            listOf(IngredientTone.ADDED_SUGAR),
+            content.ingredients?.chips?.map { it.tone },
+        )
+    }
+
+    @Test
+    fun `when a name is shown then it is upper cased in the chip and the dialog title`() {
+        val stevia = ingredient(name = "stevia", kind = IngredientKind.SWEETENER)
+        val content = show(
+            Prototype(
+                analysis = withIngredients(listOf(stevia)),
+                openIngredientIndex = 0,
+            ),
+        )
+
+        assertEquals(UiText.Raw("Stevia"), content.ingredients?.chips?.single()?.label)
+        assertEquals(UiText.Raw("Stevia"), content.ingredientDialog?.title)
+    }
+
+    @Test
+    fun `every ingredient kind maps to its chip tone in label order`() {
+        val tones = mapOf(
+            IngredientKind.ADDED_SUGAR to IngredientTone.ADDED_SUGAR,
+            IngredientKind.POLYOL to IngredientTone.SWEETENER,
+            IngredientKind.SWEETENER to IngredientTone.SWEETENER,
+            IngredientKind.STARCH to IngredientTone.STARCH,
+            IngredientKind.MILK to IngredientTone.MILK,
+            IngredientKind.ADDITIVE to IngredientTone.ADDITIVE,
+            IngredientKind.PLAIN to IngredientTone.PLAIN,
+        )
+        val ingredients = tones.keys.map { kind ->
+            ingredient(name = kind.name.lowercase(), kind = kind)
+        }
+
+        val chips = assertNotNull(
+            show(
+                Prototype(
+                    analysis = withIngredients(ingredients),
+                ),
+            ).ingredients,
+        ).chips
+
+        assertEquals(tones.values.toList(), chips.map { it.tone })
+        assertEquals(
+            ingredients.map { UiText.Raw(it.name.name.replaceFirstChar { char -> char.uppercase() }) },
+            chips.map { it.label },
+        )
+    }
+
+    @Test
+    fun `when an ingredient declares a percent then the chip label and description include it`() {
+        val sugar = ingredient(name = "sugar", kind = IngredientKind.ADDED_SUGAR, declaredPercent = 8.7)
+        val salt = ingredient(name = "salt")
+
+        val chips = assertNotNull(
+            show(
+                Prototype(
+                    analysis = withIngredients(listOf(sugar, salt)),
+                ),
+            ).ingredients,
+        ).chips
+
+        val sugarLabel = UiText.Res(
+            R.string.product_ingredient_with_percent,
+            UiArg.Nested(UiText.Raw("Sugar")),
+            UiArg.Numeric.LabelPercent(0.087),
+        )
+        assertEquals(
+            IngredientChipState(
+                label = sugarLabel,
+                description = UiText.Res(
+                    R.string.product_ingredient_description,
+                    UiArg.Nested(sugarLabel),
+                    UiArg.Nested(UiText.Res(R.string.product_ingredient_tag_added_sugar)),
+                ),
+                tone = IngredientTone.ADDED_SUGAR,
+            ),
+            chips[0],
+        )
+        assertEquals(
+            IngredientChipState(
+                label = UiText.Raw("Salt"),
+                description = UiText.Raw("Salt"),
+                tone = IngredientTone.PLAIN,
+            ),
+            chips[1],
+        )
+    }
+
+    @Test
+    fun `the ingredients info dialog is closed by default`() {
+        val analysis = withIngredients(listOf(ingredient(name = "milk")))
+
+        assertNull(show(Prototype(analysis = analysis)).ingredientsInfoDialog)
+    }
+
+    @Test
+    fun `when the product has no ingredients then there is no ingredients info dialog`() {
+        val analysis = withIngredients(listOf(ingredient(name = "milk"))).copy(ingredients = null)
+
+        assertNull(
+            show(Prototype(analysis = analysis, isIngredientsInfoOpen = true)).ingredientsInfoDialog,
+        )
+    }
+
+    @Test
+    fun `when no ingredient is open or the index is out of range then there is no dialog`() {
+        val analysis = withIngredients(listOf(ingredient(name = "milk")))
+
+        assertNull(show(Prototype(analysis = analysis)).ingredientDialog)
+        assertNull(show(Prototype(analysis = analysis, openIngredientIndex = 1)).ingredientDialog)
+        assertNull(show(Prototype(analysis = analysis, openIngredientIndex = -1)).ingredientDialog)
+    }
+
+    @Test
+    fun `the legend explains the five types in a fixed order`() {
+        val analysis = withIngredients(listOf(ingredient(name = "milk")))
+        val dialog = show(Prototype(analysis = analysis, isIngredientsInfoOpen = true)).ingredientsInfoDialog
+
+        assertEquals(
+            listOf(
+                IngredientTone.ADDED_SUGAR to R.string.product_ingredient_tag_added_sugar,
+                IngredientTone.SWEETENER to R.string.product_ingredient_tag_sweetener,
+                IngredientTone.STARCH to R.string.product_ingredient_tag_starch,
+                IngredientTone.MILK to R.string.product_ingredient_tag_milk,
+                IngredientTone.ADDITIVE to R.string.product_ingredient_tag_additive,
+            ).map { (tone, label) -> IngredientLegendState(tone = tone, label = UiText.Res(label)) },
+            dialog?.legend?.toList(),
+        )
+    }
+
+    @Test
+    fun `when a typed ingredient is open then the dialog says what it is`() {
+        val sugar = ingredient(
+            name = "sugar",
+            labelName = "cukier",
+            kind = IngredientKind.ADDED_SUGAR,
+        )
+
+        assertEquals(
+            IngredientDialogState(
+                tag = UiText.Res(R.string.product_ingredient_tag_added_sugar),
+                tone = IngredientTone.ADDED_SUGAR,
+                title = UiText.Raw("Sugar"),
+                labelName = onTheLabel("cukier"),
+                contains = null,
+                sections = persistentListOf(what(R.string.product_ingredient_what_added_sugar)),
+                noDescription = null,
+            ),
+            dialog(sugar),
+        )
+    }
+
+    @Test
+    fun `every type shows only texts that are true for the whole type`() {
+        val does = does(R.string.product_ingredient_does_sweetener)
+        val sections = mapOf(
+            IngredientKind.ADDED_SUGAR to listOf(what(R.string.product_ingredient_what_added_sugar)),
+            IngredientKind.POLYOL to listOf(what(R.string.product_ingredient_what_polyol), does),
+            IngredientKind.SWEETENER to listOf(what(R.string.product_ingredient_what_sweetener), does),
+            IngredientKind.STARCH to listOf(what(R.string.product_ingredient_what_starch)),
+            IngredientKind.MILK to listOf(what(R.string.product_ingredient_what_milk)),
+            IngredientKind.ADDITIVE to listOf(what(R.string.product_ingredient_what_additive)),
+            IngredientKind.PLAIN to emptyList(),
+        )
+
+        assertEquals(IngredientKind.entries.toSet(), sections.keys)
+        sections.forEach { (kind, expected) ->
+            assertEquals(expected, dialog(ingredient(name = "name", kind = kind)).sections.toList(), "$kind")
+        }
+    }
+
+    @Test
+    fun `polyols and sweeteners share one tag and regular ingredients have none`() {
+        val sweetener = UiText.Res(R.string.product_ingredient_tag_sweetener)
+
+        assertEquals(sweetener, dialog(ingredient(name = "maltitol", kind = IngredientKind.POLYOL)).tag)
+        assertEquals(sweetener, dialog(ingredient(name = "stevia", kind = IngredientKind.SWEETENER)).tag)
+        assertNull(dialog(ingredient(name = "salt")).tag)
+    }
+
+    @Test
+    fun `when a regular ingredient is open then the dialog says that there is no description`() {
+        assertEquals(
+            IngredientDialogState(
+                tag = null,
+                tone = IngredientTone.PLAIN,
+                title = UiText.Raw("Salt"),
+                labelName = null,
+                contains = null,
+                sections = persistentListOf(),
+                noDescription = UiText.Res(R.string.product_ingredient_no_description),
+            ),
+            dialog(ingredient(name = "salt")),
+        )
+    }
+
+    @Test
+    fun `when a regular compound is open then its contents and no description are shown`() {
+        val mustard = ingredient(
+            name = "mustard",
+            contains = listOf(
+                ingredientName(name = "water"),
+                ingredientName(name = "E965", labelName = "maltitol", eNumber = "E965"),
+                ingredientName(name = "E322", labelName = "lecytyny", eNumber = "E322"),
+            ),
+        )
+
+        val dialog = dialog(mustard)
+
+        assertEquals(
+            contains(
+                UiText.Res(
+                    R.string.product_ingredient_list_last,
+                    UiArg.Nested(
+                        UiText.Res(
+                            R.string.product_ingredient_list_more,
+                            UiArg.Nested(UiText.Raw("water")),
+                            UiArg.Nested(
+                                withENumber(
+                                    name = UiArg.Nested(UiText.Res(R.string.product_ingredient_e965)),
+                                    eNumber = "E965",
+                                ),
+                            ),
+                        ),
+                    ),
+                    UiArg.Nested(withENumber(name = UiArg.Text("lecytyny"), eNumber = "E322")),
+                ),
+            ),
+            dialog.contains,
+        )
+        assertEquals(UiText.Res(R.string.product_ingredient_no_description), dialog.noDescription)
+    }
+
+    @Test
+    fun `when a typed compound is open then its contents and its type text are shown`() {
+        val flour = ingredient(
+            name = "wheat flour",
+            kind = IngredientKind.STARCH,
+            contains = listOf(ingredientName(name = "flour"), ingredientName(name = "salt")),
+        )
+
+        val dialog = dialog(flour)
+
+        assertEquals(
+            contains(
+                UiText.Res(
+                    R.string.product_ingredient_list_last,
+                    UiArg.Nested(UiText.Raw("flour")),
+                    UiArg.Nested(UiText.Raw("salt")),
+                ),
+            ),
+            dialog.contains,
+        )
+        assertEquals(listOf(what(R.string.product_ingredient_what_starch)), dialog.sections.toList())
+        assertNull(dialog.noDescription)
+    }
+
+    @Test
+    fun `a polyol or sweetener with an e number shows its English name and the label name when translated`() {
+        val erythritol = ingredient(name = "E968", labelName = "eritritol", eNumber = "E968")
+        val stevia = ingredient(name = "E960a", labelName = "E 960a", eNumber = "E960a")
+        val english = ingredient(name = "xylitol", eNumber = "E967")
+
+        assertEquals(knownName(id = R.string.product_ingredient_e968, eNumber = "E968"), dialog(erythritol).title)
+        assertEquals(onTheLabel("eritritol"), dialog(erythritol).labelName)
+        assertEquals(knownName(id = R.string.product_ingredient_e960, eNumber = "E960a"), dialog(stevia).title)
+        assertNull(dialog(stevia).labelName)
+        assertEquals(knownName(id = R.string.product_ingredient_e967, eNumber = "E967"), dialog(english).title)
+        assertNull(dialog(english).labelName)
+    }
+
+    @Test
+    fun `every polyol and sweetener number has its name`() {
+        val names = mapOf(
+            "E420" to R.string.product_ingredient_e420,
+            "E421" to R.string.product_ingredient_e421,
+            "E950" to R.string.product_ingredient_e950,
+            "E951" to R.string.product_ingredient_e951,
+            "E952" to R.string.product_ingredient_e952,
+            "E953" to R.string.product_ingredient_e953,
+            "E954" to R.string.product_ingredient_e954,
+            "E955" to R.string.product_ingredient_e955,
+            "E957" to R.string.product_ingredient_e957,
+            "E959" to R.string.product_ingredient_e959,
+            "E960" to R.string.product_ingredient_e960,
+            "E961" to R.string.product_ingredient_e961,
+            "E962" to R.string.product_ingredient_e962,
+            "E964" to R.string.product_ingredient_e964,
+            "E965" to R.string.product_ingredient_e965,
+            "E966" to R.string.product_ingredient_e966,
+            "E967" to R.string.product_ingredient_e967,
+            "E968" to R.string.product_ingredient_e968,
+            "E969" to R.string.product_ingredient_e969,
+        )
+
+        names.forEach { (eNumber, id) ->
+            assertEquals(
+                knownName(id = id, eNumber = eNumber),
+                dialog(ingredient(name = eNumber, eNumber = eNumber)).title,
+                eNumber,
+            )
+        }
+    }
+
+    @Test
+    fun `another additive shows its label name with the e number and no label line`() {
+        val lecithins = ingredient(name = "E322", labelName = "lecytyny", eNumber = "E322")
+
+        assertEquals(withENumber(name = UiArg.Text("Lecytyny"), eNumber = "E322"), dialog(lecithins).title)
+        assertNull(dialog(lecithins).labelName)
+    }
+
+    @Test
+    fun `when the label prints only a code then the e number is shown`() {
+        listOf("E 471", "e471", "E-471", "E471").forEach { labelName ->
+            val additive = ingredient(name = "E471", labelName = labelName, eNumber = "E471")
+
+            assertEquals(UiText.Raw("E471"), dialog(additive).title, labelName)
+            assertNull(dialog(additive).labelName, labelName)
+        }
+        assertEquals(
+            UiText.Raw("E500ii"),
+            dialog(ingredient(name = "E500ii", labelName = "E500(ii)", eNumber = "E500ii")).title,
+        )
+    }
+
+    @Test
+    fun `when the label name already holds the code then the code is not repeated`() {
+        assertEquals(
+            UiText.Raw("Emulgator E 471"),
+            dialog(ingredient(name = "E471", labelName = "emulgator E 471", eNumber = "E471")).title,
+        )
+        assertEquals(
+            UiText.Raw("Sodium carbonates e-500(ii)"),
+            dialog(ingredient(name = "E500ii", labelName = "sodium carbonates e-500(ii)", eNumber = "E500ii")).title,
+        )
+    }
+
+    @Test
+    fun `the label line is hidden when the label name differs only in case`() {
+        assertNull(dialog(ingredient(name = "sugar", labelName = "SUGAR")).labelName)
+    }
+
+    @Test
+    fun `a vitamin dialog shows its English name without an e number the label name and no description`() {
+        val niacin = ingredient(name = "E375", labelName = "niacyna", vitamin = Vitamin.NIACIN)
+
+        assertEquals(
+            IngredientDialogState(
+                tag = null,
+                tone = IngredientTone.PLAIN,
+                title = UiText.Res(R.string.product_ingredient_vitamin_b3),
+                labelName = onTheLabel("niacyna"),
+                contains = null,
+                sections = persistentListOf(),
+                noDescription = UiText.Res(R.string.product_ingredient_no_description),
+            ),
+            dialog(niacin),
+        )
+    }
+
+    @Test
+    fun `a vitamin on an English or coded label still shows the label name`() {
+        val english = dialog(ingredient(name = "riboflavin", vitamin = Vitamin.RIBOFLAVIN))
+        val coded = dialog(ingredient(name = "E375", vitamin = Vitamin.NIACIN))
+
+        assertEquals(UiText.Res(R.string.product_ingredient_vitamin_b2), english.title)
+        assertEquals(onTheLabel("riboflavin"), english.labelName)
+        assertEquals(UiText.Res(R.string.product_ingredient_vitamin_b3), coded.title)
+        assertEquals(onTheLabel("E375"), coded.labelName)
+    }
+
+    @Test
+    fun `a vitamin chip and its description are the vitamin name without a type`() {
+        val analysis = withIngredients(
+            listOf(
+                ingredient(name = "E375", labelName = "niacyna", vitamin = Vitamin.NIACIN),
+                ingredient(
+                    name = "E101",
+                    labelName = "ryboflawina",
+                    vitamin = Vitamin.RIBOFLAVIN,
+                    declaredPercent = 0.2,
+                ),
+            ),
+        )
+
+        val chips = assertNotNull(show(Prototype(analysis = analysis)).ingredients).chips
+
+        val labels = listOf(
+            UiText.Res(R.string.product_ingredient_vitamin_b3),
+            UiText.Res(
+                R.string.product_ingredient_with_percent,
+                UiArg.Nested(UiText.Res(R.string.product_ingredient_vitamin_b2)),
+                UiArg.Numeric.LabelPercent(0.002),
+            ),
+        )
+        assertEquals(
+            labels.map { label ->
+                IngredientChipState(label = label, description = label, tone = IngredientTone.PLAIN)
+            },
+            chips.toList(),
+        )
+    }
+
+    @Test
+    fun `a nested vitamin is named in the contents without an e number`() {
+        val vitamins = ingredient(
+            name = "vitamins",
+            contains = listOf(
+                ingredientName(name = "vitamin b6"),
+                ingredientName(name = "E375", labelName = "niacyna", vitamin = Vitamin.NIACIN),
+            ),
+        )
+
+        assertEquals(
+            contains(
+                UiText.Res(
+                    R.string.product_ingredient_list_last,
+                    UiArg.Nested(UiText.Raw("vitamin b6")),
+                    UiArg.Nested(UiText.Res(R.string.product_ingredient_vitamin_b3)),
+                ),
+            ),
+            dialog(vitamins).contains,
+        )
+    }
+
+    private fun dialog(ingredient: AnalyzedIngredient): IngredientDialogState = assertNotNull(
+        show(
+            Prototype(
+                analysis = withIngredients(listOf(ingredient)),
+                openIngredientIndex = 0,
+            ),
+        ).ingredientDialog,
+    )
+
+    private fun knownName(id: Int, eNumber: String) = withENumber(
+        name = UiArg.Nested(UiText.Res(id)),
+        eNumber = eNumber,
+    )
+
     private fun show(prototype: Prototype): ProductContentState.ShowProduct =
         assertIs<ProductContentState.ShowProduct>(factory.createFor(prototype).content)
 
@@ -568,6 +1039,57 @@ class ProductStateFactoryTest {
                 dailyCarbConsumption = DAILY_CARBS,
             ),
         )
+
+        fun ingredient(
+            name: String,
+            labelName: String = name,
+            eNumber: String? = null,
+            vitamin: Vitamin? = null,
+            kind: IngredientKind = IngredientKind.PLAIN,
+            declaredPercent: Double? = null,
+            contains: List<IngredientName> = emptyList(),
+        ) = AnalyzedIngredient(
+            name = ingredientName(name = name, labelName = labelName, eNumber = eNumber, vitamin = vitamin),
+            declaredPercent = declaredPercent,
+            kind = kind,
+            contains = contains,
+        )
+
+        fun ingredientName(
+            name: String,
+            labelName: String = name,
+            eNumber: String? = null,
+            vitamin: Vitamin? = null,
+        ) = IngredientName(
+            name = name,
+            labelName = labelName,
+            eNumber = eNumber,
+            vitamin = vitamin,
+        )
+
+        fun withIngredients(ingredients: List<AnalyzedIngredient>) = rated(DietRate.GOOD).copy(
+            ingredients = IngredientsAnalysis(ingredients = ingredients),
+        )
+
+        fun what(text: Int) = IngredientSectionState(
+            heading = UiText.Res(R.string.product_ingredient_what),
+            text = UiText.Res(text),
+        )
+
+        fun does(text: Int) = IngredientSectionState(
+            heading = UiText.Res(R.string.product_ingredient_does),
+            text = UiText.Res(text),
+        )
+
+        fun withENumber(name: UiArg, eNumber: String) = UiText.Res(
+            R.string.product_ingredient_name_with_e_number,
+            name,
+            UiArg.Text(eNumber),
+        )
+
+        fun contains(list: UiText) = UiText.Res(R.string.product_ingredient_contains, UiArg.Nested(list))
+
+        fun onTheLabel(name: String) = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text(name))
 
         fun kcal(value: Double) = UiText.Res(R.string.product_value_kcal, UiArg.Numeric.Kcal(value))
 
