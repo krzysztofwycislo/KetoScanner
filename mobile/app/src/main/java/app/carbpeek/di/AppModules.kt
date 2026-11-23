@@ -33,7 +33,7 @@ import kotlin.time.Clock
 
 
 private const val OPEN_FOOD_FACTS_APP_NAME = "CarbPeek"
-private const val OPEN_FOOD_FACTS_CONTACT = "https://github.com/krzysztofwycislo/KetoScanner"
+private const val OPEN_FOOD_FACTS_CONTACT = "support@carbpeek.app"
 private const val IMAGE_HTTP_CLIENT = "imageHttpClient"
 
 val appModules = module {
