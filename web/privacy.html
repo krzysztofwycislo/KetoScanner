@@ -27,12 +27,12 @@
 <main id="main" class="doc">
     <div class="wrap">
         <h1>Privacy policy</h1>
-        <p class="updated">Last updated: 17 November 2026</p>
+        <p class="updated">Last updated: 23 November 2026</p>
 
         <p>
             This policy explains what data the CarbPeek app for Android ("the app") and this website use, why, and what
-            your rights are. In short: there is no account, no advertising and no tracking, and most of your data never
-            leaves your phone.
+            your rights are. In short: there is no account and no advertising, and most of your data never leaves your
+            phone.
         </p>
 
         <h2>Who is responsible</h2>
@@ -47,73 +47,83 @@
         <ul>
             <li>your diet profile and daily carb limit, and whether you finished the first setup;</li>
             <li>your scan history and favourites;</li>
-            <li>a cache of product information, so products you scanned before open quickly.</li>
+            <li>a cache of product information and images, so products you scanned before open quickly;</li>
+            <li>photos you add to a report, until you send or close it.</li>
         </ul>
         <p>
-            We cannot see this data. It is not included in Android backups. You can delete it at any time by clearing
-            the app's data in your phone settings or by uninstalling the app.
+            We cannot see this data. It is not included in Android cloud backups. Some phones can still copy it when you
+            move directly to a new phone. You can delete it at any time by clearing the app's data in your phone
+            settings or by uninstalling the app.
         </p>
 
         <h2>Camera</h2>
         <p>
-            The app asks for camera access to read barcodes. Barcodes are recognised on your phone; the camera picture
-            is not stored or sent anywhere. The camera is only active while the scan screen is open. The app also uses
-            the camera, or the Android photo picker, when you choose to add photos to a report (see below).
+            The app asks for camera access to read barcodes. Barcodes are recognised on your phone; the scanning picture
+            is not stored or sent anywhere. The app also uses the camera, or the Android photo picker, when you choose
+            to add photos to a report. The camera is only active while one of these screens is open.
+        </p>
+
+        <h2>Barcode recognition by Google ML Kit</h2>
+        <p>
+            The app reads barcodes with ML Kit, a software library from Google. It works on your phone, and your camera
+            picture and the barcode are not sent to Google. ML Kit does send Google technical data about its use: device
+            model and Android version, the app's name and version, performance and error information, and an identifier
+            of this installation that, according to Google, is not intended to identify you or your phone. We do not
+            receive this data. See
+            <a href="https://developers.google.com/ml-kit/android-data-disclosure">what ML Kit collects</a> and the
+            <a href="https://policies.google.com/privacy">Google privacy policy</a>.
         </p>
 
         <h2>Looking up products</h2>
         <p>
-            When you scan a product, the app sends its barcode to
-            <a href="https://world.openfoodfacts.org">Open Food Facts</a>, an open food database run by a non-profit
-            association in France, and loads the product information and product images from its servers. The request
-            contains only the barcode and the app name and version. No account, name or device identifier is sent. As
-            with any internet request, the server receives your IP address. See the
+            When you scan a product, or open a saved product whose information is older than 30 days, the app loads its
+            information from <a href="https://world.openfoodfacts.org">Open Food Facts</a>, an open food database run by
+            a non-profit association in France. Product images come from there too. The requests contain the barcode or
+            the address of the image, the details we ask for, a language setting that is the same for everyone, and the
+            app's name, version and our contact address. No account, name or device identifier is sent. As with any
+            internet request, the server receives your IP address. See the
             <a href="https://world.openfoodfacts.org/privacy">Open Food Facts privacy policy</a>.
-        </p>
-        <p>
-            In the future the app will look up products through our own servers in the EU instead. We will update this
-            policy before that happens.
         </p>
 
         <h2>Reports and photos</h2>
         <p>
-            You can report a problem with a product, or a missing product, and add photos of the label and a note.
-            Reports are always sent by you, never automatically. They contain the barcode, the photos and the text you
-            enter; we ask you not to include personal information in photos or notes.
+            You can report a problem with a product, or a missing product, and add photos of the label and a note. We
+            ask you not to include personal information in photos or notes.
         </p>
         <p>
-            Reports are sent to our own servers in the EU, where a person reviews them to correct or add the product.
-            We do not pass your photos or notes to Open Food Facts or anyone else. Reports are deleted
-            once the product is added or the report is closed, and at the latest after 12 months.
-        </p>
-        <p>
-            Legal basis: our legitimate interest in keeping product information correct (Art. 6(1)(f) GDPR), and your
-            request when you send a report.
+            In the current version reports are not sent to us yet: what you enter stays on your phone, and the photos
+            are deleted when you send or close the report. Before reports are sent to us, we will update this policy. We
+            will then keep them until the product is added or the report is closed, and at most 12 months.
         </p>
 
         <h2>What we don't do</h2>
         <ul>
             <li>No user accounts.</li>
             <li>No advertising and no advertising identifiers.</li>
-            <li>No third-party analytics or crash reporting in the app. Errors are only logged on your phone.</li>
-            <li>We do not sell or share your data.</li>
+            <li>No analytics or crash reporting of our own in the app. Errors are only logged on your phone, apart from
+                the ML Kit data described above.</li>
+            <li>We do not sell your data.</li>
         </ul>
 
         <h2>Service providers</h2>
-        <p>To run our servers and this website we use:</p>
-        <ul>
-            <li>Cloudflare, Inc. for DNS, network protection, file storage and hosting of this website;</li>
-            <li>a hosting provider with data centres in the EU for our servers.</li>
-        </ul>
         <p>
-            They process data only on our behalf and under data processing agreements. Where data may be processed
-            outside the EU, this is covered by the EU-US Data Privacy Framework or standard contractual clauses.
+            Cloudflare, Inc. (USA) delivers this website and forwards email sent to
+            <a href="mailto:support@carbpeek.app">support@carbpeek.app</a>. Cloudflare states in its
+            <a href="https://www.cloudflare.com/cloudflare-customer-dpa/">customer data processing addendum</a> that it
+            complies with the EU-US Data Privacy Framework and uses the EU standard contractual clauses.
+        </p>
+
+        <h2>If you email us</h2>
+        <p>
+            Email to <a href="mailto:support@carbpeek.app">support@carbpeek.app</a> is forwarded by Cloudflare to our
+            mailbox provider. We use your address and message only to answer you.
         </p>
 
         <h2>This website</h2>
         <p>
             This website sets no cookies and loads nothing from third parties. Our host, Cloudflare, processes your IP
-            address and basic request data to deliver the pages and protect them from attacks.
+            address and basic request data to deliver the pages and protect them from attacks. If a page cannot be
+            loaded, your browser may report the network error to Cloudflare.
         </p>
 
         <h2>Your rights</h2>
@@ -127,13 +137,12 @@
         </ul>
         <p>
             To use these rights, email <a href="mailto:support@carbpeek.app">support@carbpeek.app</a>. As most data
-            stays on your phone, we usually only hold reports you have sent; tell us the barcode and roughly when you
-            sent the report so we can find it.
+            stays on your phone, we usually only hold emails you have sent us.
         </p>
 
         <h2>Changes</h2>
         <p>
-            We will update this page when the app changes how it handles data, and change the date at the top.
+            We will update this page before the app changes how it handles data, and change the date at the top.
         </p>
     </div>
 </main>
