@@ -10,7 +10,7 @@ clear verdict, without reading the nutrition label in the shop aisle.
 - **Scan or type a barcode.** The product is looked up and rated against your diet profile.
 - **A verdict with a reason.** Every product gets a clear verdict and the main reason behind it, for example that most
   of its energy comes from carbs.
-- **Your diet, your limits.** Choose Strict keto, Keto or Low carb, or set your own daily carb limit.
+- **Your diet.** Choose Strict keto, Keto or Low carb.
 - **The macros at a glance.** Carbs, sugars, fibre, protein, fat and energy, per 100 g or per serving.
 - **History and favourites.** Recent scans are grouped by day and searchable; favourites are grouped by food type.
 - **This trip.** While you shop, the products you scanned in the last few hours stay one tap away.

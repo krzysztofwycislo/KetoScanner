@@ -8,6 +8,7 @@ import app.carbpeek.core.common.outcomeOf
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
+import app.carbpeek.feature.preferences.api.model.DietPreset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -37,8 +38,10 @@ internal class DietPreferencesRepositoryImpl(
             }
         }
 
-    private fun StoredDietPreferences.toDomain() = DietPreferences(
-        maxDailyCarbsAmount = maxDailyCarbsAmount ?: DietPreferences.Default.maxDailyCarbsAmount,
-        dietMode = DietMode.entries.firstOrNull { it.name == dietMode } ?: DietMode.KETO,
-    )
+    private fun StoredDietPreferences.toDomain(): DietPreferences = DietPreset.of(
+        DietPreferences(
+            maxDailyCarbsAmount = maxDailyCarbsAmount ?: DietPreferences.Default.maxDailyCarbsAmount,
+            dietMode = DietMode.entries.firstOrNull { it.name == dietMode } ?: DietMode.KETO,
+        ),
+    ).preferences
 }

@@ -2,20 +2,14 @@
 <resources>
     <string name="preferences_title">Diet profile</string>
     <string name="preferences_intro">How strict should we be when you shop? This sets the line for every product you scan.</string>
-    <string name="preferences_input_error">Enter a number from %1$s to %2$s</string>
-    <string name="preferences_input_placeholder">Daily carbs in grams</string>
     <string name="preferences_save">Save</string>
     <string name="preferences_saved">Profile saved</string>
     <string name="preferences_retry">Try again</string>
-    <string name="preferences_diet_mode_keto">Keto</string>
-    <string name="preferences_diet_mode_low_carb">Low-carb</string>
     <string name="preferences_preset_strict_keto">Strict keto</string>
     <string name="preferences_preset_strict_keto_note">Under about 20 g carbs a day</string>
     <string name="preferences_preset_keto">Keto</string>
     <string name="preferences_preset_keto_note">Around 30-50 g carbs a day</string>
     <string name="preferences_preset_low_carb">Low carb</string>
     <string name="preferences_preset_low_carb_note">Up to about 100 g carbs a day</string>
-    <string name="preferences_preset_custom">Custom</string>
-    <string name="preferences_preset_custom_note">Your own daily limit and diet</string>
     <string name="preferences_grams">%1$s g</string>
 </resources>

@@ -227,17 +227,10 @@ class HomeStateFactoryTest {
     }
 
     @Test
-    fun `when preferences match no preset then profile label shows mode and limit`() {
+    fun `when preferences match no preset then profile label is the keto preset`() {
         val state = factory.createFor(Prototype(dietPreferences = DietPreferences(35, DietMode.KETO)))
 
-        assertEquals(
-            UiText.Res(
-                R.string.home_profile_label,
-                UiArg.Nested(UiText.Res(R.string.home_mode_keto)),
-                UiArg.Numeric.Count(35),
-            ),
-            state.profileLabel,
-        )
+        assertEquals(UiText.Res(R.string.home_preset_keto), state.profileLabel)
     }
 
     @Test

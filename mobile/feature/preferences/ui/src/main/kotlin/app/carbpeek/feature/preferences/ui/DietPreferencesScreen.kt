@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,10 +31,7 @@ import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.designsystem.theme.AppTheme
-import app.carbpeek.feature.preferences.ui.component.CustomProfile
 import app.carbpeek.feature.preferences.ui.component.OptionList
-import app.carbpeek.feature.preferences.ui.component.previewCustom
-import app.carbpeek.feature.preferences.ui.component.previewInputError
 import app.carbpeek.feature.preferences.ui.component.previewOptions
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
@@ -90,8 +86,7 @@ private fun ScreenContent(state: DietPreferencesState, onAction: (DietPreference
                     onAction = onAction,
                     modifier = Modifier
                         .padding(innerPadding)
-                        .fillMaxSize()
-                        .imePadding(),
+                        .fillMaxSize(),
                 )
             }
         }
@@ -115,9 +110,6 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
                 color = AppTheme.colors.text.muted,
             )
             OptionList(state.options, onAction)
-            if (state.custom != null) {
-                CustomProfile(state.custom, onAction)
-            }
         }
         Ui.PrimaryButton(
             text = stringResource(R.string.preferences_save),
@@ -157,8 +149,7 @@ private fun DietPreferencesPresetPreview() {
         ScreenContent(
             DietPreferencesState(
                 Form(
-                    options = previewOptions(DietProfileOption.KETO, customGrams = null),
-                    custom = null,
+                    options = previewOptions(DietProfileOption.KETO),
                     isSaveEnabled = true,
                 ),
             ),
@@ -170,38 +161,6 @@ private fun DietPreferencesPresetPreview() {
 @Composable
 private fun DietPreferencesPresetLargeFontPreview() {
     DietPreferencesPresetPreview()
-}
-
-@Preview(showBackground = true, heightDp = 1000)
-@Composable
-private fun DietPreferencesCustomPreview() {
-    AppTheme {
-        ScreenContent(
-            DietPreferencesState(
-                Form(
-                    options = previewOptions(DietProfileOption.CUSTOM, customGrams = 35),
-                    custom = previewCustom("35", inputError = null),
-                    isSaveEnabled = true,
-                ),
-            ),
-        ) {}
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun DietPreferencesInvalidInputPreview() {
-    AppTheme {
-        ScreenContent(
-            DietPreferencesState(
-                Form(
-                    options = previewOptions(DietProfileOption.CUSTOM, customGrams = null),
-                    custom = previewCustom(input = "0", inputError = previewInputError),
-                    isSaveEnabled = true,
-                ),
-            ),
-        ) {}
-    }
 }
 
 @Preview(showBackground = true)

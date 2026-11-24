@@ -12,7 +12,7 @@
     <string name="onboarding_preset_low_carb_note">Up to about 100 g carbs a day</string>
     <string name="onboarding_grams">%1$s g</string>
     <string name="onboarding_suggested">Good start</string>
-    <string name="onboarding_hint">Not sure? Keto is a good start for most people. Custom limits are in your profile.</string>
+    <string name="onboarding_hint">Not sure? Keto is a good start for most people.</string>
     <string name="onboarding_start_scanning">Start scanning</string>
     <string name="onboarding_disclaimer">CarbPeek gives guidance, not medical advice.</string>
 </resources>

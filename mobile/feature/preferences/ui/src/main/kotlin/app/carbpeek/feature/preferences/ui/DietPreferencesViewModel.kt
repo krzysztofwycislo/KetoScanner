@@ -11,16 +11,12 @@ import app.carbpeek.core.common.catchAppError
 import app.carbpeek.core.common.onFailure
 import app.carbpeek.core.common.onSuccess
 import app.carbpeek.core.designsystem.component.MessageTone
-import app.carbpeek.core.designsystem.event.AppEvent.HideKeyboard
 import app.carbpeek.core.designsystem.event.AppEvent.ShowMessage
 import app.carbpeek.core.designsystem.event.AppEvents
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
-import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
-import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnCustomModeSelected
-import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnInputChanged
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
@@ -61,9 +57,6 @@ internal class DietPreferencesViewModel(
         Prototype(
             option = savedStateHandle.get<String>(KEY_OPTION)
                 ?.let { name -> DietProfileOption.entries.firstOrNull { it.name == name } },
-            input = savedStateHandle.get<String>(KEY_INPUT),
-            customMode = savedStateHandle.get<String>(KEY_CUSTOM_MODE)
-                ?.let { name -> DietMode.entries.firstOrNull { it.name == name } },
         )
     )
 
@@ -81,11 +74,9 @@ internal class DietPreferencesViewModel(
     fun onAction(action: DietPreferencesAction) {
         when (action) {
             is OnOptionSelected -> selectOption(action.option)
-            is OnCustomModeSelected -> selectCustomMode(action.mode)
-            is OnInputChanged -> setInput(action.text)
             OnSaveClicked -> save()
             OnRetryClicked -> retry()
-            OnBackClicked -> navigateBack()
+            OnBackClicked -> screenEvents send NavigateBack
         }
     }
 
@@ -108,8 +99,6 @@ internal class DietPreferencesViewModel(
             it.copy(
                 savedPreferences = dietPreferences,
                 option = it.option ?: DietProfileOption.of(dietPreferences),
-                input = it.input ?: dietPreferences.maxDailyCarbsAmount.toString(),
-                customMode = it.customMode ?: dietPreferences.dietMode,
                 loadError = null,
             )
         }
@@ -117,18 +106,7 @@ internal class DietPreferencesViewModel(
 
     private fun selectOption(option: DietProfileOption) {
         savedStateHandle[KEY_OPTION] = option.name
-        statePrototype.update { it.copy(option = option, isInputInvalid = false) }
-    }
-
-    private fun selectCustomMode(mode: DietMode) {
-        savedStateHandle[KEY_CUSTOM_MODE] = mode.name
-        statePrototype.update { it.copy(customMode = mode, isInputInvalid = false) }
-    }
-
-    private fun setInput(text: String) {
-        val input = text.filter { it in '0'..'9' }.take(MAX_INPUT_LENGTH)
-        savedStateHandle[KEY_INPUT] = input
-        statePrototype.update { it.copy(input = input) }
+        statePrototype.update { it.copy(option = option) }
     }
 
     private fun observeSaving() {
@@ -142,14 +120,8 @@ internal class DietPreferencesViewModel(
     private fun save() {
         val prototype = statePrototype.value
         if (saving.inProgress.value || prototype.savedPreferences == null) return
-        val chosen = prototype.chosenPreferences()
-        if (chosen == null) {
-            statePrototype.update { it.copy(isInputInvalid = true) }
-            return
-        }
+        val chosen = prototype.chosenPreferences() ?: return
 
-        statePrototype.update { it.copy(isInputInvalid = false) }
-        appEvents send HideKeyboard
         applicationScope.launch(start = CoroutineStart.UNDISPATCHED) {
             saving.reportWork { preferences.setDietPreferences(chosen) }
                 .onSuccess {
@@ -168,11 +140,6 @@ internal class DietPreferencesViewModel(
         retryClicks.tryEmit(Unit)
     }
 
-    private fun navigateBack() {
-        appEvents send HideKeyboard
-        screenEvents send NavigateBack
-    }
-
     init {
         observePreferences()
         observeSaving()
@@ -181,8 +148,5 @@ internal class DietPreferencesViewModel(
     private companion object {
         const val TAG = "DietPreferencesViewModel"
         const val KEY_OPTION = "option"
-        const val KEY_INPUT = "input"
-        const val KEY_CUSTOM_MODE = "customMode"
-        const val MAX_INPUT_LENGTH = 3
     }
 }

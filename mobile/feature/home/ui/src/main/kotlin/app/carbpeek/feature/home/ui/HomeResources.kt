@@ -18,11 +18,6 @@ internal class HomeResources {
             DietPreset.STRICT_KETO -> UiText.Res(R.string.home_preset_strict_keto)
             DietPreset.KETO -> UiText.Res(R.string.home_preset_keto)
             DietPreset.LOW_CARB -> UiText.Res(R.string.home_preset_low_carb)
-            null -> UiText.Res(
-                R.string.home_profile_label,
-                UiArg.Nested(modeLabel(preferences.dietMode)),
-                UiArg.Numeric.Count(preferences.maxDailyCarbsAmount.toLong()),
-            )
         }
     }
 
@@ -50,11 +45,6 @@ internal class HomeResources {
     }
 
     fun loadError(error: AppError): UiText = error.toUiText()
-
-    private fun modeLabel(mode: DietMode): UiText = when (mode) {
-        DietMode.KETO -> UiText.Res(R.string.home_mode_keto)
-        DietMode.LOW_CARB -> UiText.Res(R.string.home_mode_low_carb)
-    }
 
     private fun verdict(rate: DietRate?, mode: DietMode): UiText = when (rate) {
         DietRate.GOOD -> when (mode) {

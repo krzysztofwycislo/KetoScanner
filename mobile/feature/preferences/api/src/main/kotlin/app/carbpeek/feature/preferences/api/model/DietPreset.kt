@@ -7,6 +7,7 @@ enum class DietPreset(val preferences: DietPreferences) {
     ;
 
     companion object {
-        fun of(preferences: DietPreferences): DietPreset? = entries.firstOrNull { it.preferences == preferences }
+        fun of(preferences: DietPreferences): DietPreset =
+            entries.firstOrNull { it.preferences == preferences } ?: KETO
     }
 }

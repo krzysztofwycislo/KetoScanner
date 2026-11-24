@@ -8,6 +8,5 @@ data class DietPreferences(
 
     companion object {
         val Default = DietPreferences(40)
-        val MAX_DAILY_CARBS_RANGE = 1..999
     }
 }

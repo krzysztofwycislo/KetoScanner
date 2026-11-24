@@ -324,11 +324,7 @@ private fun HomeItemState.Companion.example(
     verdictDescription = UiText.Res(R.string.home_verdict_good_keto),
 )
 
-private val previewProfile = UiText.Res(
-    R.string.home_profile_label,
-    UiArg.Nested(UiText.Res(R.string.home_mode_keto)),
-    UiArg.Numeric.Count(40),
-)
+private val previewProfile = UiText.Res(R.string.home_preset_keto)
 
 @Preview(showBackground = true)
 @Composable
