@@ -11,14 +11,14 @@ class AppSizesTest {
     private val iconScale = with(DefaultAppSizes.icon) { listOf(xs, s, m, l, xl) }
     private val controlScale = with(DefaultAppSizes.control) { listOf(xs, s, m, l, xl) }
     private val namedSizes = with(DefaultAppSizes) {
-        listOf(iconTile, iconDisc, iconDiscCompact, productPhoto, overlayCardMaxWidth, scanButtonLift)
+        listOf(chipArrow, iconTile, iconDisc, iconDiscCompact, productPhoto, overlayCardMaxWidth, scanButtonLift)
     }
 
     @Test
     fun `every size is even`() {
         val sizes = iconScale + controlScale + namedSizes
 
-        assertEquals(16, sizes.size)
+        assertEquals(17, sizes.size)
         assertTrue(sizes.all { it.isMultipleOf(2) }, "Odd sizes in $sizes")
     }
 

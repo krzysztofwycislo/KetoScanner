@@ -107,6 +107,7 @@ data class AppColors(
         val milk: IngredientTone,
         val additive: IngredientTone,
         val plain: IngredientTone,
+        val flat: Color,
     )
 }
 
@@ -205,5 +206,6 @@ val LightAppColors = AppColors(
             content = Color(0xFF15201B),
             border = Color(0xFFD5DAD3),
         ),
+        flat = Color(0xFFF1F3EF),
     ),
 )

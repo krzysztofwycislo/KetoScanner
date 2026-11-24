@@ -8,6 +8,10 @@ android {
     namespace = "app.carbpeek.feature.product.ui"
 }
 
+tasks.withType<Test>().configureEach {
+    inputs.file("src/main/res/values/strings.xml").withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 dependencies {
     implementation(project(":feature:analysis:api"))
     implementation(project(":feature:favourites:api"))

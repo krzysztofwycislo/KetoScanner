@@ -23,6 +23,7 @@ data class IngredientName(
 )
 
 data class AnalyzedIngredient(
+    val id: String,
     val name: IngredientName,
     val declaredPercent: Double?,
     val kind: IngredientKind,

@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 data class AppSizes(
     val icon: Icon,
     val control: Control,
+    val chipArrow: Dp,
     val iconTile: Dp,
     val iconDisc: Dp,
     val iconDiscCompact: Dp,
@@ -53,6 +54,7 @@ val DefaultAppSizes = AppSizes(
         l = 64.dp,
         xl = 72.dp,
     ),
+    chipArrow = 18.dp,
     iconTile = 44.dp,
     iconDisc = 72.dp,
     iconDiscCompact = 52.dp,

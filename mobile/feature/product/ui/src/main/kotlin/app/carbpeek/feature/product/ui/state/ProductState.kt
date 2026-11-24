@@ -146,6 +146,7 @@ internal data class IngredientChipState(
     val count: UiText?,
     val description: UiText,
     val tone: IngredientTone,
+    val isOpenable: Boolean,
 ) {
     companion object
 }
@@ -159,7 +160,6 @@ internal data class IngredientSheetState(
     val labelName: UiText?,
     val contents: PersistentList<IngredientChipState>,
     val sections: PersistentList<IngredientSectionState>,
-    val noDescription: UiText?,
 ) {
     companion object
 }

@@ -16,10 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import app.carbpeek.core.designsystem.icon.AppIcon
@@ -54,48 +57,95 @@ internal fun IngredientChips(
 
 @Composable
 private fun IngredientChip(state: IngredientChipState, onClick: () -> Unit) {
+    if (state.isOpenable) {
+        OpenableChip(state = state, onClick = onClick)
+    } else {
+        PlainChip(state)
+    }
+}
+
+@Composable
+private fun OpenableChip(state: IngredientChipState, onClick: () -> Unit) {
     val colors = state.tone.colors()
     val description = state.description.resolve()
     Surface(
         onClick = onClick,
-        modifier = Modifier.semantics { contentDescription = description },
+        modifier = Modifier.semantics {
+            contentDescription = description
+            role = Role.Button
+        },
         shape = AppTheme.shapes.extraLarge,
         color = colors.container,
         contentColor = colors.content,
-        border = BorderStroke(AppTheme.borders.control, colors.border),
+        border = BorderStroke(width = AppTheme.borders.control, color = colors.border),
     ) {
-        Row(
-            modifier = Modifier
-                .clearAndSetSemantics {}
-                .defaultMinSize(minHeight = AppTheme.sizes.control.m)
-                .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.xs),
+        ChipContent(state)
+    }
+}
+
+@Composable
+private fun PlainChip(state: IngredientChipState) {
+    val description = state.description.resolve()
+    Surface(
+        modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
+        shape = AppTheme.shapes.extraLarge,
+        color = state.tone.flatColor(),
+        contentColor = state.tone.colors().content,
+    ) {
+        ChipContent(state)
+    }
+}
+
+@Composable
+private fun ChipContent(state: IngredientChipState) {
+    Row(
+        modifier = Modifier
+            .clearAndSetSemantics {}
+            .defaultMinSize(minHeight = AppTheme.sizes.control.m)
+            .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IngredientMark(state.tone)
+        FlowRow(
+            modifier = Modifier.weight(weight = 1f, fill = false),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
+            itemVerticalAlignment = Alignment.CenterVertically,
         ) {
-            IngredientMark(state.tone)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-                itemVerticalAlignment = Alignment.CenterVertically,
-            ) {
+            Text(
+                text = state.label.resolve(),
+                style = AppTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.colors.text.default,
+            )
+            state.count?.let {
                 Text(
-                    text = state.label.resolve(),
-                    style = AppTheme.typography.bodyLarge,
+                    text = it.resolve(),
+                    style = AppTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = AppTheme.colors.text.default,
+                    color = AppTheme.colors.text.muted,
+                    maxLines = 1,
                 )
-                state.count?.let {
-                    Text(
-                        text = it.resolve(),
-                        style = AppTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = AppTheme.colors.text.muted,
-                        maxLines = 1,
-                    )
-                }
             }
+        }
+        if (state.isOpenable) {
+            Icon(
+                imageVector = AppIcons.ChevronRight.imageVector,
+                contentDescription = null,
+                tint = AppTheme.colors.text.subtle,
+                modifier = Modifier.size(AppTheme.sizes.chipArrow),
+            )
         }
     }
 }
+
+@Composable
+private fun IngredientTone.flatColor(): Color =
+    if (this == IngredientTone.PLAIN) {
+        AppTheme.colors.ingredient.flat
+    } else {
+        colors().container
+    }
 
 @Composable
 internal fun IngredientMark(tone: IngredientTone) {

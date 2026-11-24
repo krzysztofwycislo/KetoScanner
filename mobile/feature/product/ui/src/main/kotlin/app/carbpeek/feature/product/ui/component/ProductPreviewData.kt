@@ -197,6 +197,7 @@ private fun chip(
     tag: Int? = null,
     percent: Double? = null,
     count: Int? = null,
+    isOpenable: Boolean = false,
 ): IngredientChipState {
     val label = if (percent == null) {
         UiText.Raw(name)
@@ -218,6 +219,7 @@ private fun chip(
         count = countText,
         description = description,
         tone = tone,
+        isOpenable = isOpenable,
     )
 }
 
@@ -244,21 +246,34 @@ internal fun IngredientsCardState.Companion.example() = IngredientsCardState(
             tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
             percent = 0.087,
+            isOpenable = true,
         ),
         chip(
             name = "Maltitol (E965)",
             tone = IngredientTone.SWEETENER,
             tag = R.string.product_ingredient_tag_sweetener,
+            isOpenable = true,
         ),
         chip(name = "Wheat flour", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
-        chip(name = "Whey powder", tone = IngredientTone.MILK, tag = R.string.product_ingredient_tag_milk),
+        chip(
+            name = "Whey powder",
+            tone = IngredientTone.MILK,
+            tag = R.string.product_ingredient_tag_milk,
+            isOpenable = true,
+        ),
         chip(
             name = "Lecithins (E322)",
             tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
+            isOpenable = true,
         ),
-        chip(name = "Coating", percent = 0.34, count = 10),
-        chip(name = "Seasoning with sour cream, onion and a name that wraps to two lines", count = 12),
+        chip(name = "Coating", percent = 0.34, count = 10, isOpenable = true),
+        chip(
+            name = "Seasoning with sour cream, onion and a name that wraps to two lines",
+            count = 12,
+            isOpenable = true,
+        ),
+        chip(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
     ),
 )
 
@@ -276,14 +291,13 @@ internal fun IngredientSheetState.Companion.example() = IngredientSheetState(
     sections = persistentListOf(
         IngredientSectionState(
             heading = UiText.Res(R.string.product_ingredient_what),
-            text = UiText.Res(R.string.product_ingredient_what_polyol),
+            text = UiText.Res(R.string.product_ingredient_about_polyol_sugar_alcohol_made),
         ),
         IngredientSectionState(
             heading = UiText.Res(R.string.product_ingredient_does),
-            text = UiText.Res(R.string.product_ingredient_does_sweetener),
+            text = UiText.Res(R.string.product_ingredient_about_adds_sweetness),
         ),
     ),
-    noDescription = null,
 )
 
 internal fun IngredientSheetState.Companion.exampleCompound() = IngredientSheetState(
@@ -305,17 +319,23 @@ internal fun IngredientSheetState.Companion.exampleCompound() = IngredientSheetS
             name = "Sugar",
             tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
+            isOpenable = true,
         ),
-        chip(name = "Whey powder", tone = IngredientTone.MILK, tag = R.string.product_ingredient_tag_milk),
+        chip(
+            name = "Whey powder",
+            tone = IngredientTone.MILK,
+            tag = R.string.product_ingredient_tag_milk,
+            isOpenable = true,
+        ),
         chip(
             name = "Lecithins (E322)",
             tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
+            isOpenable = true,
         ),
         chip(name = "Salt"),
     ),
     sections = persistentListOf(),
-    noDescription = null,
 )
 
 internal fun IngredientSheetState.Companion.exampleContent(compound: String = "Coating") = IngredientSheetState(
@@ -323,18 +343,17 @@ internal fun IngredientSheetState.Companion.exampleContent(compound: String = "C
         label = UiText.Raw(compound),
         description = UiText.Res(R.string.product_ingredient_back, UiArg.Text(compound)),
     ),
-    tag = UiText.Res(R.string.product_ingredient_tag_starch),
-    tone = IngredientTone.STARCH,
-    title = UiText.Raw("Wheat flour"),
-    labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("farine de blé")),
+    tag = UiText.Res(R.string.product_ingredient_tag_milk),
+    tone = IngredientTone.MILK,
+    title = UiText.Raw("Whey powder"),
+    labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("lactosérum en poudre")),
     contents = persistentListOf(),
     sections = persistentListOf(
         IngredientSectionState(
             heading = UiText.Res(R.string.product_ingredient_what),
-            text = UiText.Res(R.string.product_ingredient_what_starch),
+            text = UiText.Res(R.string.product_ingredient_about_dried_whey_liquid_left_when_milk_curdles_cheese),
         ),
     ),
-    noDescription = null,
 )
 
 internal fun IngredientSheetState.Companion.exampleManyContents() = exampleCompound().copy(
@@ -347,47 +366,51 @@ internal fun IngredientSheetState.Companion.exampleManyContents() = exampleCompo
             name = "Sugar",
             tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
+            isOpenable = true,
         ),
         chip(
             name = "Glucose-fructose syrup",
             tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
+            isOpenable = true,
         ),
-        chip(name = "Whey powder", tone = IngredientTone.MILK, tag = R.string.product_ingredient_tag_milk),
+        chip(
+            name = "Whey powder",
+            tone = IngredientTone.MILK,
+            tag = R.string.product_ingredient_tag_milk,
+            isOpenable = true,
+        ),
         chip(
             name = "Maltitol (E965)",
             tone = IngredientTone.SWEETENER,
             tag = R.string.product_ingredient_tag_sweetener,
+            isOpenable = true,
         ),
         chip(
             name = "Lecithins (E322)",
             tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
+            isOpenable = true,
         ),
         chip(
             name = "Mono- and diglycerides of fatty acids (E471)",
             tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
+            isOpenable = true,
         ),
-        chip(name = "Maize starch", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
-        chip(name = "Wheat gluten"),
+        chip(
+            name = "Maize starch",
+            tone = IngredientTone.STARCH,
+            tag = R.string.product_ingredient_tag_starch,
+            isOpenable = true,
+        ),
+        chip(name = "Wheat gluten", isOpenable = true),
         chip(name = "Vitamin B2 (riboflavin)"),
         chip(name = "Salt"),
-        chip(name = "Yeast"),
-        chip(name = "Natural flavouring"),
+        chip(name = "Yeast", isOpenable = true),
+        chip(name = "Natural flavouring", isOpenable = true),
         chip(name = "Black pepper"),
     ),
-)
-
-internal fun IngredientSheetState.Companion.exampleNoDescription() = IngredientSheetState(
-    back = null,
-    tag = null,
-    tone = IngredientTone.PLAIN,
-    title = UiText.Raw("Basmati rice"),
-    labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("riz basmati")),
-    contents = persistentListOf(),
-    sections = persistentListOf(),
-    noDescription = UiText.Res(R.string.product_ingredient_no_description),
 )
 
 internal val exampleDataSource = UiText.Res(R.string.product_data_source, UiArg.Text("3017620422003"))

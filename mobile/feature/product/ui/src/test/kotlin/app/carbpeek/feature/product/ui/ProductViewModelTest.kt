@@ -573,7 +573,8 @@ class ProductViewModelTest {
 
         viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
         viewModel.onAction(ProductAction.OnIngredientContentClicked(0))
-        viewModel.onAction(ProductAction.OnIngredientClicked(0))
+        viewModel.onAction(ProductAction.OnIngredientClicked(2))
+        assertEquals(UiText.Raw("Vanillin"), ingredientSheet(viewModel).title)
         assertNull(handle.get<Int>(KEY_OPEN_INGREDIENT_CONTENT))
 
         viewModel.onAction(ProductAction.OnIngredientClicked(COMPOUND_INDEX))
@@ -787,17 +788,26 @@ class ProductViewModelTest {
         val analysisWithIngredients = analysis.copy(
             ingredients = IngredientsAnalysis(
                 ingredients = listOf(
-                    ingredient(name = "hazelnuts"),
+                    ingredient(name = "hazelnuts", id = "en:hazelnut"),
                     ingredient(
                         name = "cocoa",
-                        contains = listOf(ingredient(name = "cocoa powder"), ingredient(name = "sugar")),
+                        id = "en:cocoa",
+                        contains = listOf(
+                            ingredient(name = "cocoa powder", id = "en:cocoa-powder"),
+                            ingredient(name = "sugar", id = "en:sugar"),
+                        ),
                     ),
-                    ingredient(name = "salt"),
+                    ingredient(name = "vanillin", id = "en:vanillin"),
                 ),
             ),
         )
 
-        fun ingredient(name: String, contains: List<AnalyzedIngredient> = emptyList()) = AnalyzedIngredient(
+        fun ingredient(
+            name: String,
+            id: String,
+            contains: List<AnalyzedIngredient> = emptyList(),
+        ) = AnalyzedIngredient(
+            id = id,
             name = IngredientName(name = name, labelName = name, eNumber = null, vitamin = null),
             declaredPercent = null,
             kind = IngredientKind.PLAIN,

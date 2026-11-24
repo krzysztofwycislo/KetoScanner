@@ -209,12 +209,21 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 count = resources.ingredientContentsCount(ingredient),
                 description = resources.ingredientChipDescription(ingredient),
                 tone = ingredient.kind.toIngredientTone(),
+                isOpenable = ingredient.isOpenable(),
             )
         }.toPersistentList()
 
+    private fun AnalyzedIngredient.isOpenable(): Boolean =
+        contains.isNotEmpty() || resources.ingredientDescription(this) != null
+
     private fun Prototype.openIngredientSheet(analysis: IngredientsAnalysis): IngredientSheetState? {
-        val ingredient = openIngredientIndex?.let { analysis.ingredients.getOrNull(it) } ?: return null
-        val content = openIngredientContentIndex?.let { ingredient.contains.getOrNull(it) }
+        val ingredient = openIngredientIndex
+            ?.let { analysis.ingredients.getOrNull(it) }
+            ?.takeIf { it.isOpenable() }
+            ?: return null
+        val content = openIngredientContentIndex
+            ?.let { ingredient.contains.getOrNull(it) }
+            ?.takeIf { it.isOpenable() }
         return if (content == null) {
             ingredientSheet(ingredient = ingredient, back = null)
         } else {
@@ -222,24 +231,16 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         }
     }
 
-    private fun ingredientSheet(ingredient: AnalyzedIngredient, back: IngredientBackState?): IngredientSheetState {
-        val contents = ingredientChips(ingredient.contains)
-        val sections = ingredientSections(ingredient.kind)
-        return IngredientSheetState(
+    private fun ingredientSheet(ingredient: AnalyzedIngredient, back: IngredientBackState?): IngredientSheetState =
+        IngredientSheetState(
             back = back,
             tag = resources.ingredientTag(ingredient.kind),
             tone = ingredient.kind.toIngredientTone(),
             title = resources.ingredientName(ingredient.name),
             labelName = resources.ingredientLabelName(ingredient.name),
-            contents = contents,
-            sections = sections,
-            noDescription = if (sections.isEmpty() && contents.isEmpty()) {
-                resources.ingredientNoDescription()
-            } else {
-                null
-            },
+            contents = ingredientChips(ingredient.contains),
+            sections = ingredientSections(ingredient),
         )
-    }
 
     private fun ingredientBack(compound: AnalyzedIngredient): IngredientBackState = IngredientBackState(
         label = resources.ingredientName(compound.name),
@@ -259,14 +260,15 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         )
     }
 
-    private fun ingredientSections(kind: IngredientKind): PersistentList<IngredientSectionState> = listOfNotNull(
-        resources.ingredientWhat(kind)?.let { text ->
-            IngredientSectionState(heading = resources.ingredientWhatHeading(), text = text)
-        },
-        resources.ingredientDoes(kind)?.let { text ->
-            IngredientSectionState(heading = resources.ingredientDoesHeading(), text = text)
-        },
-    ).toPersistentList()
+    private fun ingredientSections(ingredient: AnalyzedIngredient): PersistentList<IngredientSectionState> =
+        listOfNotNull(
+            resources.ingredientWhat(ingredient)?.let { text ->
+                IngredientSectionState(heading = resources.ingredientWhatHeading(), text = text)
+            },
+            resources.ingredientDoes(ingredient)?.let { text ->
+                IngredientSectionState(heading = resources.ingredientDoesHeading(), text = text)
+            },
+        ).toPersistentList()
 
     private fun IngredientKind.toIngredientTone(): IngredientTone = when (this) {
         IngredientKind.ADDED_SUGAR -> IngredientTone.ADDED_SUGAR

@@ -183,6 +183,19 @@ class IngredientsAnalyzerTest {
     }
 
     @Test
+    fun `the id is kept in lower case also for contents`() {
+        val coating = ingredient(
+            id = "FR:Enrobage",
+            sub = listOf(ingredient("en:E500ii"), ingredient("en:cocoa-butter")),
+        )
+
+        val analyzed = analyze(coating).ingredients.single()
+
+        assertEquals("fr:enrobage", analyzed.id)
+        assertEquals(listOf("en:e500ii", "en:cocoa-butter"), analyzed.contains.map { it.id })
+    }
+
+    @Test
     fun `when an ingredient has an e number id then the name carries the e number and the label name`() {
         val analysis = analyze(
             ingredient("en:e968").copy(name = "E968", labelName = "eritritol"),

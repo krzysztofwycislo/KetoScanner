@@ -104,13 +104,6 @@ private fun IngredientSheetContent(
         state.sections.forEach {
             Section(it)
         }
-        state.noDescription?.let {
-            Text(
-                text = it.resolve(),
-                style = AppTheme.typography.bodyLarge,
-                color = AppTheme.colors.text.default,
-            )
-        }
     }
 }
 
@@ -235,14 +228,6 @@ private fun IngredientSheetContentOpenLargeFontPreview() {
 private fun IngredientSheetContentOpenLandscapePreview() {
     ProductSheetPreview {
         IngredientSheetContent(state = IngredientSheetState.exampleContent(), onAction = {}, onClose = {})
-    }
-}
-
-@Preview(widthDp = 390, heightDp = 338)
-@Composable
-private fun IngredientSheetNoDescriptionPreview() {
-    ProductSheetPreview {
-        IngredientSheetContent(state = IngredientSheetState.exampleNoDescription(), onAction = {}, onClose = {})
     }
 }
 

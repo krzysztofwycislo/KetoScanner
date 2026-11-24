@@ -36,6 +36,7 @@ internal object IngredientsAnalyzer {
         ingredient: Ingredient,
         contains: List<AnalyzedIngredient>,
     ): AnalyzedIngredient = AnalyzedIngredient(
+        id = ingredient.id.lowercase(),
         name = ingredient.toName(),
         declaredPercent = ingredient.declaredPercent,
         kind = ingredientKindOf(ingredient),
