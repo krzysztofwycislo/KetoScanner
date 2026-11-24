@@ -6,6 +6,7 @@
     <string name="home_preset_strict_keto">Strict keto</string>
     <string name="home_preset_keto">Keto</string>
     <string name="home_preset_low_carb">Low carb</string>
+    <string name="home_preset_no_diet">No diet</string>
     <string name="home_hero_eyebrow">Shopping?</string>
     <string name="home_hero_title">Scan a product,\nknow in a second</string>
     <string name="home_hero_body">Point the camera at any barcode in the aisle.</string>
@@ -20,6 +21,7 @@
     <string name="home_time_yesterday">Yesterday</string>
     <string name="home_time_date" translatable="false">%1$s</string>
     <string name="home_carbs">%1$s g</string>
+    <string name="home_carbs_named">%1$s g carbs</string>
     <string name="home_carbs_missing">No data</string>
     <string name="home_carbs_per_100g">%1$s g carbs per 100 g</string>
     <string name="home_verdict_with_carbs">%1$s, %2$s</string>

@@ -70,14 +70,26 @@ private const val SCAN_FRAME =
 
 private val ScanFramePath: Path by lazy { addPathNodes(SCAN_FRAME).toPath() }
 
-enum class ScanFrameMode { Aiming, Idle, Searching, Found, NotFound }
+enum class ScanFrameMode { Aiming, Idle, Waiting, Searching, Found, NotFound }
 
 @Composable
 fun Ui.ScanFrame(mode: ScanFrameMode, modifier: Modifier = Modifier) {
     val motion = AppTheme.motion
     val density = LocalDensity.current
     val strokeColor by animateColorAsState(
-        targetValue = if (mode == ScanFrameMode.Found) AppTheme.colors.text.highlight else AppTheme.colors.text.inverse,
+        targetValue = when (mode) {
+            ScanFrameMode.Found -> {
+                AppTheme.colors.text.highlight
+            }
+
+            ScanFrameMode.Waiting -> {
+                AppTheme.colors.camera.frameWaiting
+            }
+
+            ScanFrameMode.Aiming, ScanFrameMode.Idle, ScanFrameMode.Searching, ScanFrameMode.NotFound -> {
+                AppTheme.colors.text.inverse
+            }
+        },
         animationSpec = tween(motion.durationShort),
         label = "ScanFrameColor",
     )
@@ -105,7 +117,7 @@ fun Ui.ScanFrame(mode: ScanFrameMode, modifier: Modifier = Modifier) {
                     AimLine(Modifier)
                 }
 
-                ScanFrameMode.Searching, ScanFrameMode.Found, ScanFrameMode.NotFound -> Unit
+                ScanFrameMode.Waiting, ScanFrameMode.Searching, ScanFrameMode.Found, ScanFrameMode.NotFound -> Unit
             }
             Ui.FadeSwap(targetState = mode) { centre ->
                 when (centre) {
@@ -117,7 +129,7 @@ fun Ui.ScanFrame(mode: ScanFrameMode, modifier: Modifier = Modifier) {
                         FoundDisc()
                     }
 
-                    ScanFrameMode.Aiming, ScanFrameMode.Idle, ScanFrameMode.NotFound -> Unit
+                    ScanFrameMode.Aiming, ScanFrameMode.Idle, ScanFrameMode.Waiting, ScanFrameMode.NotFound -> Unit
                 }
             }
         }
@@ -333,6 +345,14 @@ private fun ScanFrameAimingPreview() {
 private fun ScanFrameIdlePreview() {
     CameraPreviewBox {
         Ui.ScanFrame(mode = ScanFrameMode.Idle)
+    }
+}
+
+@Preview
+@Composable
+private fun ScanFrameWaitingPreview() {
+    CameraPreviewBox {
+        Ui.ScanFrame(mode = ScanFrameMode.Waiting)
     }
 }
 

@@ -8,15 +8,27 @@ sealed interface ProductAnalysis {
 
     val ingredients: IngredientsAnalysis?
 
+    val hasDiet: Boolean
+
     data class Rated(
         override val product: Product,
         val macronutrients: MacronutrientAnalysisResult,
         override val ingredients: IngredientsAnalysis? = null,
-    ) : ProductAnalysis
+    ) : ProductAnalysis {
+        override val hasDiet: Boolean get() = true
+    }
+
+    data class Unrated(
+        override val product: Product,
+        override val ingredients: IngredientsAnalysis? = null,
+    ) : ProductAnalysis {
+        override val hasDiet: Boolean get() = false
+    }
 
     data class InsufficientData(
         override val product: Product,
         override val ingredients: IngredientsAnalysis? = null,
+        override val hasDiet: Boolean = true,
     ) : ProductAnalysis
 }
 

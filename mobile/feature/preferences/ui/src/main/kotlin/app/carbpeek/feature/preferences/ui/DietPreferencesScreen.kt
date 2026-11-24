@@ -163,6 +163,21 @@ private fun DietPreferencesPresetLargeFontPreview() {
     DietPreferencesPresetPreview()
 }
 
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun DietPreferencesNoDietPreview() {
+    AppTheme {
+        ScreenContent(
+            DietPreferencesState(
+                Form(
+                    options = previewOptions(DietProfileOption.NO_DIET),
+                    isSaveEnabled = true,
+                ),
+            ),
+        ) {}
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun DietPreferencesInitialLoadPreview() {

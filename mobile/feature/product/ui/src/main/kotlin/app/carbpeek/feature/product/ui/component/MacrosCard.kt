@@ -37,7 +37,7 @@ import app.carbpeek.feature.product.ui.state.VerdictState
 private const val MACRO_COLUMNS = 3
 
 @Composable
-internal fun MacrosCard(verdict: VerdictState, macros: MacrosState, onAction: (ProductAction) -> Unit) {
+internal fun MacrosCard(verdict: VerdictState?, macros: MacrosState, onAction: (ProductAction) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +49,9 @@ internal fun MacrosCard(verdict: VerdictState, macros: MacrosState, onAction: (P
                 shape = AppTheme.shapes.large,
             ),
     ) {
-        Verdict(state = verdict, onAction = onAction)
+        if (verdict != null) {
+            Verdict(state = verdict, onAction = onAction)
+        }
         MacroValues(state = macros, onAction = onAction)
     }
 }
@@ -203,6 +205,26 @@ private fun MacrosCardInsufficientDataPreview() {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MacrosCardNoDietPreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(AppTheme.spacing.l)) {
+            MacrosCard(
+                verdict = null,
+                macros = MacrosState.example(isPerServingSelected = false, highlight = null),
+                onAction = {},
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun MacrosCardNoDietLargeFontPreview() {
+    MacrosCardNoDietPreview()
 }
 
 @Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)

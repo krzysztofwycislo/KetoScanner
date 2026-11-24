@@ -40,7 +40,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                 favourite = favourite(),
                 verdict = analysis.verdict(),
                 macros = macros(analysis),
-                scores = scores(analysis.product),
+                scores = scores(analysis),
                 ingredients = analysis.ingredients?.let { ingredientsCard(it) },
                 imagePreview = imagePreview(analysis.product),
                 ingredientSheet = analysis.ingredients?.let { openIngredientSheet(it) },
@@ -80,7 +80,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         }
     }
 
-    private fun ProductAnalysis.verdict(): VerdictState = when (this) {
+    private fun ProductAnalysis.verdict(): VerdictState? = when (this) {
         is ProductAnalysis.Rated -> with(macronutrients) {
             VerdictState.Rated(
                 rating = rate.toRating(),
@@ -89,6 +89,8 @@ internal class ProductStateFactory(private val resources: ProductResources) {
                     .ifEmpty { persistentListOf(resources.carbsPer100g(carbsPer100g)) },
             )
         }
+
+        is ProductAnalysis.Unrated -> null
 
         is ProductAnalysis.InsufficientData -> VerdictState.InsufficientData(
             summary = resources.insufficientData(),
@@ -142,7 +144,9 @@ internal class ProductStateFactory(private val resources: ProductResources) {
 
     private fun ProductAnalysis.highlight(cause: VerdictCause): Rating? = when (this) {
         is ProductAnalysis.Rated -> macronutrients.rate.toRating().takeIf { cause in macronutrients.verdictCauses() }
-        is ProductAnalysis.InsufficientData -> null
+        is ProductAnalysis.Unrated,
+        is ProductAnalysis.InsufficientData,
+        -> null
     }
 
     private fun MacronutrientAnalysisResult.verdictCauses(): Set<VerdictCause> = if (rate == DietRate.GOOD) {
@@ -160,13 +164,15 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         is RatingReason.HighSugars -> VerdictCause.SUGARS
     }
 
-    private fun scores(product: Product): ScoresState? {
-        val nutriScore = product.nutriScore
-        val novaGroup = product.novaGroup
+    private fun scores(analysis: ProductAnalysis): ScoresState? {
+        val nutriScore = analysis.product.nutriScore
+        val novaGroup = analysis.product.novaGroup
         if (nutriScore == null && novaGroup == null) {
             return null
         }
         return ScoresState(
+            title = resources.ratingsTitle(analysis.hasDiet),
+            note = resources.ratingsNote(analysis.hasDiet),
             nutriScore = nutriScore?.let { nutriScore(it) },
             processing = novaGroup?.let { processing(it) },
         )

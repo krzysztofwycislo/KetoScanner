@@ -267,6 +267,18 @@ private fun ScanSearchingCameraPreview() {
     )
 }
 
+@Preview
+@Composable
+private fun ScanWaitingNoDietPreview() {
+    ScanScreenPreview(
+        previewState(
+            isPaused = true,
+            frame = ScanFrameMode.Waiting,
+            trip = previewTripNoDiet,
+        ),
+    )
+}
+
 @Preview(widthDp = 891, heightDp = 411)
 @Composable
 private fun ScanAimingLandscapePreview() {
@@ -280,6 +292,17 @@ private fun ScanFirstHintPreview() {
         previewState(
             hint = previewResources.firstScanHintTitle(),
             hintSupportingText = previewResources.firstScanHintBody(DietMode.KETO),
+        ),
+    )
+}
+
+@Preview
+@Composable
+private fun ScanFirstHintNoDietPreview() {
+    ScanScreenPreview(
+        previewState(
+            hint = previewResources.firstScanHintTitle(),
+            hintSupportingText = previewResources.firstScanHintBody(mode = null),
         ),
     )
 }

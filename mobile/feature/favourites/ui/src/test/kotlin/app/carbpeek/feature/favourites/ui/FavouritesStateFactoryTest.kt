@@ -19,6 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import app.carbpeek.core.designsystem.R as DesignR
@@ -311,6 +312,37 @@ class FavouritesStateFactoryTest {
             UiText.Res(R.string.favourites_verdict_good_keto),
             singleItem(favourite("1", dietRate = DietRate.GOOD, carbs = null)).verdictDescription,
         )
+    }
+
+    @Test
+    fun `when there is no diet then items show named carbs and no verdict whatever the rate`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = singleItem(
+                favourite = favourite(barcode = "1", dietRate = rate, carbs = 3.6),
+                preferences = DietPreferences.NoDiet,
+            )
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.favourites_carbs_named, UiArg.Numeric.Grams(3.6)), item.carbs)
+            assertEquals(
+                UiText.Res(R.string.favourites_carbs_per_100g, UiArg.Numeric.Grams(3.6)),
+                item.verdictDescription,
+            )
+        }
+    }
+
+    @Test
+    fun `when there is no diet and carbs are missing then items show no data and no verdict`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = singleItem(
+                favourite = favourite(barcode = "1", dietRate = rate, carbs = null),
+                preferences = DietPreferences.NoDiet,
+            )
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.favourites_carbs_missing), item.carbs)
+            assertEquals(UiText.Res(R.string.favourites_verdict_unknown), item.verdictDescription)
+        }
     }
 
     private fun singleItem(favourite: FavouriteProduct, preferences: DietPreferences? = null): FavouriteItemState =

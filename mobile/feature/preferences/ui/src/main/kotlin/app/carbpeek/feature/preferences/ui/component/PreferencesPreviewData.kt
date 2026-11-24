@@ -11,27 +11,29 @@ private val previewTitles = mapOf(
     DietProfileOption.STRICT_KETO to R.string.preferences_preset_strict_keto,
     DietProfileOption.KETO to R.string.preferences_preset_keto,
     DietProfileOption.LOW_CARB to R.string.preferences_preset_low_carb,
+    DietProfileOption.NO_DIET to R.string.preferences_no_diet,
 )
 
 private val previewNotes = mapOf(
     DietProfileOption.STRICT_KETO to R.string.preferences_preset_strict_keto_note,
     DietProfileOption.KETO to R.string.preferences_preset_keto_note,
     DietProfileOption.LOW_CARB to R.string.preferences_preset_low_carb_note,
+    DietProfileOption.NO_DIET to R.string.preferences_no_diet_note,
 )
 
-private fun DietProfileOptionState.Companion.example(option: DietProfileOption, selected: Boolean, grams: Int) =
+private fun DietProfileOptionState.Companion.example(option: DietProfileOption, selected: Boolean, grams: Int?) =
     DietProfileOptionState(
         option = option,
         title = UiText.Res(previewTitles.getValue(option)),
         note = UiText.Res(previewNotes.getValue(option)),
-        trailing = UiText.Res(R.string.preferences_grams, UiArg.Numeric.Count(grams.toLong())),
+        trailing = grams?.let { UiText.Res(R.string.preferences_grams, UiArg.Numeric.Count(it.toLong())) },
         isSelected = selected,
     )
 
-internal fun previewOptions(selected: DietProfileOption) = DietProfileOption.entries.map {
+internal fun previewOptions(selected: DietProfileOption) = DietProfileOption.entries.map { option ->
     DietProfileOptionState.example(
-        option = it,
-        selected = it == selected,
-        grams = it.preset.preferences.maxDailyCarbsAmount,
+        option = option,
+        selected = option == selected,
+        grams = if (option == DietProfileOption.NO_DIET) null else option.preferences.maxDailyCarbsAmount,
     )
 }.toPersistentList()

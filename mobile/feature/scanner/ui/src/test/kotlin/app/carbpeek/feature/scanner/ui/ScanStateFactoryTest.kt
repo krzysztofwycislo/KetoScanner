@@ -148,6 +148,22 @@ class ScanStateFactoryTest {
     }
 
     @Test
+    fun `when the first scan hint is pending without a diet then the subtitle promises no verdict`() {
+        val prototype = granted().copy(
+            pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
+            dietPreferences = DietPreferences.NoDiet,
+        )
+
+        assertEquals(
+            CameraHintState(
+                text = UiText.Res(R.string.scan_first_hint_title),
+                supportingText = UiText.Res(R.string.scan_first_hint_body_no_diet),
+            ),
+            hint(prototype),
+        )
+    }
+
+    @Test
     fun `when the first scan hint is pending without loaded preferences then the subtitle is for keto`() {
         assertEquals(FIRST_HINT_KETO, hint(granted().copy(pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT))))
     }
@@ -311,6 +327,45 @@ class ScanStateFactoryTest {
     }
 
     @Test
+    fun `when the scan is resuming then the frame waits the preview is paused and the hint and the trip stay`() {
+        val prototype = withTrip(entry(1), preferences = DietPreferences.NoDiet).copy(isResuming = true)
+
+        assertEquals(ScanFrameMode.Waiting, frame(prototype))
+        assertEquals(AIM_HINT, hint(prototype))
+        assertEquals(1, trip(prototype).size)
+        assertTrue(assertIs<CameraState.Preview>(camera(prototype)).isPaused)
+        assertTrue(factory.createFor(prototype).isLookUpEnabled)
+    }
+
+    @Test
+    fun `when the scan is resuming then a search and a not found barcode come before the waiting frame`() {
+        val resuming = granted().copy(isResuming = true)
+
+        assertEquals(ScanFrameMode.Waiting, frame(resuming.copy(isScanPaused = true)))
+        assertEquals(ScanFrameMode.Waiting, frame(resuming.copy(isTypeSheetOpen = true)))
+        assertEquals(ScanFrameMode.Searching, frame(resuming.copy(isSearching = true)))
+        assertEquals(ScanFrameMode.NotFound, frame(resuming.copy(notFoundBarcode = BARCODE)))
+        assertEquals(ScanFrameMode.Found, frame(resuming.withFoundAnalysis()))
+    }
+
+    @Test
+    fun `when a product is found without a diet then the search look stays until the page opens`() {
+        listOf(
+            ProductAnalysis.Unrated(product),
+            ProductAnalysis.InsufficientData(product = product, hasDiet = false),
+        ).forEach { analysis ->
+            val state = factory.createFor(granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis))
+
+            assertNull(state.found)
+            assertFalse(state.isLookUpEnabled)
+            assertEquals(
+                preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT),
+                state.camera,
+            )
+        }
+    }
+
+    @Test
     fun `when a barcode is not found then the frame is not found`() {
         assertEquals(ScanFrameMode.NotFound, frame(granted().copy(notFoundBarcode = BARCODE)))
     }
@@ -412,6 +467,12 @@ class ScanStateFactoryTest {
             ),
             found(ProductAnalysis.InsufficientData(product)),
         )
+    }
+
+    @Test
+    fun `when a product is found without a diet then there is no card`() {
+        assertNull(found(ProductAnalysis.Unrated(product)))
+        assertNull(found(ProductAnalysis.InsufficientData(product = product, hasDiet = false)))
     }
 
     @Test
@@ -552,6 +613,35 @@ class ScanStateFactoryTest {
             UiText.Res(R.string.scan_verdict_insufficient_data),
             trip(withTrip(entry(1, rate = null, carbs = null))).single().description,
         )
+    }
+
+    @Test
+    fun `when there is no diet then trip items are grey and speak only the carbs whatever the rate`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = trip(
+                withTrip(entry(id = 1, rate = rate, carbs = 3.6), preferences = DietPreferences.NoDiet),
+            ).single()
+
+            assertEquals(Rating.Unknown, item.rating)
+            assertEquals(UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(3.6)), item.carbs)
+            assertEquals(
+                UiText.Res(R.string.scan_found_carbs_per_100g, UiArg.Numeric.Grams(3.6)),
+                item.description,
+            )
+        }
+    }
+
+    @Test
+    fun `when there is no diet and carbs are missing then trip items speak not enough data`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = trip(
+                withTrip(entry(id = 1, rate = rate, carbs = null), preferences = DietPreferences.NoDiet),
+            ).single()
+
+            assertEquals(Rating.Unknown, item.rating)
+            assertEquals(UiText.Res(R.string.scan_trip_carbs_missing), item.carbs)
+            assertEquals(UiText.Res(R.string.scan_verdict_insufficient_data), item.description)
+        }
     }
 
     private fun found(analysis: ProductAnalysis): FoundCardState? =

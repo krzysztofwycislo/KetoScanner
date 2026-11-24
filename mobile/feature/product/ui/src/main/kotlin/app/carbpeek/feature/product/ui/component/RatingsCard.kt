@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,15 +41,17 @@ internal fun RatingsCard(state: ScoresState) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs)) {
             Text(
-                text = stringResource(R.string.product_other_ratings),
+                text = state.title.resolve(),
                 style = AppTheme.typography.section,
                 color = AppTheme.colors.text.default,
             )
-            Text(
-                text = stringResource(R.string.product_other_ratings_note),
-                style = AppTheme.typography.bodySmall,
-                color = AppTheme.colors.text.muted,
-            )
+            state.note?.let {
+                Text(
+                    text = it.resolve(),
+                    style = AppTheme.typography.bodySmall,
+                    color = AppTheme.colors.text.muted,
+                )
+            }
         }
         listOfNotNull(state.nutriScore, state.processing).forEach {
             ScoreRow(it)
@@ -113,6 +114,16 @@ private fun RatingsCardPreview() {
     AppTheme {
         Box(modifier = Modifier.padding(AppTheme.spacing.l)) {
             RatingsCard(ScoresState.example())
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RatingsCardNoDietPreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(AppTheme.spacing.l)) {
+            RatingsCard(ScoresState.exampleNoDiet())
         }
     }
 }

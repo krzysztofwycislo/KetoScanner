@@ -10,6 +10,7 @@
     <string name="favourites_unnamed_product">Unnamed product</string>
     <string name="favourites_retry">Try again</string>
     <string name="favourites_carbs">%1$s g</string>
+    <string name="favourites_carbs_named">%1$s g carbs</string>
     <string name="favourites_carbs_missing">No data</string>
     <string name="favourites_carbs_per_100g">%1$s g carbs per 100 g</string>
     <string name="favourites_verdict_with_carbs">%1$s, %2$s</string>

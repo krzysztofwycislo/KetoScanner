@@ -49,16 +49,16 @@ internal class HomeStateFactory(private val resources: HomeResources) {
     private fun ProductAnalysisHistoryEntry.toItemState(
         today: LocalDate,
         timeZone: TimeZone,
-        mode: DietMode,
+        mode: DietMode?,
     ): HomeItemState = HomeItemState(
         id = id,
         barcode = productBarcode,
         name = resources.productName(productName),
         icon = category.icon,
         time = timeText(today, timeZone),
-        rating = dietRate.toRating(),
-        carbs = resources.carbs(carbsPer100g),
-        verdictDescription = resources.verdictDescription(dietRate, mode, carbsPer100g),
+        rating = if (mode == null) null else dietRate.toRating(),
+        carbs = resources.carbs(grams = carbsPer100g, mode = mode),
+        verdictDescription = resources.verdictDescription(rate = dietRate, mode = mode, carbs = carbsPer100g),
     )
 
     private fun ProductAnalysisHistoryEntry.timeText(today: LocalDate, timeZone: TimeZone): UiText =

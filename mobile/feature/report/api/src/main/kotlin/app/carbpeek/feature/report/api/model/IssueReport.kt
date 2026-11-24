@@ -9,6 +9,6 @@ data class IssueReport(
     val reason: IssueReason,
     val details: String,
     val expectedRate: DietRate?,
-    val dietMode: DietMode,
+    val dietMode: DietMode?,
     val photos: List<ReportPhoto>,
 )

@@ -29,10 +29,11 @@ internal class ScanResources {
 
     fun firstScanHintTitle(): UiText = UiText.Res(R.string.scan_first_hint_title)
 
-    fun firstScanHintBody(mode: DietMode): UiText {
+    fun firstScanHintBody(mode: DietMode?): UiText {
         val id = when (mode) {
             DietMode.KETO -> R.string.scan_first_hint_body_keto
             DietMode.LOW_CARB -> R.string.scan_first_hint_body_low_carb
+            null -> R.string.scan_first_hint_body_no_diet
         }
         return UiText.Res(id)
     }
@@ -111,13 +112,24 @@ internal class ScanResources {
         if (grams == null) UiText.Res(R.string.scan_trip_carbs_missing)
         else UiText.Res(R.string.scan_trip_carbs, UiArg.Numeric.Grams(grams))
 
-    fun tripDescription(rate: DietRate?, mode: DietMode, carbs: Double?): UiText {
-        val verdict = if (rate == null) insufficientData() else verdictTitle(rate, mode)
-        return if (carbs == null) verdict
-        else UiText.Res(
-            R.string.scan_trip_verdict_with_carbs,
-            UiArg.Nested(verdict),
-            UiArg.Nested(carbsPer100g(carbs)),
-        )
+    fun tripDescription(rate: DietRate?, mode: DietMode?, carbs: Double?): UiText {
+        val verdict = mode?.let { tripVerdict(rate = rate, mode = it) }
+        val carbsPer100g = carbs?.let { carbsPer100g(it) }
+        return when {
+            carbsPer100g == null -> verdict ?: insufficientData()
+            verdict == null -> carbsPer100g
+            else -> UiText.Res(
+                R.string.scan_trip_verdict_with_carbs,
+                UiArg.Nested(verdict),
+                UiArg.Nested(carbsPer100g),
+            )
+        }
     }
+
+    private fun tripVerdict(rate: DietRate?, mode: DietMode): UiText =
+        if (rate == null) {
+            insufficientData()
+        } else {
+            verdictTitle(rate = rate, mode = mode)
+        }
 }

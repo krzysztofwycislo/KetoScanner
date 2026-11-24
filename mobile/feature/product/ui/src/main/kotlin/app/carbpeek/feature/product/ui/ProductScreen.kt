@@ -44,6 +44,7 @@ import app.carbpeek.feature.product.ui.component.RatingsCard
 import app.carbpeek.feature.product.ui.component.example
 import app.carbpeek.feature.product.ui.component.exampleFavourite
 import app.carbpeek.feature.product.ui.component.exampleInsufficientData
+import app.carbpeek.feature.product.ui.component.exampleNoDiet
 import app.carbpeek.feature.product.ui.component.exampleShowProduct
 import app.carbpeek.feature.product.ui.event.ProductAction
 import app.carbpeek.feature.product.ui.event.ProductAction.OnRetryClicked
@@ -55,6 +56,7 @@ import app.carbpeek.feature.product.ui.state.ProductContentState.Loading
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
 import app.carbpeek.feature.product.ui.state.ProductHeaderState
 import app.carbpeek.feature.product.ui.state.ProductState
+import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -195,6 +197,23 @@ private fun ProductShowRatedPerServingPreview() {
                 )
             )
         ) {}
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1400)
+@Composable
+private fun ProductShowNoDietPreview() {
+    AppTheme {
+        ScreenContent(
+            state = ProductState(
+                exampleShowProduct(
+                    verdict = null,
+                    macros = MacrosState.example(isPerServingSelected = false, highlight = null),
+                    scores = ScoresState.exampleNoDiet(),
+                ),
+            ),
+            onAction = {},
+        )
     }
 }
 

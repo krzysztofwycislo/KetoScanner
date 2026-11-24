@@ -22,6 +22,7 @@ import app.carbpeek.feature.scanner.ui.event.RequestCameraPermission
 import app.carbpeek.feature.scanner.ui.event.ScanAction
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnCameraPermissionResult
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnStart
+import app.carbpeek.feature.scanner.ui.event.ScanAction.OnStop
 import app.carbpeek.feature.scanner.ui.event.ScanEvent.ScanNavigation
 import app.carbpeek.feature.scanner.ui.event.ScanFeedback
 import app.carbpeek.feature.scanner.ui.state.CameraState
@@ -38,7 +39,7 @@ internal fun ScanScreen(onNavigation: (ScanNavigation) -> Unit) {
 
     LifecycleStartEffect(Unit) {
         viewModel.onAction(OnStart(permissionHandler.check(), hasTorch))
-        onStopOrDispose {}
+        onStopOrDispose { viewModel.onAction(OnStop) }
     }
 
     val haptics = LocalHapticFeedback.current

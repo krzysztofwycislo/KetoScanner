@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.carbpeek.core.common.AppError
+import app.carbpeek.core.common.AppErrorException
 import app.carbpeek.core.common.Outcome
 import app.carbpeek.core.designsystem.event.AppEvent
 import app.carbpeek.core.designsystem.event.AppEvents
@@ -43,7 +44,10 @@ import app.carbpeek.feature.report.ui.state.IssueReportStateFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -229,6 +233,63 @@ class IssueReportViewModelTest {
                 reports.submittedIssues.single(),
             )
         }
+
+    @Test
+    fun `when there is no diet then the report has no diet mode and no expected rate`() = runTest {
+        dietPreferences.preferences.value = DietPreferences.NoDiet
+        val viewModel = createViewModel(
+            handle(
+                KEY_REASON to IssueReason.RATING.name,
+                KEY_EXPECTED_RATE to DietRate.GOOD.name,
+            ),
+        )
+
+        viewModel.onAction(IssueReportAction.OnSendClicked)
+        assertTrue(reports.submittedIssues.isEmpty())
+        assertFalse(form(viewModel).sendButton.isEnabled)
+        assertTrue(form(viewModel).reasons.none { it.isSelected })
+
+        viewModel.onAction(IssueReportAction.OnReasonClicked(IssueReason.NUTRITION))
+        viewModel.onAction(IssueReportAction.OnSendClicked)
+
+        assertEquals(
+            IssueReport(
+                barcode = Barcode(BARCODE),
+                reason = IssueReason.NUTRITION,
+                details = "",
+                expectedRate = null,
+                dietMode = null,
+                photos = emptyList(),
+            ),
+            reports.submittedIssues.single(),
+        )
+    }
+
+    @Test
+    fun `when the preferences load late then the form appears with them and never offers the rating without a diet`() =
+        runTest {
+            dietPreferences.preferences.value = null
+            val viewModel = createViewModel(handle(KEY_REASON to IssueReason.NUTRITION.name))
+
+            assertEquals(IssueReportContentState.InitialLoad, viewModel.state.value.content)
+            viewModel.onAction(IssueReportAction.OnSendClicked)
+            assertTrue(reports.submittedIssues.isEmpty())
+
+            dietPreferences.preferences.value = DietPreferences.NoDiet
+
+            assertTrue(form(viewModel).reasons.none { it.reason == IssueReason.RATING })
+            assertEquals(IssueReason.NUTRITION, form(viewModel).reasons.single { it.isSelected }.reason)
+        }
+
+    @Test
+    fun `when loading the preferences fails then it is reported and the form shows with the default diet`() = runTest {
+        dietPreferences.failure = AppError.Storage
+
+        val viewModel = createViewModel()
+
+        assertEquals(IssueReason.entries.toList(), form(viewModel).reasons.map { it.reason })
+        assertEquals("Observing diet preferences failed", errorReporter.reports.single().message)
+    }
 
     @Test
     fun `when the reason changes away from rating then the expected rate is not sent`() = runTest {
@@ -592,11 +653,15 @@ class IssueReportViewModelTest {
 
     private class FakeDietPreferences : DietPreferencesRepository {
 
-        val preferences = MutableStateFlow(DietPreferences.Default)
+        val preferences = MutableStateFlow<DietPreferences?>(DietPreferences.Default)
+        var failure: AppError? = null
 
-        override fun observeDietPreferences(): Flow<DietPreferences> = preferences
+        override fun observeDietPreferences(): Flow<DietPreferences> = flow {
+            failure?.let { throw AppErrorException(it) }
+            emitAll(preferences.filterNotNull())
+        }
 
-        override suspend fun getDietPreferences(): Outcome<DietPreferences> = Outcome.Success(preferences.value)
+        override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 
         override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
             throw NotImplementedError()

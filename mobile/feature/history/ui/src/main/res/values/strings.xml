@@ -19,7 +19,9 @@
     <string name="history_group_date" translatable="false">%1$s</string>
     <string name="history_row_time" translatable="false">%1$s</string>
     <string name="history_no_results">Nothing matches. Try another name or filter.</string>
+    <string name="history_no_results_no_filters">Nothing matches. Try another name.</string>
     <string name="history_carbs">%1$s g</string>
+    <string name="history_carbs_named">%1$s g carbs</string>
     <string name="history_carbs_missing">No data</string>
     <string name="history_carbs_per_100g">%1$s g carbs per 100 g</string>
     <string name="history_verdict_with_carbs">%1$s, %2$s</string>

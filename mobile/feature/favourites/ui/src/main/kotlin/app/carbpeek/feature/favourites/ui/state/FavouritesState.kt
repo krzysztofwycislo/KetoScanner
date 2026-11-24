@@ -41,7 +41,7 @@ internal data class FavouriteItemState(
     val name: UiText,
     val icon: AppIcon,
     val brand: UiText?,
-    val rating: Rating,
+    val rating: Rating?,
     val carbs: UiText,
     val verdictDescription: UiText,
 ) {

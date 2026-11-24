@@ -185,6 +185,49 @@ class ProductStateFactoryTest {
     }
 
     @Test
+    fun `when analysis is unrated then there is no verdict and values ingredients and scores stay`() {
+        val content = show(
+            Prototype(
+                analysis = ProductAnalysis.Unrated(
+                    product = product(
+                        nutriments = fullNutriments,
+                        nutriScore = NutriScoreGrade.B,
+                        novaGroup = NovaGroup.PROCESSED,
+                    ),
+                    ingredients = IngredientsAnalysis(
+                        ingredients = listOf(ingredient(name = "sugar", kind = IngredientKind.ADDED_SUGAR)),
+                    ),
+                ),
+            ),
+        )
+
+        assertNull(content.verdict)
+        assertEquals(
+            listOf(
+                UiText.Res(R.string.product_carbs) to grams(13.0),
+                UiText.Res(R.string.product_sugars) to grams(7.0),
+                UiText.Res(R.string.product_fibre) to grams(11.0),
+                UiText.Res(R.string.product_proteins) to grams(25.0),
+                UiText.Res(R.string.product_fats) to grams(50.0),
+                UiText.Res(R.string.product_energy) to kcal(588.0),
+            ),
+            content.macros.values.map { it.label to it.value },
+        )
+        assertEquals(listOf(IngredientTone.ADDED_SUGAR), content.ingredients?.chips?.map { it.tone })
+        assertEquals(ScoreTone.NUTRI_SCORE_B, content.scores?.nutriScore?.tone)
+        assertEquals(ScoreTone.PROCESSING, content.scores?.processing?.tone)
+    }
+
+    @Test
+    fun `when data is missing without a diet then the insufficient data banner stays`() {
+        val content = show(
+            Prototype(analysis = ProductAnalysis.InsufficientData(product = product(), hasDiet = false)),
+        )
+
+        assertIs<VerdictState.InsufficientData>(content.verdict)
+    }
+
+    @Test
     fun `when brand is blank then brand is null`() {
         val header = show(Prototype(analysis = rated(DietRate.GOOD, product(brand = " ")))).header
 
@@ -484,6 +527,14 @@ class ProductStateFactoryTest {
     }
 
     @Test
+    fun `when analysis is unrated then no value is highlighted`() {
+        assertEquals(
+            highlights(carbs = null, sugars = null),
+            highlightsOf(ProductAnalysis.Unrated(product(nutriments = fullNutriments))),
+        )
+    }
+
+    @Test
     fun `when the serving is switched then the highlights stay the same`() {
         val analysis = ratedForCarbsAndSugars()
         val per100g = show(Prototype(analysis = analysis, isPerServingSelected = false)).macros
@@ -607,6 +658,36 @@ class ProductStateFactoryTest {
             ),
             scores.processing,
         )
+    }
+
+    @Test
+    fun `when there is a diet then the scores are other ratings with a note about the diet`() {
+        val product = product(nutriScore = NutriScoreGrade.B)
+
+        listOf(
+            rated(dietRate = DietRate.GOOD, product = product),
+            ProductAnalysis.InsufficientData(product),
+        ).forEach { analysis ->
+            val scores = assertNotNull(show(Prototype(analysis = analysis)).scores)
+
+            assertEquals(UiText.Res(R.string.product_other_ratings), scores.title)
+            assertEquals(UiText.Res(R.string.product_other_ratings_note), scores.note)
+        }
+    }
+
+    @Test
+    fun `when there is no diet then the scores are ratings without a note`() {
+        val product = product(nutriScore = NutriScoreGrade.B)
+
+        listOf(
+            ProductAnalysis.Unrated(product),
+            ProductAnalysis.InsufficientData(product = product, hasDiet = false),
+        ).forEach { analysis ->
+            val scores = assertNotNull(show(Prototype(analysis = analysis)).scores)
+
+            assertEquals(UiText.Res(R.string.product_ratings), scores.title)
+            assertNull(scores.note)
+        }
     }
 
     @Test

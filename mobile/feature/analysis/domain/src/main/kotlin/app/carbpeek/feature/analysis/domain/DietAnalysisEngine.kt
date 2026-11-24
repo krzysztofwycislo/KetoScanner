@@ -16,11 +16,18 @@ internal class DietAnalysisEngine {
             ?: return ProductAnalysis.InsufficientData(
                 product = product,
                 ingredients = ingredients,
+                hasDiet = preferences.dietMode != null,
+            )
+
+        val mode = preferences.dietMode
+            ?: return ProductAnalysis.Unrated(
+                product = product,
+                ingredients = ingredients,
             )
 
         val dailyCarbs = preferences.maxDailyCarbsAmount
 
-        val reasons = scorerFor(preferences.dietMode)
+        val reasons = scorerFor(mode)
             .reasons(profile = profile, dailyCarbs = dailyCarbs)
             .sortedByDescending(RatingReason::rate)
 
@@ -29,7 +36,7 @@ internal class DietAnalysisEngine {
         return ProductAnalysis.Rated(
             product = product,
             macronutrients = MacronutrientAnalysisResult(
-                dietMode = preferences.dietMode,
+                dietMode = mode,
                 rate = rate,
                 reasons = reasons,
                 carbsPer100g = profile.carbs,

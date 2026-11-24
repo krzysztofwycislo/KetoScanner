@@ -28,6 +28,7 @@ import app.carbpeek.feature.history.ui.state.HistoryFilter
 import app.carbpeek.feature.history.ui.state.HistoryState
 import app.carbpeek.feature.history.ui.state.HistoryStateFactory
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
+import app.carbpeek.feature.preferences.api.model.DietPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -118,6 +119,9 @@ internal class HistoryViewModel(
                         message = "Loading diet preferences failed",
                         error = error,
                     )
+                    statePrototype.update {
+                        it.copy(dietPreferences = it.dietPreferences ?: DietPreferences.Default)
+                    }
                 }
                 .collect { dietPreferences ->
                     statePrototype.update { it.copy(dietPreferences = dietPreferences) }

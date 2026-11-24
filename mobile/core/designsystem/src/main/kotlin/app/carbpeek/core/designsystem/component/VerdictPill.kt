@@ -25,7 +25,7 @@ import app.carbpeek.core.designsystem.theme.AppTheme
 
 @Composable
 fun Ui.VerdictPill(
-    rating: Rating,
+    rating: Rating?,
     text: UiText,
     modifier: Modifier = Modifier,
     contentDescription: UiText? = null,
@@ -36,22 +36,25 @@ fun Ui.VerdictPill(
     } else {
         Modifier
     }
-    val color = rating.color()
+    val tone = rating ?: Rating.Unknown
+    val color = tone.color()
     Row(
         modifier = modifier
             .then(semantics)
             .defaultMinSize(minHeight = AppTheme.sizes.control.xs)
-            .background(rating.containerColor(), AppTheme.shapes.pill)
+            .background(tone.containerColor(), AppTheme.shapes.pill)
             .padding(horizontal = AppTheme.spacing.s),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xxs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = rating.markIcon().imageVector,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(AppTheme.sizes.icon.xs),
-        )
+        if (rating != null) {
+            Icon(
+                imageVector = rating.markIcon().imageVector,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(AppTheme.sizes.icon.xs),
+            )
+        }
         Text(
             text = text.resolve(),
             style = AppTheme.typography.label,
@@ -80,6 +83,10 @@ private fun VerdictPillPreview() {
             Rating.entries.forEach {
                 Ui.VerdictPill(it, UiText.Res(R.string.designsystem_preview_rating))
             }
+            Ui.VerdictPill(
+                rating = null,
+                text = UiText.Res(R.string.designsystem_preview_rating),
+            )
         }
     }
 }

@@ -44,7 +44,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
@@ -184,6 +186,47 @@ class HistoryViewModelTest {
     }
 
     @Test
+    fun `when entries arrive before the preferences then nothing is shown until they are loaded`() = runTest {
+        preferences.forget()
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_FILTER to HistoryFilter.GOOD.name)))
+        repository.emit(Outcome.Success(listOf(entry(id = 2, rate = null), entry(id = 1, rate = null))))
+
+        assertEquals(HistoryContentState.InitialLoad, viewModel.state.value.content)
+        assertFalse(viewModel.state.value.showControls)
+
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+
+        assertEquals(listOf(2L, 1L), ids(viewModel))
+        assertTrue(viewModel.state.value.showControls)
+        assertTrue(viewModel.state.value.filters.isEmpty())
+    }
+
+    @Test
+    fun `when loading the preferences fails then it is reported and entries show with the default diet`() = runTest {
+        preferences.forget()
+        val viewModel = createViewModel()
+        repository.emit(Outcome.Success(entries))
+
+        preferences.emit(Outcome.Failure(AppError.Storage))
+
+        assertEquals(listOf(2L, 1L), ids(viewModel))
+        assertEquals(HistoryFilter.entries.size, viewModel.state.value.filters.size)
+        assertEquals("Loading diet preferences failed", errorReporter.reports.single().message)
+    }
+
+    @Test
+    fun `when the preferences fail after they loaded then no diet stays`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+        repository.emit(Outcome.Success(entries))
+
+        preferences.emit(Outcome.Failure(AppError.Storage))
+
+        assertEquals(listOf(2L, 1L), ids(viewModel))
+        assertTrue(viewModel.state.value.filters.isEmpty())
+    }
+
+    @Test
     fun `when preferences load then chip labels follow the diet mode`() = runTest {
         val viewModel = createViewModel()
 
@@ -193,6 +236,26 @@ class HistoryViewModelTest {
             HistoryResources().filterLabel(HistoryFilter.GOOD, DietMode.LOW_CARB),
             viewModel.state.value.filters[1].label,
         )
+    }
+
+    @Test
+    fun `when a filter is restored without a diet then it hides nothing and counts again with a diet`() = runTest {
+        val handle = SavedStateHandle(mapOf(KEY_FILTER to HistoryFilter.GOOD.name))
+        val viewModel = createViewModel(handle)
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+        repository.emit(Outcome.Success(listOf(entry(id = 2, rate = null), entry(id = 1, rate = null))))
+
+        assertEquals(listOf(2L, 1L), ids(viewModel))
+        assertTrue(viewModel.state.value.filters.isEmpty())
+        assertEquals(HistoryFilter.GOOD.name, handle.get<String>(KEY_FILTER))
+
+        preferences.emit(Outcome.Success(DietPreferences.Default))
+        repository.emit(
+            Outcome.Success(listOf(entry(id = 2, rate = DietRate.NEUTRAL), entry(id = 1, rate = DietRate.GOOD))),
+        )
+
+        assertEquals(listOf(1L), ids(viewModel))
+        assertEquals(HistoryFilter.GOOD, viewModel.state.value.filters.single { it.selected }.filter)
     }
 
     @Test
@@ -285,9 +348,11 @@ class HistoryViewModelTest {
 
     private class FakePreferences : DietPreferencesRepository {
 
-        private val flow = MutableSharedFlow<Outcome<DietPreferences>>()
+        private val flow = MutableSharedFlow<Outcome<DietPreferences>>(replay = 1)
 
         suspend fun emit(outcome: Outcome<DietPreferences>) = flow.emit(outcome)
+
+        fun forget() = flow.resetReplayCache()
 
         override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
@@ -295,6 +360,10 @@ class HistoryViewModelTest {
 
         override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
             throw NotImplementedError()
+
+        init {
+            flow.tryEmit(Outcome.Success(DietPreferences.Default))
+        }
     }
 
     private companion object {

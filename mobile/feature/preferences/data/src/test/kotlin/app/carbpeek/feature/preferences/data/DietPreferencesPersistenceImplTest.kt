@@ -68,6 +68,16 @@ class DietPreferencesPersistenceImplTest {
     }
 
     @Test
+    fun `when no diet is saved then amount and mode are observed together`() = runTest {
+        persistence.save(maxDailyCarbsAmount = 40, dietMode = "NONE")
+
+        assertEquals(
+            StoredDietPreferences(maxDailyCarbsAmount = 40, dietMode = "NONE"),
+            persistence.observe().first(),
+        )
+    }
+
+    @Test
     fun `when preferences are saved without completing setup then setup is not done`() = runTest {
         persistence.save(maxDailyCarbsAmount = 25, dietMode = "KETO")
 

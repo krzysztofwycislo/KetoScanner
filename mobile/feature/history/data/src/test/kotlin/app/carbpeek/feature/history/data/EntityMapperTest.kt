@@ -43,6 +43,14 @@ class EntityMapperTest {
     }
 
     @Test
+    fun `when analysis is unrated then the rate is null and the product carbs are kept`() {
+        val mapped = entity().toDomain(ProductAnalysis.Unrated(productWithCarbs))
+
+        assertNull(mapped.dietRate)
+        assertEquals(CARBS, mapped.carbsPer100g)
+    }
+
+    @Test
     fun `when analysis has a category then it replaces the stored one`() {
         val mapped = entity(category = "YOGURT_AND_CREAM").toDomain(ProductAnalysis.Rated(product, macronutrients))
 

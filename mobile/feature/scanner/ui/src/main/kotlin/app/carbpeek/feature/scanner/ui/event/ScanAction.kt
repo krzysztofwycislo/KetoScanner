@@ -4,6 +4,7 @@ import app.carbpeek.feature.scanner.ui.state.CameraPermissionCheck
 
 internal sealed interface ScanAction {
     data class OnStart(val check: CameraPermissionCheck, val hasTorch: Boolean) : ScanAction
+    data object OnStop : ScanAction
     data class OnCameraPermissionResult(val check: CameraPermissionCheck) : ScanAction
     data object OnPermissionButtonClicked : ScanAction
     data class OnQueryChanged(val query: String) : ScanAction

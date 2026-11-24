@@ -132,12 +132,12 @@ private fun ScreenContent(state: HistoryState, onAction: (HistoryAction) -> Unit
                         )
                     }
 
-                    NoResults -> Box(
+                    is NoResults -> Box(
                         centered.padding(horizontal = AppTheme.spacing.l),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = stringResource(R.string.history_no_results),
+                            text = content.message.resolve(),
                             style = AppTheme.typography.bodyLarge,
                             color = AppTheme.colors.text.muted,
                             textAlign = TextAlign.Center,
@@ -172,22 +172,29 @@ private fun Controls(
             onSearch = { onAction(OnSearchSubmitted) },
             modifier = Modifier.padding(horizontal = AppTheme.spacing.l),
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .selectableGroup()
-                .padding(horizontal = AppTheme.spacing.l)
-                .testTag("historyFilterRow"),
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
-        ) {
-            filters.forEach { filter ->
-                Ui.FilterChip(
-                    text = filter.label.resolve(),
-                    selected = filter.selected,
-                    onClick = { onAction(OnFilterClicked(filter.filter)) },
-                )
-            }
+        if (filters.isNotEmpty()) {
+            FilterRow(filters = filters, onAction = onAction)
+        }
+    }
+}
+
+@Composable
+private fun FilterRow(filters: PersistentList<HistoryFilterState>, onAction: (HistoryAction) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .selectableGroup()
+            .padding(horizontal = AppTheme.spacing.l)
+            .testTag("historyFilterRow"),
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs),
+    ) {
+        filters.forEach { filter ->
+            Ui.FilterChip(
+                text = filter.label.resolve(),
+                selected = filter.selected,
+                onClick = { onAction(OnFilterClicked(filter.filter)) },
+            )
         }
     }
 }
@@ -252,7 +259,7 @@ private fun HistoryItemState.Companion.example(
     id: Long,
     name: String,
     icon: AppIcon,
-    rating: Rating,
+    rating: Rating?,
     carbs: Double?,
 ) =
     HistoryItemState(
@@ -262,9 +269,14 @@ private fun HistoryItemState.Companion.example(
         icon = icon,
         time = UiText.Raw("18:42"),
         rating = rating,
-        carbs = if (carbs == null) UiText.Res(R.string.history_carbs_missing)
-        else UiText.Res(R.string.history_carbs, UiArg.Numeric.Grams(carbs)),
-        verdictDescription = UiText.Res(R.string.history_verdict_good_keto),
+        carbs = when {
+            carbs == null -> UiText.Res(R.string.history_carbs_missing)
+            rating == null -> UiText.Res(R.string.history_carbs_named, UiArg.Numeric.Grams(carbs))
+            else -> UiText.Res(R.string.history_carbs, UiArg.Numeric.Grams(carbs))
+        },
+        verdictDescription = UiText.Res(
+            if (rating == null) R.string.history_verdict_unknown else R.string.history_verdict_good_keto,
+        ),
     )
 
 private val previewFilters = HistoryFilter.entries.map { filter ->
@@ -316,7 +328,82 @@ private fun HistoryShowGroupsLargeFontPreview() {
 @Composable
 private fun HistoryNoResultsPreview() {
     AppTheme {
-        ScreenContent(HistoryState("xyz", true, previewFilters, NoResults)) {}
+        ScreenContent(
+            state = HistoryState(
+                query = "xyz",
+                showControls = true,
+                filters = previewFilters,
+                content = NoResults(UiText.Res(R.string.history_no_results)),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HistoryNoDietPreview() {
+    val groups = persistentListOf(
+        HistoryGroupState(
+            key = "today",
+            title = UiText.Res(R.string.history_group_today),
+            items = persistentListOf(
+                HistoryItemState.example(
+                    id = 1,
+                    name = "Peanut butter",
+                    icon = AppIcons.Jar,
+                    rating = null,
+                    carbs = 14.0,
+                ),
+                HistoryItemState.example(
+                    id = 2,
+                    name = "Hazelnut spread",
+                    icon = AppIcons.Jar,
+                    rating = null,
+                    carbs = 57.5,
+                ),
+                HistoryItemState.example(
+                    id = 3,
+                    name = "Mystery bar",
+                    icon = AppIcons.Bag,
+                    rating = null,
+                    carbs = null,
+                ),
+            ),
+        ),
+    )
+    AppTheme {
+        ScreenContent(
+            state = HistoryState(
+                query = "",
+                showControls = true,
+                filters = persistentListOf(),
+                content = ShowGroups(groups),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun HistoryNoDietLargeFontPreview() {
+    HistoryNoDietPreview()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HistoryNoDietNoResultsPreview() {
+    AppTheme {
+        ScreenContent(
+            state = HistoryState(
+                query = "xyz",
+                showControls = true,
+                filters = persistentListOf(),
+                content = NoResults(UiText.Res(R.string.history_no_results_no_filters)),
+            ),
+            onAction = {},
+        )
     }
 }
 

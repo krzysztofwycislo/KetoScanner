@@ -12,12 +12,14 @@ internal class DietPreferencesResources {
         DietProfileOption.STRICT_KETO -> UiText.Res(R.string.preferences_preset_strict_keto)
         DietProfileOption.KETO -> UiText.Res(R.string.preferences_preset_keto)
         DietProfileOption.LOW_CARB -> UiText.Res(R.string.preferences_preset_low_carb)
+        DietProfileOption.NO_DIET -> UiText.Res(R.string.preferences_no_diet)
     }
 
     fun optionNote(option: DietProfileOption): UiText = when (option) {
         DietProfileOption.STRICT_KETO -> UiText.Res(R.string.preferences_preset_strict_keto_note)
         DietProfileOption.KETO -> UiText.Res(R.string.preferences_preset_keto_note)
         DietProfileOption.LOW_CARB -> UiText.Res(R.string.preferences_preset_low_carb_note)
+        DietProfileOption.NO_DIET -> UiText.Res(R.string.preferences_no_diet_note)
     }
 
     fun grams(amount: Int): UiText = UiText.Res(R.string.preferences_grams, UiArg.Numeric.Count(amount.toLong()))

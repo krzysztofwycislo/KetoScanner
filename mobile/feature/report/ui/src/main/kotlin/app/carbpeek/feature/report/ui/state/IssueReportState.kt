@@ -18,6 +18,8 @@ internal data class IssueReportState(
 @Immutable
 internal sealed interface IssueReportContentState {
 
+    data object InitialLoad : IssueReportContentState
+
     data class Form(
         val product: ProductSummaryState,
         val reasons: PersistentList<ReasonChipState>,

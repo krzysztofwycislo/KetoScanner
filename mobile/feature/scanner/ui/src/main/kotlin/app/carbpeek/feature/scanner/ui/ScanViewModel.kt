@@ -19,6 +19,7 @@ import app.carbpeek.feature.analysis.api.AnalyzeProduct
 import app.carbpeek.feature.history.api.AnalysisHistoryRepository
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
 import app.carbpeek.feature.preferences.api.OnboardingRepository
+import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.OnboardingTip
 import app.carbpeek.feature.product.api.ProductRepository
 import app.carbpeek.feature.scanner.ui.event.OpenAppSettings
@@ -34,6 +35,7 @@ import app.carbpeek.feature.scanner.ui.event.ScanAction.OnQueryChanged
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnScanNextClicked
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnSearchSubmitted
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnStart
+import app.carbpeek.feature.scanner.ui.event.ScanAction.OnStop
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnTorchClicked
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnTripItemClicked
 import app.carbpeek.feature.scanner.ui.event.ScanAction.OnTypeItClicked
@@ -56,6 +58,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -95,6 +98,7 @@ internal class ScanViewModel(
                 ?: CameraPermission.Unchecked,
             isTorchOn = savedStateHandle.get<Boolean>(KEY_TORCH) ?: false,
             isTypeSheetOpen = savedStateHandle.get<Boolean>(KEY_TYPE_SHEET_OPEN) ?: false,
+            isResuming = savedStateHandle.get<Boolean>(KEY_RESUMING) ?: false,
             foundBarcode = savedStateHandle.get<String>(KEY_FOUND_BARCODE),
             notFoundBarcode = savedStateHandle.get<String>(KEY_NOT_FOUND_BARCODE),
             now = clock.now(),
@@ -113,6 +117,7 @@ internal class ScanViewModel(
     fun onAction(action: ScanAction) {
         when (action) {
             is OnStart -> onStart(action.check, action.hasTorch)
+            OnStop -> statePrototype.update { it.copy(isStarted = false) }
             is OnCameraPermissionResult -> onCameraPermissionResult(action.check)
             OnPermissionButtonClicked -> onPermissionButtonClicked()
             is OnQueryChanged -> setQuery(action.query)
@@ -156,9 +161,23 @@ internal class ScanViewModel(
                         error = error,
                     )
                 }
-                .collect { dietPreferences ->
-                    statePrototype.update { it.copy(dietPreferences = dietPreferences) }
-                }
+                .collect(::showPreferences)
+        }
+    }
+
+    private fun showPreferences(dietPreferences: DietPreferences) {
+        if (dietPreferences.dietMode != null || statePrototype.value.foundBarcode == null) {
+            statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+        } else {
+            savedStateHandle[KEY_FOUND_BARCODE] = null
+            statePrototype.update {
+                it.copy(
+                    dietPreferences = dietPreferences,
+                    foundBarcode = null,
+                    foundAnalysis = null,
+                    isScanPaused = false,
+                )
+            }
         }
     }
 
@@ -214,6 +233,20 @@ internal class ScanViewModel(
         }
     }
 
+    private fun observeResuming() {
+        viewModelScope.launch {
+            statePrototype
+                .map { it.isStarted && it.isResuming }
+                .distinctUntilChanged()
+                .collectLatest { isWaiting ->
+                    if (isWaiting) {
+                        delay(SCAN_RESUME_DELAY)
+                        setResuming(false)
+                    }
+                }
+        }
+    }
+
     private fun onFoundAnalysisFailed() {
         errorReporter.report(tag = TAG, message = "Observing found product failed", error = AppError.Storage)
         setFoundBarcode(null)
@@ -222,7 +255,12 @@ internal class ScanViewModel(
 
     private fun onStart(check: CameraPermissionCheck, hasTorch: Boolean) {
         statePrototype.update {
-            it.copy(isScanPaused = progress.inProgress.value, hasTorch = hasTorch, now = clock.now())
+            it.copy(
+                isStarted = true,
+                isScanPaused = progress.inProgress.value,
+                hasTorch = hasTorch,
+                now = clock.now(),
+            )
         }
         val current = statePrototype.value.cameraPermission
         when {
@@ -285,6 +323,11 @@ internal class ScanViewModel(
         setTypeSheetOpen(true)
     }
 
+    private fun setResuming(isResuming: Boolean) {
+        savedStateHandle[KEY_RESUMING] = isResuming
+        statePrototype.update { it.copy(isResuming = isResuming) }
+    }
+
     private fun setFoundBarcode(barcode: String?) {
         savedStateHandle[KEY_FOUND_BARCODE] = barcode
         statePrototype.update { it.copy(foundBarcode = barcode, foundAnalysis = null) }
@@ -297,11 +340,22 @@ internal class ScanViewModel(
 
     private fun openDetails() {
         val barcode = statePrototype.value.foundBarcode ?: return
-        screenEvents send NavigateToProduct(barcode)
         dismissVerdictTip()
+        openProduct(barcode)
+        statePrototype.update { it.copy(isScanPaused = true) }
+    }
+
+    private fun openDetailsDirectly() {
+        val barcode = statePrototype.value.foundBarcode ?: return
+        setResuming(true)
+        openProduct(barcode)
+        statePrototype.update { it.copy(isScanPaused = false) }
+    }
+
+    private fun openProduct(barcode: String) {
+        screenEvents send NavigateToProduct(barcode)
         setFoundBarcode(null)
         setNotFoundBarcode(null)
-        statePrototype.update { it.copy(isScanPaused = true) }
     }
 
     private fun scanNext() {
@@ -321,6 +375,7 @@ internal class ScanViewModel(
         if (barcode.isBlank() || progress.inProgress.value) return
         if (prototype.foundBarcode != null || prototype.notFoundBarcode != null) return
         statePrototype.update { it.copy(isScanPaused = true) }
+        setResuming(false)
         if (fromCamera) screenEvents send PerformHapticFeedback(ScanFeedback.Detected)
         appEvents send HideKeyboard
 
@@ -337,14 +392,16 @@ internal class ScanViewModel(
     }
 
     private suspend fun saveFoundAnalysisToHistory() {
-        val analysis = statePrototype
-            .first { it.foundBarcode == null || it.foundAnalysis != null }
-            .foundAnalysis ?: return
+        val prototype = statePrototype.first { it.foundBarcode == null || it.foundAnalysis != null }
+        val analysis = prototype.foundAnalysis ?: return
         screenEvents send PerformHapticFeedback(ScanFeedback.Found)
         applicationScope.launch {
             history.save(analysis.product).onFailure { error ->
                 errorReporter.report(tag = TAG, message = "Saving history entry failed", error = error)
             }
+        }
+        if (prototype.opensDetailsDirectly) {
+            openDetailsDirectly()
         }
     }
 
@@ -368,6 +425,7 @@ internal class ScanViewModel(
     init {
         observeProgress()
         observeFoundAnalysis()
+        observeResuming()
         observeTrip()
         observePreferences()
         loadPendingTips()
@@ -379,6 +437,7 @@ internal class ScanViewModel(
         const val KEY_CAMERA_PERMISSION = "cameraPermission"
         const val KEY_TORCH = "torch"
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
+        const val KEY_RESUMING = "resuming"
         const val KEY_FOUND_BARCODE = "foundBarcode"
         const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val SCAN_RESUME_DELAY = 2.seconds

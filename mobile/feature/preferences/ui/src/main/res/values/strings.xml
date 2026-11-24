@@ -11,5 +11,7 @@
     <string name="preferences_preset_keto_note">Around 30-50 g carbs a day</string>
     <string name="preferences_preset_low_carb">Low carb</string>
     <string name="preferences_preset_low_carb_note">Up to about 100 g carbs a day</string>
+    <string name="preferences_no_diet">No diet</string>
+    <string name="preferences_no_diet_note">No verdict, just what is in the product</string>
     <string name="preferences_grams">%1$s g</string>
 </resources>

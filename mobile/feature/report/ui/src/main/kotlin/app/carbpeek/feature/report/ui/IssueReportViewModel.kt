@@ -14,6 +14,7 @@ import app.carbpeek.core.model.Barcode
 import app.carbpeek.feature.analysis.api.AnalyzeProduct
 import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.preferences.api.DietPreferencesRepository
+import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.report.api.ReportPhotoStore
 import app.carbpeek.feature.report.api.ReportRepository
 import app.carbpeek.feature.report.api.model.IssueReason
@@ -162,7 +163,7 @@ internal class IssueReportViewModel(
         }
     }
 
-    private fun observeDietMode() {
+    private fun observePreferences() {
         viewModelScope.launch {
             dietPreferences.observeDietPreferences()
                 .catchAppError { error ->
@@ -171,9 +172,12 @@ internal class IssueReportViewModel(
                         message = "Observing diet preferences failed",
                         error = error,
                     )
+                    statePrototype.update {
+                        it.copy(dietPreferences = it.dietPreferences ?: DietPreferences.Default)
+                    }
                 }
                 .collect { preferences ->
-                    statePrototype.update { it.copy(dietMode = preferences.dietMode) }
+                    statePrototype.update { it.copy(dietPreferences = preferences) }
                 }
         }
     }
@@ -284,7 +288,7 @@ internal class IssueReportViewModel(
 
     init {
         observeProduct()
-        observeDietMode()
+        observePreferences()
         cleanUpPhotos()
     }
 

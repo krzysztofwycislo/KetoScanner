@@ -12,7 +12,9 @@ import kotlin.time.Instant
 internal data class ScanStatePrototype(
     val query: String = "",
     val cameraPermission: CameraPermission = CameraPermission.Unchecked,
+    val isStarted: Boolean = false,
     val isScanPaused: Boolean = false,
+    val isResuming: Boolean = false,
     val isSearching: Boolean = false,
     val hasTorch: Boolean = false,
     val isTorchOn: Boolean = false,
@@ -27,7 +29,15 @@ internal data class ScanStatePrototype(
 ) {
 
     val isScanBlocked: Boolean
-        get() = isScanPaused || isSearching || isTypeSheetOpen || foundBarcode != null || notFoundBarcode != null
+        get() = isScanPaused ||
+            isResuming ||
+            isSearching ||
+            isTypeSheetOpen ||
+            foundBarcode != null ||
+            notFoundBarcode != null
+
+    val opensDetailsDirectly: Boolean
+        get() = foundAnalysis?.hasDiet == false
 
     val isVerdictTipVisible: Boolean
         get() = OnboardingTip.VERDICT_TIP in pendingTips && foundAnalysis is ProductAnalysis.Rated

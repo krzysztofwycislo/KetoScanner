@@ -19,6 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import app.carbpeek.feature.home.ui.state.HomeStatePrototype as Prototype
@@ -198,6 +199,44 @@ class HomeStateFactoryTest {
             UiText.Res(R.string.home_verdict_good_keto),
             item(entry(1, rate = DietRate.GOOD), null).verdictDescription,
         )
+    }
+
+    @Test
+    fun `when there is no diet then items show named carbs and no verdict whatever the rate`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = item(
+                entry = entry(id = 1, rate = rate, carbs = 3.6),
+                preferences = DietPreferences.NoDiet,
+            )
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.home_carbs_named, UiArg.Numeric.Grams(3.6)), item.carbs)
+            assertEquals(
+                UiText.Res(R.string.home_carbs_per_100g, UiArg.Numeric.Grams(3.6)),
+                item.verdictDescription,
+            )
+        }
+    }
+
+    @Test
+    fun `when there is no diet and carbs are missing then items show no data and no verdict`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = item(
+                entry = entry(id = 1, rate = rate, carbs = null),
+                preferences = DietPreferences.NoDiet,
+            )
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.home_carbs_missing), item.carbs)
+            assertEquals(UiText.Res(R.string.home_verdict_unknown), item.verdictDescription)
+        }
+    }
+
+    @Test
+    fun `when there is no diet then profile label is no diet`() {
+        val state = factory.createFor(Prototype(dietPreferences = DietPreferences.NoDiet))
+
+        assertEquals(UiText.Res(R.string.home_preset_no_diet), state.profileLabel)
     }
 
     @Test

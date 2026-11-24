@@ -10,6 +10,7 @@ import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.analysis.api.model.MacronutrientAnalysisResult
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.preferences.api.model.DietMode
+import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import app.carbpeek.feature.report.api.model.IssueReason
@@ -44,7 +45,7 @@ class IssueReportStateFactoryTest {
 
     @Test
     fun `when no analysis yet then product summary shows the bag icon and the raw barcode only`() {
-        val form = form(Prototype(barcode = Barcode(BARCODE)))
+        val form = form(Prototype(barcode = Barcode(BARCODE), dietPreferences = DietPreferences.Default))
 
         assertEquals(AppIcons.Bag, form.product.icon)
         assertEquals(UiText.Raw(BARCODE), form.product.name)
@@ -189,6 +190,63 @@ class IssueReportStateFactoryTest {
         assertEquals(
             SendButtonState(label = UiText.Res(R.string.report_send), isEnabled = true, isLoading = false),
             form(prototype(reason = IssueReason.OTHER)).sendButton,
+        )
+    }
+
+    @Test
+    fun `when product is unrated then rated as is absent`() {
+        val expectation = assertNotNull(
+            form(
+                prototype(analysis = ProductAnalysis.Unrated(product), reason = IssueReason.RATING),
+            ).expectation,
+        )
+
+        assertNull(expectation.ratedAs)
+    }
+
+    @Test
+    fun `when there is no diet then the rating reason is not offered`() {
+        val reasons = form(prototype(dietMode = null, reason = IssueReason.PRODUCT)).reasons
+
+        assertEquals(
+            listOf(IssueReason.NUTRITION, IssueReason.PRODUCT, IssueReason.OTHER),
+            reasons.map { it.reason },
+        )
+        assertEquals(listOf(false, true, false), reasons.map { it.isSelected })
+    }
+
+    @Test
+    fun `when a rating reason is restored without a diet then the form looks as if none was picked`() {
+        val prototype = prototype(
+            dietMode = null,
+            reason = IssueReason.RATING,
+            expectedRate = DietRate.GOOD,
+            photos = photos(count = 1),
+        )
+        val form = form(prototype)
+
+        assertTrue(form.reasons.none { it.isSelected })
+        assertNull(form.expectation)
+        assertEquals(UiText.Res(R.string.report_placeholder_other), form.detailsPlaceholder)
+        assertEquals(
+            SendButtonState(label = UiText.Res(R.string.report_pick_reason), isEnabled = false, isLoading = false),
+            form.sendButton,
+        )
+        assertEquals(1, form.photos?.items?.size)
+        assertNull(prototype.toReport())
+    }
+
+    @Test
+    fun `when preferences are not loaded then no form is shown and nothing can be sent`() {
+        listOf(ReportStatus.EDITING, ReportStatus.SENDING).forEach { status ->
+            val prototype = prototype(reason = IssueReason.RATING, status = status).copy(dietPreferences = null)
+
+            assertEquals(IssueReportContentState.InitialLoad, state(prototype).content)
+            assertNull(prototype.toReport())
+        }
+        assertEquals(
+            IssueReportContentState.Failed,
+            state(prototype(status = ReportStatus.FAILED).copy(dietPreferences = null)).content,
         )
     }
 
@@ -369,7 +427,7 @@ class IssueReportStateFactoryTest {
 
         fun prototype(
             analysis: ProductAnalysis? = null,
-            dietMode: DietMode = DietMode.KETO,
+            dietMode: DietMode? = DietMode.KETO,
             reason: IssueReason? = null,
             details: String = "",
             expectedRate: DietRate? = null,
@@ -378,7 +436,7 @@ class IssueReportStateFactoryTest {
         ) = Prototype(
             barcode = Barcode(BARCODE),
             analysis = analysis,
-            dietMode = dietMode,
+            dietPreferences = DietPreferences(maxDailyCarbsAmount = 40, dietMode = dietMode),
             reason = reason,
             details = details,
             expectedRate = expectedRate,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about_title">About</string>
-    <string name="about_description">CarbPeek scans product barcodes and rates their carbohydrates against your daily limit.</string>
+    <string name="about_description">CarbPeek scans product barcodes and shows nutrition values and ingredients. If you follow a diet, it also rates the carbohydrates against your daily limit.</string>
     <string name="about_data_source">Product data comes from Open Food Facts, available under the Open Database License.</string>
 </resources>

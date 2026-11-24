@@ -16,18 +16,24 @@ internal class FavouritesResources {
 
     fun noResults(query: String): UiText = UiText.Res(R.string.favourites_no_results, UiArg.Text(query))
 
-    fun carbs(grams: Double?): UiText =
-        if (grams == null) UiText.Res(R.string.favourites_carbs_missing)
-        else UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(grams))
+    fun carbs(grams: Double?, mode: DietMode?): UiText = when {
+        grams == null -> UiText.Res(R.string.favourites_carbs_missing)
+        mode == null -> UiText.Res(R.string.favourites_carbs_named, UiArg.Numeric.Grams(grams))
+        else -> UiText.Res(R.string.favourites_carbs, UiArg.Numeric.Grams(grams))
+    }
 
-    fun verdictDescription(rate: DietRate?, mode: DietMode, carbs: Double?): UiText {
-        val verdict = verdict(rate, mode)
-        return if (carbs == null) verdict
-        else UiText.Res(
-            R.string.favourites_verdict_with_carbs,
-            UiArg.Nested(verdict),
-            UiArg.Nested(UiText.Res(R.string.favourites_carbs_per_100g, UiArg.Numeric.Grams(carbs))),
-        )
+    fun verdictDescription(rate: DietRate?, mode: DietMode?, carbs: Double?): UiText {
+        val verdict = mode?.let { verdict(rate = rate, mode = it) }
+        val carbsPer100g = carbs?.let { UiText.Res(R.string.favourites_carbs_per_100g, UiArg.Numeric.Grams(it)) }
+        return when {
+            carbsPer100g == null -> verdict ?: UiText.Res(R.string.favourites_verdict_unknown)
+            verdict == null -> carbsPer100g
+            else -> UiText.Res(
+                R.string.favourites_verdict_with_carbs,
+                UiArg.Nested(verdict),
+                UiArg.Nested(carbsPer100g),
+            )
+        }
     }
 
     fun loadError(error: AppError): UiText = error.toUiText()

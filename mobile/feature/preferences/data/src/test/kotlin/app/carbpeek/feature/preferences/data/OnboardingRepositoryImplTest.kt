@@ -60,6 +60,17 @@ class OnboardingRepositoryImplTest {
     }
 
     @Test
+    fun `when no diet is stored then setup is done`() = runTest {
+        val repository = createRepository(
+            persistence = FakePersistence(
+                stored = StoredDietPreferences(maxDailyCarbsAmount = null, dietMode = "NONE"),
+            ),
+        )
+
+        assertEquals(Outcome.Success(true), repository.isSetupDone())
+    }
+
+    @Test
     fun `when reading throws then storage failure is returned`() = runTest {
         val repository = createRepository(persistence = FakePersistence(failure = IllegalStateException("disk")))
 
@@ -75,6 +86,16 @@ class OnboardingRepositoryImplTest {
             assertEquals(Outcome.Success(Unit), repository.completeSetup(preset = DietPreset.LOW_CARB))
             assertEquals(listOf(100 to "LOW_CARB"), persistence.completed)
         }
+
+    @Test
+    fun `when setup is completed with each preset then its mode name is saved`() = runTest {
+        val persistence = FakePersistence()
+        val repository = createRepository(persistence = persistence)
+
+        DietPreset.entries.forEach { repository.completeSetup(preset = it) }
+
+        assertEquals(listOf(20 to "KETO", 40 to "KETO", 100 to "LOW_CARB"), persistence.completed)
+    }
 
     @Test
     fun `when completing setup throws then storage failure is returned`() = runTest {

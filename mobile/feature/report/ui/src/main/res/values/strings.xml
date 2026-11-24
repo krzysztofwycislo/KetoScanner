@@ -65,7 +65,7 @@
     <string name="report_allow_camera">Allow camera</string>
     <string name="report_photo_capture_failed">Couldn\'t take the photo. Try again.</string>
     <string name="report_missing_title">Add this product</string>
-    <string name="report_missing_intro">Take 2-3 photos and we\'ll add it, so you and others get a verdict next time.</string>
+    <string name="report_missing_intro">Take 2-3 photos and we\'ll add it, so you and others can find it next time.</string>
     <string name="report_missing_barcode">Barcode %1$s</string>
     <string name="report_slot_front">Front</string>
     <string name="report_slot_front_note">Becomes the product photo</string>

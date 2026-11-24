@@ -180,8 +180,15 @@ internal fun ScoresState.Companion.example(
     nutriScore: ScoreState? = ScoreState.exampleNutriScore,
     processing: ScoreState? = ScoreState.exampleProcessing,
 ) = ScoresState(
+    title = UiText.Res(R.string.product_other_ratings),
+    note = UiText.Res(R.string.product_other_ratings_note),
     nutriScore = nutriScore,
     processing = processing,
+)
+
+internal fun ScoresState.Companion.exampleNoDiet() = example().copy(
+    title = UiText.Res(R.string.product_ratings),
+    note = null,
 )
 
 private fun chip(
@@ -388,7 +395,7 @@ internal val exampleDataSource = UiText.Res(R.string.product_data_source, UiArg.
 internal fun exampleShowProduct(
     header: ProductHeaderState = ProductHeaderState.example(),
     favourite: FavouriteButtonState? = FavouriteButtonState.exampleNotFavourite,
-    verdict: VerdictState = VerdictState.exampleRated(),
+    verdict: VerdictState? = VerdictState.exampleRated(),
     macros: MacrosState = MacrosState.example(isPerServingSelected = false, highlight = Rating.Neutral),
     scores: ScoresState? = ScoresState.example(),
     ingredients: IngredientsCardState? = IngredientsCardState.example(),

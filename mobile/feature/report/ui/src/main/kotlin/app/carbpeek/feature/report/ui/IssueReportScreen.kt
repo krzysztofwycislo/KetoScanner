@@ -40,6 +40,7 @@ import app.carbpeek.feature.report.ui.state.ExpectationState
 import app.carbpeek.feature.report.ui.state.IssueReportContentState
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Failed
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Form
+import app.carbpeek.feature.report.ui.state.IssueReportContentState.InitialLoad
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Sent
 import app.carbpeek.feature.report.ui.state.IssueReportState
 import app.carbpeek.feature.report.ui.state.PhotosState
@@ -92,6 +93,7 @@ private fun ScreenContent(
                     .fillMaxSize(),
             ) { content ->
                 when (content) {
+                    InitialLoad -> Box(modifier = Modifier.fillMaxSize())
                     is Form -> IssueForm(content, onAction)
                     Sent -> {
                         SentContent(
@@ -140,6 +142,12 @@ private fun ReportPreview(content: IssueReportContentState, photoCapture: PhotoC
 @Composable
 private fun IssueReportEmptyPreview() {
     ReportPreview(content = exampleForm())
+}
+
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun IssueReportNoDietPreview() {
+    ReportPreview(content = exampleForm(offeredReasons = IssueReason.entries - IssueReason.RATING))
 }
 
 @Preview(showBackground = true, heightDp = 900)

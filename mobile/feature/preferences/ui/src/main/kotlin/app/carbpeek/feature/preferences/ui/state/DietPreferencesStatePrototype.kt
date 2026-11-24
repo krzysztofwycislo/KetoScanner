@@ -12,7 +12,7 @@ internal data class DietPreferencesStatePrototype(
     val loadError: AppError? = null,
 ) {
 
-    fun chosenPreferences(): DietPreferences? = option?.preset?.preferences
+    fun chosenPreferences(): DietPreferences? = option?.preferences
 
     companion object {
         val Default = DietPreferencesStatePrototype()

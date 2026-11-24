@@ -6,6 +6,7 @@
     <string name="scan_first_hint_title">Point at any product\'s barcode</string>
     <string name="scan_first_hint_body_keto">Try something from your kitchen. You\'ll see right away if it fits keto, and why.</string>
     <string name="scan_first_hint_body_low_carb">Try something from your kitchen. You\'ll see right away if it fits low carb, and why.</string>
+    <string name="scan_first_hint_body_no_diet">Try something from your kitchen. You\'ll see what\'s in it right away.</string>
     <string name="scan_verdict_tip_title">This is why it got this rating</string>
     <string name="scan_verdict_tip_body">Every verdict comes with the main reason. Tap Details for the full breakdown.</string>
     <string name="scan_verdict_tip_action">Got it</string>
@@ -17,7 +18,7 @@
     <string name="scan_look_up">Look up</string>
     <string name="scan_close">Close</string>
     <string name="scan_product_not_found">Product not found</string>
-    <string name="scan_not_found_message">We don\'t have this one yet. Add it with 2-3 photos and you\'ll get a verdict next time, or check the digits.</string>
+    <string name="scan_not_found_message">We don\'t have this one yet. Add it with 2-3 photos and you\'ll find it next time, or check the digits.</string>
     <string name="scan_not_found_barcode">Barcode %1$s</string>
     <string name="scan_add_it">Add it</string>
     <string name="scan_searching_hint">Looking up the product…</string>

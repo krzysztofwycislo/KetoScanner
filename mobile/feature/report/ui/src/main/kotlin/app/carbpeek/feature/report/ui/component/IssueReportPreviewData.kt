@@ -27,7 +27,10 @@ internal fun ProductSummaryState.Companion.example() = ProductSummaryState(
     subtitle = resources.productSubtitle(brand = "Coca-Cola", barcode = "5449000000996"),
 )
 
-internal fun ReasonChipState.Companion.examples(selected: IssueReason?) = IssueReason.entries.map { reason ->
+internal fun ReasonChipState.Companion.examples(
+    selected: IssueReason?,
+    offered: List<IssueReason> = IssueReason.entries,
+) = offered.map { reason ->
     ReasonChipState(
         reason = reason,
         label = resources.reasonLabel(reason),
@@ -71,13 +74,14 @@ internal fun PhotosState.Companion.example(count: Int) = PhotosState(
 
 internal fun exampleForm(
     reason: IssueReason? = null,
+    offeredReasons: List<IssueReason> = IssueReason.entries,
     details: String = "",
     expectation: ExpectationState? = null,
     photos: PhotosState? = PhotosState.example(count = 0).takeIf { reason != IssueReason.RATING },
     isSending: Boolean = false,
 ) = Form(
     product = ProductSummaryState.example(),
-    reasons = ReasonChipState.examples(reason),
+    reasons = ReasonChipState.examples(selected = reason, offered = offeredReasons),
     details = details,
     detailsPlaceholder = resources.detailsPlaceholder(reason),
     expectation = expectation,

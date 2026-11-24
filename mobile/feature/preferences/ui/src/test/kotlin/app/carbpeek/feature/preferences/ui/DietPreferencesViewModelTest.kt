@@ -101,6 +101,44 @@ class DietPreferencesViewModelTest {
     }
 
     @Test
+    fun `when no diet is stored then its option is selected`() = runTest {
+        val viewModel = createViewModel()
+
+        preferences.emit(DietPreferences.NoDiet)
+
+        assertEquals(DietProfileOption.NO_DIET, selectedOption(viewModel))
+    }
+
+    @Test
+    fun `when the no diet option was restored then it wins over the stored value`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_OPTION to "NO_DIET")))
+
+        preferences.emit(40)
+
+        assertEquals(DietProfileOption.NO_DIET, selectedOption(viewModel))
+    }
+
+    @Test
+    fun `when save is clicked with no diet then no diet is saved and the screen closes with the same message`() =
+        runTest {
+            val viewModel = createViewModel()
+            val screenEvents = collectScreenEvents(viewModel)
+            preferences.emit(40)
+            viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.NO_DIET))
+
+            viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+            assertEquals(listOf(DietPreferences.NoDiet), preferences.saved)
+            assertEquals(
+                listOf<AppEvent>(
+                    AppEvent.ShowMessage(UiText.Res(R.string.preferences_saved), MessageTone.Success),
+                ),
+                appEventsReceived,
+            )
+            assertEquals(listOf<DietPreferencesEvent>(NavigateBack), screenEvents)
+        }
+
+    @Test
     fun `when a later value arrives then the form selection is kept`() = runTest {
         val viewModel = createViewModel()
         preferences.emit(40)
@@ -280,7 +318,11 @@ class DietPreferencesViewModelTest {
         val saved = mutableListOf<DietPreferences>()
 
         fun emit(amount: Int, mode: DietMode = DietMode.KETO) {
-            values.tryEmit(DietPreferences(amount, mode))
+            emit(DietPreferences(amount, mode))
+        }
+
+        fun emit(preferences: DietPreferences) {
+            values.tryEmit(preferences)
         }
 
         override fun observeDietPreferences(): Flow<DietPreferences> = flow {

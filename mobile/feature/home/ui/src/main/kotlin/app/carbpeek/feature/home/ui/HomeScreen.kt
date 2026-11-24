@@ -310,7 +310,7 @@ private fun HomeItemState.Companion.example(
     id: Long,
     name: String,
     icon: AppIcon,
-    rating: Rating,
+    rating: Rating?,
     carbs: Double?,
 ) = HomeItemState(
     id = id,
@@ -319,9 +319,14 @@ private fun HomeItemState.Companion.example(
     icon = icon,
     time = UiText.Res(R.string.home_time_yesterday),
     rating = rating,
-    carbs = if (carbs == null) UiText.Res(R.string.home_carbs_missing)
-    else UiText.Res(R.string.home_carbs, UiArg.Numeric.Grams(carbs)),
-    verdictDescription = UiText.Res(R.string.home_verdict_good_keto),
+    carbs = when {
+        carbs == null -> UiText.Res(R.string.home_carbs_missing)
+        rating == null -> UiText.Res(R.string.home_carbs_named, UiArg.Numeric.Grams(carbs))
+        else -> UiText.Res(R.string.home_carbs, UiArg.Numeric.Grams(carbs))
+    },
+    verdictDescription = UiText.Res(
+        if (rating == null) R.string.home_verdict_unknown else R.string.home_verdict_good_keto,
+    ),
 )
 
 private val previewProfile = UiText.Res(R.string.home_preset_keto)
@@ -350,6 +355,33 @@ private fun HomeShowItemsMediumFontPreview() {
 @Composable
 private fun HomeShowItemsLargeFontPreview() {
     HomeShowItemsPreview()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HomeNoDietPreview() {
+    val items = persistentListOf(
+        HomeItemState.example(id = 1, name = "Peanut butter", icon = AppIcons.Jar, rating = null, carbs = 14.0),
+        HomeItemState.example(id = 2, name = "Hazelnut spread", icon = AppIcons.Jar, rating = null, carbs = 57.5),
+        HomeItemState.example(id = 3, name = "Greek yogurt 10%", icon = AppIcons.Cup, rating = null, carbs = 3.6),
+        HomeItemState.example(id = 4, name = "Mystery bar", icon = AppIcons.Bag, rating = null, carbs = null),
+    )
+    AppTheme {
+        ScreenContent(
+            state = HomeState(
+                profileLabel = UiText.Res(R.string.home_preset_no_diet),
+                recent = ShowItems(items),
+                showSeeAll = true,
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun HomeNoDietLargeFontPreview() {
+    HomeNoDietPreview()
 }
 
 @Preview(showBackground = true)

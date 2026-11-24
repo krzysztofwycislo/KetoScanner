@@ -93,6 +93,20 @@ internal class ProductResources {
     fun grams(value: Double?): UiText =
         if (value == null) missingValue() else UiText.Res(R.string.product_value_grams, UiArg.Numeric.Grams(value))
 
+    fun ratingsTitle(hasDiet: Boolean): UiText =
+        if (hasDiet) {
+            UiText.Res(R.string.product_other_ratings)
+        } else {
+            UiText.Res(R.string.product_ratings)
+        }
+
+    fun ratingsNote(hasDiet: Boolean): UiText? =
+        if (hasDiet) {
+            UiText.Res(R.string.product_other_ratings_note)
+        } else {
+            null
+        }
+
     fun nutriScoreBadge(grade: NutriScoreGrade): UiText = UiText.Raw(grade.name)
 
     fun nutriScoreTitle(): UiText = UiText.Res(R.string.product_nutri_score)

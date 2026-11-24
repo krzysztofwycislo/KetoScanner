@@ -25,7 +25,7 @@ internal data class HistoryFilterState(
 internal sealed interface HistoryContentState {
     data object InitialLoad : HistoryContentState
     data object Empty : HistoryContentState
-    data object NoResults : HistoryContentState
+    data class NoResults(val message: UiText) : HistoryContentState
     data class ShowGroups(val groups: PersistentList<HistoryGroupState>) : HistoryContentState
     data class Error(val message: UiText) : HistoryContentState
 }
@@ -44,7 +44,7 @@ internal data class HistoryItemState(
     val name: UiText,
     val icon: AppIcon,
     val time: UiText,
-    val rating: Rating,
+    val rating: Rating?,
     val carbs: UiText,
     val verdictDescription: UiText,
 ) {

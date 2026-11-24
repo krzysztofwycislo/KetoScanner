@@ -17,6 +17,7 @@ import app.carbpeek.feature.scanner.ui.state.TorchButtonState
 import app.carbpeek.feature.scanner.ui.state.TripItemState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 
 internal val previewResources = ScanResources()
 
@@ -124,3 +125,7 @@ internal val previewTrip = persistentListOf(
         R.string.scan_verdict_insufficient_data,
     ),
 )
+
+internal val previewTripNoDiet = previewTrip
+    .map { it.copy(rating = Rating.Unknown, description = it.carbs) }
+    .toPersistentList()

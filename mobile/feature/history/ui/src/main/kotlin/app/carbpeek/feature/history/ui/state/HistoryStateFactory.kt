@@ -12,7 +12,8 @@ import app.carbpeek.feature.history.ui.state.HistoryContentState.InitialLoad
 import app.carbpeek.feature.history.ui.state.HistoryContentState.NoResults
 import app.carbpeek.feature.history.ui.state.HistoryContentState.ShowGroups
 import app.carbpeek.feature.preferences.api.model.DietMode
-import app.carbpeek.feature.preferences.api.model.DietPreferences
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -25,32 +26,45 @@ import app.carbpeek.feature.history.ui.state.HistoryStatePrototype as Prototype
 internal class HistoryStateFactory(private val resources: HistoryResources) {
 
     fun createFor(prototype: Prototype): HistoryState {
-        val mode = (prototype.dietPreferences ?: DietPreferences.Default).dietMode
+        val mode = prototype.dietPreferences?.dietMode
         val content = prototype.content(mode)
         return HistoryState(
             query = prototype.query,
             showControls = content is NoResults || content is ShowGroups,
-            filters = HistoryFilter.entries.map { filter ->
-                HistoryFilterState(
-                    filter = filter,
-                    label = resources.filterLabel(filter, mode),
-                    selected = filter == prototype.filter,
-                )
-            }.toPersistentList(),
+            filters = prototype.filters(mode),
             content = content,
         )
     }
 
-    private fun Prototype.content(mode: DietMode): HistoryContentState {
+    private fun Prototype.filters(mode: DietMode?): PersistentList<HistoryFilterState> {
+        if (mode == null) {
+            return persistentListOf()
+        }
+        return HistoryFilter.entries.map { option ->
+            HistoryFilterState(
+                filter = option,
+                label = resources.filterLabel(filter = option, mode = mode),
+                selected = option == filter,
+            )
+        }.toPersistentList()
+    }
+
+    private fun Prototype.content(mode: DietMode?): HistoryContentState {
         val entries = entries
         val loadError = loadError
         return when {
             loadError != null -> Error(resources.loadError(loadError))
             entries == null -> InitialLoad
             entries.isEmpty() -> Empty
+            dietPreferences == null -> InitialLoad
             else -> {
-                val visible = entries.filter { it.matches(query.trim(), filter) }
-                if (visible.isEmpty()) NoResults else ShowGroups(groups(visible, mode))
+                val offeredFilter = if (mode == null) HistoryFilter.ALL else filter
+                val visible = entries.filter { it.matches(query = query.trim(), filter = offeredFilter) }
+                if (visible.isEmpty()) {
+                    NoResults(resources.noResults(mode))
+                } else {
+                    ShowGroups(groups(entries = visible, mode = mode))
+                }
             }
         }
     }
@@ -68,7 +82,7 @@ internal class HistoryStateFactory(private val resources: HistoryResources) {
 
     private fun Prototype.groups(
         entries: List<ProductAnalysisHistoryEntry>,
-        mode: DietMode,
+        mode: DietMode?,
     ) = entries.groupBy { groupOf(it.updateTime.toLocalDateTime(timeZone).date) }
         .map { (group, groupEntries) ->
             HistoryGroupState(
@@ -98,16 +112,16 @@ internal class HistoryStateFactory(private val resources: HistoryResources) {
         is DayGroup.OnDate -> resources.dateGroup(first.updateTime)
     }
 
-    private fun ProductAnalysisHistoryEntry.toItemState(group: DayGroup, mode: DietMode): HistoryItemState =
+    private fun ProductAnalysisHistoryEntry.toItemState(group: DayGroup, mode: DietMode?): HistoryItemState =
         HistoryItemState(
             id = id,
             barcode = productBarcode,
             name = resources.productName(productName),
             icon = category.icon,
             time = if (group == DayGroup.ThisWeek) resources.weekday(updateTime) else resources.time(updateTime),
-            rating = dietRate.toRating(),
-            carbs = resources.carbs(carbsPer100g),
-            verdictDescription = resources.verdictDescription(dietRate, mode, carbsPer100g),
+            rating = if (mode == null) null else dietRate.toRating(),
+            carbs = resources.carbs(grams = carbsPer100g, mode = mode),
+            verdictDescription = resources.verdictDescription(rate = dietRate, mode = mode, carbs = carbsPer100g),
         )
 
     private fun DietRate?.toRating(): Rating = when (this) {

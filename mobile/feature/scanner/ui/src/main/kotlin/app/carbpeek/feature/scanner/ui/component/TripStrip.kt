@@ -150,6 +150,12 @@ private fun ScanTripPreview() {
 
 @Preview
 @Composable
+private fun ScanTripNoDietPreview() {
+    ScanScreenPreview(previewState(trip = previewTripNoDiet))
+}
+
+@Preview
+@Composable
 private fun TripStripBrightPreview() {
     AppTheme {
         TripStrip(

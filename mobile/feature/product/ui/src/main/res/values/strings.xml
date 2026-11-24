@@ -39,6 +39,7 @@
     <string name="product_basis_100g">100 g/ml</string>
     <string name="product_basis_serving">Serving</string>
     <string name="product_basis_serving_with_value">%1$s g/ml</string>
+    <string name="product_ratings">Ratings</string>
     <string name="product_other_ratings">Other ratings</string>
     <string name="product_other_ratings_note">These don\'t consider your diet.</string>
     <string name="product_nutri_score">Nutri-Score</string>

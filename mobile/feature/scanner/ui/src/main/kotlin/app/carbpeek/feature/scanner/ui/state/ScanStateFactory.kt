@@ -21,7 +21,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         query = prototype.query,
         isLookUpEnabled = !prototype.showProgress,
         camera = prototype.camera(),
-        found = prototype.foundAnalysis?.toFoundCard(showVerdictTip = prototype.isVerdictTipVisible),
+        found = prototype.foundCard(),
         notFound = prototype.notFoundBarcode?.let {
             val isCameraGranted = prototype.cameraPermission == CameraPermission.Granted
             NotFoundCardState(
@@ -34,7 +34,14 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     )
 
     private val Prototype.showProgress: Boolean
-        get() = isSearching || (foundBarcode != null && foundAnalysis == null)
+        get() = isSearching || (foundBarcode != null && (foundAnalysis == null || opensDetailsDirectly))
+
+    private fun Prototype.foundCard(): FoundCardState? =
+        if (opensDetailsDirectly) {
+            null
+        } else {
+            foundAnalysis?.toFoundCard(showVerdictTip = isVerdictTipVisible)
+        }
 
     private fun Prototype.camera(): CameraState = when (cameraPermission) {
         CameraPermission.Granted -> CameraState.Preview(
@@ -74,9 +81,10 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     }
 
     private fun Prototype.frame(): ScanFrameMode = when {
-        foundAnalysis != null -> ScanFrameMode.Found
+        foundAnalysis != null && !opensDetailsDirectly -> ScanFrameMode.Found
         notFoundBarcode != null -> ScanFrameMode.NotFound
         showProgress -> ScanFrameMode.Searching
+        isResuming -> ScanFrameMode.Waiting
         isScanBlocked -> ScanFrameMode.Idle
         else -> ScanFrameMode.Aiming
     }
@@ -89,7 +97,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
         )
     }
 
-    private fun ProductAnalysis.toFoundCard(showVerdictTip: Boolean): FoundCardState {
+    private fun ProductAnalysis.toFoundCard(showVerdictTip: Boolean): FoundCardState? {
         val name = resources.productName(product.name)
         val brand = resources.brand(product.brand)
         val icon = product.category.icon
@@ -103,6 +111,8 @@ internal class ScanStateFactory(private val resources: ScanResources) {
                 detail = resources.foundDetail(macronutrients),
                 showVerdictTip = showVerdictTip,
             )
+
+            is ProductAnalysis.Unrated -> null
 
             is ProductAnalysis.InsufficientData -> FoundCardState(
                 name = name,
@@ -127,13 +137,13 @@ internal class ScanStateFactory(private val resources: ScanResources) {
             .toImmutableList()
     }
 
-    private fun ProductAnalysisHistoryEntry.toTripItem(mode: DietMode) = TripItemState(
+    private fun ProductAnalysisHistoryEntry.toTripItem(mode: DietMode?) = TripItemState(
         barcode = productBarcode,
         name = resources.productName(productName),
         icon = category.icon,
-        rating = dietRate.toRating(),
+        rating = if (mode == null) Rating.Unknown else dietRate.toRating(),
         carbs = resources.tripCarbs(carbsPer100g),
-        description = resources.tripDescription(dietRate, mode, carbsPer100g),
+        description = resources.tripDescription(rate = dietRate, mode = mode, carbs = carbsPer100g),
     )
 
     private fun DietRate?.toRating(): Rating = when (this) {

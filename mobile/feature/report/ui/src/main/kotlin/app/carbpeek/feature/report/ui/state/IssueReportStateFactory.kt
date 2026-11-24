@@ -11,6 +11,7 @@ import app.carbpeek.feature.report.ui.capture.state.PhotoCapturePrototype
 import app.carbpeek.feature.report.ui.capture.state.PhotoCaptureStateFactory
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Failed
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Form
+import app.carbpeek.feature.report.ui.state.IssueReportContentState.InitialLoad
 import app.carbpeek.feature.report.ui.state.IssueReportContentState.Sent
 import kotlinx.collections.immutable.toPersistentList
 import app.carbpeek.feature.report.ui.state.IssueReportStatePrototype as Prototype
@@ -32,17 +33,19 @@ internal class IssueReportStateFactory(
     private fun Prototype.content(): IssueReportContentState = when (status) {
         ReportStatus.SENT -> Sent
         ReportStatus.FAILED -> Failed
-        ReportStatus.EDITING, ReportStatus.SENDING -> Form(
-            product = productSummary(),
-            reasons = reasons(),
-            details = details,
-            detailsPlaceholder = resources.detailsPlaceholder(reason),
-            expectation = expectation(),
-            photos = photosRow(),
-            isEditable = status == ReportStatus.EDITING,
-            sendButton = sendButton(),
-        )
+        ReportStatus.EDITING, ReportStatus.SENDING -> if (dietPreferences == null) InitialLoad else form()
     }
+
+    private fun Prototype.form() = Form(
+        product = productSummary(),
+        reasons = reasons(),
+        details = details,
+        detailsPlaceholder = resources.detailsPlaceholder(effectiveReason),
+        expectation = expectation(),
+        photos = photosRow(),
+        isEditable = status == ReportStatus.EDITING,
+        sendButton = sendButton(),
+    )
 
     private fun Prototype.productSummary(): ProductSummaryState {
         val product = analysis?.product
@@ -65,27 +68,30 @@ internal class IssueReportStateFactory(
         }
     }
 
-    private fun Prototype.reasons() = IssueReason.entries.map { option ->
+    private fun Prototype.reasons() = offeredReasons.map { option ->
         ReasonChipState(
             reason = option,
             label = resources.reasonLabel(option),
-            isSelected = option == reason,
+            isSelected = option == effectiveReason,
         )
     }.toPersistentList()
 
-    private fun Prototype.expectation(): ExpectationState? = when (reason) {
-        IssueReason.RATING -> ExpectationState(
-            ratedAs = ratedAs(),
-            options = DietRate.entries.map { rate ->
-                ExpectedRateOptionState(
-                    rate = rate,
-                    label = resources.verdictLabel(rate = rate, mode = dietMode),
-                    rating = rate.toRating(),
-                    isSelected = rate == expectedRate,
-                )
-            }.toPersistentList(),
-        )
-        else -> null
+    private fun Prototype.expectation(): ExpectationState? {
+        val mode = dietMode ?: return null
+        return when (effectiveReason) {
+            IssueReason.RATING -> ExpectationState(
+                ratedAs = ratedAs(),
+                options = DietRate.entries.map { rate ->
+                    ExpectedRateOptionState(
+                        rate = rate,
+                        label = resources.verdictLabel(rate = rate, mode = mode),
+                        rating = rate.toRating(),
+                        isSelected = rate == expectedRate,
+                    )
+                }.toPersistentList(),
+            )
+            else -> null
+        }
     }
 
     private fun Prototype.ratedAs(): RatedAsState? = when (val analysis = analysis) {
@@ -96,7 +102,7 @@ internal class IssueReportStateFactory(
             ),
             rating = analysis.macronutrients.rate.toRating(),
         )
-        is ProductAnalysis.InsufficientData, null -> null
+        is ProductAnalysis.Unrated, is ProductAnalysis.InsufficientData, null -> null
     }
 
     private fun Prototype.photosRow(): PhotosState? {
@@ -119,7 +125,7 @@ internal class IssueReportStateFactory(
             isEnabled = true,
             isLoading = true,
         )
-        reason == null -> SendButtonState(
+        effectiveReason == null -> SendButtonState(
             label = resources.pickReasonLabel(),
             isEnabled = false,
             isLoading = false,

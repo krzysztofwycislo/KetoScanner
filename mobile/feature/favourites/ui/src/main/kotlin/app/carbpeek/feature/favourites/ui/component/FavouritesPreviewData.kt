@@ -11,6 +11,7 @@ import app.carbpeek.feature.favourites.ui.FavouritesResources
 import app.carbpeek.feature.favourites.ui.R
 import app.carbpeek.feature.favourites.ui.state.FavouriteGroupState
 import app.carbpeek.feature.favourites.ui.state.FavouriteItemState
+import app.carbpeek.feature.preferences.api.model.DietMode
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -21,7 +22,7 @@ private fun FavouriteItemState.Companion.example(
     name: String,
     icon: AppIcon,
     brand: String?,
-    rating: Rating,
+    rating: Rating?,
     carbs: Double?,
 ) = FavouriteItemState(
     barcode = barcode,
@@ -29,8 +30,10 @@ private fun FavouriteItemState.Companion.example(
     icon = icon,
     brand = brand?.let(UiText::Raw),
     rating = rating,
-    carbs = previewResources.carbs(carbs),
-    verdictDescription = UiText.Res(R.string.favourites_verdict_good_keto),
+    carbs = previewResources.carbs(grams = carbs, mode = DietMode.KETO.takeIf { rating != null }),
+    verdictDescription = UiText.Res(
+        if (rating == null) R.string.favourites_verdict_unknown else R.string.favourites_verdict_good_keto,
+    ),
 )
 
 private fun previewGroup(
@@ -71,6 +74,47 @@ internal val previewGroups = persistentListOf(
     previewGroup(ProductCategory.DRINKS, expanded = false, canToggle = true, items = previewDrinks),
     previewGroup(ProductCategory.BISCUITS, expanded = true, canToggle = true, items = previewBiscuits),
     previewGroup(ProductCategory.OTHER, expanded = true, canToggle = true, items = previewOther),
+)
+
+internal val previewNoDietGroups = persistentListOf(
+    previewGroup(
+        category = ProductCategory.SPREADS,
+        expanded = true,
+        canToggle = true,
+        items = persistentListOf(
+            FavouriteItemState.example(
+                barcode = "5900000000001",
+                name = "Peanut butter",
+                icon = AppIcons.Jar,
+                brand = "Nuts & Co",
+                rating = null,
+                carbs = 14.0,
+            ),
+            FavouriteItemState.example(
+                barcode = "5900000000005",
+                name = "Hazelnut spread",
+                icon = AppIcons.Jar,
+                brand = null,
+                rating = null,
+                carbs = 57.5,
+            ),
+        ),
+    ),
+    previewGroup(
+        category = ProductCategory.OTHER,
+        expanded = true,
+        canToggle = true,
+        items = persistentListOf(
+            FavouriteItemState.example(
+                barcode = "5900000000004",
+                name = "Mystery bar",
+                icon = AppIcons.Bag,
+                brand = null,
+                rating = null,
+                carbs = null,
+            ),
+        ),
+    ),
 )
 
 internal val previewSearchGroups = persistentListOf(

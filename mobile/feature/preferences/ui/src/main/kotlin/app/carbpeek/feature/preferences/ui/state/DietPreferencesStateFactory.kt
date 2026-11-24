@@ -1,5 +1,6 @@
 package app.carbpeek.feature.preferences.ui.state
 
+import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.feature.preferences.ui.DietPreferencesResources
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState.Error
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState.Form
@@ -35,8 +36,15 @@ internal class DietPreferencesStateFactory(
                 option = option,
                 title = resources.optionTitle(option),
                 note = resources.optionNote(option),
-                trailing = resources.grams(option.preset.preferences.maxDailyCarbsAmount),
+                trailing = trailing(option),
                 isSelected = option == selected,
             )
         }.toPersistentList()
+
+    private fun trailing(option: DietProfileOption): UiText? =
+        if (option == DietProfileOption.NO_DIET) {
+            null
+        } else {
+            resources.grams(option.preferences.maxDailyCarbsAmount)
+        }
 }

@@ -158,6 +158,20 @@ private fun FavouriteGroupsLargeFontPreview() {
 
 @Preview(showBackground = true)
 @Composable
+private fun FavouriteGroupsNoDietPreview() {
+    AppTheme {
+        Groups(previewNoDietGroups) {}
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)
+@Composable
+private fun FavouriteGroupsNoDietLargeFontPreview() {
+    FavouriteGroupsNoDietPreview()
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun FavouriteGroupsSearchPreview() {
     AppTheme {
         Groups(previewSearchGroups) {}

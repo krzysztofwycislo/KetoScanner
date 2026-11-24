@@ -11,6 +11,7 @@ import app.carbpeek.feature.analysis.api.model.DietRate
 import app.carbpeek.feature.history.api.model.ProductAnalysisHistoryEntry
 import app.carbpeek.feature.history.ui.state.HistoryContentState
 import app.carbpeek.feature.history.ui.state.HistoryFilter
+import app.carbpeek.feature.history.ui.state.HistoryItemState
 import app.carbpeek.feature.history.ui.state.HistoryState
 import app.carbpeek.feature.history.ui.state.HistoryStateFactory
 import app.carbpeek.feature.preferences.api.model.DietMode
@@ -20,6 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import app.carbpeek.feature.history.ui.state.HistoryStatePrototype as Prototype
@@ -154,7 +156,7 @@ class HistoryStateFactoryTest {
     fun `when a query hides everything then content is no results with controls`() {
         val state = factory.createFor(prototype(listOf(entry(1))).copy(query = "xyz"))
 
-        assertEquals(HistoryContentState.NoResults, state.content)
+        assertEquals(HistoryContentState.NoResults(UiText.Res(R.string.history_no_results)), state.content)
         assertTrue(state.showControls)
     }
 
@@ -162,7 +164,7 @@ class HistoryStateFactoryTest {
     fun `when a filter hides everything then content is no results with controls`() {
         val state = factory.createFor(prototype(listOf(entry(1, rate = null))).copy(filter = HistoryFilter.GOOD))
 
-        assertEquals(HistoryContentState.NoResults, state.content)
+        assertEquals(HistoryContentState.NoResults(UiText.Res(R.string.history_no_results)), state.content)
         assertTrue(state.showControls)
     }
 
@@ -197,10 +199,12 @@ class HistoryStateFactoryTest {
     }
 
     @Test
-    fun `when preferences are missing then chip labels fall back to keto`() {
-        val state = factory.createFor(Prototype.Default)
+    fun `when preferences are not loaded then content is initial load without controls and filters`() {
+        val state = factory.createFor(prototype(entries = listOf(entry(id = 1)), preferences = null))
 
-        assertEquals(UiText.Res(R.string.history_filter_good_keto), state.filters[1].label)
+        assertEquals(HistoryContentState.InitialLoad, state.content)
+        assertFalse(state.showControls)
+        assertTrue(state.filters.isEmpty())
     }
 
     @Test
@@ -251,11 +255,84 @@ class HistoryStateFactoryTest {
         assertEquals(listOf(AppIcons.Fish, AppIcons.Bag), items.map { it.icon })
     }
 
+    @Test
+    fun `when there is no diet then there are no filters and the controls stay`() {
+        val state = factory.createFor(
+            prototype(entries = listOf(entry(id = 1)), preferences = DietPreferences.NoDiet),
+        )
+
+        assertTrue(state.filters.isEmpty())
+        assertTrue(state.showControls)
+    }
+
+    @Test
+    fun `when there is no diet then a selected filter hides nothing and counts again with a diet`() {
+        val withoutDiet = prototype(
+            entries = listOf(
+                entry(id = 1, rate = DietRate.GOOD),
+                entry(id = 2, rate = DietRate.NOT_ADVISED),
+                entry(id = 3, rate = null),
+            ),
+            preferences = DietPreferences.NoDiet,
+        ).copy(filter = HistoryFilter.GOOD)
+        val withDiet = withoutDiet.copy(dietPreferences = DietPreferences.Default)
+
+        assertEquals(listOf(1L, 2L, 3L), ids(factory.createFor(withoutDiet)))
+        assertEquals(listOf(1L), ids(factory.createFor(withDiet)))
+        assertEquals(
+            HistoryFilter.GOOD,
+            factory.createFor(withDiet).filters.single { it.selected }.filter,
+        )
+    }
+
+    @Test
+    fun `when there is no diet and a query hides everything then no results does not mention filters`() {
+        val state = factory.createFor(
+            prototype(entries = listOf(entry(id = 1)), preferences = DietPreferences.NoDiet).copy(query = "xyz"),
+        )
+
+        assertEquals(
+            HistoryContentState.NoResults(UiText.Res(R.string.history_no_results_no_filters)),
+            state.content,
+        )
+        assertTrue(state.showControls)
+    }
+
+    @Test
+    fun `when there is no diet then rows show named carbs and no verdict whatever the rate`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = noDietItem(entry(id = 1, rate = rate, carbs = 3.6))
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.history_carbs_named, UiArg.Numeric.Grams(3.6)), item.carbs)
+            assertEquals(
+                UiText.Res(R.string.history_carbs_per_100g, UiArg.Numeric.Grams(3.6)),
+                item.verdictDescription,
+            )
+        }
+    }
+
+    @Test
+    fun `when there is no diet and carbs are missing then rows show no data and no verdict`() {
+        (DietRate.entries + null).forEach { rate ->
+            val item = noDietItem(entry(id = 1, rate = rate, carbs = null))
+
+            assertNull(item.rating)
+            assertEquals(UiText.Res(R.string.history_carbs_missing), item.carbs)
+            assertEquals(UiText.Res(R.string.history_verdict_unknown), item.verdictDescription)
+        }
+    }
+
     private val resources = HistoryResources()
+
+    private fun noDietItem(entry: ProductAnalysisHistoryEntry): HistoryItemState =
+        assertIs<HistoryContentState.ShowGroups>(
+            factory.createFor(prototype(entries = listOf(entry), preferences = DietPreferences.NoDiet)).content,
+        ).groups.single().items.single()
 
     private fun prototype(
         entries: List<ProductAnalysisHistoryEntry>,
-        preferences: DietPreferences? = null,
+        preferences: DietPreferences? = DietPreferences.Default,
         now: Instant = NOW,
         timeZone: TimeZone = TimeZone.UTC,
     ) = Prototype(entries = entries, dietPreferences = preferences, now = now, timeZone = timeZone)

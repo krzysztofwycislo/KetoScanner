@@ -18,7 +18,7 @@ internal sealed interface ProductContentState {
     data class ShowProduct(
         val header: ProductHeaderState,
         val favourite: FavouriteButtonState?,
-        val verdict: VerdictState,
+        val verdict: VerdictState?,
         val macros: MacrosState,
         val scores: ScoresState?,
         val ingredients: IngredientsCardState?,
@@ -98,6 +98,8 @@ internal data class MacroValueState(
 
 @Immutable
 internal data class ScoresState(
+    val title: UiText,
+    val note: UiText?,
     val nutriScore: ScoreState?,
     val processing: ScoreState?,
 ) {

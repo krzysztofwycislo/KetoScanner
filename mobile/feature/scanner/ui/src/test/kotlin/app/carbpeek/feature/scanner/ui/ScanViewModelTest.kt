@@ -45,6 +45,7 @@ import app.carbpeek.feature.scanner.ui.state.CameraPermissionCheck
 import app.carbpeek.feature.scanner.ui.state.CameraState
 import app.carbpeek.feature.scanner.ui.state.FoundCardState
 import app.carbpeek.feature.scanner.ui.state.NotFoundCardState
+import app.carbpeek.feature.scanner.ui.state.ScanState
 import app.carbpeek.feature.scanner.ui.state.ScanStateFactory
 import app.carbpeek.feature.scanner.ui.state.TorchButtonState
 import kotlinx.collections.immutable.persistentListOf
@@ -89,6 +90,9 @@ class ScanViewModelTest {
     private val errorReporter = FakeErrorReporter()
     private val appEvents = mutableListOf<AppEvent>()
     private val screenEvents = mutableListOf<ScanEvent>()
+    private val waitingPreview = preview(isPaused = true, frame = ScanFrameMode.Waiting)
+    private val searchingPreview =
+        preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT)
 
     @BeforeTest
     fun setUp() {
@@ -1184,6 +1188,372 @@ class ScanViewModelTest {
         assertTrue(onboarding.shownTips.isEmpty())
     }
 
+    @Test
+    fun `when a product is scanned without a diet then its page opens once without a card and it is saved once`() =
+        runTest {
+            onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.FIRST_SCAN_HINT))
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle)
+            val states = collectStates(viewModel)
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            assertEquals(searchingPreview, viewModel.state.value.camera)
+            val statesBefore = states.size - 1
+
+            analyzeProduct.emit(unratedAnalysis)
+
+            assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, FOUND_HAPTIC, NavigateToProduct("590")), screenEvents)
+            assertEquals(listOf(product), history.saved)
+            assertEquals(listOf(OnboardingTip.FIRST_SCAN_HINT), onboarding.shownTips)
+            assertNull(handle.get<String>(KEY_FOUND_BARCODE))
+            assertEquals(true, handle.get<Boolean>(KEY_RESUMING))
+            assertTrue(viewModel.state.value.isLookUpEnabled)
+            assertEquals(waitingPreview, viewModel.state.value.camera)
+            assertTrue(states.all { it.found == null })
+            assertEquals(
+                listOf(ScanFrameMode.Searching, ScanFrameMode.Waiting),
+                frames(states.drop(statesBefore)).distinct(),
+            )
+
+            analyzeProduct.emit(ratedAnalysis)
+
+            assertEquals(3, screenEvents.size)
+            assertEquals(1, history.saved.size)
+            assertTrue(states.all { it.found == null })
+        }
+
+    @Test
+    fun `when a product is typed without a diet then the sheet closes and its page opens once`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        val states = collectStates(viewModel)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+        viewModel.onAction(ScanAction.OnQueryChanged("590"))
+
+        viewModel.onAction(ScanAction.OnSearchSubmitted)
+
+        assertEquals(listOf<ScanEvent>(FOUND_HAPTIC, NavigateToProduct("590")), screenEvents)
+        assertEquals(listOf(product), history.saved)
+        assertNull(handle.get<String>(KEY_FOUND_BARCODE))
+        assertEquals(false, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        assertTrue(states.all { it.found == null })
+    }
+
+    @Test
+    fun `when a product with missing data is found without a diet then its page opens once`() = runTest {
+        analyzeProduct.emit(ProductAnalysis.InsufficientData(product = product, hasDiet = false))
+        val viewModel = createViewModel()
+        val states = collectStates(viewModel)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, FOUND_HAPTIC, NavigateToProduct("590")), screenEvents)
+        assertEquals(listOf(product), history.saved)
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        assertTrue(states.all { it.found == null })
+    }
+
+    @Test
+    fun `when the history save fails without a diet then it is reported and the page still opens`() = runTest {
+        history.result = Outcome.Failure(AppError.Storage)
+        analyzeProduct.emit(unratedAnalysis)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals("Saving history entry failed", errorReporter.reports.single().message)
+        assertEquals(NavigateToProduct("590"), screenEvents.last())
+        assertEquals(listOf<AppEvent>(AppEvent.HideKeyboard), appEvents)
+    }
+
+    @Test
+    fun `when back from a page that opened directly then scanning starts again after 2 seconds`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        openDirectly(viewModel)
+        viewModel.onAction(ScanAction.OnStop)
+        advanceTimeBy(10_000)
+        runCurrent()
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(1_999)
+        runCurrent()
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        assertEquals(listOf("590"), products.refreshedBarcodes)
+
+        advanceTimeBy(1)
+        runCurrent()
+
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(false, handle.get<Boolean>(KEY_RESUMING))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        assertEquals(listOf("590", "590"), products.refreshedBarcodes)
+        assertEquals(2, history.saved.size)
+    }
+
+    @Test
+    fun `when Scan is left within the 2 seconds then they start again on the next return`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val viewModel = createViewModel()
+        openDirectly(viewModel)
+        viewModel.onAction(ScanAction.OnStop)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        advanceTimeBy(1_500)
+        runCurrent()
+        viewModel.onAction(ScanAction.OnStop)
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        advanceTimeBy(1_999)
+        runCurrent()
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when the page did not open then scanning starts again after 2 seconds`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val viewModel = createViewModel()
+        openDirectly(viewModel)
+
+        advanceTimeBy(2_000)
+        runCurrent()
+
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when a product is typed within the 2 seconds then it gets its own full wait`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        openDirectly(viewModel)
+        viewModel.onAction(ScanAction.OnStop)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        advanceTimeBy(1_000)
+        runCurrent()
+        val gate = products.gate()
+        viewModel.onAction(ScanAction.OnTypeItClicked)
+        viewModel.onAction(ScanAction.OnQueryChanged("590"))
+
+        viewModel.onAction(ScanAction.OnSearchSubmitted)
+
+        assertEquals(false, handle.get<Boolean>(KEY_RESUMING))
+        advanceTimeBy(500)
+        runCurrent()
+        gate.complete(Unit)
+        runCurrent()
+        assertEquals(2, screenEvents.count { it == NavigateToProduct("590") })
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(1_999)
+        runCurrent()
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when the search ends while Scan is stopped then the 2 seconds start after the return`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val gate = products.gate()
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        viewModel.onAction(ScanAction.OnStop)
+
+        gate.complete(Unit)
+        advanceTimeBy(10_000)
+        runCurrent()
+
+        assertEquals(NavigateToProduct("590"), screenEvents.last())
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnStop)
+        advanceTimeBy(10_000)
+        runCurrent()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        advanceTimeBy(1_999)
+        runCurrent()
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when restored while waiting then scanning starts again 2 seconds after the start`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_RESUMING to true)))
+        advanceTimeBy(10_000)
+        runCurrent()
+
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        assertEquals(waitingPreview, viewModel.state.value.camera)
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when restored with a found barcode without a diet then nothing opens and scanning is free`() = runTest {
+        analyzeProduct.emit(unratedAnalysis)
+        val handle = SavedStateHandle(mapOf(KEY_FOUND_BARCODE to "590"))
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        assertNull(viewModel.state.value.found)
+
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+
+        assertNull(viewModel.state.value.found)
+        assertNull(handle.get<String>(KEY_FOUND_BARCODE))
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+        assertTrue(screenEvents.isEmpty())
+        assertTrue(history.saved.isEmpty())
+    }
+
+    @Test
+    fun `when the diet is switched off while a card waits then it closes at once before the analysis follows`() =
+        runTest {
+            onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+            analyzeProduct.emit(ratedAnalysis)
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle)
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+            val sentBefore = screenEvents.toList()
+            val states = collectStates(viewModel)
+
+            preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+
+            assertEquals(
+                listOf(ratedCard.copy(showVerdictTip = true), null),
+                states.map { it.found },
+            )
+            assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+            assertNull(handle.get<String>(KEY_FOUND_BARCODE))
+            assertEquals(sentBefore, screenEvents)
+            assertTrue(onboarding.shownTips.isEmpty())
+
+            analyzeProduct.emit(unratedAnalysis)
+
+            assertEquals(2, states.size)
+            assertEquals(1, history.saved.size)
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+            assertEquals(NavigateToProduct("590"), screenEvents.last())
+        }
+
+    @Test
+    fun `when preferences with a diet load while a card waits then the card stays`() = runTest {
+        analyzeProduct.emit(ratedAnalysis)
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        preferences.emit(Outcome.Success(DietPreferences(maxDailyCarbsAmount = 100, dietMode = DietMode.LOW_CARB)))
+
+        assertEquals(ratedCard, viewModel.state.value.found)
+        assertEquals("590", handle.get<String>(KEY_FOUND_BARCODE))
+    }
+
+    @Test
+    fun `when a product is not found without a diet then its card stays when No diet loads`() = runTest {
+        products.result = Outcome.Failure(AppError.NotFound)
+        val viewModel = createViewModel()
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+
+        assertEquals(notFoundCard("590"), viewModel.state.value.notFound)
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.NotFound), viewModel.state.value.camera)
+        assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC, NOT_FOUND_HAPTIC), screenEvents)
+        assertTrue(history.saved.isEmpty())
+    }
+
+    @Test
+    fun `when a search fails without a diet then the message shows and scanning resumes as before`() = runTest {
+        products.result = Outcome.Failure(AppError.Network)
+        val viewModel = createViewModel()
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals(AppEvent.ShowMessage(AppError.Network.toUiText(), MessageTone.Error), appEvents.last())
+        assertEquals(preview(isPaused = true, frame = ScanFrameMode.Idle), viewModel.state.value.camera)
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+        assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
+    }
+
+    @Test
+    fun `when the found analysis fails without a diet then nothing opens and scanning resumes`() = runTest {
+        analyzeProduct.failure = IllegalStateException("disk")
+        val viewModel = createViewModel()
+        preferences.emit(Outcome.Success(DietPreferences.NoDiet))
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+        assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
+        assertTrue(history.saved.isEmpty())
+        assertEquals(AppError.Storage, errorReporter.reports.single().error)
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+    }
+
+    @Test
+    fun `when pages opened directly then the verdict tip is pending and shows on the first card with a diet`() =
+        runTest {
+            onboarding.pendingTipsResult = Outcome.Success(setOf(OnboardingTip.VERDICT_TIP))
+            analyzeProduct.emit(unratedAnalysis)
+            val viewModel = createViewModel()
+            openDirectly(viewModel)
+            viewModel.onAction(ScanAction.OnStop)
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+            advanceTimeBy(2_000)
+            runCurrent()
+            assertTrue(onboarding.shownTips.isEmpty())
+
+            analyzeProduct.emit(ratedAnalysis)
+            preferences.emit(Outcome.Success(DietPreferences.Default))
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            assertEquals(ratedCard.copy(showVerdictTip = true), viewModel.state.value.found)
+        }
+
+    private fun openDirectly(viewModel: ScanViewModel) {
+        viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+        viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+        assertEquals(NavigateToProduct("590"), screenEvents.last())
+    }
+
+    private fun TestScope.collectStates(viewModel: ScanViewModel): List<ScanState> {
+        val states = mutableListOf<ScanState>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.state.toList(states) }
+        return states
+    }
+
+    private fun frames(states: List<ScanState>): List<ScanFrameMode> =
+        states.mapNotNull { (it.camera as? CameraState.Preview)?.frame }
+
     private fun hint(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).hint
 
     private fun tripItems(viewModel: ScanViewModel) = assertIs<CameraState.Preview>(viewModel.state.value.camera).trip
@@ -1347,6 +1717,7 @@ class ScanViewModelTest {
         const val KEY_CAMERA_PERMISSION = "cameraPermission"
         const val KEY_TORCH = "torch"
         const val KEY_TYPE_SHEET_OPEN = "typeSheetOpen"
+        const val KEY_RESUMING = "resuming"
         const val KEY_FOUND_BARCODE = "foundBarcode"
         const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val NOW = Instant.parse("2026-10-30T12:00:00Z")
@@ -1381,6 +1752,7 @@ class ScanViewModelTest {
                 dailyCarbConsumption = 40,
             ),
         )
+        val unratedAnalysis = ProductAnalysis.Unrated(product)
         val ratedCard = FoundCardState(
             name = UiText.Raw("Nutella"),
             icon = AppIcons.Bag,

@@ -103,6 +103,39 @@ class DietPreferencesRepositoryImplTest {
     }
 
     @Test
+    fun `when no diet is stored with any amount then no diet is returned`() = runTest {
+        listOf(40, 20, 999, null).forEach { amount ->
+            val repository = DietPreferencesRepositoryImpl(
+                persistence = FakePersistence(
+                    stored = listOf(StoredDietPreferences(maxDailyCarbsAmount = amount, dietMode = "NONE")),
+                ),
+                dispatchers = TestAppDispatchers(testScheduler),
+            )
+
+            assertEquals(Outcome.Success(DietPreferences.NoDiet), repository.getDietPreferences(), "$amount")
+        }
+    }
+
+    @Test
+    fun `when no diet is stored between two diets then all three are emitted`() = runTest {
+        val repository = DietPreferencesRepositoryImpl(
+            persistence = FakePersistence(
+                stored = listOf(
+                    StoredDietPreferences(maxDailyCarbsAmount = 40, dietMode = "KETO"),
+                    StoredDietPreferences(maxDailyCarbsAmount = 40, dietMode = "NONE"),
+                    StoredDietPreferences(maxDailyCarbsAmount = 40, dietMode = "KETO"),
+                ),
+            ),
+            dispatchers = TestAppDispatchers(testScheduler),
+        )
+
+        assertEquals(
+            listOf(DietPreset.KETO.preferences, DietPreferences.NoDiet, DietPreset.KETO.preferences),
+            repository.observeDietPreferences().toList(),
+        )
+    }
+
+    @Test
     fun `when two stored values that match no preset follow each other then keto is emitted once`() = runTest {
         val repository = DietPreferencesRepositoryImpl(
             persistence = FakePersistence(
@@ -154,6 +187,18 @@ class DietPreferencesRepositoryImplTest {
             )
             assertEquals(listOf(100 to "LOW_CARB"), persistence.saved)
         }
+
+    @Test
+    fun `when no diet is set then the default amount and no mode are saved`() = runTest {
+        val persistence = FakePersistence()
+        val repository = DietPreferencesRepositoryImpl(
+            persistence = persistence,
+            dispatchers = TestAppDispatchers(testScheduler),
+        )
+
+        assertEquals(Outcome.Success(Unit), repository.setDietPreferences(DietPreferences.NoDiet))
+        assertEquals(listOf(40 to "NONE"), persistence.saved)
+    }
 
     @Test
     fun `when setting throws then storage failure is returned`() = runTest {

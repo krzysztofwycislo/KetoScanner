@@ -65,6 +65,14 @@ class EntityMapperTest {
     }
 
     @Test
+    fun `when analysis is unrated then the rate is null and the product carbs are kept`() {
+        val mapped = entity().toDomain(ProductAnalysis.Unrated(product))
+
+        assertNull(mapped.dietRate)
+        assertEquals(CARBS, mapped.carbsPer100g)
+    }
+
+    @Test
     fun `when entity list is mapped then order is kept and each row gets its own analysis`() {
         val entities = listOf("1", "2", "3").map { FavouriteProductEntity(it, NAME, BRAND, null, null) }
         val analyses = mapOf(

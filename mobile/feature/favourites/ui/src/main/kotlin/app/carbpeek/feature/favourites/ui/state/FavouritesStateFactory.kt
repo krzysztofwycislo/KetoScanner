@@ -30,7 +30,7 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
         )
     }
 
-    private fun Prototype.content(mode: DietMode): FavouritesContentState {
+    private fun Prototype.content(mode: DietMode?): FavouritesContentState {
         val favourites = favourites
         val loadError = loadError
         return when {
@@ -44,7 +44,7 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
 
     private fun Prototype.groups(
         favourites: List<FavouriteProduct>,
-        mode: DietMode,
+        mode: DietMode?,
     ): PersistentList<FavouriteGroupState> {
         val byCategory = favourites.groupBy { it.category }
         val canToggle = favouritesQuery.isBlank()
@@ -67,14 +67,14 @@ internal class FavouritesStateFactory(private val resources: FavouritesResources
             .toPersistentList()
     }
 
-    private fun FavouriteProduct.toItemState(mode: DietMode): FavouriteItemState = FavouriteItemState(
+    private fun FavouriteProduct.toItemState(mode: DietMode?): FavouriteItemState = FavouriteItemState(
         barcode = productBarcode,
         name = resources.productName(productName),
         icon = category.icon,
         brand = resources.brand(productBrand),
-        rating = dietRate.toRating(),
-        carbs = resources.carbs(carbsPer100g),
-        verdictDescription = resources.verdictDescription(dietRate, mode, carbsPer100g),
+        rating = if (mode == null) null else dietRate.toRating(),
+        carbs = resources.carbs(grams = carbsPer100g, mode = mode),
+        verdictDescription = resources.verdictDescription(rate = dietRate, mode = mode, carbs = carbsPer100g),
     )
 
     private fun DietRate?.toRating(): Rating = when (this) {

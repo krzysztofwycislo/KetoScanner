@@ -13,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import app.carbpeek.core.designsystem.R as DesignR
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesStatePrototype as Prototype
@@ -59,11 +60,22 @@ class DietPreferencesStateFactoryTest {
     }
 
     @Test
+    fun `no diet is not a preset`() {
+        assertNull(DietPreset.of(DietPreferences.NoDiet))
+        assertNull(DietPreset.of(DietPreferences(maxDailyCarbsAmount = 100, dietMode = null)))
+        assertEquals(
+            listOf(DietPreset.STRICT_KETO, DietPreset.KETO, DietPreset.LOW_CARB),
+            DietPreset.entries.toList(),
+        )
+    }
+
+    @Test
     fun `each preset option is selected for its stored profile and the others are not`() {
         mapOf(
             DietPreferences(20, DietMode.KETO) to DietProfileOption.STRICT_KETO,
             DietPreferences(40, DietMode.KETO) to DietProfileOption.KETO,
             DietPreferences(100, DietMode.LOW_CARB) to DietProfileOption.LOW_CARB,
+            DietPreferences.NoDiet to DietProfileOption.NO_DIET,
         ).forEach { (preferences, expected) ->
             val options = form(loaded(preferences)).options
 
@@ -83,7 +95,12 @@ class DietPreferencesStateFactoryTest {
         val options = form(loaded(DietPreferences(40))).options
 
         assertEquals(
-            listOf(DietProfileOption.STRICT_KETO, DietProfileOption.KETO, DietProfileOption.LOW_CARB),
+            listOf(
+                DietProfileOption.STRICT_KETO,
+                DietProfileOption.KETO,
+                DietProfileOption.LOW_CARB,
+                DietProfileOption.NO_DIET,
+            ),
             options.map { it.option },
         )
         assertEquals(UiText.Res(R.string.preferences_preset_strict_keto), options[0].title)
@@ -91,6 +108,9 @@ class DietPreferencesStateFactoryTest {
         assertEquals(grams(20), options[0].trailing)
         assertEquals(grams(40), options[1].trailing)
         assertEquals(grams(100), options[2].trailing)
+        assertEquals(UiText.Res(R.string.preferences_no_diet), options[3].title)
+        assertEquals(UiText.Res(R.string.preferences_no_diet_note), options[3].note)
+        assertNull(options[3].trailing)
     }
 
     @Test

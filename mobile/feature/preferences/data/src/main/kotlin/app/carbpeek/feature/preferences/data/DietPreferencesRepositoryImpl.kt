@@ -34,14 +34,27 @@ internal class DietPreferencesRepositoryImpl(
     override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
         withContext(dispatchers.io) {
             outcomeOf(mapError = { AppError.Storage }) {
-                persistence.save(preferences.maxDailyCarbsAmount, preferences.dietMode.name)
+                persistence.save(
+                    maxDailyCarbsAmount = preferences.maxDailyCarbsAmount,
+                    dietMode = preferences.storedDietMode(),
+                )
             }
         }
 
-    private fun StoredDietPreferences.toDomain(): DietPreferences = DietPreset.of(
-        DietPreferences(
-            maxDailyCarbsAmount = maxDailyCarbsAmount ?: DietPreferences.Default.maxDailyCarbsAmount,
-            dietMode = DietMode.entries.firstOrNull { it.name == dietMode } ?: DietMode.KETO,
-        ),
-    ).preferences
+    private fun StoredDietPreferences.toDomain(): DietPreferences {
+        val preset = DietPreset.of(
+            DietPreferences(
+                maxDailyCarbsAmount = maxDailyCarbsAmount ?: DietPreferences.Default.maxDailyCarbsAmount,
+                dietMode = domainDietMode(),
+            ),
+        )
+        return preset?.preferences ?: DietPreferences.NoDiet
+    }
+
+    private fun StoredDietPreferences.domainDietMode(): DietMode? =
+        if (dietMode == NO_DIET_MODE) {
+            null
+        } else {
+            DietMode.entries.firstOrNull { it.name == dietMode } ?: DietMode.KETO
+        }
 }

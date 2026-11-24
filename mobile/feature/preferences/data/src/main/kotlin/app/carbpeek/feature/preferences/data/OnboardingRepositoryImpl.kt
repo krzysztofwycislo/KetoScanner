@@ -28,7 +28,7 @@ internal class OnboardingRepositoryImpl(
             outcomeOf(mapError = { AppError.Storage }) {
                 persistence.completeSetup(
                     maxDailyCarbsAmount = preset.preferences.maxDailyCarbsAmount,
-                    dietMode = preset.preferences.dietMode.name,
+                    dietMode = preset.preferences.storedDietMode(),
                 )
             }
         }
