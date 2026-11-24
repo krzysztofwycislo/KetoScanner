@@ -8,7 +8,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,13 +31,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.graphics.vector.toPath
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -57,26 +62,13 @@ import kotlin.math.sin
 
 private const val SCAN_FRAME_WIDTH = 320f
 private const val SCAN_FRAME_HEIGHT = 240f
+private const val SCAN_FRAME_STROKE = 5f
+private const val SCAN_EDGE = 2f
 private const val SCAN_FRAME =
     "M3 40V16A13 13 0 0 1 16 3h24M280 3h24a13 13 0 0 1 13 13v24" +
         "M317 200v24a13 13 0 0 1-13 13h-24M40 237H16A13 13 0 0 1 3 224v-24"
 
-private val ScanFrameVector: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "ScanFrame",
-        defaultWidth = SCAN_FRAME_WIDTH.dp,
-        defaultHeight = SCAN_FRAME_HEIGHT.dp,
-        viewportWidth = SCAN_FRAME_WIDTH,
-        viewportHeight = SCAN_FRAME_HEIGHT,
-    ).apply {
-        addPath(
-            pathData = addPathNodes(SCAN_FRAME),
-            stroke = SolidColor(Color.Black),
-            strokeLineWidth = 5f,
-            strokeLineCap = StrokeCap.Round,
-        )
-    }.build()
-}
+private val ScanFramePath: Path by lazy { addPathNodes(SCAN_FRAME).toPath() }
 
 enum class ScanFrameMode { Aiming, Idle, Searching, Found, NotFound }
 
@@ -100,15 +92,10 @@ fun Ui.ScanFrame(mode: ScanFrameMode, modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .graphicsLayer { translationX = shake.value },
+                .graphicsLayer { translationX = shake.value }
+                .scanFrame(color = strokeColor, edgeColor = AppTheme.colors.camera.edge),
             contentAlignment = Alignment.Center,
         ) {
-            Image(
-                imageVector = ScanFrameVector,
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(strokeColor),
-                modifier = Modifier.matchParentSize(),
-            )
             when (mode) {
                 ScanFrameMode.Aiming -> {
                     SweepingAimLine(travel = with(density) { aimTravel.toPx() })
@@ -137,6 +124,21 @@ fun Ui.ScanFrame(mode: ScanFrameMode, modifier: Modifier = Modifier) {
     }
 }
 
+private fun Modifier.scanFrame(color: Color, edgeColor: Color): Modifier = drawBehind {
+    scale(scale = size.width / SCAN_FRAME_WIDTH, pivot = Offset.Zero) {
+        drawPath(
+            path = ScanFramePath,
+            color = edgeColor,
+            style = Stroke(width = SCAN_FRAME_STROKE + SCAN_EDGE * 2, cap = StrokeCap.Round),
+        )
+        drawPath(
+            path = ScanFramePath,
+            color = color,
+            style = Stroke(width = SCAN_FRAME_STROKE, cap = StrokeCap.Round),
+        )
+    }
+}
+
 @Composable
 private fun SweepingAimLine(travel: Float) {
     val transition = rememberInfiniteTransition(label = "AimSweep")
@@ -159,7 +161,19 @@ private fun AimLine(modifier: Modifier) {
             .fillMaxWidth()
             .padding(horizontal = AppTheme.spacing.xxl)
             .height(AppTheme.spacing.xxs)
+            .aimLineEdge(AppTheme.colors.camera.edge)
             .background(AppTheme.colors.text.highlight, AppTheme.shapes.pill),
+    )
+}
+
+private fun Modifier.aimLineEdge(color: Color): Modifier = drawBehind {
+    val edge = SCAN_EDGE.dp.toPx()
+    val edgeSize = Size(width = size.width + edge * 2, height = size.height + edge * 2)
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(x = -edge, y = -edge),
+        size = edgeSize,
+        cornerRadius = CornerRadius(edgeSize.height / 2),
     )
 }
 
@@ -396,5 +410,32 @@ private fun CameraHintWithSupportingTextPreview() {
             text = stringResource(R.string.designsystem_preview_rating),
             supportingText = stringResource(R.string.designsystem_preview_body),
         )
+    }
+}
+
+@Preview
+@Composable
+private fun CameraOverlayBrightPreview() {
+    CameraPreviewBox {
+        Box(
+            modifier = Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.spacing.m),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
+                Ui.ScanFrame(mode = ScanFrameMode.Aiming)
+                Ui.CameraIconButton(
+                    icon = AppIcons.Torch.imageVector,
+                    contentDescription = UiText.Res(R.string.designsystem_preview_button),
+                    active = false,
+                    onClick = {},
+                )
+                Ui.CameraPillButton(
+                    text = stringResource(R.string.designsystem_preview_button),
+                    icon = AppIcons.Keyboard.imageVector,
+                    onClick = {},
+                )
+            }
+        }
     }
 }

@@ -168,7 +168,12 @@ private fun WideCameraLayout(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .padding(AppTheme.spacing.m),
+                .padding(
+                    start = AppTheme.spacing.m,
+                    top = AppTheme.spacing.xs,
+                    end = AppTheme.spacing.m,
+                    bottom = AppTheme.spacing.m,
+                ),
         ) {
             TripOverlay(
                 trip = camera.trip,

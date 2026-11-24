@@ -80,6 +80,9 @@ private fun TripStrip(
             style = AppTheme.typography.caption,
             fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text.onHero,
+            modifier = Modifier
+                .background(color = AppTheme.colors.camera.hint, shape = AppTheme.shapes.pill)
+                .padding(horizontal = AppTheme.spacing.l / 2, vertical = AppTheme.spacing.xxs),
         )
         if (vertical) {
             trip.forEach { item ->
@@ -143,6 +146,21 @@ private fun TripChip(item: TripItemState, onAction: (ScanAction) -> Unit, modifi
 @Composable
 private fun ScanTripPreview() {
     ScanScreenPreview(previewState(trip = previewTrip))
+}
+
+@Preview
+@Composable
+private fun TripStripBrightPreview() {
+    AppTheme {
+        TripStrip(
+            trip = previewTrip,
+            vertical = false,
+            onAction = {},
+            modifier = Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.spacing.m),
+        )
+    }
 }
 
 @Preview
