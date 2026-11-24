@@ -5,200 +5,350 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CarbPeek - scan a product, see if it fits your diet</title>
     <meta name="description" content="CarbPeek scans product barcodes and tells you if a food fits your keto or low-carb diet, with a clear verdict and the reason behind it.">
-    <meta name="theme-color" content="#0e1411">
+    <meta name="theme-color" content="#d9f5b5">
     <link rel="canonical" href="https://carbpeek.app/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="CarbPeek">
     <meta property="og:url" content="https://carbpeek.app/">
     <meta property="og:title" content="CarbPeek - scan a product, see if it fits your diet">
     <meta property="og:description" content="Scan a barcode and get a clear verdict for your keto or low-carb diet, with the reason behind it.">
-    <meta property="og:image" content="https://carbpeek.app/og-image.png">
+    <meta property="og:image" content="https://carbpeek.app/share-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="CarbPeek: scan a product, see if it fits your diet.">
+    <meta property="og:image:alt" content="Know if it fits before it's in your basket. Mozzarella: Keto-friendly, dark chocolate: In small amounts, potato crisps: Not keto-friendly.">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="preload" href="/fonts/plus_jakarta_sans_extrabold.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/styles.css?v=2">
+    <link rel="stylesheet" href="/styles.css?v=3">
 </head>
-<body class="home">
+<body>
 <a class="skip" href="#main">Skip to content</a>
+<div class="top">
 <header class="site-header">
     <div class="wrap">
-        <a class="brand" href="/"><img src="/favicon.svg" alt="" width="32" height="32"><span>Carb<em>Peek</em></span></a>
+        <a class="brand" href="/"><img src="/favicon.svg" alt="" width="34" height="34">CarbPeek</a>
         <nav aria-label="Main">
             <a href="#how">How it works</a>
             <a href="#contact">Contact</a>
         </nav>
     </div>
 </header>
-<div class="hero">
-    <div class="wrap hero-grid">
-        <div class="hero-copy">
-            <p class="eyebrow">For keto and low-carb shoppers</p>
-            <h1>Scan a product, <span>see if it fits your diet.</span></h1>
-            <p class="lead">
-                Point your phone at a barcode and get a clear verdict in the shop aisle, without studying the
-                nutrition label.
-            </p>
-            <p class="badge">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/>
-                </svg>
-                Coming soon to Android
-            </p>
-        </div>
-        <div class="hero-visual" aria-hidden="true">
-            <div class="phone">
-                <div class="phone-notch"></div>
-                <div class="screen">
-                    <div class="mock-product">
-                        <div class="mock-thumb"></div>
-                        <div>
-                            <p class="mock-name">Dark chocolate 85%</p>
-                            <p class="mock-meta">100 g bar</p>
-                        </div>
-                    </div>
-                    <div class="mock-verdict">
-                        <p class="mock-verdict-label">In small amounts</p>
-                        <p class="mock-verdict-reason">14 g carbs per 100 g</p>
-                    </div>
-                    <p class="mock-heading">At a glance</p>
-                    <div class="mock-macros">
-                        <div><b>46 g</b><span>Fats</span></div>
-                        <div><b>11 g</b><span>Proteins</span></div>
-                        <div class="is-carbs"><b>14 g</b><span>Carbs</span></div>
-                    </div>
-                    <p class="mock-heading">Ingredients</p>
-                    <p class="mock-chip">A little added sugar</p>
-                    <div class="mock-bar"></div>
-                    <div class="mock-bar is-short"></div>
-                </div>
-            </div>
-            <div class="float float-good">
-                <span class="dot"></span>
-                <div><b>Mozzarella</b><span>Keto-friendly</span></div>
-            </div>
-            <div class="float float-bad">
-                <span class="dot"></span>
-                <div><b>Orange juice</b><span>Not keto-friendly</span></div>
-            </div>
-        </div>
-    </div>
 </div>
 <main id="main">
-    <div class="wrap">
-        <ul class="trust" aria-label="Our promises">
-            <li>No account needed</li>
-            <li>No ads</li>
-            <li>Your diet stays on your phone</li>
-            <li>Built for EU labels</li>
-        </ul>
+    <div class="top">
+        <div class="wrap hero">
+            <h1>Know if it fits before it's in your basket.</h1>
+            <div class="hero-row">
+                <p class="lead">
+                    Point your phone at a barcode. CarbPeek tells you if the product fits your keto or low-carb diet,
+                    and why.
+                </p>
+                <p class="soon">Coming soon to Android</p>
+            </div>
+        </div>
+        <fieldset class="shelf">
+            <legend class="wrap">Pick a product</legend>
+            <div class="shelf-grid">
+                <div class="shelf-item good">
+                    <input type="radio" name="product" id="mozzarella" class="visually-hidden"
+                           aria-labelledby="mozzarella-name" aria-describedby="mozzarella-verdict">
+                    <label for="mozzarella">
+                        <span class="stage">
+                            <svg viewBox="0 0 120 150" aria-hidden="true">
+                            <path fill="#FFFFFF" d="M18 40 Q60 26 102 40 L110 150 H10 Z"/>
+                            <path fill="#CFE4F2" d="M18 40 Q60 26 102 40 L103 54 Q60 42 17 54 Z"/>
+                            <circle cx="60" cy="103" r="30" fill="#F3F6EE" stroke="#CFE4F2" stroke-width="3"/>
+                            <path fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" d="M42 96 Q48 82 62 82"/>
+                            <path fill="#2C6C93" d="M30 62h60v7H30z"/>
+                            </svg>
+                        </span>
+                        <span class="shelf-edge"></span>
+                        <span class="shelf-front">
+                            <span class="tag">
+                                <span class="tag-name" id="mozzarella-name">Mozzarella</span>
+                                <span class="tag-peek" aria-hidden="true">Peek</span>
+                                <span class="tag-verdict" id="mozzarella-verdict">
+                                    <span class="tag-answer">Keto-friendly</span>
+                                    <span class="visually-hidden">, </span>
+                                    <span class="tag-reason">2&nbsp;g carbs per 100&nbsp;g</span>
+                                </span>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+                <div class="shelf-item small">
+                    <input type="radio" name="product" id="chocolate" class="visually-hidden"
+                           aria-labelledby="chocolate-name" aria-describedby="chocolate-verdict" checked>
+                    <label for="chocolate">
+                        <span class="stage">
+                            <svg viewBox="0 0 120 150" aria-hidden="true">
+                            <path fill="#5A3A2A" d="M34 8h52v26H34z"/>
+                            <path fill="#714A36" d="M38 12h20v18H38zM62 12h20v18H62z"/>
+                            <path fill="#F2B544" d="M30 32l6-5 8 5 8-5 8 5 8-5 8 5 8-5 6 5v8H30z"/>
+                            <path fill="#1D2B4A" d="M28 38h64v112H28z"/>
+                            <path fill="#F2B544" d="M40 66h40v8H40zM40 82h26v5H40z"/>
+                            <circle cx="60" cy="118" r="16" fill="#5A3A2A"/>
+                            <path fill="none" stroke="#714A36" stroke-width="4" stroke-linecap="round" d="M60 106v24"/>
+                            </svg>
+                        </span>
+                        <span class="shelf-edge"></span>
+                        <span class="shelf-front">
+                            <span class="tag">
+                                <span class="tag-name" id="chocolate-name">Dark chocolate 90%</span>
+                                <span class="tag-peek" aria-hidden="true">Peek</span>
+                                <span class="tag-verdict" id="chocolate-verdict">
+                                    <span class="tag-answer">In small amounts</span>
+                                    <span class="visually-hidden">, </span>
+                                    <span class="tag-reason">16.6&nbsp;g carbs per 100&nbsp;g</span>
+                                </span>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+                <div class="shelf-item not">
+                    <input type="radio" name="product" id="mango" class="visually-hidden"
+                           aria-labelledby="mango-name" aria-describedby="mango-verdict">
+                    <label for="mango">
+                        <span class="stage">
+                            <svg viewBox="0 0 120 150" aria-hidden="true">
+                            <path fill="#F6A63C" d="M64 46C92 46 108 72 104 102C100 132 80 150 56 150C30 150 14 130 16 106C18 78 36 46 64 46Z"/>
+                            <path fill="#E4683A" d="M64 46C92 46 108 72 104 102C101 122 92 136 79 144C92 118 92 78 64 46Z"/>
+                            <path fill="none" stroke="#FFD58A" stroke-width="7" stroke-linecap="round" d="M34 100C36 84 44 72 54 66"/>
+                            <path fill="#5A3A2A" d="M61 34h7v14h-7z"/>
+                            <path fill="#2F8A57" d="M68 38C80 22 98 24 106 30C98 44 82 48 68 38Z"/>
+                            </svg>
+                        </span>
+                        <span class="shelf-edge"></span>
+                        <span class="shelf-front">
+                            <span class="tag">
+                                <span class="tag-name" id="mango-name">Mango</span>
+                                <span class="tag-peek" aria-hidden="true">Peek</span>
+                                <span class="tag-verdict" id="mango-verdict">
+                                    <span class="tag-answer">Not keto-friendly</span>
+                                    <span class="visually-hidden">, </span>
+                                    <span class="tag-reason">13.8&nbsp;g sugars per 100&nbsp;g</span>
+                                </span>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+                <div class="shelf-item not">
+                    <input type="radio" name="product" id="crisps" class="visually-hidden"
+                           aria-labelledby="crisps-name" aria-describedby="crisps-verdict">
+                    <label for="crisps">
+                        <span class="stage">
+                            <svg viewBox="0 0 120 150" aria-hidden="true">
+                            <path fill="#D9432F" d="M22 14H98L104 150H16Z"/>
+                            <path fill="#B5331F" d="M22 14H98L99 28H21ZM16.500 136H103.500L104 150H16Z"/>
+                            <ellipse cx="60" cy="86" rx="31" ry="25" fill="#FFFFFF"/>
+                            <path fill="#F2C14A" d="M36 88C42 70 66 64 84 76C80 98 54 106 36 88Z"/>
+                            <path fill="none" stroke="#D99A22" stroke-width="3" stroke-linecap="round" d="M46 88C54 78 66 76 76 80"/>
+                            <path fill="#FFFFFF" d="M40 42h40v8H40z"/>
+                            </svg>
+                        </span>
+                        <span class="shelf-edge"></span>
+                        <span class="shelf-front">
+                            <span class="tag">
+                                <span class="tag-name" id="crisps-name">Potato crisps</span>
+                                <span class="tag-peek" aria-hidden="true">Peek</span>
+                                <span class="tag-verdict" id="crisps-verdict">
+                                    <span class="tag-answer">Not keto-friendly</span>
+                                    <span class="visually-hidden">, </span>
+                                    <span class="tag-reason">56&nbsp;g carbs per 100&nbsp;g</span>
+                                </span>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="shelf-note">
+                <p class="wrap">Verdicts for the Keto profile, reasons per 100&nbsp;g.</p>
+            </div>
+        </fieldset>
     </div>
-    <section id="how">
+    <section class="how" id="how">
         <div class="wrap">
-            <p class="eyebrow">How it works</p>
-            <h2>Three steps, one clear answer</h2>
+            <h2>Pick a diet once. Then just scan.</h2>
             <ol class="steps">
                 <li>
-                    <span class="step-num">1</span>
                     <h3>Pick your diet</h3>
-                    <p>Strict keto, Keto or Low-carb, or set your own daily carb limit. You do it once.</p>
+                    <p>Strict keto, Keto or Low carb.</p>
                 </li>
                 <li>
-                    <span class="step-num">2</span>
                     <h3>Scan the barcode</h3>
-                    <p>Any packaged food in the shop. No typing, no searching.</p>
+                    <p>One clear verdict, right in the aisle.</p>
                 </li>
                 <li>
-                    <span class="step-num">3</span>
-                    <h3>Get the verdict</h3>
-                    <p>See if it fits, and the main reason why, in plain words.</p>
+                    <h3>See why</h3>
+                    <p>The reason, the macros and what is in it.</p>
                 </li>
             </ol>
         </div>
     </section>
-    <section class="verdict-section">
-        <div class="wrap split">
-            <div>
-                <p class="eyebrow">Beyond the carb count</p>
-                <h2>A verdict you can trust</h2>
-                <p>
-                    CarbPeek looks at the carbs, fat and protein of each product and compares them with your diet.
-                    When the ingredient list is known, it also checks for added sugar, starch or flour and polyol
-                    sweeteners, so hidden carbs don't slip into your basket.
-                </p>
-            </div>
-            <ul class="verdict-list" aria-label="Example verdicts">
-                <li class="verdict-good">
-                    <span class="verdict-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    <section class="answers">
+        <div class="wrap">
+            <h2>One yoghurt.<br>Three diets, three answers.</h2>
+            <p class="answers-lead">
+                A carb number alone doesn't tell you much. CarbPeek weighs it against the diet you picked.
+            </p>
+            <ul class="diets">
+                <li class="diet not">
+                    <span class="diet-name">Strict keto</span>
+                    <span class="diet-verdict">
+                        <span class="mark mark-not mark-large"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                        Not keto-friendly
                     </span>
-                    <div><b>Keto-friendly</b><span>Fits your diet, enjoy it.</span></div>
                 </li>
-                <li class="verdict-ok">
-                    <span class="verdict-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg>
+                <li class="diet small">
+                    <span class="diet-name">Keto</span>
+                    <span class="diet-verdict">
+                        <span class="mark mark-neutral mark-large"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                        In small amounts
                     </span>
-                    <div><b>In small amounts</b><span>Fine as a treat, watch the portion.</span></div>
                 </li>
-                <li class="verdict-bad">
-                    <span class="verdict-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>
+                <li class="diet good">
+                    <span class="diet-name">Low carb</span>
+                    <span class="diet-verdict">
+                        <span class="mark mark-good mark-large"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                        Low-carb friendly
                     </span>
-                    <div><b>Not keto-friendly</b><span>Too many carbs for your plan.</span></div>
                 </li>
             </ul>
+            <p class="diets-note">Natural whole milk yoghurt, 4.1&nbsp;g carbs per 100&nbsp;g.</p>
+            <table class="verdicts">
+                <caption class="visually-hidden">Verdicts of six products for three diets</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Carbs per 100&nbsp;g</th>
+                        <th scope="col">Strict keto</th>
+                        <th scope="col">Keto</th>
+                        <th scope="col">Low carb</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Mozzarella<span>2&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Hummus<span>8.7&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-neutral"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                            <span class="visually-hidden">In small amounts</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Dark chocolate 90%<span>16.6&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-neutral"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                            <span class="visually-hidden">In small amounts</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-neutral"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                            <span class="visually-hidden">In small amounts</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Pesto<span>11&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-neutral"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                            <span class="visually-hidden">In small amounts</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-good"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>
+                            <span class="visually-hidden">Fits</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Mango<span>14.1&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-neutral"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>
+                            <span class="visually-hidden">In small amounts</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Potato crisps<span>56&nbsp;g</span></th>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                        <td>
+                            <span class="mark mark-not"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>
+                            <span class="visually-hidden">Does not fit</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="legend" aria-hidden="true">
+                <li><span class="mark mark-good mark-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg></span>Fits</li>
+                <li><span class="mark mark-neutral mark-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span>In small amounts</li>
+                <li><span class="mark mark-not mark-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></span>Does not fit</li>
+            </ul>
+            <p class="answers-note">Each row is one real product. Other brands can differ.</p>
         </div>
     </section>
-    <section>
-        <div class="wrap">
-            <p class="eyebrow">Made for everyday shopping</p>
-            <h2>Small app, big help</h2>
-            <div class="cards">
-                <div class="card">
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg>
-                    </span>
-                    <h3>Fast verdicts</h3>
-                    <p>One scan, one clear answer, with the reason in plain words.</p>
-                </div>
-                <div class="card">
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
-                    </span>
-                    <h3>History and favourites</h3>
-                    <p>Find products you scanned before and keep the ones you like close at hand.</p>
-                </div>
-                <div class="card">
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8.2-7 9.5-4-1.3-7-5.1-7-9.5V6z"/></svg>
-                    </span>
-                    <h3>Private by design</h3>
-                    <p>No account, no ads. Your diet, history and favourites stay on your phone.</p>
-                </div>
-                <div class="card">
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
-                    </span>
-                    <h3>Missing a product?</h3>
-                    <p>Send photos of the label from the app and we will add it.</p>
-                </div>
+    <section class="promises">
+        <div class="wrap promises-grid">
+            <div class="promise">
+                <h2>No account</h2>
+                <p>Your diet, history and favourites stay on your phone.</p>
+            </div>
+            <div class="promise">
+                <h2>No ads</h2>
+                <p>Nothing between you and the answer.</p>
+            </div>
+            <div class="promise">
+                <h2>No guesses</h2>
+                <p>When product data is missing, CarbPeek says so.</p>
             </div>
         </div>
     </section>
-    <section id="contact" class="contact-section">
+    <section class="contact" id="contact">
         <div class="wrap">
-            <div class="cta">
-                <div>
-                    <h2>Questions or ideas?</h2>
-                    <p>A product that looks wrong, a feature you miss, or just hello. We read every message.</p>
-                </div>
-                <a class="cta-button" href="mailto:support@carbpeek.app">support@carbpeek.app</a>
-            </div>
+            <h2>Questions or ideas? Write to us.</h2>
+            <a class="button" href="mailto:support@carbpeek.app">support@carbpeek.app</a>
         </div>
     </section>
 </main>
