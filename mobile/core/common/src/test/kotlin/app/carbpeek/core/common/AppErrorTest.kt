@@ -7,8 +7,9 @@ import kotlin.test.assertTrue
 class AppErrorTest {
 
     @Test
-    fun `when error is network or not found then it is not reportable`() {
+    fun `when error is network timeout or not found then it is not reportable`() {
         assertFalse(AppError.Network.isReportable)
+        assertFalse(AppError.Timeout.isReportable)
         assertFalse(AppError.NotFound.isReportable)
     }
 

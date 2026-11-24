@@ -574,6 +574,28 @@ class ScanViewModelTest {
         }
 
     @Test
+    fun `when a typed lookup fails with a timeout then the sheet stays open and the message is shown`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.Timeout)
+            val handle = SavedStateHandle()
+            val viewModel = createViewModel(handle = handle, initialQuery = "590")
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+            viewModel.onAction(ScanAction.OnTypeItClicked)
+
+            viewModel.onAction(ScanAction.OnSearchSubmitted)
+            advanceTimeBy(2_000)
+            runCurrent()
+
+            assertEquals(AppEvent.ShowMessage(AppError.Timeout.toUiText(), MessageTone.Error), appEvents.last())
+            assertNull(viewModel.state.value.notFound)
+            assertEquals(
+                preview(isPaused = true, frame = ScanFrameMode.Idle, isTypeSheetOpen = true),
+                viewModel.state.value.camera,
+            )
+            assertEquals(true, handle.get<Boolean>(KEY_TYPE_SHEET_OPEN))
+        }
+
+    @Test
     fun `when a barcode is scanned while the type sheet is open then it is ignored`() = runTest {
         val viewModel = createViewModel()
         viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
@@ -957,6 +979,27 @@ class ScanViewModelTest {
 
             assertEquals(preview(isPaused = false), viewModel.state.value.camera)
             assertEquals(listOf<ScanEvent>(DETECTED_HAPTIC), screenEvents)
+        }
+
+    @Test
+    fun `when a scan fails with a timeout then the message is shown and the same barcode can be scanned again`() =
+        runTest {
+            products.result = Outcome.Failure(AppError.Timeout)
+            val viewModel = createViewModel()
+            viewModel.onAction(ScanAction.OnStart(GRANTED, hasTorch = false))
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            assertEquals(AppEvent.ShowMessage(AppError.Timeout.toUiText(), MessageTone.Error), appEvents.last())
+
+            advanceTimeBy(2_000)
+            runCurrent()
+
+            assertEquals(preview(isPaused = false), viewModel.state.value.camera)
+
+            viewModel.onAction(ScanAction.OnBarcodeScanned("590"))
+
+            assertEquals(listOf("590", "590"), products.refreshedBarcodes)
         }
 
     @Test

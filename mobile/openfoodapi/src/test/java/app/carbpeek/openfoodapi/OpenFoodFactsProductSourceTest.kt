@@ -16,9 +16,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeoutCapability
 import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.SocketTimeoutException
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.pluginOrNull
 import io.ktor.client.request.HttpRequestData
@@ -28,14 +30,20 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.cancel
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
+import java.net.ConnectException
+import java.net.UnknownHostException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 
 private const val TEST_USER_AGENT = "CarbPeek/test (contact)"
@@ -193,8 +201,95 @@ class OpenFoodFactsProductSourceTest {
     }
 
     @Test
-    fun `request timeout is mapped to network failure`() = runTest {
+    fun `request timeout is mapped to timeout failure`() = runTest {
         handler = { request -> throw HttpRequestTimeoutException(request) }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Timeout), result)
+    }
+
+    @Test
+    fun `connect timeout is mapped to timeout failure`() = runTest {
+        handler = { request -> throw ConnectTimeoutException(request) }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Timeout), result)
+    }
+
+    @Test
+    fun `socket timeout is mapped to timeout failure`() = runTest {
+        handler = { request -> throw SocketTimeoutException(request) }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Timeout), result)
+    }
+
+    @Test
+    fun `answer whose body stalls is mapped to timeout failure`() = runTest {
+        handler = { request ->
+            respond(
+                content = ByteChannel().apply { cancel(SocketTimeoutException(request)) },
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Timeout), result)
+    }
+
+    @Test
+    fun `request that never answers is mapped to timeout failure`() = runTest {
+        handler = { awaitCancellation() }
+        val impatientClient = createOpenFoodFactsHttpClient(
+            engine = mockEngine,
+            appName = "CarbPeek",
+            appVersion = "test",
+            contact = "contact",
+            enableBodyLogging = false,
+            requestTimeout = 100.milliseconds,
+        )
+        val impatientSource = OpenFoodFactsProductSource(
+            openFoodFactsApi = OpenFoodFactsApi(impatientClient),
+            dispatchers = DefaultAppDispatchers,
+        )
+
+        val result = impatientSource.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Timeout), result)
+    }
+
+    @Test
+    fun `unknown host is mapped to network failure`() = runTest {
+        handler = { throw UnknownHostException("no address") }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Network), result)
+    }
+
+    @Test
+    fun `refused connection is mapped to network failure`() = runTest {
+        handler = { throw ConnectException("refused") }
+
+        val result = source.getProduct("04963406")
+
+        assertEquals(Outcome.Failure(AppError.Network), result)
+    }
+
+    @Test
+    fun `answer whose body is cut is mapped to network failure`() = runTest {
+        handler = {
+            respond(
+                content = ByteChannel().apply { cancel(IOException("connection reset")) },
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
 
         val result = source.getProduct("04963406")
 

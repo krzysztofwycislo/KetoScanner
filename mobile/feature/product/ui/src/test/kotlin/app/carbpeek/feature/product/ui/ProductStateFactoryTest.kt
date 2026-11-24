@@ -76,6 +76,16 @@ class ProductStateFactoryTest {
     }
 
     @Test
+    fun `when load error is timeout then content is error with timeout message`() {
+        val state = factory.createFor(Prototype(loadError = AppError.Timeout))
+
+        assertEquals(
+            ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_timeout)),
+            state.content,
+        )
+    }
+
+    @Test
     fun `when load error is set and analysis exists then content is still error`() {
         val state = factory.createFor(Prototype(analysis = rated(DietRate.GOOD), loadError = AppError.Network))
 

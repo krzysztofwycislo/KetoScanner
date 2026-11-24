@@ -170,6 +170,21 @@ class ProductViewModelTest {
     }
 
     @Test
+    fun `when retry is clicked after a timeout then it refreshes again`() = runTest {
+        analyzeProduct.clearProduct()
+        products.result = Outcome.Failure(AppError.Timeout)
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ProductAction.OnRetryClicked)
+
+        assertEquals(2, products.refreshedBarcodes.size)
+        assertEquals(
+            ProductContentState.Error(UiText.Res(DesignR.string.designsystem_error_timeout)),
+            viewModel.state.value.content,
+        )
+    }
+
+    @Test
     fun `when retry is clicked twice while the retry refresh is pending then each click asks for a refresh`() =
         runTest {
             analyzeProduct.clearProduct()

@@ -4,6 +4,8 @@ sealed interface AppError {
 
     data object Network : AppError
 
+    data object Timeout : AppError
+
     data class Http(val code: Int) : AppError
 
     data object NotFound : AppError
@@ -18,6 +20,7 @@ sealed interface AppError {
 val AppError.isReportable: Boolean
     get() = when (this) {
         AppError.Network -> false
+        AppError.Timeout -> false
         AppError.NotFound -> false
         is AppError.Http -> true
         AppError.Parsing -> true

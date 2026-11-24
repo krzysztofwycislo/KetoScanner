@@ -11,6 +11,7 @@ class AppErrorTextTest {
     fun `when each error kind is mapped then it gets its own string`() {
         val expected = mapOf(
             AppError.Network to R.string.designsystem_error_network,
+            AppError.Timeout to R.string.designsystem_error_timeout,
             AppError.Http(500) to R.string.designsystem_error_server,
             AppError.NotFound to R.string.designsystem_error_not_found,
             AppError.Parsing to R.string.designsystem_error_parsing,
