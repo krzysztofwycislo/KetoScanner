@@ -4,14 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +28,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -45,8 +50,8 @@ private const val HERO_VIEWPORT_HEIGHT = 120f
 private const val HERO_ILLUSTRATION_ALPHA = 0.9f
 private const val HERO_BARS_ALPHA = 0.5f
 private val HERO_CARD_HEIGHT = 236.dp
-private val HERO_ILLUSTRATION_WIDTH = 190.dp
-private val HERO_ILLUSTRATION_HEIGHT = 120.dp
+private val HERO_ILLUSTRATION_MIN_WIDTH = 80.dp
+private val HERO_ILLUSTRATION_MAX_WIDTH = 120.dp
 
 @Composable
 fun Ui.HeroCard(
@@ -59,7 +64,7 @@ fun Ui.HeroCard(
     modifier: Modifier = Modifier,
 ) {
     val colors = AppTheme.colors
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = HERO_CARD_HEIGHT)
@@ -68,13 +73,18 @@ fun Ui.HeroCard(
             .clickable(role = Role.Button, onClick = onClick)
             .padding(AppTheme.spacing.l),
     ) {
-        if (!isTextSpaceTight()) {
+        val illustrationWidth = heroIllustrationWidth(
+            availableWidth = maxWidth,
+            titleWidth = widestLine(text = title, style = AppTheme.typography.headline),
+            gap = AppTheme.spacing.s,
+        )
+        if (illustrationWidth != null) {
             HeroIllustration(
                 frameColor = colors.text.highlight,
                 barsColor = colors.text.inverse,
-                width = HERO_ILLUSTRATION_WIDTH,
-                height = HERO_ILLUSTRATION_HEIGHT,
-                modifier = Modifier.align(Alignment.TopEnd),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .width(illustrationWidth),
             )
         }
         Column(
@@ -127,19 +137,28 @@ fun Ui.HeroCard(
     }
 }
 
+internal fun heroIllustrationWidth(availableWidth: Dp, titleWidth: Dp, gap: Dp): Dp? =
+    (availableWidth - titleWidth - gap)
+        .takeIf { it >= HERO_ILLUSTRATION_MIN_WIDTH }
+        ?.coerceAtMost(HERO_ILLUSTRATION_MAX_WIDTH)
+
+@Composable
+private fun widestLine(text: String, style: TextStyle): Dp {
+    val width = rememberTextMeasurer().measure(text = text, style = style).size.width
+    return with(LocalDensity.current) { width.toDp() }
+}
+
 @Composable
 private fun HeroIllustration(
     frameColor: Color,
     barsColor: Color,
-    width: Dp,
-    height: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val illustration = remember(frameColor, barsColor, width, height) {
+    val illustration = remember(frameColor, barsColor) {
         ImageVector.Builder(
             name = "HeroIllustration",
-            defaultWidth = width,
-            defaultHeight = height,
+            defaultWidth = HERO_VIEWPORT_WIDTH.dp,
+            defaultHeight = HERO_VIEWPORT_HEIGHT.dp,
             viewportWidth = HERO_VIEWPORT_WIDTH,
             viewportHeight = HERO_VIEWPORT_HEIGHT,
         ).apply {
@@ -162,25 +181,31 @@ private fun HeroIllustration(
         painter = rememberVectorPainter(illustration),
         contentDescription = null,
         modifier = modifier
-            .size(width, height)
+            .aspectRatio(HERO_VIEWPORT_WIDTH / HERO_VIEWPORT_HEIGHT)
             .alpha(HERO_ILLUSTRATION_ALPHA),
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360)
 @Composable
 private fun HeroCardPreview() {
     AppTheme {
         Ui.HeroCard(
             eyebrow = stringResource(R.string.designsystem_preview_rating),
-            title = stringResource(R.string.designsystem_preview_title),
-            body = stringResource(R.string.designsystem_preview_body),
+            title = stringResource(R.string.designsystem_preview_hero_title),
+            body = stringResource(R.string.designsystem_preview_note),
             actionText = stringResource(R.string.designsystem_preview_button),
             actionIcon = AppIcons.Scan.imageVector,
             onClick = {},
-            modifier = Modifier.padding(AppTheme.spacing.m),
+            modifier = Modifier.padding(AppTheme.spacing.l),
         )
     }
+}
+
+@Preview(showBackground = true, widthDp = 411)
+@Composable
+private fun HeroCardWidePreview() {
+    HeroCardPreview()
 }
 
 @Preview(showBackground = true, widthDp = 360, fontScale = 1.5f)

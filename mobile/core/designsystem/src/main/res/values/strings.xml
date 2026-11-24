@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="designsystem_preview_title">Sample title</string>
+    <string name="designsystem_preview_hero_title">Sample title that\nis on two lines</string>
     <string name="designsystem_preview_body">Sample body text</string>
     <string name="designsystem_preview_carbs">%1$s g carbs</string>
     <string name="designsystem_preview_energy">%1$s kcal</string>
