@@ -1,6 +1,7 @@
 package app.carbpeek.feature.product.ui.component
 
 import app.carbpeek.core.designsystem.component.Rating
+import app.carbpeek.core.designsystem.icon.AppIcon
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.text.UiArg
 import app.carbpeek.core.designsystem.text.UiText
@@ -27,10 +28,15 @@ import app.carbpeek.feature.product.ui.state.ScoresState
 import app.carbpeek.feature.product.ui.state.VerdictState
 import kotlinx.collections.immutable.persistentListOf
 
-internal fun ProductHeaderState.Companion.example(name: String = "Peanut butter") = ProductHeaderState(
-    imageUrl = null,
+internal fun ProductHeaderState.Companion.example(
+    name: String = "Peanut butter",
+    imageUrl: String? = null,
+    placeholderIcon: AppIcon = AppIcons.Jar,
+) = ProductHeaderState(
+    imageUrl = imageUrl,
     imageDescription = UiText.Res(R.string.product_image),
-    isImageClickable = false,
+    isImageClickable = imageUrl != null,
+    placeholderIcon = placeholderIcon,
     category = CategoryChipState(AppIcons.Jar, ProductCategory.SPREADS.label),
     brand = UiText.Raw("Nuts & Co"),
     name = UiText.Raw(name),

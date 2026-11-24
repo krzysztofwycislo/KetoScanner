@@ -26,6 +26,7 @@ import app.carbpeek.core.designsystem.component.Rating
 import app.carbpeek.core.designsystem.component.Screen
 import app.carbpeek.core.designsystem.component.Ui
 import app.carbpeek.core.designsystem.component.bottomBarClearance
+import app.carbpeek.core.designsystem.component.rememberRetryingImageState
 import app.carbpeek.core.designsystem.component.withBottomBarClearance
 import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.text.resolve
@@ -131,6 +132,7 @@ private fun ErrorContent(state: Error, onAction: (ProductAction) -> Unit) {
 
 @Composable
 private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit) {
+    val photo = rememberRetryingImageState(state.header.imageUrl)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,7 +141,12 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
         Header(state.favourite, onAction)
-        ProductBlock(state.header, onAction)
+        ProductBlock(
+            header = state.header,
+            photo = photo,
+            retriesAutomatically = state.imagePreview == null,
+            onAction = onAction,
+        )
         MacrosCard(
             verdict = state.verdict,
             macros = state.macros,
@@ -154,7 +161,11 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         Footer(state.dataSource, onAction)
     }
     state.imagePreview?.let {
-        ImagePreview(it, onAction)
+        ImagePreview(
+            state = it,
+            onLoaded = photo::reload,
+            onAction = onAction,
+        )
     }
     state.ingredientSheet?.let {
         IngredientSheet(it, onAction)

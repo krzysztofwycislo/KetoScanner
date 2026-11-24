@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -114,6 +115,7 @@ fun Ui.TextButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    color: Color = AppTheme.colors.text.subtle,
 ) {
     Box(
         modifier = modifier
@@ -126,7 +128,7 @@ fun Ui.TextButton(
         Text(
             text = text,
             style = AppTheme.typography.button,
-            color = AppTheme.colors.text.subtle,
+            color = color,
             textAlign = TextAlign.Center,
         )
     }

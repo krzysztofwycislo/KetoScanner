@@ -54,6 +54,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         imageUrl = product.imageUrl,
         imageDescription = resources.imageDescription(),
         isImageClickable = product.imageUrl != null,
+        placeholderIcon = product.category.icon,
         category = resources.categoryLabel(product.category)?.let { CategoryChipState(product.category.icon, it) },
         brand = resources.brand(product.brand),
         name = resources.productName(product.name),

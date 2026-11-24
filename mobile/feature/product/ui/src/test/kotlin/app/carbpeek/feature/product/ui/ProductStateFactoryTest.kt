@@ -210,6 +210,32 @@ class ProductStateFactoryTest {
     }
 
     @Test
+    fun `when product has a known category then the placeholder icon is the icon of the category`() {
+        val product = product(category = ProductCategory.WATER)
+        val header = show(Prototype(analysis = rated(dietRate = DietRate.GOOD, product = product))).header
+
+        assertEquals(AppIcons.Bottle, header.placeholderIcon)
+    }
+
+    @Test
+    fun `when product category is other then the placeholder icon is the bag and there is no chip`() {
+        val product = product(category = ProductCategory.OTHER)
+        val header = show(Prototype(analysis = rated(dietRate = DietRate.GOOD, product = product))).header
+
+        assertEquals(AppIcons.Bag, header.placeholderIcon)
+        assertNull(header.category)
+    }
+
+    @Test
+    fun `when product has no photo then the placeholder icon is still the icon of the category`() {
+        val product = product(imageUrl = null, category = ProductCategory.WATER)
+        val header = show(Prototype(analysis = rated(dietRate = DietRate.GOOD, product = product))).header
+
+        assertNull(header.imageUrl)
+        assertEquals(AppIcons.Bottle, header.placeholderIcon)
+    }
+
+    @Test
     fun `when product name is blank then name is unnamed product`() {
         val header = show(Prototype(analysis = rated(DietRate.GOOD, product(name = " ")))).header
 

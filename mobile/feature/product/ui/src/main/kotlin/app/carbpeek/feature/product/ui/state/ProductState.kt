@@ -34,6 +34,7 @@ internal data class ProductHeaderState(
     val imageUrl: String?,
     val imageDescription: UiText,
     val isImageClickable: Boolean,
+    val placeholderIcon: AppIcon,
     val category: CategoryChipState?,
     val brand: UiText?,
     val name: UiText,

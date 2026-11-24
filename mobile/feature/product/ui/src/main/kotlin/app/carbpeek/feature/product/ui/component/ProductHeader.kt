@@ -1,27 +1,22 @@
 package app.carbpeek.feature.product.ui.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Dialog
 import app.carbpeek.core.designsystem.component.CircleIconButton
 import app.carbpeek.core.designsystem.component.InfoChip
-import app.carbpeek.core.designsystem.component.ProductImage
+import app.carbpeek.core.designsystem.component.RetryingImageState
 import app.carbpeek.core.designsystem.component.Ui
+import app.carbpeek.core.designsystem.component.rememberRetryingImageState
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.UiText
@@ -31,11 +26,8 @@ import app.carbpeek.feature.product.ui.R
 import app.carbpeek.feature.product.ui.event.ProductAction
 import app.carbpeek.feature.product.ui.event.ProductAction.OnBackClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnFavouriteClicked
-import app.carbpeek.feature.product.ui.event.ProductAction.OnImageClicked
-import app.carbpeek.feature.product.ui.event.ProductAction.OnImagePreviewDismissed
 import app.carbpeek.feature.product.ui.event.ProductAction.OnNameClicked
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
-import app.carbpeek.feature.product.ui.state.ImagePreviewState
 import app.carbpeek.feature.product.ui.state.ProductHeaderState
 
 @Composable
@@ -67,20 +59,21 @@ internal fun Header(
 }
 
 @Composable
-internal fun ProductBlock(header: ProductHeaderState, onAction: (ProductAction) -> Unit) {
+internal fun ProductBlock(
+    header: ProductHeaderState,
+    photo: RetryingImageState,
+    retriesAutomatically: Boolean,
+    onAction: (ProductAction) -> Unit,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Ui.ProductImage(
-            url = header.imageUrl,
-            contentDescription = header.imageDescription,
-            modifier = Modifier
-                .size(AppTheme.sizes.productPhoto)
-                .clip(AppTheme.shapes.large)
-                .background(AppTheme.colors.background.surface)
-                .border(AppTheme.borders.hairline, AppTheme.colors.border.default, AppTheme.shapes.large)
-                .clickable(enabled = header.isImageClickable) { onAction(OnImageClicked) },
+        ProductPhoto(
+            header = header,
+            photo = photo,
+            retriesAutomatically = retriesAutomatically,
+            onAction = onAction,
         )
         Column(
             modifier = Modifier.weight(1f),
@@ -104,20 +97,6 @@ internal fun ProductBlock(header: ProductHeaderState, onAction: (ProductAction) 
     }
 }
 
-@Composable
-internal fun ImagePreview(state: ImagePreviewState, onAction: (ProductAction) -> Unit) {
-    Dialog(onDismissRequest = { onAction(OnImagePreviewDismissed) }) {
-        Ui.ProductImage(
-            url = state.url,
-            contentDescription = state.description,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(AppTheme.colors.background.default, AppTheme.shapes.small),
-            contentScale = ContentScale.Fit,
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun ProductHeaderPreview() {
@@ -127,7 +106,12 @@ private fun ProductHeaderPreview() {
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
         ) {
             Header(FavouriteButtonState.exampleFavourite, {})
-            ProductBlock(ProductHeaderState.example(), {})
+            ProductBlock(
+                header = ProductHeaderState.example(),
+                photo = rememberRetryingImageState(url = null),
+                retriesAutomatically = false,
+                onAction = {},
+            )
         }
     }
 }

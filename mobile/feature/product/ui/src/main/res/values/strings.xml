@@ -3,6 +3,9 @@
     <string name="product_back">Back</string>
     <string name="product_image">Product image</string>
     <string name="product_image_preview">Image preview</string>
+    <string name="product_image_loading">Loading photo</string>
+    <string name="product_image_failed">Couldn\'t load the photo.</string>
+    <string name="product_image_missing">The photo isn\'t available.</string>
     <string name="product_unnamed">Unnamed product</string>
     <string name="product_add_to_favourites">Add to favourites</string>
     <string name="product_remove_from_favourites">Remove from favourites</string>
