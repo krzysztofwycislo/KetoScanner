@@ -7,7 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 
-fun Route.metaRoutes(meta: MetaConfig) {
+internal fun Route.metaRoutes(meta: MetaConfig) {
     get(ApiPaths.META) {
         call.respond(
             MetaResponse(

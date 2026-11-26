@@ -14,7 +14,7 @@ val databaseModule =
             bind<DataSource>()
             onClose { it?.close() }
         }
-        singleOf(::Migrations)
+        single { Migrations(get()) }
         singleOf(::Database)
         singleOf(::JdbcDatabaseHealthCheck) { bind<DatabaseHealthCheck>() }
     }

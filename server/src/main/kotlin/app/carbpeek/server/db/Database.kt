@@ -7,13 +7,15 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import javax.sql.DataSource
 
-class Database(
-    dataSource: DataSource,
+internal class Database(
+    private val dataSource: DataSource,
 ) {
-    private val dsl: DSLContext = DSL.using(dataSource, SQLDialect.POSTGRES)
-
     suspend fun <T> transaction(block: DSLContext.() -> T): T =
         withContext(Dispatchers.IO) {
-            dsl.transactionResult { configuration -> configuration.dsl().block() }
+            dataSource.connection.use { connection ->
+                DSL
+                    .using(connection, SQLDialect.POSTGRES)
+                    .transactionResult { configuration -> configuration.dsl().block() }
+            }
         }
 }

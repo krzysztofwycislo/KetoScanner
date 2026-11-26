@@ -8,11 +8,11 @@ import javax.sql.DataSource
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
-interface DatabaseHealthCheck {
+internal interface DatabaseHealthCheck {
     suspend fun isUp(): Boolean
 }
 
-class JdbcDatabaseHealthCheck(
+internal class JdbcDatabaseHealthCheck(
     private val dataSource: DataSource,
 ) : DatabaseHealthCheck {
     private val logger = LoggerFactory.getLogger(JdbcDatabaseHealthCheck::class.java)

@@ -5,4 +5,7 @@ object ApiPaths {
     const val HEALTH = "/health"
     const val V1 = "/v1"
     const val META = "$V1/meta"
+    const val PRODUCTS = "$V1/products"
+
+    fun product(barcode: String): String = "$PRODUCTS/$barcode"
 }

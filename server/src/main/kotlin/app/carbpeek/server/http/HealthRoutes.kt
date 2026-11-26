@@ -9,7 +9,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 
-fun Route.healthRoutes(healthCheck: DatabaseHealthCheck) {
+internal fun Route.healthRoutes(healthCheck: DatabaseHealthCheck) {
     get(ApiPaths.HEALTH) {
         if (healthCheck.isUp()) {
             call.respond(

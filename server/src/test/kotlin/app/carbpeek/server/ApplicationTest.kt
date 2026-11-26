@@ -1,11 +1,17 @@
 package app.carbpeek.server
 
+import app.carbpeek.server.common.Outcome
+import app.carbpeek.server.common.ServerError
 import app.carbpeek.server.config.AppConfig
 import app.carbpeek.server.config.DatabaseConfig
 import app.carbpeek.server.config.Environment
+import app.carbpeek.server.config.HttpConfig
 import app.carbpeek.server.config.MetaConfig
+import app.carbpeek.server.config.ProductConfig
 import app.carbpeek.server.config.configModule
 import app.carbpeek.server.db.DatabaseHealthCheck
+import app.carbpeek.server.product.LookedUpProduct
+import app.carbpeek.server.product.ProductLookup
 import app.carbpeek.shared.contract.ApiError
 import app.carbpeek.shared.contract.ApiHeaders
 import app.carbpeek.shared.contract.ApiJson
@@ -30,6 +36,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.days
 import org.koin.dsl.module as koinModule
 
 class ApplicationTest {
@@ -44,6 +51,12 @@ class ApplicationTest {
             poolSize = 1,
         ),
         meta = MetaConfig(serverVersion = "1.4.0", minSupportedVersionCode = 42),
+        product = ProductConfig(
+            freshFor = 7.days,
+            notFoundFreshFor = 1.days,
+            offRequestsPerMinute = 10,
+        ),
+        http = HttpConfig(productRequestsPerMinutePerIp = 60, behindCloudflare = false),
     )
 
     @Test
@@ -134,6 +147,21 @@ class ApplicationTest {
         }
 
     @Test
+    fun `when an error is answered then it must not be stored by caches`() = testServer {
+        val paths = listOf("/v1/nothing-here", "/test/boom", "/v1/products/abc")
+
+        paths.forEach { path ->
+            val response = client.get(path)
+
+            assertEquals(
+                expected = listOf("no-store"),
+                actual = response.headers.getAll(HttpHeaders.CacheControl),
+                message = path,
+            )
+        }
+    }
+
+    @Test
     fun `when any path is requested then the response has a request id`() = testServer {
         val paths = listOf("/health", "/v1/meta", "/v1/nothing-here", "/test/boom")
 
@@ -162,7 +190,10 @@ class ApplicationTest {
             module(
                 listOf(
                     configModule(testConfig),
-                    koinModule { single<DatabaseHealthCheck> { FakeDatabaseHealthCheck(isUp = databaseUp) } },
+                    koinModule {
+                        single<DatabaseHealthCheck> { FakeDatabaseHealthCheck(isUp = databaseUp) }
+                        single<ProductLookup> { NotFoundProductLookup }
+                    },
                 ),
             )
             routing {
@@ -182,4 +213,8 @@ private class FakeDatabaseHealthCheck(
     private val isUp: Boolean,
 ) : DatabaseHealthCheck {
     override suspend fun isUp(): Boolean = isUp
+}
+
+private object NotFoundProductLookup : ProductLookup {
+    override suspend fun find(barcode: String): Outcome<LookedUpProduct> = Outcome.Failure(ServerError.NotFound)
 }

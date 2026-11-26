@@ -5,6 +5,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 class AppConfigTest {
 
@@ -23,6 +25,12 @@ class AppConfigTest {
                     poolSize = 10,
                 ),
                 meta = MetaConfig(serverVersion = "dev", minSupportedVersionCode = 0),
+                product = ProductConfig(
+                    freshFor = 7.days,
+                    notFoundFreshFor = 1.days,
+                    offRequestsPerMinute = 10,
+                ),
+                http = HttpConfig(productRequestsPerMinutePerIp = 60, behindCloudflare = false),
             ),
             actual = config,
         )
@@ -39,6 +47,11 @@ class AppConfigTest {
             "DB_POOL_SIZE" to "4",
             "MIN_SUPPORTED_VERSION_CODE" to "12",
             "SERVER_VERSION" to "1.2.3",
+            "PRODUCT_FRESH_HOURS" to "48",
+            "PRODUCT_NOT_FOUND_HOURS" to "6",
+            "OFF_REQUESTS_PER_MINUTE" to "5",
+            "PRODUCT_REQUESTS_PER_MINUTE_PER_IP" to "30",
+            "BEHIND_CLOUDFLARE" to "true",
         )
 
         val config = AppConfig.fromEnvironment(env)
@@ -54,6 +67,12 @@ class AppConfigTest {
                     poolSize = 4,
                 ),
                 meta = MetaConfig(serverVersion = "1.2.3", minSupportedVersionCode = 12),
+                product = ProductConfig(
+                    freshFor = 48.hours,
+                    notFoundFreshFor = 6.hours,
+                    offRequestsPerMinute = 5,
+                ),
+                http = HttpConfig(productRequestsPerMinutePerIp = 30, behindCloudflare = true),
             ),
             actual = config,
         )
@@ -98,6 +117,37 @@ class AppConfigTest {
         val message = error.message.orEmpty()
         assertTrue("DB_POOL_SIZE" in message)
         assertTrue("MIN_SUPPORTED_VERSION_CODE" in message)
+    }
+
+    @Test
+    fun `when a product or limit number is not at least 1 then it fails with the name of the variable`() {
+        val names = listOf(
+            "PRODUCT_FRESH_HOURS",
+            "PRODUCT_NOT_FOUND_HOURS",
+            "OFF_REQUESTS_PER_MINUTE",
+            "PRODUCT_REQUESTS_PER_MINUTE_PER_IP",
+        )
+
+        names.forEach { name ->
+            listOf("0", "-1", "many", "1.5").forEach { value ->
+                val error = assertFailsWith<IllegalStateException>(message = "$name=$value") {
+                    AppConfig.fromEnvironment(mapOf(name to value))
+                }
+
+                assertTrue(actual = name in error.message.orEmpty(), message = "$name=$value")
+            }
+        }
+    }
+
+    @Test
+    fun `when the Cloudflare setting is not true or false then it fails with the name of the variable`() {
+        listOf("yes", "1", "TRUE").forEach { value ->
+            val error = assertFailsWith<IllegalStateException>(message = value) {
+                AppConfig.fromEnvironment(mapOf("BEHIND_CLOUDFLARE" to value))
+            }
+
+            assertTrue(actual = "BEHIND_CLOUDFLARE" in error.message.orEmpty(), message = value)
+        }
     }
 
     @Test

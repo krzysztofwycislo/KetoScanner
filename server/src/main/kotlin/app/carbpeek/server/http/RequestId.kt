@@ -12,7 +12,7 @@ import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import java.util.UUID
 
-fun Application.installRequestId() {
+internal fun Application.installRequestId() {
     install(CallId) {
         generate { UUID.randomUUID().toString() }
         replyToHeader(ApiHeaders.REQUEST_ID)

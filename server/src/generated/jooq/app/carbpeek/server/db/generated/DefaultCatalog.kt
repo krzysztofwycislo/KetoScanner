@@ -5,6 +5,7 @@ package app.carbpeek.server.db.generated
 
 
 import app.carbpeek.server.db.generated.app.App
+import app.carbpeek.server.db.generated.products.Products
 
 import kotlin.collections.List
 
@@ -31,8 +32,14 @@ open class DefaultCatalog : CatalogImpl("") {
      */
     val APP: App get(): App = App.APP
 
+    /**
+     * The schema <code>products</code>.
+     */
+    val PRODUCTS: Products get(): Products = Products.PRODUCTS
+
     override fun getSchemas(): List<Schema> = listOf(
-        App.APP
+        App.APP,
+        Products.PRODUCTS
     )
 
     /**

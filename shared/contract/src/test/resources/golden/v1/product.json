@@ -1,0 +1,56 @@
+{
+  "barcode": "3017620422003",
+  "name": "Nutella",
+  "brand": "Ferrero",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.jpg",
+  "servingQuantity": "15",
+  "category": "SPREADS",
+  "labelLanguage": "fr",
+  "ingredientsText": "Sucre, noisettes 13%, chocolat au lait (sucre, beurre de cacao)",
+  "ingredients": [
+    {
+      "id": "en:hazelnut",
+      "name": "hazelnut",
+      "labelName": "noisettes",
+      "declaredPercent": 13.0,
+      "subIngredients": []
+    },
+    {
+      "id": "en:milk-chocolate",
+      "name": "milk chocolate",
+      "labelName": "chocolat au lait",
+      "subIngredients": [
+        {
+          "id": "en:sugar",
+          "name": "sugar",
+          "labelName": "sucre",
+          "subIngredients": []
+        }
+      ]
+    }
+  ],
+  "nutriScore": "E",
+  "novaGroup": 4,
+  "nutrients": {
+    "per100g": {
+      "energyKcal": 539.0,
+      "fat": 30.9,
+      "saturatedFat": 10.6,
+      "carbohydrates": 57.5,
+      "sugars": 56.3,
+      "fibre": 3.5,
+      "proteins": 6.3,
+      "salt": 0.107
+    },
+    "perServing": {
+      "energyKcal": 80.8,
+      "fat": 4.64,
+      "saturatedFat": 1.59,
+      "carbohydrates": 8.62,
+      "sugars": 8.44,
+      "fibre": 0.525,
+      "proteins": 0.945,
+      "salt": 0.016
+    }
+  }
+}

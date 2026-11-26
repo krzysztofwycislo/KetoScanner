@@ -1,10 +1,15 @@
 package app.carbpeek.server.config
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+
 data class AppConfig(
     val port: Int,
     val environment: Environment,
     val database: DatabaseConfig,
     val meta: MetaConfig,
+    val product: ProductConfig,
+    val http: HttpConfig,
 ) {
     companion object {
         fun fromEnvironment(env: Map<String, String>): AppConfig = EnvironmentReader(env).read()
@@ -31,6 +36,17 @@ data class MetaConfig(
     val minSupportedVersionCode: Int,
 )
 
+data class ProductConfig(
+    val freshFor: Duration,
+    val notFoundFreshFor: Duration,
+    val offRequestsPerMinute: Int,
+)
+
+data class HttpConfig(
+    val productRequestsPerMinutePerIp: Int,
+    val behindCloudflare: Boolean,
+)
+
 private const val DEV_DB_URL = "jdbc:postgresql://localhost:5432/carbpeek"
 private const val DEV_DB_CREDENTIAL = "carbpeek"
 
@@ -51,12 +67,23 @@ private class EnvironmentReader(private val env: Map<String, String>) {
             serverVersion = value("SERVER_VERSION") ?: "dev",
             minSupportedVersionCode = int(name = "MIN_SUPPORTED_VERSION_CODE", default = 0),
         )
+        val product = ProductConfig(
+            freshFor = positiveInt(name = "PRODUCT_FRESH_HOURS", default = 168).hours,
+            notFoundFreshFor = positiveInt(name = "PRODUCT_NOT_FOUND_HOURS", default = 24).hours,
+            offRequestsPerMinute = positiveInt(name = "OFF_REQUESTS_PER_MINUTE", default = 10),
+        )
+        val http = HttpConfig(
+            productRequestsPerMinutePerIp = positiveInt(name = "PRODUCT_REQUESTS_PER_MINUTE_PER_IP", default = 60),
+            behindCloudflare = boolean(name = "BEHIND_CLOUDFLARE", default = false),
+        )
         check(problems.isEmpty()) { "Invalid server configuration: ${problems.joinToString(separator = "; ")}" }
         return AppConfig(
             port = port,
             environment = environment ?: Environment.DEV,
             database = database,
             meta = meta,
+            product = product,
+            http = http,
         )
     }
 
@@ -68,6 +95,25 @@ private class EnvironmentReader(private val env: Map<String, String>) {
     ): Int {
         val raw = value(name) ?: return default
         return raw.toIntOrNull() ?: default.also { problems += "$name is not a number" }
+    }
+
+    private fun positiveInt(
+        name: String,
+        default: Int,
+    ): Int {
+        val number = int(name = name, default = default)
+        if (number < 1) {
+            problems += "$name must be at least 1"
+        }
+        return number
+    }
+
+    private fun boolean(
+        name: String,
+        default: Boolean,
+    ): Boolean {
+        val raw = value(name) ?: return default
+        return raw.toBooleanStrictOrNull() ?: default.also { problems += "$name must be true or false" }
     }
 
     private fun environment(): Environment? {

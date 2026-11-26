@@ -8,4 +8,6 @@ fun configModule(config: AppConfig): Module =
         single { config }
         single { config.database }
         single { config.meta }
+        single { config.product }
+        single { config.http }
     }
