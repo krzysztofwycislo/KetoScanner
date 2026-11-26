@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -25,8 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.dp
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -156,19 +154,14 @@ private fun BackRow(state: IngredientBackState, onClick: () -> Unit) {
 private fun Contents(rows: PersistentList<IngredientRowState>, onClick: (Int) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
         Heading(stringResource(R.string.product_ingredient_contains))
-        Column(modifier = Modifier.bleedHorizontally(AppTheme.spacing.xxl)) {
-            IngredientRows(rows = rows, onClick = onClick)
+        Column {
+            IngredientRows(
+                rows = rows,
+                onClick = onClick,
+                sidePadding = 0.dp,
+            )
             IngredientRowLine()
         }
-    }
-}
-
-private fun Modifier.bleedHorizontally(bleed: Dp): Modifier = layout { measurable, constraints ->
-    val bleedPx = bleed.roundToPx()
-    val placeable = measurable.measure(constraints.offset(horizontal = bleedPx * 2))
-    val width = (placeable.width - bleedPx * 2).coerceIn(constraints.minWidth, constraints.maxWidth)
-    layout(width = width, height = placeable.height) {
-        placeable.place(x = -bleedPx, y = 0)
     }
 }
 

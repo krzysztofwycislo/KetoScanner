@@ -42,7 +42,7 @@ internal fun IngredientsCard(
                 color = AppTheme.colors.border.default,
                 shape = AppTheme.shapes.large,
             )
-            .padding(top = AppTheme.spacing.xxs),
+            .padding(top = AppTheme.spacing.xxs, bottom = AppTheme.spacing.xs),
     ) {
         Row(
             modifier = Modifier.padding(

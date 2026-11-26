@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
@@ -32,11 +33,16 @@ internal fun IngredientRows(
     rows: PersistentList<IngredientRowState>,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    sidePadding: Dp = AppTheme.spacing.m,
 ) {
     Column(modifier = modifier) {
         rows.forEachIndexed { index, row ->
             IngredientRowLine()
-            IngredientRow(state = row, onClick = { onClick(index) })
+            IngredientRow(
+                state = row,
+                sidePadding = sidePadding,
+                onClick = { onClick(index) },
+            )
         }
     }
 }
@@ -52,7 +58,11 @@ internal fun IngredientRowLine() {
 }
 
 @Composable
-private fun IngredientRow(state: IngredientRowState, onClick: () -> Unit) {
+private fun IngredientRow(
+    state: IngredientRowState,
+    sidePadding: Dp,
+    onClick: () -> Unit,
+) {
     val description = state.description.resolve()
     val interaction = if (state.isOpenable) {
         Modifier
@@ -71,7 +81,7 @@ private fun IngredientRow(state: IngredientRowState, onClick: () -> Unit) {
                 .clearAndSetSemantics {}
                 .fillMaxWidth()
                 .heightIn(min = AppTheme.sizes.control.m)
-                .padding(horizontal = AppTheme.spacing.m, vertical = AppTheme.spacing.s),
+                .padding(horizontal = sidePadding, vertical = AppTheme.spacing.s),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
             verticalAlignment = Alignment.CenterVertically,
         ) {
