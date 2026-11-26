@@ -7,7 +7,6 @@ import app.carbpeek.core.common.AppError
 import app.carbpeek.core.common.ErrorReporter
 import app.carbpeek.core.common.EventQueue
 import app.carbpeek.core.common.ProgressTracker
-import app.carbpeek.core.common.catchAppError
 import app.carbpeek.core.common.onFailure
 import app.carbpeek.core.common.onSuccess
 import app.carbpeek.core.common.retryOnAppError
@@ -17,10 +16,10 @@ import app.carbpeek.core.designsystem.event.AppEvent.ShowMessage
 import app.carbpeek.core.designsystem.event.AppEvents
 import app.carbpeek.feature.analysis.api.AnalyzeProduct
 import app.carbpeek.feature.history.api.AnalysisHistoryRepository
-import app.carbpeek.feature.preferences.api.DietPreferencesRepository
 import app.carbpeek.feature.preferences.api.OnboardingRepository
-import app.carbpeek.feature.preferences.api.model.DietPreferences
+import app.carbpeek.feature.preferences.api.ProfileSettingsRepository
 import app.carbpeek.feature.preferences.api.model.OnboardingTip
+import app.carbpeek.feature.preferences.api.model.ProfileSettings
 import app.carbpeek.feature.product.api.ProductRepository
 import app.carbpeek.feature.scanner.ui.event.OpenAppSettings
 import app.carbpeek.feature.scanner.ui.event.PerformHapticFeedback
@@ -80,7 +79,7 @@ internal class ScanViewModel(
     private val stateFactory: ScanStateFactory,
     private val resources: ScanResources,
     private val errorReporter: ErrorReporter,
-    private val preferences: DietPreferencesRepository,
+    private val profileSettings: ProfileSettingsRepository,
     private val onboarding: OnboardingRepository,
     private val clock: Clock,
     private val applicationScope: CoroutineScope,
@@ -148,31 +147,32 @@ internal class ScanViewModel(
 
     private suspend fun onTripFailed(error: AppError) {
         errorReporter.report(tag = TAG, message = "Loading trip entries failed", error = error)
-        delay(TRIP_RETRY_DELAY)
+        delay(LOAD_RETRY_DELAY)
     }
 
-    private fun observePreferences() {
+    private fun observeSettings() {
         viewModelScope.launch {
-            preferences.observeDietPreferences()
-                .catchAppError { error ->
-                    errorReporter.report(
-                        tag = TAG,
-                        message = "Loading diet preferences failed",
-                        error = error,
-                    )
-                }
-                .collect(::showPreferences)
+            profileSettings.observeSettings()
+                .retryOnAppError(::onSettingsFailed)
+                .distinctUntilChanged()
+                .collect(::showSettings)
         }
     }
 
-    private fun showPreferences(dietPreferences: DietPreferences) {
-        if (dietPreferences.dietMode != null || statePrototype.value.foundBarcode == null) {
-            statePrototype.update { it.copy(dietPreferences = dietPreferences) }
+    private suspend fun onSettingsFailed(error: AppError) {
+        errorReporter.report(tag = TAG, message = "Loading diet preferences failed", error = error)
+        statePrototype.update { it.copy(profileSettings = it.profileSettings ?: ProfileSettings.Default) }
+        delay(LOAD_RETRY_DELAY)
+    }
+
+    private fun showSettings(settings: ProfileSettings) {
+        if (settings.showsQuickCard || statePrototype.value.foundBarcode == null) {
+            statePrototype.update { it.copy(profileSettings = settings) }
         } else {
             savedStateHandle[KEY_FOUND_BARCODE] = null
             statePrototype.update {
                 it.copy(
-                    dietPreferences = dietPreferences,
+                    profileSettings = settings,
                     foundBarcode = null,
                     foundAnalysis = null,
                     isScanPaused = false,
@@ -380,7 +380,10 @@ internal class ScanViewModel(
         appEvents send HideKeyboard
 
         viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            progress.reportWork { products.refreshProduct(barcode) }
+            progress.reportWork {
+                statePrototype.first { it.profileSettings != null }
+                products.refreshProduct(barcode)
+            }
                 .onSuccess {
                     setTypeSheetOpen(false)
                     setFoundBarcode(barcode)
@@ -427,7 +430,7 @@ internal class ScanViewModel(
         observeFoundAnalysis()
         observeResuming()
         observeTrip()
-        observePreferences()
+        observeSettings()
         loadPendingTips()
     }
 
@@ -441,6 +444,6 @@ internal class ScanViewModel(
         const val KEY_FOUND_BARCODE = "foundBarcode"
         const val KEY_NOT_FOUND_BARCODE = "notFoundBarcode"
         val SCAN_RESUME_DELAY = 2.seconds
-        val TRIP_RETRY_DELAY = 5.seconds
+        val LOAD_RETRY_DELAY = 5.seconds
     }
 }

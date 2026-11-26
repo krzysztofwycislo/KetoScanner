@@ -175,11 +175,6 @@ class AnalyzeProductImplTest {
         }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = current
-
-        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> {
-            current = Outcome.Success(preferences)
-            return Outcome.Success(Unit)
-        }
     }
 
     private companion object {

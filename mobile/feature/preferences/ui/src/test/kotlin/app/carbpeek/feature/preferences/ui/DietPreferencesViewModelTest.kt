@@ -9,9 +9,11 @@ import app.carbpeek.core.designsystem.event.AppEvent
 import app.carbpeek.core.designsystem.event.AppEvents
 import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.core.testing.FakeErrorReporter
-import app.carbpeek.feature.preferences.api.DietPreferencesRepository
+import app.carbpeek.feature.preferences.api.ProfileSettingsRepository
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
+import app.carbpeek.feature.preferences.api.model.DietPreset
+import app.carbpeek.feature.preferences.api.model.ProfileSettings
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesEvent
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation.NavigateBack
@@ -38,6 +40,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import app.carbpeek.core.designsystem.R as DesignR
 
@@ -270,6 +273,124 @@ class DietPreferencesViewModelTest {
     }
 
     @Test
+    fun `when nothing else is stored then the details switch is off`() = runTest {
+        val viewModel = createViewModel()
+
+        preferences.emit(40)
+
+        assertEquals(false, isDetailsSwitchOn(viewModel))
+    }
+
+    @Test
+    fun `when the details setting is stored on then the switch is on`() = runTest {
+        val viewModel = createViewModel()
+
+        preferences.emit(preferences = DietPreset.LOW_CARB.preferences, opensDetailsRightAway = true)
+
+        assertEquals(true, isDetailsSwitchOn(viewModel))
+    }
+
+    @Test
+    fun `when the details switch is changed then it is written to the saved state and nothing is saved`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = createViewModel(handle)
+        preferences.emit(40)
+
+        viewModel.onAction(DietPreferencesAction.OnDetailsSwitchChanged(isOn = true))
+
+        assertEquals(true, isDetailsSwitchOn(viewModel))
+        assertEquals(true, handle.get<Boolean>(KEY_OPENS_DETAILS_RIGHT_AWAY))
+        assertTrue(preferences.savedSettings.isEmpty())
+        assertTrue(appEventsReceived.isEmpty())
+
+        viewModel.onAction(DietPreferencesAction.OnDetailsSwitchChanged(isOn = false))
+
+        assertEquals(false, isDetailsSwitchOn(viewModel))
+        assertEquals(false, handle.get<Boolean>(KEY_OPENS_DETAILS_RIGHT_AWAY))
+    }
+
+    @Test
+    fun `when the details choice was restored then it wins over the stored and a later value`() = runTest {
+        listOf(true, false).forEach { restored ->
+            val viewModel = createViewModel(SavedStateHandle(mapOf(KEY_OPENS_DETAILS_RIGHT_AWAY to restored)))
+
+            preferences.emit(preferences = DietPreset.KETO.preferences, opensDetailsRightAway = !restored)
+            assertEquals(restored, isDetailsSwitchOn(viewModel))
+
+            preferences.emit(preferences = DietPreset.LOW_CARB.preferences, opensDetailsRightAway = !restored)
+            assertEquals(restored, isDetailsSwitchOn(viewModel))
+        }
+    }
+
+    @Test
+    fun `when a later value arrives then the details choice is kept`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(40)
+
+        preferences.emit(preferences = DietPreset.KETO.preferences, opensDetailsRightAway = true)
+
+        assertEquals(false, isDetailsSwitchOn(viewModel))
+    }
+
+    @Test
+    fun `when save is clicked then the profile and the details choice are saved together`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(40)
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.LOW_CARB))
+        viewModel.onAction(DietPreferencesAction.OnDetailsSwitchChanged(isOn = true))
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(
+            listOf(
+                ProfileSettings(dietPreferences = DietPreset.LOW_CARB.preferences, opensDetailsRightAway = true),
+            ),
+            preferences.savedSettings,
+        )
+    }
+
+    @Test
+    fun `when the switch is on and no diet is picked and left again then the switch is still on`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(40)
+        viewModel.onAction(DietPreferencesAction.OnDetailsSwitchChanged(isOn = true))
+
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.NO_DIET))
+        assertNull(isDetailsSwitchOn(viewModel))
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.KETO))
+
+        assertEquals(true, isDetailsSwitchOn(viewModel))
+    }
+
+    @Test
+    fun `when no diet is saved then the details choice is saved unchanged`() = runTest {
+        val viewModel = createViewModel()
+        preferences.emit(preferences = DietPreset.KETO.preferences, opensDetailsRightAway = true)
+        viewModel.onAction(DietPreferencesAction.OnOptionSelected(DietProfileOption.NO_DIET))
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(
+            listOf(ProfileSettings(dietPreferences = DietPreferences.NoDiet, opensDetailsRightAway = true)),
+            preferences.savedSettings,
+        )
+    }
+
+    @Test
+    fun `when saving fails then the details choice and the screen stay`() = runTest {
+        preferences.saveResult = Outcome.Failure(AppError.Storage)
+        val viewModel = createViewModel()
+        val screenEvents = collectScreenEvents(viewModel)
+        preferences.emit(40)
+        viewModel.onAction(DietPreferencesAction.OnDetailsSwitchChanged(isOn = true))
+
+        viewModel.onAction(DietPreferencesAction.OnSaveClicked)
+
+        assertEquals(true, isDetailsSwitchOn(viewModel))
+        assertTrue(screenEvents.isEmpty())
+    }
+
+    @Test
     fun `when back is clicked then navigate back is emitted`() = runTest {
         val viewModel = createViewModel()
 
@@ -285,7 +406,7 @@ class DietPreferencesViewModelTest {
         val resources = DietPreferencesResources()
         return DietPreferencesViewModel(
             savedStateHandle = handle,
-            preferences = preferences,
+            profileSettings = preferences,
             appEvents = appEvents,
             stateFactory = DietPreferencesStateFactory(resources),
             resources = resources,
@@ -308,24 +429,31 @@ class DietPreferencesViewModelTest {
     private fun selectedOption(viewModel: DietPreferencesViewModel): DietProfileOption =
         form(viewModel).options.single { it.isSelected }.option
 
-    private class FakePreferences : DietPreferencesRepository {
+    private fun isDetailsSwitchOn(viewModel: DietPreferencesViewModel): Boolean? =
+        form(viewModel).detailsSwitch?.isOn
 
-        private val values = MutableSharedFlow<DietPreferences>(replay = 1)
+    private class FakePreferences : ProfileSettingsRepository {
+
+        private val values = MutableSharedFlow<ProfileSettings>(replay = 1)
         var readFailure: AppError? = null
         var saveResult: Outcome<Unit> = Outcome.Success(Unit)
         var saveGate: CompletableDeferred<Unit>? = null
         var subscriptions = 0
-        val saved = mutableListOf<DietPreferences>()
+        val savedSettings = mutableListOf<ProfileSettings>()
+        val saved: List<DietPreferences>
+            get() = savedSettings.map { it.dietPreferences }
 
         fun emit(amount: Int, mode: DietMode = DietMode.KETO) {
             emit(DietPreferences(amount, mode))
         }
 
-        fun emit(preferences: DietPreferences) {
-            values.tryEmit(preferences)
+        fun emit(preferences: DietPreferences, opensDetailsRightAway: Boolean = false) {
+            values.tryEmit(
+                ProfileSettings(dietPreferences = preferences, opensDetailsRightAway = opensDetailsRightAway),
+            )
         }
 
-        override fun observeDietPreferences(): Flow<DietPreferences> = flow {
+        override fun observeSettings(): Flow<ProfileSettings> = flow {
             subscriptions++
             val failure = readFailure
             if (failure != null) {
@@ -334,10 +462,8 @@ class DietPreferencesViewModelTest {
             values.collect { emit(it) }
         }
 
-        override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
-
-        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> {
-            saved += preferences
+        override suspend fun saveSettings(settings: ProfileSettings): Outcome<Unit> {
+            savedSettings += settings
             saveGate?.await()
             return saveResult
         }
@@ -345,5 +471,6 @@ class DietPreferencesViewModelTest {
 
     private companion object {
         const val KEY_OPTION = "option"
+        const val KEY_OPENS_DETAILS_RIGHT_AWAY = "opensDetailsRightAway"
     }
 }

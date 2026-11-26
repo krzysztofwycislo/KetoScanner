@@ -36,6 +36,9 @@ internal class ScanStateFactory(private val resources: ScanResources) {
     private val Prototype.showProgress: Boolean
         get() = isSearching || (foundBarcode != null && (foundAnalysis == null || opensDetailsDirectly))
 
+    private val Prototype.dietMode: DietMode?
+        get() = (profileSettings?.dietPreferences ?: DietPreferences.Default).dietMode
+
     private fun Prototype.foundCard(): FoundCardState? =
         if (opensDetailsDirectly) {
             null
@@ -74,7 +77,7 @@ internal class ScanStateFactory(private val resources: ScanResources) {
 
         OnboardingTip.FIRST_SCAN_HINT in pendingTips -> CameraHintState(
             text = resources.firstScanHintTitle(),
-            supportingText = resources.firstScanHintBody((dietPreferences ?: DietPreferences.Default).dietMode),
+            supportingText = resources.firstScanHintBody(dietMode),
         )
 
         else -> CameraHintState(text = resources.aimHint(), supportingText = null)
@@ -128,12 +131,11 @@ internal class ScanStateFactory(private val resources: ScanResources) {
 
     private fun Prototype.trip(): ImmutableList<TripItemState> {
         if (isTypeSheetOpen || foundBarcode != null || notFoundBarcode != null) return persistentListOf()
-        val mode = (dietPreferences ?: DietPreferences.Default).dietMode
         val windowStart = now - Prototype.TRIP_WINDOW
         return tripEntries
             .filter { it.updateTime >= windowStart }
             .take(Prototype.TRIP_LIMIT)
-            .map { it.toTripItem(mode) }
+            .map { it.toTripItem(dietMode) }
             .toImmutableList()
     }
 

@@ -3,8 +3,8 @@ package app.carbpeek.feature.scanner.ui.state
 import androidx.compose.runtime.Immutable
 import app.carbpeek.feature.analysis.api.model.ProductAnalysis
 import app.carbpeek.feature.history.api.model.ProductAnalysisHistoryEntry
-import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.OnboardingTip
+import app.carbpeek.feature.preferences.api.model.ProfileSettings
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
@@ -24,7 +24,7 @@ internal data class ScanStatePrototype(
     val notFoundBarcode: String? = null,
     val tripEntries: List<ProductAnalysisHistoryEntry> = emptyList(),
     val now: Instant = Instant.fromEpochMilliseconds(0),
-    val dietPreferences: DietPreferences? = null,
+    val profileSettings: ProfileSettings? = null,
     val pendingTips: Set<OnboardingTip> = emptySet(),
 ) {
 
@@ -37,7 +37,7 @@ internal data class ScanStatePrototype(
             notFoundBarcode != null
 
     val opensDetailsDirectly: Boolean
-        get() = foundAnalysis?.hasDiet == false
+        get() = foundAnalysis != null && profileSettings?.showsQuickCard == false
 
     val isVerdictTipVisible: Boolean
         get() = OnboardingTip.VERDICT_TIP in pendingTips && foundAnalysis is ProductAnalysis.Rated

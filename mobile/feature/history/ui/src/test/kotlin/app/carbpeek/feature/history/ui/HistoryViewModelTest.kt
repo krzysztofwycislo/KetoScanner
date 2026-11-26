@@ -358,9 +358,6 @@ class HistoryViewModelTest {
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
 
-        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
-            throw NotImplementedError()
-
         init {
             flow.tryEmit(Outcome.Success(DietPreferences.Default))
         }

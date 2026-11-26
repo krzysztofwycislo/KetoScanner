@@ -4,7 +4,6 @@ import app.carbpeek.core.common.AppError
 import app.carbpeek.core.common.AppErrorException
 import app.carbpeek.core.common.Outcome
 import app.carbpeek.core.testing.TestAppDispatchers
-import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.DietPreset
 import app.carbpeek.feature.preferences.api.model.OnboardingTip
@@ -176,41 +175,16 @@ class DietPreferencesRepositoryImplTest {
     }
 
     @Test
-    fun `when preferences are set then amount and mode name are saved in one call and success is returned`() =
-        runTest {
-            val persistence = FakePersistence()
-            val repository = DietPreferencesRepositoryImpl(persistence, TestAppDispatchers(testScheduler))
-
-            assertEquals(
-                Outcome.Success(Unit),
-                repository.setDietPreferences(DietPreferences(100, DietMode.LOW_CARB)),
-            )
-            assertEquals(listOf(100 to "LOW_CARB"), persistence.saved)
-        }
-
-    @Test
-    fun `when no diet is set then the default amount and no mode are saved`() = runTest {
-        val persistence = FakePersistence()
+    fun `when two stored values differ only in the details setting then the preferences are emitted once`() = runTest {
+        val stored = StoredDietPreferences(maxDailyCarbsAmount = 100, dietMode = "LOW_CARB")
         val repository = DietPreferencesRepositoryImpl(
-            persistence = persistence,
+            persistence = FakePersistence(
+                stored = listOf(stored, stored.copy(opensDetailsRightAway = true)),
+            ),
             dispatchers = TestAppDispatchers(testScheduler),
         )
 
-        assertEquals(Outcome.Success(Unit), repository.setDietPreferences(DietPreferences.NoDiet))
-        assertEquals(listOf(40 to "NONE"), persistence.saved)
-    }
-
-    @Test
-    fun `when setting throws then storage failure is returned`() = runTest {
-        val repository = DietPreferencesRepositoryImpl(
-            FakePersistence(failure = IllegalStateException("disk")),
-            TestAppDispatchers(testScheduler),
-        )
-
-        assertEquals(
-            Outcome.Failure(AppError.Storage),
-            repository.setDietPreferences(DietPreset.STRICT_KETO.preferences),
-        )
+        assertEquals(listOf(DietPreset.LOW_CARB.preferences), repository.observeDietPreferences().toList())
     }
 
     @Test
@@ -221,9 +195,6 @@ class DietPreferencesRepositoryImplTest {
         )
 
         assertFailsWith<CancellationException> { repository.observeDietPreferences().toList() }
-        assertFailsWith<CancellationException> {
-            repository.setDietPreferences(DietPreset.STRICT_KETO.preferences)
-        }
     }
 
     private class FakePersistence(
@@ -232,16 +203,16 @@ class DietPreferencesRepositoryImplTest {
         private val failure: Throwable? = null,
     ) : DietPreferencesPersistence {
 
-        val saved = mutableListOf<Pair<Int, String>>()
+        val saved = mutableListOf<StoredProfileSettings>()
 
         override fun observe(): Flow<StoredDietPreferences> {
             val failure = failure ?: return flowOf(*stored.toTypedArray())
             return flow { throw failure }
         }
 
-        override suspend fun save(maxDailyCarbsAmount: Int, dietMode: String) {
+        override suspend fun save(settings: StoredProfileSettings) {
             failure?.let { throw it }
-            saved += maxDailyCarbsAmount to dietMode
+            saved += settings
         }
 
         override suspend fun completeSetup(maxDailyCarbsAmount: Int, dietMode: String) {

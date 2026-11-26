@@ -31,6 +31,7 @@ import app.carbpeek.core.designsystem.event.ObserveEvents
 import app.carbpeek.core.designsystem.text.resolve
 import app.carbpeek.core.designsystem.text.toUiText
 import app.carbpeek.core.designsystem.theme.AppTheme
+import app.carbpeek.feature.preferences.ui.component.AfterScanSection
 import app.carbpeek.feature.preferences.ui.component.OptionList
 import app.carbpeek.feature.preferences.ui.component.previewOptions
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
@@ -38,6 +39,7 @@ import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnBackCli
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesEvent.DietPreferencesNavigation
+import app.carbpeek.feature.preferences.ui.state.DetailsSwitchState
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState.Error
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState.Form
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState.InitialLoad
@@ -110,6 +112,13 @@ private fun FormContent(state: Form, onAction: (DietPreferencesAction) -> Unit, 
                 color = AppTheme.colors.text.muted,
             )
             OptionList(state.options, onAction)
+            if (state.detailsSwitch != null) {
+                AfterScanSection(
+                    detailsSwitch = state.detailsSwitch,
+                    onAction = onAction,
+                    modifier = Modifier.padding(top = AppTheme.spacing.xxs),
+                )
+            }
         }
         Ui.PrimaryButton(
             text = stringResource(R.string.preferences_save),
@@ -150,6 +159,23 @@ private fun DietPreferencesPresetPreview() {
             DietPreferencesState(
                 Form(
                     options = previewOptions(DietProfileOption.KETO),
+                    detailsSwitch = DetailsSwitchState(isOn = false),
+                    isSaveEnabled = true,
+                ),
+            ),
+        ) {}
+    }
+}
+
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun DietPreferencesDetailsRightAwayPreview() {
+    AppTheme {
+        ScreenContent(
+            DietPreferencesState(
+                Form(
+                    options = previewOptions(DietProfileOption.KETO),
+                    detailsSwitch = DetailsSwitchState(isOn = true),
                     isSaveEnabled = true,
                 ),
             ),
@@ -171,6 +197,7 @@ private fun DietPreferencesNoDietPreview() {
             DietPreferencesState(
                 Form(
                     options = previewOptions(DietProfileOption.NO_DIET),
+                    detailsSwitch = null,
                     isSaveEnabled = true,
                 ),
             ),

@@ -11,6 +11,4 @@ interface DietPreferencesRepository {
 
     suspend fun getDietPreferences(): Outcome<DietPreferences>
 
-    suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit>
-
 }

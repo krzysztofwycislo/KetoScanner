@@ -14,6 +14,7 @@ import app.carbpeek.feature.history.api.model.ProductAnalysisHistoryEntry
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.OnboardingTip
+import app.carbpeek.feature.preferences.api.model.ProfileSettings
 import app.carbpeek.feature.product.api.model.Product
 import app.carbpeek.feature.product.api.model.ProductNutriments
 import app.carbpeek.feature.scanner.ui.state.CameraHintState
@@ -125,7 +126,7 @@ class ScanStateFactoryTest {
     fun `when the first scan hint is pending in keto mode then the hint shows the first scan texts for keto`() {
         val prototype = granted().copy(
             pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
-            dietPreferences = DietPreferences(40, DietMode.KETO),
+            profileSettings = ProfileSettings(dietPreferences = DietPreferences(40, DietMode.KETO)),
         )
 
         assertEquals(FIRST_HINT_KETO, hint(prototype))
@@ -135,7 +136,7 @@ class ScanStateFactoryTest {
     fun `when the first scan hint is pending in low carb mode then the subtitle is for low carb`() {
         val prototype = granted().copy(
             pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
-            dietPreferences = DietPreferences(100, DietMode.LOW_CARB),
+            profileSettings = ProfileSettings(dietPreferences = DietPreferences(100, DietMode.LOW_CARB)),
         )
 
         assertEquals(
@@ -151,7 +152,7 @@ class ScanStateFactoryTest {
     fun `when the first scan hint is pending without a diet then the subtitle promises no verdict`() {
         val prototype = granted().copy(
             pendingTips = setOf(OnboardingTip.FIRST_SCAN_HINT),
-            dietPreferences = DietPreferences.NoDiet,
+            profileSettings = ProfileSettings(dietPreferences = DietPreferences.NoDiet),
         )
 
         assertEquals(
@@ -354,7 +355,13 @@ class ScanStateFactoryTest {
             ProductAnalysis.Unrated(product),
             ProductAnalysis.InsufficientData(product = product, hasDiet = false),
         ).forEach { analysis ->
-            val state = factory.createFor(granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis))
+            val state = factory.createFor(
+                granted().copy(
+                    foundBarcode = BARCODE,
+                    foundAnalysis = analysis,
+                    profileSettings = ProfileSettings(dietPreferences = DietPreferences.NoDiet),
+                ),
+            )
 
             assertNull(state.found)
             assertFalse(state.isLookUpEnabled)
@@ -363,6 +370,46 @@ class ScanStateFactoryTest {
                 state.camera,
             )
         }
+    }
+
+    @Test
+    fun `when a product is found with details right away then the search look stays until the page opens`() {
+        listOf(
+            rated(rate = DietRate.GOOD, mode = DietMode.KETO),
+            ProductAnalysis.InsufficientData(product),
+            ProductAnalysis.Unrated(product),
+        ).forEach { analysis ->
+            val state = factory.createFor(
+                granted().copy(
+                    foundBarcode = BARCODE,
+                    foundAnalysis = analysis,
+                    profileSettings = ProfileSettings(
+                        dietPreferences = DietPreferences.Default,
+                        opensDetailsRightAway = true,
+                    ),
+                ),
+            )
+
+            assertNull(state.found)
+            assertFalse(state.isLookUpEnabled)
+            assertEquals(
+                preview(isPaused = true, frame = ScanFrameMode.Searching, hint = SEARCHING_HINT),
+                state.camera,
+            )
+        }
+    }
+
+    @Test
+    fun `when details open right away but nothing is found then the frame aims and not found keeps its card`() {
+        val prototype = granted().copy(
+            profileSettings = ProfileSettings(
+                dietPreferences = DietPreferences.Default,
+                opensDetailsRightAway = true,
+            ),
+        )
+
+        assertEquals(preview(), camera(prototype))
+        assertEquals(ScanFrameMode.NotFound, frame(prototype.copy(notFoundBarcode = BARCODE)))
     }
 
     @Test
@@ -471,8 +518,15 @@ class ScanStateFactoryTest {
 
     @Test
     fun `when a product is found without a diet then there is no card`() {
-        assertNull(found(ProductAnalysis.Unrated(product)))
-        assertNull(found(ProductAnalysis.InsufficientData(product = product, hasDiet = false)))
+        val noDiet = ProfileSettings(dietPreferences = DietPreferences.NoDiet)
+
+        assertNull(found(analysis = ProductAnalysis.Unrated(product), settings = noDiet))
+        assertNull(
+            found(
+                analysis = ProductAnalysis.InsufficientData(product = product, hasDiet = false),
+                settings = noDiet,
+            ),
+        )
     }
 
     @Test
@@ -644,8 +698,10 @@ class ScanStateFactoryTest {
         }
     }
 
-    private fun found(analysis: ProductAnalysis): FoundCardState? =
-        factory.createFor(granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis)).found
+    private fun found(analysis: ProductAnalysis, settings: ProfileSettings? = null): FoundCardState? =
+        factory.createFor(
+            granted().copy(foundBarcode = BARCODE, foundAnalysis = analysis, profileSettings = settings),
+        ).found
 
     private fun rated(rate: DietRate, mode: DietMode, reasons: List<RatingReason> = emptyList()) =
         ProductAnalysis.Rated(
@@ -694,7 +750,11 @@ class ScanStateFactoryTest {
         assertIs<CameraState.Preview>(camera(prototype)).trip
 
     private fun withTrip(vararg entries: ProductAnalysisHistoryEntry, preferences: DietPreferences? = null) =
-        granted().copy(tripEntries = entries.toList(), now = NOW, dietPreferences = preferences)
+        granted().copy(
+            tripEntries = entries.toList(),
+            now = NOW,
+            profileSettings = preferences?.let { ProfileSettings(dietPreferences = it) },
+        )
 
     private fun entry(
         id: Long,

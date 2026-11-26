@@ -229,9 +229,6 @@ class HomeViewModelTest {
         override fun observeDietPreferences(): Flow<DietPreferences> = flow.map { it.getOrThrow() }
 
         override suspend fun getDietPreferences(): Outcome<DietPreferences> = throw NotImplementedError()
-
-        override suspend fun setDietPreferences(preferences: DietPreferences): Outcome<Unit> =
-            throw NotImplementedError()
     }
 
     private companion object {

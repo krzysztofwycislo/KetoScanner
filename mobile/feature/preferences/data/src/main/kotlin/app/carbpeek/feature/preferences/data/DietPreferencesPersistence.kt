@@ -16,11 +16,18 @@ internal data class StoredDietPreferences(
     val dietMode: String?,
     val isSetupDone: Boolean = false,
     val pendingTips: Set<OnboardingTip> = emptySet(),
+    val opensDetailsRightAway: Boolean = false,
+)
+
+internal data class StoredProfileSettings(
+    val maxDailyCarbsAmount: Int,
+    val dietMode: String,
+    val opensDetailsRightAway: Boolean,
 )
 
 internal interface DietPreferencesPersistence {
     fun observe(): Flow<StoredDietPreferences>
-    suspend fun save(maxDailyCarbsAmount: Int, dietMode: String)
+    suspend fun save(settings: StoredProfileSettings)
     suspend fun completeSetup(maxDailyCarbsAmount: Int, dietMode: String)
     suspend fun markTipShown(tip: OnboardingTip)
 }
@@ -35,13 +42,15 @@ internal class DietPreferencesPersistenceImpl(
             dietMode = preferences[DIET_MODE],
             isSetupDone = preferences[SETUP_DONE] == true,
             pendingTips = OnboardingTip.entries.filter { preferences[it.pendingKey()] == true }.toSet(),
+            opensDetailsRightAway = preferences[OPENS_DETAILS_RIGHT_AWAY] == true,
         )
     }
 
-    override suspend fun save(maxDailyCarbsAmount: Int, dietMode: String) {
+    override suspend fun save(settings: StoredProfileSettings) {
         dataStore.edit {
-            it[MAX_CARBS_AMOUNT] = maxDailyCarbsAmount
-            it[DIET_MODE] = dietMode
+            it[MAX_CARBS_AMOUNT] = settings.maxDailyCarbsAmount
+            it[DIET_MODE] = settings.dietMode
+            it[OPENS_DETAILS_RIGHT_AWAY] = settings.opensDetailsRightAway
         }
     }
 
@@ -63,6 +72,7 @@ internal class DietPreferencesPersistenceImpl(
     private companion object {
         val MAX_CARBS_AMOUNT = intPreferencesKey(MAX_CARBS_AMOUNT_KEY_NAME)
         val DIET_MODE = stringPreferencesKey("dietMode")
+        val OPENS_DETAILS_RIGHT_AWAY = booleanPreferencesKey("opensDetailsRightAway")
         val SETUP_DONE = booleanPreferencesKey("setupDone")
         val FIRST_SCAN_HINT_PENDING = booleanPreferencesKey("firstScanHintPending")
         val VERDICT_TIP_PENDING = booleanPreferencesKey("verdictTipPending")

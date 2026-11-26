@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 data class AppSizes(
     val icon: Icon,
     val control: Control,
+    val toggle: Toggle,
     val chipArrow: Dp,
     val iconTile: Dp,
     val iconDisc: Dp,
@@ -37,6 +38,13 @@ data class AppSizes(
         val l: Dp,
         val xl: Dp,
     )
+
+    @Immutable
+    data class Toggle(
+        val trackWidth: Dp,
+        val trackHeight: Dp,
+        val thumb: Dp,
+    )
 }
 
 val DefaultAppSizes = AppSizes(
@@ -53,6 +61,11 @@ val DefaultAppSizes = AppSizes(
         m = 48.dp,
         l = 64.dp,
         xl = 72.dp,
+    ),
+    toggle = AppSizes.Toggle(
+        trackWidth = 52.dp,
+        trackHeight = 32.dp,
+        thumb = 24.dp,
     ),
     chipArrow = 18.dp,
     iconTile = 44.dp,

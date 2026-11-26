@@ -6,6 +6,7 @@ import app.carbpeek.core.designsystem.text.UiText
 import app.carbpeek.feature.preferences.api.model.DietMode
 import app.carbpeek.feature.preferences.api.model.DietPreferences
 import app.carbpeek.feature.preferences.api.model.DietPreset
+import app.carbpeek.feature.preferences.ui.state.DetailsSwitchState
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesContentState
 import app.carbpeek.feature.preferences.ui.state.DietPreferencesStateFactory
 import app.carbpeek.feature.preferences.ui.state.DietProfileOption
@@ -117,6 +118,42 @@ class DietPreferencesStateFactoryTest {
     fun `when saving then save is disabled otherwise enabled`() {
         assertFalse(form(loaded(DietPreferences(40)).copy(isSaving = true)).isSaveEnabled)
         assertTrue(form(loaded(DietPreferences(40))).isSaveEnabled)
+    }
+
+    @Test
+    fun `the details switch follows the chosen value for every diet`() {
+        DietPreset.entries.forEach { preset ->
+            listOf(true, false).forEach { isOn ->
+                assertEquals(
+                    DetailsSwitchState(isOn = isOn),
+                    form(loaded(preset.preferences).copy(opensDetailsRightAway = isOn)).detailsSwitch,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `when no diet is selected then the details switch is hidden and comes back with its choice`() {
+        val keto = loaded(DietPreset.KETO.preferences).copy(opensDetailsRightAway = true)
+        val noDiet = keto.copy(option = DietProfileOption.NO_DIET)
+
+        assertNull(form(noDiet).detailsSwitch)
+        assertNull(form(noDiet.copy(opensDetailsRightAway = false)).detailsSwitch)
+        assertEquals(
+            DetailsSwitchState(isOn = true),
+            form(noDiet.copy(option = DietProfileOption.LOW_CARB)).detailsSwitch,
+        )
+    }
+
+    @Test
+    fun `when no diet is stored and a diet is selected then the details switch is shown`() {
+        val noDiet = loaded(DietPreferences.NoDiet).copy(opensDetailsRightAway = true)
+
+        assertNull(form(noDiet).detailsSwitch)
+        assertEquals(
+            DetailsSwitchState(isOn = true),
+            form(noDiet.copy(option = DietProfileOption.KETO)).detailsSwitch,
+        )
     }
 
     private fun loaded(preferences: DietPreferences) = Prototype(

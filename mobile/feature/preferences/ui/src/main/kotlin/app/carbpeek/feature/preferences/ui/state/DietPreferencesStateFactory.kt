@@ -25,10 +25,18 @@ internal class DietPreferencesStateFactory(
             savedPreferences == null || option == null -> InitialLoad
             else -> Form(
                 options = options(option),
+                detailsSwitch = detailsSwitch(option),
                 isSaveEnabled = !isSaving,
             )
         }
     }
+
+    private fun Prototype.detailsSwitch(selected: DietProfileOption): DetailsSwitchState? =
+        if (selected == DietProfileOption.NO_DIET) {
+            null
+        } else {
+            opensDetailsRightAway?.let { DetailsSwitchState(isOn = it) }
+        }
 
     private fun options(selected: DietProfileOption): PersistentList<DietProfileOptionState> =
         DietProfileOption.entries.map { option ->

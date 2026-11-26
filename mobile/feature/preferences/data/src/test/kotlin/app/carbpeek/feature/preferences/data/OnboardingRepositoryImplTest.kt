@@ -71,6 +71,21 @@ class OnboardingRepositoryImplTest {
     }
 
     @Test
+    fun `when only the details setting is stored then setup is not done`() = runTest {
+        val repository = createRepository(
+            persistence = FakePersistence(
+                stored = StoredDietPreferences(
+                    maxDailyCarbsAmount = null,
+                    dietMode = null,
+                    opensDetailsRightAway = true,
+                ),
+            ),
+        )
+
+        assertEquals(Outcome.Success(false), repository.isSetupDone())
+    }
+
+    @Test
     fun `when reading throws then storage failure is returned`() = runTest {
         val repository = createRepository(persistence = FakePersistence(failure = IllegalStateException("disk")))
 
@@ -167,7 +182,7 @@ class OnboardingRepositoryImplTest {
             return flow { throw failure }
         }
 
-        override suspend fun save(maxDailyCarbsAmount: Int, dietMode: String) {
+        override suspend fun save(settings: StoredProfileSettings) {
             failure?.let { throw it }
         }
 

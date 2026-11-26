@@ -15,6 +15,7 @@ internal sealed interface DietPreferencesContentState {
     data class Error(val message: UiText) : DietPreferencesContentState
     data class Form(
         val options: PersistentList<DietProfileOptionState>,
+        val detailsSwitch: DetailsSwitchState?,
         val isSaveEnabled: Boolean,
     ) : DietPreferencesContentState
 }
@@ -29,3 +30,6 @@ internal data class DietProfileOptionState(
 ) {
     companion object
 }
+
+@Immutable
+internal data class DetailsSwitchState(val isOn: Boolean)

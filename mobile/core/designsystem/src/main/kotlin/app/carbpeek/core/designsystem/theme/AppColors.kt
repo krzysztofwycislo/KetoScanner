@@ -9,6 +9,7 @@ data class AppColors(
     val background: Background,
     val text: Text,
     val accent: Color,
+    val switchOff: Color,
     val favourite: Color,
     val verdict: Verdict,
     val tag: Tag,
@@ -136,6 +137,7 @@ val LightAppColors = AppColors(
         onHero = Color(0xFFC9D3CD),
     ),
     accent = Color(0xFF1E6B47),
+    switchOff = Color(0xFF7C8880),
     favourite = Color(0xFFC2362B),
     verdict = AppColors.Verdict(
         positive = AppColors.Tone(container = Color(0xFFE3F3EA), content = Color(0xFF13663B)),

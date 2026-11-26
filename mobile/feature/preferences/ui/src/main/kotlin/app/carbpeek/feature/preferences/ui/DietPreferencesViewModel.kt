@@ -13,10 +13,11 @@ import app.carbpeek.core.common.onSuccess
 import app.carbpeek.core.designsystem.component.MessageTone
 import app.carbpeek.core.designsystem.event.AppEvent.ShowMessage
 import app.carbpeek.core.designsystem.event.AppEvents
-import app.carbpeek.feature.preferences.api.DietPreferencesRepository
-import app.carbpeek.feature.preferences.api.model.DietPreferences
+import app.carbpeek.feature.preferences.api.ProfileSettingsRepository
+import app.carbpeek.feature.preferences.api.model.ProfileSettings
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnBackClicked
+import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnDetailsSwitchChanged
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnOptionSelected
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnRetryClicked
 import app.carbpeek.feature.preferences.ui.event.DietPreferencesAction.OnSaveClicked
@@ -43,7 +44,7 @@ import app.carbpeek.feature.preferences.ui.state.DietPreferencesStatePrototype a
 
 internal class DietPreferencesViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val preferences: DietPreferencesRepository,
+    private val profileSettings: ProfileSettingsRepository,
     private val appEvents: AppEvents,
     private val stateFactory: DietPreferencesStateFactory,
     private val resources: DietPreferencesResources,
@@ -57,6 +58,7 @@ internal class DietPreferencesViewModel(
         Prototype(
             option = savedStateHandle.get<String>(KEY_OPTION)
                 ?.let { name -> DietProfileOption.entries.firstOrNull { it.name == name } },
+            opensDetailsRightAway = savedStateHandle.get<Boolean>(KEY_OPENS_DETAILS_RIGHT_AWAY),
         )
     )
 
@@ -74,6 +76,7 @@ internal class DietPreferencesViewModel(
     fun onAction(action: DietPreferencesAction) {
         when (action) {
             is OnOptionSelected -> selectOption(action.option)
+            is OnDetailsSwitchChanged -> setOpensDetailsRightAway(action.isOn)
             OnSaveClicked -> save()
             OnRetryClicked -> retry()
             OnBackClicked -> screenEvents send NavigateBack
@@ -81,11 +84,11 @@ internal class DietPreferencesViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun observePreferences() {
+    private fun observeSettings() {
         viewModelScope.launch {
             retryClicks.onStart { emit(Unit) }
-                .flatMapLatest { preferences.observeDietPreferences().catchAppError(::onLoadFailed) }
-                .collect(::showPreferences)
+                .flatMapLatest { profileSettings.observeSettings().catchAppError(::onLoadFailed) }
+                .collect(::showSettings)
         }
     }
 
@@ -94,11 +97,12 @@ internal class DietPreferencesViewModel(
         statePrototype.update { it.copy(loadError = error) }
     }
 
-    private fun showPreferences(dietPreferences: DietPreferences) {
+    private fun showSettings(settings: ProfileSettings) {
         statePrototype.update {
             it.copy(
-                savedPreferences = dietPreferences,
-                option = it.option ?: DietProfileOption.of(dietPreferences),
+                savedPreferences = settings.dietPreferences,
+                option = it.option ?: DietProfileOption.of(settings.dietPreferences),
+                opensDetailsRightAway = it.opensDetailsRightAway ?: settings.opensDetailsRightAway,
                 loadError = null,
             )
         }
@@ -107,6 +111,11 @@ internal class DietPreferencesViewModel(
     private fun selectOption(option: DietProfileOption) {
         savedStateHandle[KEY_OPTION] = option.name
         statePrototype.update { it.copy(option = option) }
+    }
+
+    private fun setOpensDetailsRightAway(isOn: Boolean) {
+        savedStateHandle[KEY_OPENS_DETAILS_RIGHT_AWAY] = isOn
+        statePrototype.update { it.copy(opensDetailsRightAway = isOn) }
     }
 
     private fun observeSaving() {
@@ -120,10 +129,10 @@ internal class DietPreferencesViewModel(
     private fun save() {
         val prototype = statePrototype.value
         if (saving.inProgress.value || prototype.savedPreferences == null) return
-        val chosen = prototype.chosenPreferences() ?: return
+        val chosen = prototype.chosenSettings() ?: return
 
         applicationScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            saving.reportWork { preferences.setDietPreferences(chosen) }
+            saving.reportWork { profileSettings.saveSettings(chosen) }
                 .onSuccess {
                     appEvents send ShowMessage(resources.saved(), MessageTone.Success)
                     screenEvents send NavigateBack
@@ -141,12 +150,13 @@ internal class DietPreferencesViewModel(
     }
 
     init {
-        observePreferences()
+        observeSettings()
         observeSaving()
     }
 
     private companion object {
         const val TAG = "DietPreferencesViewModel"
         const val KEY_OPTION = "option"
+        const val KEY_OPENS_DETAILS_RIGHT_AWAY = "opensDetailsRightAway"
     }
 }
