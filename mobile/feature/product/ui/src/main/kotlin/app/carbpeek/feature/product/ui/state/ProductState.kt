@@ -135,17 +135,16 @@ internal data class ImagePreviewState(
 
 @Immutable
 internal data class IngredientsCardState(
-    val chips: PersistentList<IngredientChipState>,
+    val rows: PersistentList<IngredientRowState>,
 ) {
     companion object
 }
 
 @Immutable
-internal data class IngredientChipState(
+internal data class IngredientRowState(
     val label: UiText,
     val count: UiText?,
     val description: UiText,
-    val tone: IngredientTone,
     val isOpenable: Boolean,
 ) {
     companion object
@@ -158,7 +157,7 @@ internal data class IngredientSheetState(
     val tone: IngredientTone,
     val title: UiText,
     val labelName: UiText?,
-    val contents: PersistentList<IngredientChipState>,
+    val contents: PersistentList<IngredientRowState>,
     val sections: PersistentList<IngredientSectionState>,
 ) {
     companion object
@@ -177,17 +176,7 @@ internal data class IngredientSectionState(
 )
 
 @Immutable
-internal data class IngredientsInfoSheetState(
-    val legend: PersistentList<IngredientLegendState>,
-) {
-    companion object
-}
-
-@Immutable
-internal data class IngredientLegendState(
-    val tone: IngredientTone,
-    val label: UiText,
-)
+internal data object IngredientsInfoSheetState
 
 internal enum class IngredientTone {
     ADDED_SUGAR,

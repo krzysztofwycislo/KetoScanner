@@ -24,11 +24,11 @@ import app.carbpeek.feature.product.ui.state.CategoryChipState
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.ImagePreviewState
 import app.carbpeek.feature.product.ui.state.IngredientBackState
-import app.carbpeek.feature.product.ui.state.IngredientChipState
-import app.carbpeek.feature.product.ui.state.IngredientLegendState
+import app.carbpeek.feature.product.ui.state.IngredientRowState
 import app.carbpeek.feature.product.ui.state.IngredientSectionState
 import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.IngredientTone
+import app.carbpeek.feature.product.ui.state.IngredientsInfoSheetState
 import app.carbpeek.feature.product.ui.state.ProductContentState
 import app.carbpeek.feature.product.ui.state.ProductStateFactory
 import app.carbpeek.feature.product.ui.state.ScoreState
@@ -213,7 +213,7 @@ class ProductStateFactoryTest {
             ),
             content.macros.values.map { it.label to it.value },
         )
-        assertEquals(listOf(IngredientTone.ADDED_SUGAR), content.ingredients?.chips?.map { it.tone })
+        assertEquals(listOf(UiText.Raw("Sugar")), content.ingredients?.rows?.map { it.label })
         assertEquals(ScoreTone.NUTRI_SCORE_B, content.scores?.nutriScore?.tone)
         assertEquals(ScoreTone.PROCESSING, content.scores?.processing?.tone)
     }
@@ -754,13 +754,13 @@ class ProductStateFactoryTest {
         val content = show(Prototype(analysis = analysis))
 
         assertEquals(
-            listOf(IngredientTone.ADDED_SUGAR),
-            content.ingredients?.chips?.map { it.tone },
+            listOf(UiText.Raw("Sugar")),
+            content.ingredients?.rows?.map { it.label },
         )
     }
 
     @Test
-    fun `when a name is shown then it is upper cased in the chip and the sheet title`() {
+    fun `when a name is shown then it is upper cased in the row and the sheet title`() {
         val stevia = ingredient(name = "stevia", id = "en:e960", kind = IngredientKind.SWEETENER)
         val content = show(
             Prototype(
@@ -769,12 +769,12 @@ class ProductStateFactoryTest {
             ),
         )
 
-        assertEquals(UiText.Raw("Stevia"), content.ingredients?.chips?.single()?.label)
+        assertEquals(UiText.Raw("Stevia"), content.ingredients?.rows?.single()?.label)
         assertEquals(UiText.Raw("Stevia"), content.ingredientSheet?.title)
     }
 
     @Test
-    fun `every ingredient kind maps to its chip tone in label order`() {
+    fun `every ingredient kind maps to its sheet tone and the rows keep label order`() {
         val tones = mapOf(
             IngredientKind.ADDED_SUGAR to IngredientTone.ADDED_SUGAR,
             IngredientKind.POLYOL to IngredientTone.SWEETENER,
@@ -785,26 +785,20 @@ class ProductStateFactoryTest {
             IngredientKind.PLAIN to IngredientTone.PLAIN,
         )
         val ingredients = tones.keys.map { kind ->
-            ingredient(name = kind.name.lowercase(), kind = kind)
+            ingredient(name = kind.name.lowercase(), kind = kind, contains = listOf(ingredient(name = "water")))
         }
 
-        val chips = assertNotNull(
-            show(
-                Prototype(
-                    analysis = withIngredients(ingredients),
-                ),
-            ).ingredients,
-        ).chips
+        val rows = cardRows(ingredients)
 
-        assertEquals(tones.values.toList(), chips.map { it.tone })
+        assertEquals(tones.values.toList(), ingredients.map { sheet(it).tone })
         assertEquals(
             ingredients.map { UiText.Raw(it.name.name.replaceFirstChar { char -> char.uppercase() }) },
-            chips.map { it.label },
+            rows.map { it.label },
         )
     }
 
     @Test
-    fun `when an ingredient declares a percent then the chip label and description include it`() {
+    fun `when an ingredient declares a percent then the row label and description include it`() {
         val sugar = ingredient(
             name = "sugar",
             id = "en:sugar",
@@ -813,13 +807,13 @@ class ProductStateFactoryTest {
         )
         val salt = ingredient(name = "salt")
 
-        val chips = assertNotNull(
+        val rows = assertNotNull(
             show(
                 Prototype(
                     analysis = withIngredients(listOf(sugar, salt)),
                 ),
             ).ingredients,
-        ).chips
+        ).rows
 
         val sugarLabel = UiText.Res(
             R.string.product_ingredient_with_percent,
@@ -827,7 +821,7 @@ class ProductStateFactoryTest {
             UiArg.Numeric.LabelPercent(0.087),
         )
         assertEquals(
-            IngredientChipState(
+            IngredientRowState(
                 label = sugarLabel,
                 count = null,
                 description = UiText.Res(
@@ -835,20 +829,18 @@ class ProductStateFactoryTest {
                     UiArg.Nested(sugarLabel),
                     UiArg.Nested(UiText.Res(R.string.product_ingredient_tag_added_sugar)),
                 ),
-                tone = IngredientTone.ADDED_SUGAR,
                 isOpenable = true,
             ),
-            chips[0],
+            rows[0],
         )
         assertEquals(
-            IngredientChipState(
+            IngredientRowState(
                 label = UiText.Raw("Salt"),
                 count = null,
                 description = UiText.Raw("Salt"),
-                tone = IngredientTone.PLAIN,
                 isOpenable = false,
             ),
-            chips[1],
+            rows[1],
         )
     }
 
@@ -878,19 +870,12 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `the legend explains the five types in a fixed order`() {
+    fun `when the ingredients info is open then its sheet is shown`() {
         val analysis = withIngredients(listOf(ingredient(name = "milk")))
-        val sheet = show(Prototype(analysis = analysis, isIngredientsInfoOpen = true)).ingredientsInfoSheet
 
         assertEquals(
-            listOf(
-                IngredientTone.ADDED_SUGAR to R.string.product_ingredient_tag_added_sugar,
-                IngredientTone.SWEETENER to R.string.product_ingredient_tag_sweetener,
-                IngredientTone.STARCH to R.string.product_ingredient_tag_starch,
-                IngredientTone.MILK to R.string.product_ingredient_tag_milk,
-                IngredientTone.ADDITIVE to R.string.product_ingredient_tag_additive,
-            ).map { (tone, label) -> IngredientLegendState(tone = tone, label = UiText.Res(label)) },
-            sheet?.legend?.toList(),
+            IngredientsInfoSheetState,
+            show(Prototype(analysis = analysis, isIngredientsInfoOpen = true)).ingredientsInfoSheet,
         )
     }
 
@@ -951,7 +936,7 @@ class ProductStateFactoryTest {
                 sheet(colour).sections.toList(),
                 id,
             )
-            assertEquals(listOf(true, false), cardChips(listOf(colour, vitamin)).map { it.isOpenable }, id)
+            assertEquals(listOf(true, false), cardRows(listOf(colour, vitamin)).map { it.isOpenable }, id)
             assertNull(sheetOrNull(vitamin), id)
         }
     }
@@ -980,7 +965,7 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `chips with a text or contents open and all others are plain`() {
+    fun `rows with a text or contents open and all others are plain`() {
         val garlic = ingredient(name = "garlic", id = "en:garlic")
         val sugar = ingredient(name = "sugar", id = "en:sugar", kind = IngredientKind.ADDED_SUGAR)
         val lysozyme = ingredient(name = "E1105", id = "en:e1105", eNumber = "E1105", kind = IngredientKind.ADDITIVE)
@@ -989,7 +974,7 @@ class ProductStateFactoryTest {
 
         assertEquals(
             listOf(false, true, false, true, true),
-            cardChips(listOf(garlic, sugar, lysozyme, coating, cocoa)).map { it.isOpenable },
+            cardRows(listOf(garlic, sugar, lysozyme, coating, cocoa)).map { it.isOpenable },
         )
         assertEquals(listOf(false, true, false), sheet(coating).contents.map { it.isOpenable })
     }
@@ -1038,7 +1023,7 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when a compound is open then its contents are the chips of the list in order without a count`() {
+    fun `when a compound is open then its contents are the rows of the list in order without a count`() {
         val contents = listOf(
             ingredient(name = "wheat flour", kind = IngredientKind.STARCH, declaredPercent = 12.5),
             ingredient(name = "water"),
@@ -1047,9 +1032,9 @@ class ProductStateFactoryTest {
             ingredient(name = "E375", labelName = "niacyna", vitamin = Vitamin.NIACIN),
         )
 
-        val chips = sheet(ingredient(name = "coating", contains = contents)).contents.toList()
+        val rows = sheet(ingredient(name = "coating", contains = contents)).contents.toList()
 
-        assertEquals(cardChips(contents), chips)
+        assertEquals(cardRows(contents), rows)
         assertEquals(
             listOf(
                 UiText.Res(
@@ -1062,16 +1047,16 @@ class ProductStateFactoryTest {
                 withENumber(name = UiArg.Text("Lecytyny"), eNumber = "E322"),
                 UiText.Res(R.string.product_ingredient_vitamin_b3),
             ),
-            chips.map { it.label },
+            rows.map { it.label },
         )
-        assertTrue(chips.all { it.count == null })
+        assertTrue(rows.all { it.count == null })
     }
 
     @Test
-    fun `when an ingredient has contents then its chip shows and speaks the count after the type`() {
+    fun `when an ingredient has contents then its row shows and speaks the count after the type`() {
         val contents = listOf(ingredient(name = "wheat flour"), ingredient(name = "salt"))
 
-        val (typed, untyped, single) = cardChips(
+        val (typed, untyped, single) = cardRows(
             listOf(
                 ingredient(
                     name = "sourdough",
@@ -1105,7 +1090,7 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when a compound holds added sugar then its chip and its sheet keep its own type`() {
+    fun `when a compound holds added sugar then its sheet keeps its own type`() {
         val sugar = ingredient(name = "sugar", kind = IngredientKind.ADDED_SUGAR)
         val mustard = ingredient(name = "mustard", contains = listOf(ingredient(name = "water"), sugar))
         val breadcrumbs = ingredient(
@@ -1114,10 +1099,6 @@ class ProductStateFactoryTest {
             contains = listOf(ingredient(name = "salt"), sugar),
         )
 
-        assertEquals(
-            listOf(IngredientTone.PLAIN, IngredientTone.STARCH),
-            cardChips(listOf(mustard, breadcrumbs)).map { it.tone },
-        )
         assertEquals(IngredientTone.PLAIN, sheet(mustard).tone)
         assertNull(sheet(mustard).tag)
         assertEquals(IngredientTone.STARCH, sheet(breadcrumbs).tone)
@@ -1131,7 +1112,7 @@ class ProductStateFactoryTest {
 
         val sheet = sheet(flour)
 
-        assertEquals(cardChips(contents), sheet.contents.toList())
+        assertEquals(cardRows(contents), sheet.contents.toList())
         assertEquals(listOf(what(R.string.product_ingredient_what_starch)), sheet.sections.toList())
     }
 
@@ -1154,7 +1135,7 @@ class ProductStateFactoryTest {
 
         val sheet = sheet(cocoa)
 
-        assertEquals(cardChips(twoContents), sheet.contents.toList())
+        assertEquals(cardRows(twoContents), sheet.contents.toList())
         assertEquals(
             listOf(what(R.string.product_ingredient_about_roasted_cocoa_beans_ground)),
             sheet.sections.toList(),
@@ -1301,7 +1282,7 @@ class ProductStateFactoryTest {
         names.forEach { (eNumber, id) ->
             assertEquals(
                 knownName(id = id, eNumber = eNumber),
-                cardChips(listOf(ingredient(name = eNumber, eNumber = eNumber))).single().label,
+                cardRows(listOf(ingredient(name = eNumber, eNumber = eNumber))).single().label,
                 eNumber,
             )
         }
@@ -1388,7 +1369,7 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `a vitamin chip and its description are the vitamin name without a type`() {
+    fun `a vitamin row and its description are the vitamin name without a type`() {
         val analysis = withIngredients(
             listOf(
                 ingredient(name = "E375", labelName = "niacyna", vitamin = Vitamin.NIACIN),
@@ -1401,7 +1382,7 @@ class ProductStateFactoryTest {
             ),
         )
 
-        val chips = assertNotNull(show(Prototype(analysis = analysis)).ingredients).chips
+        val rows = assertNotNull(show(Prototype(analysis = analysis)).ingredients).rows
 
         val labels = listOf(
             UiText.Res(R.string.product_ingredient_vitamin_b3),
@@ -1413,15 +1394,14 @@ class ProductStateFactoryTest {
         )
         assertEquals(
             labels.map { label ->
-                IngredientChipState(
+                IngredientRowState(
                     label = label,
                     count = null,
                     description = label,
-                    tone = IngredientTone.PLAIN,
                     isOpenable = false,
                 )
             },
-            chips.toList(),
+            rows.toList(),
         )
     }
 
@@ -1436,8 +1416,8 @@ class ProductStateFactoryTest {
         ),
     ).ingredientSheet
 
-    private fun cardChips(ingredients: List<AnalyzedIngredient>): List<IngredientChipState> =
-        assertNotNull(show(Prototype(analysis = withIngredients(ingredients))).ingredients).chips
+    private fun cardRows(ingredients: List<AnalyzedIngredient>): List<IngredientRowState> =
+        assertNotNull(show(Prototype(analysis = withIngredients(ingredients))).ingredients).rows
 
     private fun knownName(id: Int, eNumber: String) = withENumber(
         name = UiArg.Nested(UiText.Res(id)),

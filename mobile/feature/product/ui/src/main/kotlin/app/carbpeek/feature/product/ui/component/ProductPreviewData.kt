@@ -11,13 +11,11 @@ import app.carbpeek.feature.product.ui.R
 import app.carbpeek.feature.product.ui.state.CategoryChipState
 import app.carbpeek.feature.product.ui.state.FavouriteButtonState
 import app.carbpeek.feature.product.ui.state.IngredientBackState
-import app.carbpeek.feature.product.ui.state.IngredientChipState
-import app.carbpeek.feature.product.ui.state.IngredientLegendState
+import app.carbpeek.feature.product.ui.state.IngredientRowState
 import app.carbpeek.feature.product.ui.state.IngredientSectionState
 import app.carbpeek.feature.product.ui.state.IngredientSheetState
 import app.carbpeek.feature.product.ui.state.IngredientTone
 import app.carbpeek.feature.product.ui.state.IngredientsCardState
-import app.carbpeek.feature.product.ui.state.IngredientsInfoSheetState
 import app.carbpeek.feature.product.ui.state.MacroValueState
 import app.carbpeek.feature.product.ui.state.MacrosState
 import app.carbpeek.feature.product.ui.state.ProductContentState.ShowProduct
@@ -191,14 +189,13 @@ internal fun ScoresState.Companion.exampleNoDiet() = example().copy(
     note = null,
 )
 
-private fun chip(
+private fun row(
     name: String,
-    tone: IngredientTone = IngredientTone.PLAIN,
     tag: Int? = null,
     percent: Double? = null,
     count: Int? = null,
     isOpenable: Boolean = false,
-): IngredientChipState {
+): IngredientRowState {
     val label = if (percent == null) {
         UiText.Raw(name)
     } else {
@@ -214,66 +211,46 @@ private fun chip(
             UiArg.Nested(detail),
         )
     }
-    return IngredientChipState(
+    return IngredientRowState(
         label = label,
         count = countText,
         description = description,
-        tone = tone,
         isOpenable = isOpenable,
     )
 }
 
-private fun legendEntry(tone: IngredientTone, label: Int) = IngredientLegendState(
-    tone = tone,
-    label = UiText.Res(label),
-)
-
-internal fun IngredientsInfoSheetState.Companion.example() = IngredientsInfoSheetState(
-    legend = persistentListOf(
-        legendEntry(tone = IngredientTone.ADDED_SUGAR, label = R.string.product_ingredient_tag_added_sugar),
-        legendEntry(tone = IngredientTone.SWEETENER, label = R.string.product_ingredient_tag_sweetener),
-        legendEntry(tone = IngredientTone.STARCH, label = R.string.product_ingredient_tag_starch),
-        legendEntry(tone = IngredientTone.MILK, label = R.string.product_ingredient_tag_milk),
-        legendEntry(tone = IngredientTone.ADDITIVE, label = R.string.product_ingredient_tag_additive),
-    ),
-)
-
 internal fun IngredientsCardState.Companion.example() = IngredientsCardState(
-    chips = persistentListOf(
-        chip(name = "Peanuts", percent = 0.8),
-        chip(
+    rows = persistentListOf(
+        row(name = "Peanuts", percent = 0.8),
+        row(
             name = "Sugar",
-            tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
             percent = 0.087,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Maltitol (E965)",
-            tone = IngredientTone.SWEETENER,
             tag = R.string.product_ingredient_tag_sweetener,
             isOpenable = true,
         ),
-        chip(name = "Wheat flour", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
-        chip(
+        row(name = "Wheat flour", tag = R.string.product_ingredient_tag_starch),
+        row(
             name = "Whey powder",
-            tone = IngredientTone.MILK,
             tag = R.string.product_ingredient_tag_milk,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Lecithins (E322)",
-            tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
             isOpenable = true,
         ),
-        chip(name = "Coating", percent = 0.34, count = 10, isOpenable = true),
-        chip(
+        row(name = "Coating", percent = 0.34, count = 10, isOpenable = true),
+        row(
             name = "Seasoning with sour cream, onion and a name that wraps to two lines",
             count = 12,
             isOpenable = true,
         ),
-        chip(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
+        row(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
     ),
 )
 
@@ -307,33 +284,29 @@ internal fun IngredientSheetState.Companion.exampleCompound() = IngredientSheetS
     title = UiText.Raw("Coating"),
     labelName = UiText.Res(R.string.product_ingredient_label_name, UiArg.Text("enrobage")),
     contents = persistentListOf(
-        chip(
+        row(
             name = "Wheat flour",
-            tone = IngredientTone.STARCH,
             tag = R.string.product_ingredient_tag_starch,
             percent = 0.12,
         ),
-        chip(name = "Rapeseed oil"),
-        chip(name = "Water"),
-        chip(
+        row(name = "Rapeseed oil"),
+        row(name = "Water"),
+        row(
             name = "Sugar",
-            tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Whey powder",
-            tone = IngredientTone.MILK,
             tag = R.string.product_ingredient_tag_milk,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Lecithins (E322)",
-            tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
             isOpenable = true,
         ),
-        chip(name = "Salt"),
+        row(name = "Salt"),
     ),
     sections = persistentListOf(),
 )
@@ -358,58 +331,51 @@ internal fun IngredientSheetState.Companion.exampleContent(compound: String = "C
 
 internal fun IngredientSheetState.Companion.exampleManyContents() = exampleCompound().copy(
     contents = persistentListOf(
-        chip(name = "Wheat flour", tone = IngredientTone.STARCH, tag = R.string.product_ingredient_tag_starch),
-        chip(name = "Rapeseed oil"),
-        chip(name = "Water"),
-        chip(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
-        chip(
+        row(name = "Wheat flour", tag = R.string.product_ingredient_tag_starch),
+        row(name = "Rapeseed oil"),
+        row(name = "Water"),
+        row(name = "Partially hydrogenated vegetable fat from palm, coconut and shea", percent = 0.125),
+        row(
             name = "Sugar",
-            tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Glucose-fructose syrup",
-            tone = IngredientTone.ADDED_SUGAR,
             tag = R.string.product_ingredient_tag_added_sugar,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Whey powder",
-            tone = IngredientTone.MILK,
             tag = R.string.product_ingredient_tag_milk,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Maltitol (E965)",
-            tone = IngredientTone.SWEETENER,
             tag = R.string.product_ingredient_tag_sweetener,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Lecithins (E322)",
-            tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Mono- and diglycerides of fatty acids (E471)",
-            tone = IngredientTone.ADDITIVE,
             tag = R.string.product_ingredient_tag_additive,
             isOpenable = true,
         ),
-        chip(
+        row(
             name = "Maize starch",
-            tone = IngredientTone.STARCH,
             tag = R.string.product_ingredient_tag_starch,
             isOpenable = true,
         ),
-        chip(name = "Wheat gluten", isOpenable = true),
-        chip(name = "Vitamin B2 (riboflavin)"),
-        chip(name = "Salt"),
-        chip(name = "Yeast", isOpenable = true),
-        chip(name = "Natural flavouring", isOpenable = true),
-        chip(name = "Black pepper"),
+        row(name = "Wheat gluten", isOpenable = true),
+        row(name = "Vitamin B2 (riboflavin)"),
+        row(name = "Salt"),
+        row(name = "Yeast", isOpenable = true),
+        row(name = "Natural flavouring", isOpenable = true),
+        row(name = "Black pepper"),
     ),
 )
 

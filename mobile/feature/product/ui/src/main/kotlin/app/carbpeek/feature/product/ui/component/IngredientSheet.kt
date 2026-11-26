@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -24,9 +25,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.offset
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
 import app.carbpeek.core.designsystem.text.resolve
+import app.carbpeek.core.designsystem.theme.AppColors
 import app.carbpeek.core.designsystem.theme.AppTheme
 import app.carbpeek.feature.product.ui.R
 import app.carbpeek.feature.product.ui.event.ProductAction
@@ -34,9 +38,10 @@ import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientBackClick
 import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientContentClicked
 import app.carbpeek.feature.product.ui.event.ProductAction.OnIngredientSheetDismissed
 import app.carbpeek.feature.product.ui.state.IngredientBackState
-import app.carbpeek.feature.product.ui.state.IngredientChipState
+import app.carbpeek.feature.product.ui.state.IngredientRowState
 import app.carbpeek.feature.product.ui.state.IngredientSectionState
 import app.carbpeek.feature.product.ui.state.IngredientSheetState
+import app.carbpeek.feature.product.ui.state.IngredientTone
 import kotlinx.collections.immutable.PersistentList
 
 @Composable
@@ -148,10 +153,22 @@ private fun BackRow(state: IngredientBackState, onClick: () -> Unit) {
 }
 
 @Composable
-private fun Contents(chips: PersistentList<IngredientChipState>, onClick: (Int) -> Unit) {
+private fun Contents(rows: PersistentList<IngredientRowState>, onClick: (Int) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.xs)) {
         Heading(stringResource(R.string.product_ingredient_contains))
-        IngredientChips(chips = chips, onClick = onClick)
+        Column(modifier = Modifier.bleedHorizontally(AppTheme.spacing.xxl)) {
+            IngredientRows(rows = rows, onClick = onClick)
+            IngredientRowLine()
+        }
+    }
+}
+
+private fun Modifier.bleedHorizontally(bleed: Dp): Modifier = layout { measurable, constraints ->
+    val bleedPx = bleed.roundToPx()
+    val placeable = measurable.measure(constraints.offset(horizontal = bleedPx * 2))
+    val width = (placeable.width - bleedPx * 2).coerceIn(constraints.minWidth, constraints.maxWidth)
+    layout(width = width, height = placeable.height) {
+        placeable.place(x = -bleedPx, y = 0)
     }
 }
 
@@ -164,6 +181,18 @@ private fun Section(state: IngredientSectionState) {
             style = AppTheme.typography.bodyLarge,
             color = AppTheme.colors.text.default,
         )
+    }
+}
+
+@Composable
+private fun IngredientTone.colors(): AppColors.IngredientTone = with(AppTheme.colors.ingredient) {
+    when (this@colors) {
+        IngredientTone.ADDED_SUGAR -> addedSugar
+        IngredientTone.SWEETENER -> sweetener
+        IngredientTone.STARCH -> starch
+        IngredientTone.MILK -> milk
+        IngredientTone.ADDITIVE -> additive
+        IngredientTone.PLAIN -> plain
     }
 }
 

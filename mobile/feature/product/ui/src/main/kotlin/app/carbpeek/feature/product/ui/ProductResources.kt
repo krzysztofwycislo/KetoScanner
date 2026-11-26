@@ -157,7 +157,7 @@ internal class ProductResources {
         }
     }
 
-    fun ingredientChipLabel(ingredient: AnalyzedIngredient): UiText {
+    fun ingredientRowLabel(ingredient: AnalyzedIngredient): UiText {
         val name = ingredientName(ingredient.name)
         val percent = ingredient.declaredPercent ?: return name
         return UiText.Res(
@@ -176,9 +176,9 @@ internal class ProductResources {
         }
     }
 
-    fun ingredientChipDescription(ingredient: AnalyzedIngredient): UiText =
+    fun ingredientRowDescription(ingredient: AnalyzedIngredient): UiText =
         listOfNotNull(ingredientTag(ingredient.kind), ingredientContentsCount(ingredient))
-            .fold(ingredientChipLabel(ingredient)) { description, detail ->
+            .fold(ingredientRowLabel(ingredient)) { description, detail ->
                 UiText.Res(
                     R.string.product_ingredient_description,
                     UiArg.Nested(description),

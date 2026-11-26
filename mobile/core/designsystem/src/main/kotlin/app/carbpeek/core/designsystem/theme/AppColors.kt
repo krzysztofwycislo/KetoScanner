@@ -64,6 +64,7 @@ data class AppColors(
     data class Border(
         val default: Color,
         val strong: Color,
+        val subtle: Color,
     )
 
     @Immutable
@@ -97,7 +98,6 @@ data class AppColors(
     data class IngredientTone(
         val container: Color,
         val content: Color,
-        val border: Color,
     )
 
     @Immutable
@@ -108,7 +108,6 @@ data class AppColors(
         val milk: IngredientTone,
         val additive: IngredientTone,
         val plain: IngredientTone,
-        val flat: Color,
     )
 }
 
@@ -152,6 +151,7 @@ val LightAppColors = AppColors(
     border = AppColors.Border(
         default = Color(0xFFE3E6E1),
         strong = Color(0xFFD5DAD3),
+        subtle = Color(0xFFEEF1EC),
     ),
     placeholder = Color(0xFFEEF1EC),
     camera = AppColors.Camera(
@@ -181,33 +181,26 @@ val LightAppColors = AppColors(
         addedSugar = AppColors.IngredientTone(
             container = Color(0xFFF1E9FA),
             content = Color(0xFF5B2F91),
-            border = Color(0xFFD6C2EC),
         ),
         sweetener = AppColors.IngredientTone(
             container = Color(0xFFE1F1F4),
             content = Color(0xFF0F5C6E),
-            border = Color(0xFFB3D8DF),
         ),
         starch = AppColors.IngredientTone(
             container = Color(0xFFE9EDF2),
             content = Color(0xFF3F4A5A),
-            border = Color(0xFFC6CFDA),
         ),
         milk = AppColors.IngredientTone(
             container = Color(0xFFEEF1EC),
             content = Color(0xFF3E4943),
-            border = Color(0xFFC9D0CA),
         ),
         additive = AppColors.IngredientTone(
             container = Color(0xFFE8ECFB),
             content = Color(0xFF2F3F9E),
-            border = Color(0xFFBCC5EE),
         ),
         plain = AppColors.IngredientTone(
             container = Color(0xFFFFFFFF),
             content = Color(0xFF15201B),
-            border = Color(0xFFD5DAD3),
         ),
-        flat = Color(0xFFF1F3EF),
     ),
 )

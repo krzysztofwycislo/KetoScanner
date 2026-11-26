@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import app.carbpeek.core.designsystem.icon.AppIcons
@@ -34,13 +35,14 @@ internal fun IngredientsCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .clip(AppTheme.shapes.large)
             .background(color = AppTheme.colors.background.surface, shape = AppTheme.shapes.large)
             .border(
                 width = AppTheme.borders.hairline,
                 color = AppTheme.colors.border.default,
                 shape = AppTheme.shapes.large,
             )
-            .padding(top = AppTheme.spacing.xxs, bottom = AppTheme.spacing.m),
+            .padding(top = AppTheme.spacing.xxs),
     ) {
         Row(
             modifier = Modifier.padding(
@@ -68,10 +70,9 @@ internal fun IngredientsCard(
                 )
             }
         }
-        IngredientChips(
-            chips = state.chips,
+        IngredientRows(
+            rows = state.rows,
             onClick = { index -> onAction(OnIngredientClicked(index)) },
-            modifier = Modifier.padding(horizontal = AppTheme.spacing.m),
         )
     }
 }

@@ -199,16 +199,15 @@ internal class ProductStateFactory(private val resources: ProductResources) {
     )
 
     private fun ingredientsCard(analysis: IngredientsAnalysis): IngredientsCardState = IngredientsCardState(
-        chips = ingredientChips(analysis.ingredients),
+        rows = ingredientRows(analysis.ingredients),
     )
 
-    private fun ingredientChips(ingredients: List<AnalyzedIngredient>): PersistentList<IngredientChipState> =
+    private fun ingredientRows(ingredients: List<AnalyzedIngredient>): PersistentList<IngredientRowState> =
         ingredients.map { ingredient ->
-            IngredientChipState(
-                label = resources.ingredientChipLabel(ingredient),
+            IngredientRowState(
+                label = resources.ingredientRowLabel(ingredient),
                 count = resources.ingredientContentsCount(ingredient),
-                description = resources.ingredientChipDescription(ingredient),
-                tone = ingredient.kind.toIngredientTone(),
+                description = resources.ingredientRowDescription(ingredient),
                 isOpenable = ingredient.isOpenable(),
             )
         }.toPersistentList()
@@ -238,7 +237,7 @@ internal class ProductStateFactory(private val resources: ProductResources) {
             tone = ingredient.kind.toIngredientTone(),
             title = resources.ingredientName(ingredient.name),
             labelName = resources.ingredientLabelName(ingredient.name),
-            contents = ingredientChips(ingredient.contains),
+            contents = ingredientRows(ingredient.contains),
             sections = ingredientSections(ingredient),
         )
 
@@ -247,18 +246,12 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         description = resources.ingredientBackDescription(compound.name),
     )
 
-    private fun Prototype.ingredientsInfoSheet(): IngredientsInfoSheetState? {
-        if (!isIngredientsInfoOpen) {
-            return null
+    private fun Prototype.ingredientsInfoSheet(): IngredientsInfoSheetState? =
+        if (isIngredientsInfoOpen) {
+            IngredientsInfoSheetState
+        } else {
+            null
         }
-        return IngredientsInfoSheetState(
-            legend = legendKinds.mapNotNull { kind ->
-                resources.ingredientTag(kind)?.let { label ->
-                    IngredientLegendState(tone = kind.toIngredientTone(), label = label)
-                }
-            }.toPersistentList(),
-        )
-    }
 
     private fun ingredientSections(ingredient: AnalyzedIngredient): PersistentList<IngredientSectionState> =
         listOfNotNull(
@@ -297,12 +290,5 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         const val EXPANDED_NAME_LINES = 10
         const val MAX_REASONS = 2
         const val BASIS_GRAMS = 100.0
-        val legendKinds = listOf(
-            IngredientKind.ADDED_SUGAR,
-            IngredientKind.SWEETENER,
-            IngredientKind.STARCH,
-            IngredientKind.MILK,
-            IngredientKind.ADDITIVE,
-        )
     }
 }

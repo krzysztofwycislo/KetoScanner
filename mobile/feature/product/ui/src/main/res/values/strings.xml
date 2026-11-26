@@ -60,10 +60,8 @@
     <string name="product_ingredients_title">Ingredients</string>
     <string name="product_ingredients_info">About the ingredient list</string>
     <string name="product_ingredients_intro">Shown in the order of the label, usually from the largest amount to the smallest, with percentages where the label gives them. An arrow means there is more to read. Tap the ingredient to open it.</string>
-    <string name="product_ingredients_symbols">Symbols show the type of ingredient, not whether it is good or bad.</string>
     <string name="product_ingredient_with_percent">%1$s %2$s</string>
     <string name="product_ingredient_description">%1$s, %2$s</string>
-    <string name="product_ingredient_mark_additive">E</string>
     <string name="product_ingredient_tag_added_sugar">Added sugar</string>
     <string name="product_ingredient_tag_sweetener">Sweetener</string>
     <string name="product_ingredient_tag_starch">Starch or flour</string>

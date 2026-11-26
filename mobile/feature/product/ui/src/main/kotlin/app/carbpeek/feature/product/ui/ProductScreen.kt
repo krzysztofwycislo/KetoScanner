@@ -173,7 +173,7 @@ private fun ProductContent(state: ShowProduct, onAction: (ProductAction) -> Unit
         IngredientSheet(it, onAction)
     }
     state.ingredientsInfoSheet?.let {
-        IngredientsInfoSheet(it, onAction)
+        IngredientsInfoSheet(onAction)
     }
 }
 
