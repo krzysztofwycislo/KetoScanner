@@ -1,9 +1,10 @@
 package app.carbpeek.feature.product.ui.component
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -31,7 +32,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
@@ -80,15 +80,9 @@ private fun IngredientSheetContent(
             targetState = IngredientPage(state = state, scrollState = scrollState),
             modifier = Modifier.weight(weight = 1f, fill = false),
             transitionSpec = {
-                val direction = if (targetState.isContent) {
-                    SlideDirection.Start
-                } else {
-                    SlideDirection.End
-                }
-                val spec = tween<IntOffset>(durationMillis = motion.durationMedium, easing = motion.easingStandard)
-                val slide = slideIntoContainer(towards = direction, animationSpec = spec) togetherWith
-                    slideOutOfContainer(towards = direction, animationSpec = spec)
-                slide using SizeTransform(
+                val spec = tween<Float>(durationMillis = motion.durationMedium, easing = motion.easingStandard)
+                val fade = fadeIn(animationSpec = spec) togetherWith fadeOut(animationSpec = spec)
+                fade using SizeTransform(
                     clip = true,
                     sizeAnimationSpec = { _, _ ->
                         tween(durationMillis = motion.durationMedium, easing = motion.easingStandard)
