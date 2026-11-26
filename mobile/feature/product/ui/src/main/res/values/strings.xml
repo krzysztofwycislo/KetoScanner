@@ -78,13 +78,6 @@
     <string name="product_ingredient_label_name">On the label: %1$s</string>
     <string name="product_ingredient_name_with_e_number">%1$s (%2$s)</string>
     <string name="product_ingredient_got_it">Got it</string>
-    <string name="product_ingredient_what_added_sugar">Sugar, or a sweet ingredient such as honey, syrup, molasses or malt extract.</string>
-    <string name="product_ingredient_what_polyol">A sweet-tasting sugar alcohol (polyol). EU labels count polyols as carbohydrate.</string>
-    <string name="product_ingredient_what_sweetener">A sweet-tasting ingredient that can be used in place of sugar.</string>
-    <string name="product_ingredient_what_starch">A flour, a starch, or a starchy food such as rice, oats or potato, or an ingredient made from one of them.</string>
-    <string name="product_ingredient_what_milk">Milk, or an ingredient made from milk.</string>
-    <string name="product_ingredient_what_additive">A substance used as a food additive. Additives can, for example, preserve, colour or thicken food.</string>
-    <string name="product_ingredient_does_sweetener">Adds sweetness or brings out other flavours.</string>
     <string name="product_ingredient_e420">Sorbitol</string>
     <string name="product_ingredient_e421">Mannitol</string>
     <string name="product_ingredient_e950">Acesulfame K</string>

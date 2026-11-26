@@ -8,6 +8,7 @@ enum class IngredientKind {
     MILK,
     ADDITIVE,
     PLAIN,
+    COMPOUND,
 }
 
 enum class Vitamin {

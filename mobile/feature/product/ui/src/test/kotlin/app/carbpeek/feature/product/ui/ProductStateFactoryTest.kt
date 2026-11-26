@@ -783,9 +783,10 @@ class ProductStateFactoryTest {
             IngredientKind.MILK to IngredientTone.MILK,
             IngredientKind.ADDITIVE to IngredientTone.ADDITIVE,
             IngredientKind.PLAIN to IngredientTone.PLAIN,
+            IngredientKind.COMPOUND to IngredientTone.PLAIN,
         )
         val ingredients = tones.keys.map { kind ->
-            ingredient(name = kind.name.lowercase(), kind = kind, contains = listOf(ingredient(name = "water")))
+            ingredient(name = kind.name.lowercase(), id = "en:yeast", kind = kind)
         }
 
         val rows = cardRows(ingredients)
@@ -980,27 +981,6 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when a compound has no text of its own then its type text is shown`() {
-        val does = does(R.string.product_ingredient_does_sweetener)
-        val sections = mapOf(
-            IngredientKind.ADDED_SUGAR to listOf(what(R.string.product_ingredient_what_added_sugar)),
-            IngredientKind.POLYOL to listOf(what(R.string.product_ingredient_what_polyol), does),
-            IngredientKind.SWEETENER to listOf(what(R.string.product_ingredient_what_sweetener), does),
-            IngredientKind.STARCH to listOf(what(R.string.product_ingredient_what_starch)),
-            IngredientKind.MILK to listOf(what(R.string.product_ingredient_what_milk)),
-            IngredientKind.ADDITIVE to listOf(what(R.string.product_ingredient_what_additive)),
-            IngredientKind.PLAIN to emptyList(),
-        )
-
-        assertEquals(IngredientKind.entries.toSet(), sections.keys)
-        sections.forEach { (kind, expected) ->
-            val compound = ingredient(name = "name", kind = kind, contains = twoContents)
-
-            assertEquals(expected, sheet(compound).sections.toList(), "$kind")
-        }
-    }
-
-    @Test
     fun `polyols and sweeteners share one tag and regular ingredients have none`() {
         val sweetener = UiText.Res(R.string.product_ingredient_tag_sweetener)
 
@@ -1053,14 +1033,14 @@ class ProductStateFactoryTest {
     }
 
     @Test
-    fun `when an ingredient has contents then its row shows and speaks the count after the type`() {
+    fun `when an ingredient has contents then its row shows and speaks the count without a type`() {
         val contents = listOf(ingredient(name = "wheat flour"), ingredient(name = "salt"))
 
-        val (typed, untyped, single) = cardRows(
+        val (sourdoughRow, coatingRow, single) = cardRows(
             listOf(
                 ingredient(
                     name = "sourdough",
-                    kind = IngredientKind.STARCH,
+                    kind = IngredientKind.COMPOUND,
                     declaredPercent = 20.0,
                     contains = contents,
                 ),
@@ -1074,46 +1054,50 @@ class ProductStateFactoryTest {
             UiArg.Nested(UiText.Raw("Sourdough")),
             UiArg.Numeric.LabelPercent(0.2),
         )
-        assertEquals(sourdough, typed.label)
-        assertEquals(inside(2), typed.count)
-        assertEquals(
-            spoken(
-                text = spoken(text = sourdough, detail = UiText.Res(R.string.product_ingredient_tag_starch)),
-                detail = inside(2),
-            ),
-            typed.description,
-        )
-        assertEquals(inside(3), untyped.count)
-        assertEquals(spoken(text = UiText.Raw("Coating"), detail = inside(3)), untyped.description)
+        assertEquals(sourdough, sourdoughRow.label)
+        assertEquals(inside(2), sourdoughRow.count)
+        assertEquals(spoken(text = sourdough, detail = inside(2)), sourdoughRow.description)
+        assertEquals(inside(3), coatingRow.count)
+        assertEquals(spoken(text = UiText.Raw("Coating"), detail = inside(3)), coatingRow.description)
         assertNull(single.count)
         assertEquals(UiText.Raw("Pepper"), single.description)
     }
 
     @Test
-    fun `when a compound holds added sugar then its sheet keeps its own type`() {
+    fun `when a compound is open then its sheet has no type tag and the plain tone`() {
         val sugar = ingredient(name = "sugar", kind = IngredientKind.ADDED_SUGAR)
-        val mustard = ingredient(name = "mustard", contains = listOf(ingredient(name = "water"), sugar))
+        val mustard = ingredient(
+            name = "mustard",
+            kind = IngredientKind.COMPOUND,
+            contains = listOf(ingredient(name = "water"), sugar),
+        )
         val breadcrumbs = ingredient(
             name = "breadcrumbs",
-            kind = IngredientKind.STARCH,
-            contains = listOf(ingredient(name = "salt"), sugar),
+            kind = IngredientKind.COMPOUND,
+            contains = listOf(ingredient(name = "oil"), ingredient(name = "salt"), ingredient(name = "water")),
         )
 
-        assertEquals(IngredientTone.PLAIN, sheet(mustard).tone)
-        assertNull(sheet(mustard).tag)
-        assertEquals(IngredientTone.STARCH, sheet(breadcrumbs).tone)
-        assertEquals(UiText.Res(R.string.product_ingredient_tag_starch), sheet(breadcrumbs).tag)
+        listOf(mustard, breadcrumbs).forEach { compound ->
+            assertNull(sheet(compound).tag, compound.name.name)
+            assertEquals(IngredientTone.PLAIN, sheet(compound).tone, compound.name.name)
+        }
     }
 
     @Test
-    fun `when a typed compound is open then its contents and its type text are shown`() {
-        val contents = listOf(ingredient(name = "flour"), ingredient(name = "salt"))
-        val flour = ingredient(name = "wheat flour", kind = IngredientKind.STARCH, contains = contents)
+    fun `when a typed content of a compound is open then it keeps its own type tag`() {
+        val breadcrumbs = ingredient(
+            name = "breadcrumbs",
+            kind = IngredientKind.COMPOUND,
+            contains = listOf(
+                ingredient(name = "salt"),
+                ingredient(name = "sugar", id = "en:sugar", kind = IngredientKind.ADDED_SUGAR),
+            ),
+        )
 
-        val sheet = sheet(flour)
+        val sheet = sheet(ingredient = breadcrumbs, contentIndex = 1)
 
-        assertEquals(cardRows(contents), sheet.contents.toList())
-        assertEquals(listOf(what(R.string.product_ingredient_what_starch)), sheet.sections.toList())
+        assertEquals(UiText.Res(R.string.product_ingredient_tag_added_sugar), sheet.tag)
+        assertEquals(IngredientTone.ADDED_SUGAR, sheet.tone)
     }
 
     @Test
@@ -1131,7 +1115,7 @@ class ProductStateFactoryTest {
 
     @Test
     fun `when a compound has a text of its own then its contents and its text are shown`() {
-        val cocoa = ingredient(name = "cocoa", id = "en:cocoa", kind = IngredientKind.STARCH, contains = twoContents)
+        val cocoa = ingredient(name = "cocoa", id = "en:cocoa", kind = IngredientKind.COMPOUND, contains = twoContents)
 
         val sheet = sheet(cocoa)
 

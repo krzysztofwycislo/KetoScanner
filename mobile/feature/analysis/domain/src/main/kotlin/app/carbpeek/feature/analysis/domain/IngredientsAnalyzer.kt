@@ -39,7 +39,11 @@ internal object IngredientsAnalyzer {
         id = ingredient.id.lowercase(),
         name = ingredient.toName(),
         declaredPercent = ingredient.declaredPercent,
-        kind = ingredientKindOf(ingredient),
+        kind = if (contains.isEmpty()) {
+            ingredientKindOf(ingredient)
+        } else {
+            IngredientKind.COMPOUND
+        },
         contains = contains,
     )
 

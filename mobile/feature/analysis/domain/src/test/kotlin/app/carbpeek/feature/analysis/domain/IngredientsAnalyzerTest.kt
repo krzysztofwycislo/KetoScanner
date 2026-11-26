@@ -48,7 +48,7 @@ class IngredientsAnalyzerTest {
     }
 
     @Test
-    fun `when a compound ingredient contains sugar then it keeps its own kind and lists its contents`() {
+    fun `when a compound ingredient contains sugar then it is a compound and lists its contents`() {
         val mustard = ingredient(
             id = "en:mustard",
             sub = listOf(
@@ -61,7 +61,7 @@ class IngredientsAnalyzerTest {
 
         val analyzed = analyze(mustard).ingredients.single()
 
-        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(IngredientKind.COMPOUND, analyzed.kind)
         assertEquals(listOf("water", "mustard", "vinegar", "sugar"), analyzed.contains.map { it.name.name })
     }
 
@@ -81,7 +81,7 @@ class IngredientsAnalyzerTest {
 
         val analyzed = analyze(coating).ingredients.single()
 
-        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(IngredientKind.COMPOUND, analyzed.kind)
         assertEquals(34.0, analyzed.declaredPercent)
         assertEquals(
             listOf("salt", "sugar", "wheat-flour", "e500", "e101"),
@@ -113,7 +113,38 @@ class IngredientsAnalyzerTest {
 
         assertEquals(listOf("mustard", "salt"), contents.map { it.name.name })
         assertEquals(listOf(emptyList(), emptyList()), contents.map { it.contains })
+        assertEquals(listOf(IngredientKind.PLAIN, IngredientKind.PLAIN), contents.map { it.kind })
         assertEquals(2, analyze(mustard).ingredients.single().contains.size)
+    }
+
+    @Test
+    fun `when a typed ingredient has contents then it is a compound and its contents keep their own kinds`() {
+        val flour = ingredient(
+            id = "en:wheat-flour",
+            sub = listOf(ingredient("en:salt"), ingredient("en:sugar"), ingredient("en:e965")),
+        )
+
+        val analyzed = analyze(flour).ingredients.single()
+
+        assertEquals(IngredientKind.COMPOUND, analyzed.kind)
+        assertEquals(
+            listOf(IngredientKind.PLAIN, IngredientKind.ADDED_SUGAR, IngredientKind.POLYOL),
+            analyzed.contains.map { it.kind },
+        )
+    }
+
+    @Test
+    fun `when a typed ingredient has nested ingredients but no contents then it keeps its own kind`() {
+        val analysis = analyze(
+            ingredient(id = "en:sugar", sub = listOf(ingredient("en:e150a"))),
+            ingredient(id = "en:wheat-flour", sub = listOf(ingredient("en:corn"), ingredient("en:wheat"))),
+        )
+
+        assertEquals(
+            listOf(IngredientKind.ADDED_SUGAR, IngredientKind.STARCH),
+            analysis.ingredients.map { it.kind },
+        )
+        assertEquals(listOf(emptyList(), emptyList()), analysis.ingredients.map { it.contains })
     }
 
     @Test
@@ -125,7 +156,7 @@ class IngredientsAnalyzerTest {
 
         val analyzed = analyze(coating).ingredients.single()
 
-        assertEquals(IngredientKind.PLAIN, analyzed.kind)
+        assertEquals(IngredientKind.COMPOUND, analyzed.kind)
         assertEquals(listOf("E965", null), analyzed.contains.map { it.name.eNumber })
     }
 
@@ -232,7 +263,7 @@ class IngredientsAnalyzerTest {
 
             val analyzed = analyze(vitamins).ingredients.single()
 
-            assertEquals(IngredientKind.PLAIN, analyzed.kind)
+            assertEquals(IngredientKind.COMPOUND, analyzed.kind)
             assertEquals(listOf(null, vitamin), analyzed.contains.map { it.name.vitamin })
             assertEquals(listOf(null, null), analyzed.contains.map { it.name.eNumber })
         }

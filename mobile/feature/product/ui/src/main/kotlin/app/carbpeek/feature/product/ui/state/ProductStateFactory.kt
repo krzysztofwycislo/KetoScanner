@@ -271,7 +271,9 @@ internal class ProductStateFactory(private val resources: ProductResources) {
         IngredientKind.STARCH -> IngredientTone.STARCH
         IngredientKind.MILK -> IngredientTone.MILK
         IngredientKind.ADDITIVE -> IngredientTone.ADDITIVE
-        IngredientKind.PLAIN -> IngredientTone.PLAIN
+        IngredientKind.PLAIN,
+        IngredientKind.COMPOUND,
+        -> IngredientTone.PLAIN
     }
 
     private fun DietRate.toRating(): Rating = when (this) {

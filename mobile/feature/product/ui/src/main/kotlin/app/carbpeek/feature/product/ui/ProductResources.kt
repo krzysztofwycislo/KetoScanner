@@ -194,7 +194,9 @@ internal class ProductResources {
         IngredientKind.STARCH -> UiText.Res(R.string.product_ingredient_tag_starch)
         IngredientKind.MILK -> UiText.Res(R.string.product_ingredient_tag_milk)
         IngredientKind.ADDITIVE -> UiText.Res(R.string.product_ingredient_tag_additive)
-        IngredientKind.PLAIN -> null
+        IngredientKind.PLAIN,
+        IngredientKind.COMPOUND,
+        -> null
     }
 
     fun ingredientDescription(ingredient: AnalyzedIngredient): IngredientDescription? =
@@ -206,17 +208,13 @@ internal class ProductResources {
 
     fun ingredientWhatHeading(): UiText = UiText.Res(R.string.product_ingredient_what)
 
-    fun ingredientWhat(ingredient: AnalyzedIngredient): UiText? {
-        val description = ingredientDescription(ingredient) ?: return kindWhat(ingredient.kind)
-        return description.what?.let { UiText.Res(it) }
-    }
+    fun ingredientWhat(ingredient: AnalyzedIngredient): UiText? =
+        ingredientDescription(ingredient)?.what?.let { UiText.Res(it) }
 
     fun ingredientDoesHeading(): UiText = UiText.Res(R.string.product_ingredient_does)
 
-    fun ingredientDoes(ingredient: AnalyzedIngredient): UiText? {
-        val description = ingredientDescription(ingredient) ?: return kindDoes(ingredient.kind)
-        return description.does?.let { UiText.Res(it) }
-    }
+    fun ingredientDoes(ingredient: AnalyzedIngredient): UiText? =
+        ingredientDescription(ingredient)?.does?.let { UiText.Res(it) }
 
     fun ingredientBackDescription(name: IngredientName): UiText =
         UiText.Res(R.string.product_ingredient_back, UiArg.Nested(ingredientName(name)))
@@ -243,28 +241,6 @@ internal class ProductResources {
     fun error(error: AppError): UiText = error.toUiText()
 
     private fun missingValue(): UiText = UiText.Res(R.string.product_value_missing)
-
-    private fun kindWhat(kind: IngredientKind): UiText? = when (kind) {
-        IngredientKind.ADDED_SUGAR -> UiText.Res(R.string.product_ingredient_what_added_sugar)
-        IngredientKind.POLYOL -> UiText.Res(R.string.product_ingredient_what_polyol)
-        IngredientKind.SWEETENER -> UiText.Res(R.string.product_ingredient_what_sweetener)
-        IngredientKind.STARCH -> UiText.Res(R.string.product_ingredient_what_starch)
-        IngredientKind.MILK -> UiText.Res(R.string.product_ingredient_what_milk)
-        IngredientKind.ADDITIVE -> UiText.Res(R.string.product_ingredient_what_additive)
-        IngredientKind.PLAIN -> null
-    }
-
-    private fun kindDoes(kind: IngredientKind): UiText? = when (kind) {
-        IngredientKind.POLYOL,
-        IngredientKind.SWEETENER,
-        -> UiText.Res(R.string.product_ingredient_does_sweetener)
-        IngredientKind.ADDED_SUGAR,
-        IngredientKind.STARCH,
-        IngredientKind.MILK,
-        IngredientKind.ADDITIVE,
-        IngredientKind.PLAIN,
-        -> null
-    }
 
     private fun vitaminName(vitamin: Vitamin): UiText = when (vitamin) {
         Vitamin.RIBOFLAVIN -> UiText.Res(R.string.product_ingredient_vitamin_b2)
