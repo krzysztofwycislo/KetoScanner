@@ -31,30 +31,54 @@ internal fun ProductSheetFrame(
     header: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    ProductSheetScaffold(onDismiss = onDismiss, scrollState = scrollState) {
+        ProductSheetBody(
+            scrollState = scrollState,
+            header = header,
+            content = content,
+        )
+    }
+}
+
+@Composable
+internal fun ProductSheetScaffold(
+    onDismiss: () -> Unit,
+    scrollState: ScrollState,
+    body: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column(modifier = Modifier.weight(weight = 1f, fill = false)) {
             Handle()
-            header?.invoke()
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f, fill = false)
-                    .verticalScroll(scrollState)
-                    .padding(
-                        start = AppTheme.spacing.xxl,
-                        top = if (header == null) AppTheme.spacing.xs else 0.dp,
-                        end = AppTheme.spacing.xxl,
-                        bottom = AppTheme.spacing.xxl,
-                    ),
-                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.l),
-                content = content,
-            )
+            body()
         }
         Footer(scrollState = scrollState, onDismiss = onDismiss)
     }
+}
+
+@Composable
+internal fun ColumnScope.ProductSheetBody(
+    scrollState: ScrollState,
+    header: (@Composable () -> Unit)?,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    header?.invoke()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .weight(weight = 1f, fill = false)
+            .verticalScroll(scrollState)
+            .padding(
+                start = AppTheme.spacing.xxl,
+                top = if (header == null) AppTheme.spacing.xs else 0.dp,
+                end = AppTheme.spacing.xxl,
+                bottom = AppTheme.spacing.xxl,
+            ),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.l),
+        content = content,
+    )
 }
 
 @Composable

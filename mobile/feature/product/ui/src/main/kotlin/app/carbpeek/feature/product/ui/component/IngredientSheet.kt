@@ -1,10 +1,17 @@
 package app.carbpeek.feature.product.ui.component
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -24,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import app.carbpeek.core.designsystem.icon.AppIcons
 import app.carbpeek.core.designsystem.icon.imageVector
@@ -60,16 +68,53 @@ private fun IngredientSheetContent(
     onAction: (ProductAction) -> Unit,
     onClose: () -> Unit,
 ) {
-    val colors = state.tone.colors()
     val compoundScrollState = rememberScrollState()
     val scrollState = if (state.back == null) {
         compoundScrollState
     } else {
         rememberScrollState()
     }
-    ProductSheetFrame(
-        onDismiss = onClose,
-        scrollState = scrollState,
+    val motion = AppTheme.motion
+    ProductSheetScaffold(onDismiss = onClose, scrollState = scrollState) {
+        AnimatedContent(
+            targetState = IngredientPage(state = state, scrollState = scrollState),
+            modifier = Modifier.weight(weight = 1f, fill = false),
+            transitionSpec = {
+                val direction = if (targetState.isContent) {
+                    SlideDirection.Start
+                } else {
+                    SlideDirection.End
+                }
+                val spec = tween<IntOffset>(durationMillis = motion.durationMedium, easing = motion.easingStandard)
+                val slide = slideIntoContainer(towards = direction, animationSpec = spec) togetherWith
+                    slideOutOfContainer(towards = direction, animationSpec = spec)
+                slide using SizeTransform(
+                    clip = true,
+                    sizeAnimationSpec = { _, _ ->
+                        tween(durationMillis = motion.durationMedium, easing = motion.easingStandard)
+                    },
+                )
+            },
+            contentKey = { it.isContent },
+            label = "IngredientSheetPage",
+        ) { page ->
+            Column {
+                IngredientPageBody(page = page, onAction = onAction)
+            }
+        }
+    }
+}
+
+private data class IngredientPage(val state: IngredientSheetState, val scrollState: ScrollState) {
+    val isContent: Boolean get() = state.back != null
+}
+
+@Composable
+private fun ColumnScope.IngredientPageBody(page: IngredientPage, onAction: (ProductAction) -> Unit) {
+    val state = page.state
+    val colors = state.tone.colors()
+    ProductSheetBody(
+        scrollState = page.scrollState,
         header = state.back?.let { back ->
             {
                 BackRow(back) { onAction(OnIngredientBackClicked) }
